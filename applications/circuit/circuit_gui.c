@@ -45,7 +45,9 @@ void gate_output(int *output, int gate)
 
 void gate_output_coordinates(const Gate *g, int *x, int *y)
 {
-  *x = g->x + g->w + ZMW_PARENT_SIZE.allocated.x + gate_width  ;
+  *x = g->x + g->w + ZMW_PARENT_SIZE.allocated.x ;
+  if ( number_of_inputs[g->type] )
+    *x += gate_width ;
   *y = g->y + g->h/2 + ZMW_PARENT_SIZE.allocated.y ;
 }
 
@@ -71,7 +73,10 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
 
   ZMW(zmw_box())
     {
-      zmw_x(gate_width/2 + ZMW_BORDER_WIDTH) ;
+      if ( number_of_inputs[c->gates[i].type] )
+	zmw_x(gate_width - ZMW_BORDER_WIDTH) ;
+      else
+	zmw_x(0) ;
       zmw_y(0) ;
       zmw_border_width(0) ;
       zmw_image_from_file_activable_with_pixbuf(icones[c->gates[i].type]
@@ -105,7 +110,10 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
 	  gate_input(input, 2*i) ;
 	  break ;
 	}
-      zmw_x(icone_w + 2*ZMW_BORDER_WIDTH) ;
+      if ( number_of_inputs[c->gates[i].type] )
+	zmw_x(icone_w + gate_width - 2*ZMW_BORDER_WIDTH) ;
+      else
+	zmw_x(icone_w - 2*ZMW_BORDER_WIDTH) ;
       zmw_y((icone_h - gate_height)/2) ;
       gate_output(output, i) ;
 

@@ -44,15 +44,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 66 10         # Title
-zmw_button_press
-zmw_move_cursor_to 300 300
-zmw_button_release
 
-# xwd -root | xv -display :0 -
-
-
-zmw_move_cursor_to 300 320         # On button 1
+zmw_move_cursor_to 83 39         # On button 1
 zmw_dump_screen 0
 
 zmw_button_press
@@ -60,6 +53,8 @@ zmw_dump_screen 1
 
 zmw_button_release
 zmw_dump_screen 2
+
+zmw_move_cursor_to 145 140         # Bottom right
 
 zmw_key_press $KEY_CONTROL
 zmw_key $KEY_A
@@ -71,7 +66,9 @@ zmw_key $KEY_B
 zmw_dump_screen 4
 zmw_key_release $KEY_CONTROL
 
+
 zmw_key_press $KEY_CONTROL
+zmw_sleep 1
 zmw_dump_screen 5
 
 zmw_key_release $KEY_CONTROL

@@ -50,7 +50,8 @@ static void zmw_compute_window_size()
   if ( nb != 1 )
     {
       fprintf(stderr, "Window have more than one child (%d)\n", nb) ;
-      ZMW_ABORT ;
+      ZMW_HERE ;
+      zmw_stack_print() ;
     }
 
   if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(*ZMW_WINDOW) )

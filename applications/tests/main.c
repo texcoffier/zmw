@@ -106,8 +106,8 @@ void page_test_windows(struct menu *tests, int auto_resize)
 	}
 }
 
-void page_option(void (**box)(), int *border_width, int *padding_width
-		 , char **font_name, int *auto_resize)
+void page_option(int *box, int *border_width, int *padding_width
+		 , char **font_name, int *auto_resize, int *size)
 {
   zmw_text("Option") ;
 
@@ -116,33 +116,69 @@ void page_option(void (**box)(), int *border_width, int *padding_width
       zmw_vertical_alignment(0) ;
 
       zmw_text("Draw box") ;
-      zmw_radio_with_label((int*)box,(int)NULL
+      zmw_radio_with_label((int*)box,0
 			   , "No box") ;
-      zmw_radio_with_label((int*)box,(int)zmw_border_solid_draw
+      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Solid
 			   , "Solid Box") ;
-      zmw_radio_with_label((int*)box,(int)zmw_border_relief_out_draw
+
+      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+			   | Zmw_Decorator_Border_Out
 			   , "Relief Out Box") ;
-      zmw_radio_with_label((int*)box,(int)zmw_border_relief_in_draw
+      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+			   | Zmw_Decorator_Border_In
 			   , "Relief In Box") ;
-      zmw_radio_with_label((int*)box,(int)zmw_border_embossed_in_draw
+      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+			   | Zmw_Decorator_Border_In
 			   ,"Embossed in Box") ;
-      zmw_radio_with_label((int*)box,(int)zmw_border_embossed_out_draw
+      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+			   | Zmw_Decorator_Border_Out
 			   , "Embossed out Box") ;
 
-      zmw_text("Border width") ;
-      zmw_radio_with_label(border_width, 1, "1 pixel") ;
-      zmw_radio_with_label(border_width, 2, "2 pixels") ;
-      zmw_radio_with_label(border_width, 4, "4 pixels") ;
+      zmw_text("Border width in pixel") ;
+      ZMW(zmw_box_horizontal())
+	{
+	  zmw_radio_with_label(border_width, 1, "1") ;
+	  zmw_radio_with_label(border_width, 2, "2") ;
+	  zmw_radio_with_label(border_width, 4, "4") ;
+	  zmw_radio_with_label(border_width, 6, "6") ;
+	  zmw_radio_with_label(border_width, 8, "8") ;
+	}
       
-      zmw_text("Padding width") ;
-      zmw_radio_with_label(padding_width, 0, "0 pixel") ;
-      zmw_radio_with_label(padding_width, 1, "1 pixel") ;
-      zmw_radio_with_label(padding_width, 2, "2 pixels") ;
-      zmw_radio_with_label(padding_width, 4, "4 pixels") ;
+      zmw_text("Padding width in pixel") ;
+      ZMW(zmw_box_horizontal())
+	{
+	  zmw_radio_with_label(padding_width, 0, "0") ;
+	  zmw_radio_with_label(padding_width, 1, "1") ;
+	  zmw_radio_with_label(padding_width, 2, "2") ;
+	  zmw_radio_with_label(padding_width, 4, "4") ;
+	}
       
-      zmw_text("Font") ;
-      zmw_radio_with_label((int*)font_name, (int)"6x13", "6x13") ;
-      zmw_radio_with_label((int*)font_name, (int)"7x14", "7x14") ;
+      zmw_text("Font family") ;
+      ZMW(zmw_box_horizontal())
+	{
+	  static char *fonts[] = { "times", "helvetica",
+				   "courier", "fixed", NULL } ;
+	  int i ;
+
+	  for(i=0; fonts[i]; i++)
+	    {
+	      zmw_font_family( fonts[i] ) ;
+	      zmw_radio_with_label((int*)font_name, (int)fonts[i], fonts[i]) ;
+	    }
+	}
+      zmw_text("Font size") ;
+      ZMW(zmw_box_horizontal())
+	{
+	  static char *sizes[] = { "8", "10", "12", "16", NULL } ;
+	  int i ;
+
+	  for(i=0; sizes[i]; i++)
+	    {
+	      zmw_font_size( atoi(sizes[i]) ) ;
+	      zmw_radio_with_label(size, atoi(sizes[i]), sizes[i]) ;
+	    }
+	}
+      
       
       zmw_text("Misc") ;
       zmw_toggle_int_with_label(auto_resize, "Window auto resize") ;
@@ -153,10 +189,10 @@ static char *test_name = NULL ;
 
 void main_menu()
 {
-  static void (*box)() = NULL ;
+  static int box = 0 ;
   static int border_width = 2 ;
   static int padding_width = 1 ;
-  static char *font_name = "6x13" ;
+  static char *font_family = "times" ;
   static int auto_resize = 0 ;
   static int page = 0 ;
   static struct menu output[] =
@@ -223,6 +259,7 @@ void main_menu()
        { NULL }
     } ;
   static struct menu *menus[] = { paper, output, input, debug, NULL } ;
+  static int font_size = 10 ;
 
   int i, j ;
 
@@ -230,12 +267,13 @@ void main_menu()
   zmw_name("Window") ;
   zmw_border_width(border_width) ;
   zmw_padding_width(padding_width) ;
-  zmw_font(font_name) ;
+  zmw_font_family(font_family) ;
+  zmw_font_size(font_size) ;
   zmw_auto_resize(auto_resize) ;
   zmw_vertical_alignment(-1) ;
   zmw_horizontal_alignment(-1) ;
-  zmw_horizontal_expand(0) ;
-  zmw_vertical_expand(0) ;
+  zmw_horizontal_expand(Zmw_False) ;
+  zmw_vertical_expand(Zmw_False) ;
 
   if ( test_name )
     {
@@ -253,7 +291,10 @@ void main_menu()
 
   ZMW(zmw_window("Test ZMW Testbed"))
     {  
-      zmw_padding_width(4) ;
+      ZMW(zmw_decorator(box))
+	{
+      zmw_horizontal_expand(Zmw_True) ;
+      zmw_vertical_expand(Zmw_True) ;
       ZMW(zmw_box_vertical())
 	{
 	  ZMW(zmw_box_vertical())
@@ -267,14 +308,19 @@ void main_menu()
 		  zmw_horizontal_alignment(-1) ;
 		  ZMW(zmw_notebook(&page))
 		    {
+		      zmw_horizontal_expand(Zmw_False) ;
+		      zmw_vertical_expand(Zmw_False) ;
 		      page_test("Paper examples", paper) ;
 		      page_test("Output", output) ;
 		      page_test("Input", input) ;
 		      page_test("Debug", debug) ;
 		      page_option(&box, &border_width, &padding_width
-				  , &font_name, &auto_resize) ;
+				  , &font_family, &auto_resize, &font_size
+				  ) ;
 		    }
 		  zmw_horizontal_alignment(0) ;
+		  zmw_horizontal_expand(Zmw_False) ;
+		  zmw_vertical_expand(Zmw_False) ;
 		  ZMW(zmw_box_horizontal())
 		    {
 		      zmw_button_with_hidden_accelerator("Quit", GDK_CONTROL_MASK, 'Q') ;
@@ -299,15 +345,14 @@ void main_menu()
 		    }
 		}
 	    }
-	  if ( box )
-	    (*box)() ;
+	}
 	}
     }
-		      page_test_windows(paper, auto_resize) ;
-		      page_test_windows(output, auto_resize) ;
-		      page_test_windows(input, auto_resize) ;
-		      page_test_windows(debug, auto_resize) ;
-    
+  page_test_windows(paper, auto_resize) ;
+  page_test_windows(output, auto_resize) ;
+  page_test_windows(input, auto_resize) ;
+  page_test_windows(debug, auto_resize) ;
+
 }
 
 

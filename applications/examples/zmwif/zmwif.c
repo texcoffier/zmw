@@ -54,7 +54,7 @@ zmw_move_cursor_to 83 41 # first toggle
 zmw_button_click
 zmw_dump_screen 3
 
-zmw_move_cursor_to 83 96 # third toggle
+zmw_move_cursor_to 83 111 # third toggle
 zmw_button_click
 zmw_dump_screen 4
 

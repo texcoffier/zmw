@@ -68,14 +68,14 @@ zmw_button_press
 zmw_dump_screen 3
 
 zmw_button_release
-zmw_move_cursor_to 17 159 # On "yes"
+zmw_move_cursor_to 19 192 # On "yes"
 zmw_button_click
-zmw_move_cursor_to 74 90 # On a bit
+zmw_move_cursor_to 73 103 # On a bit
 zmw_button_click
 zmw_dump_screen 4
 
 
-zmw_move_cursor_to 16 109 # Start of the integer
+zmw_move_cursor_to 27 119 # Start of the integer
 zmw_button_click
 zmw_key $KEY_A
 zmw_dump_screen 5

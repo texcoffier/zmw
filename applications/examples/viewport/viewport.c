@@ -54,7 +54,7 @@ zmw_move_cursor_to 38 121 # middle horizontal scrollbar
 zmw_button_click
 zmw_dump_screen 1
 
-zmw_move_cursor_to 15 76 # toggle 10
+zmw_move_cursor_to 17 69 # toggle 10
 zmw_button_click
 zmw_dump_screen 2
 

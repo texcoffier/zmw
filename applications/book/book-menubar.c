@@ -207,7 +207,7 @@ static void menu_bar_edit_language(Library_GUI *gui)
 {
   int i, lang ;
   static char *langs[] = { "C", "fr_FR@euro" } ;
-  static char *languages[] = { "English", "Français" } ;
+  static char *languages[] = { "English", "FranÃ§ais" } ;
 
   zmw_button(_("Language")) ;
   ZMW( zmw_popup() )
@@ -268,7 +268,7 @@ void semantic_len(Library_GUI *gui)
   extern void library_top_level(Library_GUI *gui) ;
   extern void set_language(char*) ;
 
-  zmw_button("SL") ;
+  zmw_button("ENGLISH Semantic Len") ;
   ZMW( zmw_if(stop == 0 && zmw_window_is_popped()) )
     {
       stop = 1 ;

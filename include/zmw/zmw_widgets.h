@@ -128,8 +128,8 @@ void zmw_compute_notebook_size(int allocated) ;
  */
 void zmw_box_horizontal(void) ;
 void zmw_box_vertical(void) ;
-void zmw_box_horizontal_required_size(void) ;
-void zmw_box_horizontal_children_allocated_size(void) ;
+void zmw_box_horizontal_required_size(int focusable) ;
+void zmw_box_horizontal_children_allocated_size(int focusable) ;
 void zmw_box(void) ;
 void zmw_box_horizontal_activable() ;
 void zmw_box_vertical_activable() ;

@@ -1,0 +1,138 @@
+/* DO NOT DISPLAY */
+#include "zmw/zmw.h"
+/* DO NOT DISPLAY */
+
+void rectangle(/* any parameter you may want */)
+{
+  switch( ZMW_SUBACTION )
+    {
+    case Zmw_Compute_Required_Size:
+      ZMW_SIZE_MIN.width = ZMW_SIZE_MIN.height = 1 ; break ;
+    case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
+      zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_True
+	 , ZMW_SIZE_ALLOCATED.x    , ZMW_SIZE_ALLOCATED.y
+	 , ZMW_SIZE_ALLOCATED.width, ZMW_SIZE_ALLOCATED.height
+	 ) ;
+      break ;
+    default:
+      break ;
+    }
+}
+
+void rect(int with_border)
+{
+  int b[] = { 0
+	      , Zmw_Decorator_Border_Relief
+	      , Zmw_Decorator_Focusable| Zmw_Decorator_Border_Focus
+	      , Zmw_Decorator_Border_Relief | Zmw_Decorator_Focusable | Zmw_Decorator_Border_Focus } ;
+  
+  if ( with_border )
+    {
+      
+      ZMW( zmw_decorator( b[with_border] ) )
+	{
+	  ZMW(rectangle())
+	    { /* no children */ }
+	}
+    }
+  else
+    ZMW(rectangle())
+      { /* no children */ }
+}
+
+void item(int with_border, int border, int padding, int focus)
+{
+  ZMW(zmw_decorator( Zmw_Decorator_Interior | Zmw_Decorator_Border_In
+		     | Zmw_Decorator_Border_Embossed) )
+    {
+      zmw_border_width(padding) ;
+      zmw_focus_width(focus) ;
+      zmw_padding_width(padding) ;
+      ZMW(zmw_box_vertical())
+	{
+	  ZMW(zmw_box_horizontal())
+	    {
+	      zmw_foreground(1,0,0) ;
+	      rect(with_border) ;
+	      zmw_foreground(1,0.3,0) ;
+	      rect(with_border) ;
+	      zmw_foreground(1,0.6,0) ;
+	      rect(with_border) ;
+	    }
+	  ZMW(zmw_box_horizontal())
+	    {
+	      zmw_foreground(1,0,1) ;
+	      rect(with_border) ;
+	      zmw_foreground(1,0.5,1) ;
+	      rect(with_border) ;
+	    }
+	  ZMW(zmw_box_horizontal())
+	    {
+	      ZMW(zmw_box_vertical())
+		{
+		  /*
+		  zmw_foreground(0,0,1) ;
+		  rect(with_border) ;
+		  zmw_foreground(0,0.3,1) ;
+		  rect(with_border) ;
+		  */
+		  zmw_foreground(0,0.6,1) ;
+		  rect(with_border) ;
+		}
+	      ZMW(zmw_box_vertical())
+		{
+		  zmw_foreground(0.4,0.4,0.4) ;
+		  rect(with_border) ;
+		  zmw_foreground(1,1,1) ;
+		  rect(with_border) ;
+		}
+	    }
+	}
+    }
+}
+
+void test(void)
+{
+  int p, b, with_border ;
+
+  ZMW(zmw_window("Pixel"))
+    {
+      zmw_horizontal_expand(Zmw_False) ;
+      zmw_vertical_expand(Zmw_False) ;
+      zmw_padding_width(0) ;
+      zmw_border_width(2) ;
+      ZMW(zmw_box_horizontal())
+	{
+	  for(with_border=0; with_border<4; with_border++)
+	    {
+	      ZMW(zmw_box_vertical())
+		for(b=0; b<4; b++)
+		  {
+		    ZMW(zmw_box_horizontal())
+		      {
+			for(p=0; p<3; p++)
+			  {
+			    item(with_border, b/2, p, b%2) ;
+			  }
+		      }
+		  }
+	    }
+	}
+    }
+}
+/* DO NOT DISPLAY */
+
+int main(int argc, char *argv[])
+{
+  zmw_init(&argc, &argv) ;
+  zmw_run(test) ;
+  return 0 ;
+}
+/* DO NOT DISPLAY */
+/* REGRESSION TEST
+
+zmw_move_cursor_to 23 76
+zmw_dump_screen 0
+
+
+REGRESSION TEST */

@@ -66,17 +66,17 @@ zmw_dump_screen 0
 zmw_button_press
 zmw_dump_screen 1
 
-zmw_move_cursor_to 61 79        # Submenu
+zmw_move_cursor_to 59 97        # Submenu
 zmw_dump_screen 2
 
 zmw_button_release
 zmw_dump_screen 3
 
-zmw_move_cursor_to 50 60        # Detach
+zmw_move_cursor_to 50 68        # Detach
 zmw_button_click
 zmw_dump_screen 4
 
-zmw_move_cursor_to 125 126 # Text
+zmw_move_cursor_to 142 141 # Text
 zmw_button_click
 zmw_key $KEY_A
 zmw_move_cursor_to 93 106 # Toggle
@@ -96,9 +96,9 @@ zmw_dump_screen 6
 zmw_move_cursor_to 29 35 # Menu
 zmw_button_click
 zmw_move_cursor_to 54 35 # DO NOT GO IN DIAGONAL !
-zmw_move_cursor_to 54 157 # Text
+zmw_move_cursor_to 54 171 # Text
 zmw_button_press
-zmw_move_cursor_to 80 157 # Text
+zmw_move_cursor_to 80 171 # Text
 zmw_dump_screen 7
 
 zmw_button_release

@@ -61,7 +61,7 @@ zmw_dump_screen 2
 zmw_button_release
 zmw_dump_screen 3
 
-zmw_move_cursor_to 53 119        # Text4
+zmw_move_cursor_to 53 126        # Text4
 zmw_button_press
 zmw_move_cursor_to 105 174       # Select some text, go down
 zmw_dump_screen 4

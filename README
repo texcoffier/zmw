@@ -9,7 +9,7 @@ Top level goals just for take a look :
 	- run_circuit   to compile and launch a small logic circuit editor.
 	- run_book      to compile and launch a library administrator (ALPHA).
 	- run_tests     to compile and launch the widget testing program.
-
+	- run_xml	to compile and launch an XML GUI not using memory!
 
 Makefile goals (at all levels) are :
 	- lib      The library

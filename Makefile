@@ -20,8 +20,10 @@ run_circuit:lib
 	cd applications/circuit ; $(MAKE)
 run_book:lib
 	cd applications/book ; $(MAKE)
+run_xml:lib
+	cd applications/xml ; $(MAKE)
 
-TAGS:kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed
+TAGS: # kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed
 	echo "Make TAGS"
 	etags */*.[ch]
 
@@ -175,12 +177,12 @@ diff:
 		--exclude="xxx*" \
 		--exclude="regteststatus" \
 		--exclude="#*" \
-		../zmw-0.0.8 .
+		../zmw-0.0.10 .
 ##############################################################################
 # Search unused functions
 ##############################################################################
 cflow:
-	cflow $(ZMW_INCLUDES) */*.c applications/*/*.c applications/examples/*/*.c | \
+	cflow $(ZMW_INCLUDES) $(ZMW_DEBUG) */*.c applications/*/*.c applications/examples/*/*.c | \
 	awk '/^[0-9]*\t[^\t]/ { H = /applications/ ; } H==0 { print $$0 ; }'
 
 # DO NOT DELETE

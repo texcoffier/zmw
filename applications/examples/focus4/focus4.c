@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
 zmw_move_cursor_to 22 38   # First text
 zmw_button_click           # focus on first text
-zmw_move_cursor_to 22 89   # Third text
+zmw_move_cursor_to 24 93   # Third text
 zmw_button_click           # focus on third text
 zmw_move_cursor_to 22 66   # Second text
 zmw_key $KEY_BACKSPACE     # THIRD TEXT = empty

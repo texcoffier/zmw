@@ -1,0 +1,22 @@
+ZMW_XML_INCLUDE=`pkg-config --cflags libxml`
+ZMW_XML_LIB=`pkg-config --libs libxml`
+
+
+run:xmlgui
+	xmlgui
+
+exe:: xmlgui
+
+xmlgui:xmlgui.o
+	$(ZMW_LINK) xmlgui.o $(ZMW_XML_LIB)
+
+xmlgui.o:xmlgui.c
+	echo "Compile book-preferences.c"
+	$(CC) -c $(CFLAGS) $(ZMW_XML_INCLUDE) $*.c -o $*.o
+
+include ../../Makefile.config
+
+clean::
+	rm -f xmlgui 2>/dev/null
+
+# DO NOT DELETE

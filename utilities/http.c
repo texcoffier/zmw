@@ -27,7 +27,7 @@
 #include "zmw/socket.h"
 
 static FILE *global_http ;
-static char *global_url[ZMW_MAX_DEPTH] ;
+static char *global_url[100] ;
 static char *global_name = NULL ;
 static int global_x, global_y, global_window, global_event ;
 static Zmw_Size global_size ;
@@ -348,38 +348,37 @@ static struct options global_options[] =
     { 0, "action", (char*(*)(int))zmw_action_name_fct, OFFSET(i.action)      },
     { 0, OPTION(u.nb_of_children                     , int                 ) },
     { 0, OPTION(u.nb_of_children_max                 , int                 ) },
-    { 0, OPTION(u.font_copy_on_write                 , boolean             ) },
     { 0, OPTION(u.name_separator                     , int                 ) },
     { 0, OPTION(u.menu_state                         , menu_state          ) },
     { 0, OPTION(u.children                           , children            ) },
-    { 0, OPTION(u.asked                         , rectangle           ) },
-    { 1, OPTION_SIZE(min                           , rectangle           ) },
-    { 0, OPTION_SIZE(required                      , rectangle           ) },
-    { 0, OPTION_SIZE(allocated                , rectangle           ) },
-    { 0, OPTION_SIZE(used_to_compute_parent_size   , boolean             ) },
-    { 0, OPTION_SIZE(hash                          , int                 ) },
-    { 0, OPTION_SIZE(current_state.horizontal_expand   , boolean            )},
-    { 0, OPTION_SIZE(current_state.vertical_expand     , boolean            )},
+    { 0, OPTION(u.asked                              , rectangle           ) },
+    { 1, OPTION_SIZE(min                             , rectangle           ) },
+    { 0, OPTION_SIZE(required                        , rectangle           ) },
+    { 0, OPTION_SIZE(allocated                       , rectangle           ) },
+    { 0, OPTION_SIZE(used_to_compute_parent_size     , boolean             ) },
+    { 0, OPTION_SIZE(hash                            , int                 ) },
+    { 0, OPTION_SIZE(current_state.horizontal_expand , boolean             ) },
+    { 0, OPTION_SIZE(current_state.vertical_expand   , boolean             ) },
     { 0, OPTION_SIZE(current_state.horizontal_alignment,horizontal_alignment)},
     { 0, OPTION_SIZE(current_state.vertical_alignment  , vertical_alignment )},
-    { 0, OPTION_SIZE(horizontal_expand             , boolean            )},
-    { 0, OPTION_SIZE(vertical_expand               , boolean            )},
-    { 0, OPTION_SIZE(event_in_rectangle            , boolean             ) },
-    { 0, OPTION_SIZE(event_in_children             , boolean             ) },
-    { 0, OPTION_SIZE(invisible                     , boolean             ) },
-    { 0, OPTION_SIZE(sensible                      , boolean             ) },
-    { 0, OPTION_SIZE(focused                       , boolean             ) },
-    { 0, OPTION_SIZE(activated                     , boolean             ) },
-    { 0, OPTION_SIZE(child_activated               , boolean             ) },
-    { 0, OPTION_SIZE(changed                       , boolean             ) },
-    { 0, OPTION_SIZE(tip_visible                   , boolean             ) },
-    { 0, OPTION_SIZE(do_not_map_window             , boolean             ) },
-    { 0, OPTION_SIZE(pass_through                  , boolean             ) },
-    { 0, OPTION_SIZE(current_state.padding_width   , int                 ) },
+    { 0, OPTION_SIZE(horizontal_expand               , boolean             ) },
+    { 0, OPTION_SIZE(vertical_expand                 , boolean             ) },
+    { 0, OPTION_SIZE(event_in_rectangle              , boolean             ) },
+    { 0, OPTION_SIZE(event_in_children               , boolean             ) },
+    { 0, OPTION_SIZE(invisible                       , boolean             ) },
+    { 0, OPTION_SIZE(sensible                        , boolean             ) },
+    { 0, OPTION_SIZE(focused                         , boolean             ) },
+    { 0, OPTION_SIZE(activated                       , boolean             ) },
+    { 0, OPTION_SIZE(child_activated                 , boolean             ) },
+    { 0, OPTION_SIZE(changed                         , boolean             ) },
+    { 0, OPTION_SIZE(tip_visible                     , boolean             ) },
+    { 0, OPTION_SIZE(do_not_map_window               , boolean             ) },
+    { 0, OPTION_SIZE(pass_through                    , boolean             ) },
+    { 0, OPTION_SIZE(current_state.padding_width     , int                 ) },
     { 1, OPTION(i.debug                              , int                 ) },
     { 0, OPTION(i.border_width                       , int                 ) },
     { 0, OPTION(i.focus_width                        , int                 ) },
-    { 0, OPTION(i.focus                              , focus             ) },
+    { 0, OPTION(i.focus                              , focus               ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Normal], color               ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Pushed], color               ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Poped] , color               ) },
@@ -388,7 +387,9 @@ static struct options global_options[] =
     { 0, OPTION(i.colors[Zmw_Color_Foreground]       , color               ) },
     { 0, OPTION(i.auto_resize                        , boolean             ) },
     { 0, OPTION(i.sensible                           , boolean             ) },
-    { 1, OPTION(i.font                               , pointer             ) },
+    { 1, OPTION(i.font.family                        , char                ) },
+    { 0, OPTION(i.font.size                          , int                 ) },
+    { 0, OPTION(i.font.style                         , int                 ) },
     { 0, OPTION(u.parent_to_child.window             , pointer_pointer     ) },
     { 0, OPTION(u.parent_to_child.gc                 , pointer             ) },
     { 0, OPTION(u.parent_to_child.clipping           , rectangle           ) },
@@ -581,9 +582,14 @@ int http_node()
 		      ? zmw_name_registered(ZMW_FOCUS) : "*focus=NULL" ) :
 		  "focus = NULL"
 		  ) ;
-	  http_printf("<TR><TH>Font</TH><TD>%p%s</TD></TR>\n"
-		  , ZMW_FONT
-		  , ZMW_FONT_COPY_ON_WRITE ? "" : "Modified") ;
+	  http_printf("<TR><TH>Font family</TH><TD>%s</TD></TR>\n"
+		      , ZMW_FONT_FAMILY) ;
+	  http_printf("<TR><TH>Font size</TH><TD>%d</TD></TR>\n"
+		      , ZMW_FONT_SIZE) ;
+	  http_printf("<TR><TH>Font weight</TH><TD>%d</TD></TR>\n"
+		      , ZMW_FONT_WEIGHT) ;
+	  http_printf("<TR><TH>Font style</TH><TD>%d</TD></TR>\n"
+		      , ZMW_FONT_STYLE) ;
 	  http_printf("<TR><TH>Window</TH><TD>%p</TD></TR>\n"
 		  , *ZMW_WINDOW) ;
 	  http_printf("<TR><TH>GC</TH><TD>") ;

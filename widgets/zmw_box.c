@@ -24,7 +24,7 @@
 /*
  *
  */
-void zmw_box_horizontal_required_size()
+void zmw_box_horizontal_required_size(int focusable)
 {
   int width, height, i ;
 
@@ -52,9 +52,14 @@ void zmw_box_horizontal_required_size()
     }
   ZMW_SIZE_MIN.width = width ;
   ZMW_SIZE_MIN.height = height ;
+  if ( focusable )
+    {
+      ZMW_SIZE_MIN.width += 2 * ZMW_FOCUS_WIDTH ;
+      ZMW_SIZE_MIN.height += 2 * ZMW_FOCUS_WIDTH ;
+    }
 }
 
-void zmw_box_horizontal_children_allocated_size()
+void zmw_box_horizontal_children_allocated_size(int focusable)
 {
   int i, last, first, nb_expandable ;
 
@@ -92,13 +97,16 @@ void zmw_box_horizontal_children_allocated_size()
 	{
 	  if ( first )
 	    {
-	      if ( nb_expandable != 0 )
-		ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
-	      else
+	      ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x
+		+ ZMW_CHILDREN[i].current_state.padding_width ;
+	      if ( focusable )
 		{
-		  if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT < 0 )
-		    ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
-		  else
+		  ZMW_CHILDREN[i].allocated.x += ZMW_FOCUS_WIDTH ;
+		  ZMW_CHILDREN[i].allocated.y += ZMW_FOCUS_WIDTH ;
+		}
+	      if ( nb_expandable == 0 )
+		{
+		  if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT >= 0 )
 		    {
 		      if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 )
 			ZMW_CHILDREN[i].allocated.x
@@ -177,7 +185,7 @@ void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
-      zmw_box_horizontal_required_size() ;
+      zmw_box_horizontal_required_size(activable) ;
       break ;
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
       if ( activable )
@@ -186,7 +194,7 @@ void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
 			 ) ;
 
     case Zmw_Compute_Children_Allocated_Size:
-      zmw_box_horizontal_children_allocated_size() ;
+      zmw_box_horizontal_children_allocated_size(activable) ;
       break ;
     case Zmw_Input_Event:
       if ( activable )

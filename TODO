@@ -1,8 +1,9 @@
 Many things are missing in the current library.
 The ones with a "*" are priorities.
 
-WHAT I AM GOING TO PROGRAM NOW:
-	* Remove the core-dump on exit
+WHAT I AM GOING TO DO NOW:
+	* UTF8 cursor vertical movement
+	* Text alignment
 	* Regression test on accelerator reception by multiple widgets
 	* Check why there is "zmw.debug" and "inherited.debug" ?
 	* Make the regression test in menu3.c (recursive menu)
@@ -11,15 +12,16 @@ WHAT I AM GOING TO PROGRAM NOW:
 	  So I will modify data structure to use a table.
 	  zMw->size[0].alignement zMw->size[0].required for X axis ...
 	  and [1] for Y axis (and [2] if we work in three D).
-
+	* Speak about XML GUI interface without memory in the documentation.
 
 WIDGETS:
+	* Input of composed characters in text entry
 	- Alignement left/right in an horizontal widget
-	- Text formatting
-	- Focus navigation with keyboard
+	* Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
 	- zmw_table : border are too small to be draggable
 	* zmw_window_drag(): Choose the window position relative to cursor
+	  with values in current state.
 	* Semantic Lens (move the code from book example to the library)
 
 
@@ -33,12 +35,13 @@ LIBRARY CORE:
 	- zmw_name must not be called with the same name for sibling.
 	* Cursor shape change when it enters in a widget
 	- animation: Specify the next frame time
-	- Create zmw_font_name zmw_font_size zmw_font_weight ...
 	* Remove "zmw_pass_through" function (should be used everywhere)
 	* event_in_(masked/focus) put in the correct place.
-	* Create an implicit top level widget containing all the other
-	  windows because if there is several top level widget
-	  then some algorithm fail (focus for example)
+	* Create an explicit (in zmw_run.c) top level widget containing
+	  all the other windows because it simplify algorithms :
+		- no more "zmw_event_button_release"
+		- function calls outside user top level widgets
+		  are no more a special case.
 	* Use bit record to store booleans in the structures,
 
 BUGS:
@@ -71,7 +74,8 @@ QUESTIONS:
 	  It will simplify the drag and drop operation,
 	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
 	- Create an zmw_action_assert to verify widget tree?
-
+	- some space is taken to draw the focus, it is not the case for GTK
+	  Which is the best way ?
 	  
 NOT TO DO THINGS :
 	- Test "nb_draw" instead of wait a small time in the tests.
@@ -109,6 +113,7 @@ NOT TO DO THINGS :
  * This allows to not push everything in the stack each time.
  * But is it necessary to speed up this push/pop ?
  * push: 13% cpu time, pop: 0.9% cpu time
+ * Using real booleans can speed up things
 *****************************************************************************
  */
 

@@ -31,7 +31,7 @@ void box(void)
 				|Zmw_Decorator_Border_In))
 		{
 		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_font("12x24") ;
+		  zmw_font_size(24) ;
 		  sprintf(tmp, "i = %d", i ) ;
 		  zmw_text(tmp) ;
 		}

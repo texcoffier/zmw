@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 23 76          # Begin of text1
+zmw_move_cursor_to 23 78          # Begin of text1
 zmw_button_press
 zmw_dump_screen 0
 
-zmw_move_cursor_to 40 76          # Select a zone
+zmw_move_cursor_to 40 78          # Select a zone
 zmw_button_release
 zmw_dump_screen 1
 

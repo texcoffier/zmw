@@ -25,7 +25,7 @@ data = []
 values = {}
 for bloc in file.split("\n\n"):
     d = {}
-    for line in bloc.split("\n"):
+    for line in bloc.split("\n"):        
         (name, value) = line.split("=")
         d[name] = value
         try:
@@ -66,7 +66,6 @@ def ploter(varx, vary, varz, x_ok = lambda x: 1, z_ok = lambda x: 1
            , logscale = "z", image_name = None, time = "zmw_action_draw.#time"
            , time_label = "CPU time"
            ):
-    
     n = 0
     c = ""
     zz = map(lambda xx: int(xx), values[varz].keys())
@@ -132,13 +131,51 @@ ploter("#leaf_widget", "cache size", "#children"
        , x_ok = lambda x: int(x) == 262144
        , logscale="x"
        , image_name = "cache_size.png"
+       , time_label = "CPU time to display"
        )
 
 ploter("cache size", "#leaf_widget", "#children"
        , x_ok = lambda x: int(x) == 0
        , logscale="xy"
        , image_name = "leave.png"
+       , time_label = "CPU time to display"
        )
+
+
+
+ploter("#leaf_widget", "cache size", "#children"
+       , x_ok = lambda x: int(x) == 262144
+       , logscale="x"
+       , image_name = "cache_size_event.png"
+       , time = "zmw_action_dispatch_event.#time"
+       , time_label = "CPU time to dispatch event"
+       )
+
+ploter("cache size", "#leaf_widget", "#children"
+       , x_ok = lambda x: int(x) == 0
+       , logscale="xy"
+       , image_name = "leave_event.png"
+       , time = "zmw_action_dispatch_event.#time"
+       , time_label = "CPU time to dispatch event"
+       )
+
+
+ploter("#leaf_widget", "cache size", "#children"
+       , x_ok = lambda x: int(x) == 262144
+       , logscale="x"
+       , image_name = "cache_size_accel.png"
+       , time = "zmw_action_dispatch_accelerator.#time"
+       , time_label = "CPU time to dispatch accelerator"
+       )
+
+ploter("cache size", "#leaf_widget", "#children"
+       , x_ok = lambda x: int(x) == 0
+       , logscale="xy"
+       , image_name = "leave_accel.png"
+       , time = "zmw_action_dispatch_accelerator.#time"
+       , time_label = "CPU time to dispatch accelerator"
+       )
+
 
 ploter("cache size", "#leaf_widget", "#children"
        , x_ok = lambda x: int(x) == 0

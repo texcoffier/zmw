@@ -287,12 +287,13 @@ void zmw_name_debug_window()
 
   ZMW( zmw_box_vertical() )
     {
-      zmw_font("5x8") ;
       zmw_toggle_int_with_label(&display_name_state, "Ressources and Registration") ;
       if ( display_name_state )
 	{
 	  ZMW( zmw_box_vertical() )
 	    {
+	      zmw_font_size(6) ;
+	      zmw_font_family("courier") ;
 	      for(i=0 ;i<global_nb_registered; i++)
 		{
 		  if ( global_registered[i] )

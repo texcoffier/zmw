@@ -72,9 +72,9 @@ zmw_button_press
 zmw_move_cursor_to 101 136
 zmw_button_release
 
-zmw_move_cursor_to 62 136 # Last-2 | of first table
+zmw_move_cursor_to 70 136 # Last-2 | of first table
 zmw_button_press
-zmw_move_cursor_to 74 136
+zmw_move_cursor_to 82 136
 zmw_button_release
 
 zmw_move_cursor_to 39 136 # first | of first table (undraggable)
@@ -82,13 +82,13 @@ zmw_button_press
 zmw_move_cursor_to 49 136
 zmw_button_release
 
-zmw_move_cursor_to 39 186 # header line of second table (unselectable)
+zmw_move_cursor_to 39 200 # header line of second table (unselectable)
 zmw_button_click
-zmw_move_cursor_to 39 197 # first line of second table
+zmw_move_cursor_to 39 214 # first line of second table
 zmw_button_click
-zmw_move_cursor_to 39 223 # third line of second table
+zmw_move_cursor_to 39 242 # third line of second table
 zmw_button_click
-zmw_move_cursor_to 39 250 # fifth line of second table
+zmw_move_cursor_to 39 267 # fifth line of second table
 zmw_button_click
 
 zmw_dump_screen 1

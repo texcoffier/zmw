@@ -35,7 +35,9 @@ void test_state(const char *title)
 	      zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
 	      zmw_text("Red") ;
 	      zmw_color(Zmw_Color_Foreground, 0x0000ff00) ;
-	      zmw_font("-*-utopia-bold-*-*-*-33-*-*-*-*-*-*-1") ;
+	      zmw_font_family("swiss") ;
+	      zmw_font_style(Zmw_Font_Style_Italic) ;
+	      zmw_font_size(32) ;
 	      zmw_text("Green") ;
 	    }
 	  zmw_horizontal_alignment(1) ;

@@ -21,6 +21,9 @@ ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; i
 start_xvfb:
 	. utilities ; start_xvfb
 
+start_xvfb_big:
+	. utilities ; start_xvfb 2048x2048
+
 stop_xvfb:
 	. utilities ; stop_xvfb
 

@@ -11,7 +11,7 @@ msgstr ""
 "Last-Translator: Thierry EXCOFFIER <exco@liris.univ-lyon1.fr>\n"
 "Language-Team: Thierry EXCOFFIER <exco@liris.univ-lyon1.fr>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: book-menubar.c:53 book-menubar.c:56
@@ -32,7 +32,7 @@ msgstr "Sauve sous"
 
 #: book-menubar.c:70
 msgid "Preference Save"
-msgstr "Sauvegarde des préférences"
+msgstr "Sauvegarde des prÃ©fÃ©rences"
 
 #: book-menubar.c:74
 msgid "Quit"
@@ -40,11 +40,11 @@ msgstr "Quitter"
 
 #: book-menubar.c:87
 msgid "Library Load"
-msgstr "Charger une bibliothèque"
+msgstr "Charger une bibliothÃ¨que"
 
 #: book-menubar.c:98
 msgid "Library Save As"
-msgstr "Sauver une bibliothèque sous"
+msgstr "Sauver une bibliothÃ¨que sous"
 
 #: book-menubar.c:108
 msgid "Quit confirmation"
@@ -68,7 +68,7 @@ msgstr "Voir"
 
 #: book-menubar.c:142 book.c:480
 msgid "Debug window"
-msgstr "Fenêtre de débuggage"
+msgstr "FenÃªtre de dÃ©buggage"
 
 #: book-menubar.c:165
 msgid "Interface colors"
@@ -88,11 +88,11 @@ msgstr "Bulles d'aide"
 
 #: book-menubar.c:174
 msgid "Header"
-msgstr "Entête"
+msgstr "EntÃªte"
 
 #: book-menubar.c:175
 msgid "Borrowed"
-msgstr "Emprunté"
+msgstr "EmpruntÃ©"
 
 #: book-menubar.c:176
 msgid "Menu"
@@ -100,7 +100,7 @@ msgstr "Menu"
 
 #: book-menubar.c:185 book-menubar.c:188
 msgid "New book defaults"
-msgstr "Valeurs par défaut pour la création"
+msgstr "Valeurs par dÃ©faut pour la crÃ©ation"
 
 #: book-menubar.c:210 book-menubar.c:213
 msgid "Language"
@@ -108,7 +108,7 @@ msgstr "Langue"
 
 #: book-menubar.c:227 book-menubar.c:230
 msgid "Edit"
-msgstr "Édite"
+msgstr "Ã‰dite"
 
 #: book-menubar.c:232
 msgid "Add a new book"
@@ -116,7 +116,7 @@ msgstr "Ajouter un nouveau livre"
 
 #: book-menubar.c:256
 msgid "THIS PROGRAM IS UNFINISHED: DO NOT USE ON YOUR LIBRARY"
-msgstr "CE PROGRAMME N'EST PAS TERMINÉ : IL NE FAUT PAS L'UTILISER"
+msgstr "CE PROGRAMME N'EST PAS TERMINÃ‰ : IL NE FAUT PAS L'UTILISER"
 
 #: book-menubar.c:283
 msgid "Set this as a new name"
@@ -129,15 +129,15 @@ msgstr "TAG XML INCONNU : %s\n"
 
 #: book.c:49
 msgid "Filter on all the columns :"
-msgstr "Filtre à appliquer sur toute les colonnes :"
+msgstr "Filtre Ã  appliquer sur toute les colonnes :"
 
 #: book.c:54
 msgid "Only books containing this filter are displayed"
-msgstr "Seul les livres vérifiant ce filtre sont affichés"
+msgstr "Seul les livres vÃ©rifiant ce filtre sont affichÃ©s"
 
 #: book.c:59
 msgid "Display only borrowed books"
-msgstr "Affiche seulement les livres prêtés"
+msgstr "Affiche seulement les livres prÃªtÃ©s"
 
 #: book.c:60
 msgid "Display book borrowed and not yet given back"
@@ -145,11 +145,11 @@ msgstr "Affiche seulement les livres non rendus"
 
 #: book.c:63
 msgid "Display only modified books"
-msgstr "Affiche les livres modifiés"
+msgstr "Affiche les livres modifiÃ©s"
 
 #: book.c:64
 msgid "If true only modified books are displayed, it disables other filters"
-msgstr "Si c'est vrai les livres modifiés sont affichés, cela annule les autres filtres"
+msgstr "Si c'est vrai les livres modifiÃ©s sont affichÃ©s, cela annule les autres filtres"
 
 #: book.c:93
 msgid "Book title"
@@ -165,11 +165,11 @@ msgstr "Auteur"
 
 #: book.c:101 book.c:113
 msgid "Firstname"
-msgstr "Prénom"
+msgstr "PrÃ©nom"
 
 #: book.c:102
 msgid "Sort by author firstname"
-msgstr "Tri par prénom"
+msgstr "Tri par prÃ©nom"
 
 #: book.c:105 book.c:117
 msgid "Surname"
@@ -185,7 +185,7 @@ msgstr "Emprunteur"
 
 #: book.c:114
 msgid "Sort by borrower firstname"
-msgstr "Tri par prénom d'emprunteur"
+msgstr "Tri par prÃ©nom d'emprunteur"
 
 #: book.c:118
 msgid "Sort by borrower surname"
@@ -201,19 +201,19 @@ msgstr "Tri par collection"
 
 #: book.c:131 book.c:547
 msgid "Number"
-msgstr "Numéro"
+msgstr "NumÃ©ro"
 
 #: book.c:134
 msgid "Sort by book number in collection"
-msgstr "Tri par numéro de collection"
+msgstr "Tri par numÃ©ro de collection"
 
 #: book.c:138 book.c:548
 msgid "Rate"
-msgstr "Qualité"
+msgstr "QualitÃ©"
 
 #: book.c:141
 msgid "Sort by book rate"
-msgstr "Tri par qualité"
+msgstr "Tri par qualitÃ©"
 
 #: book.c:174
 #, c-format
@@ -234,11 +234,11 @@ msgstr "Changer ce nom d'emprunteur pour tous les livres"
 
 #: book.c:258
 msgid "Last borrower give back the book"
-msgstr "Ce livre a été rendu"
+msgstr "Ce livre a Ã©tÃ© rendu"
 
 #: book.c:266
 msgid "This book is borrowed by..."
-msgstr "Ce livre est emprunté par..."
+msgstr "Ce livre est empruntÃ© par..."
 
 #: book.c:314
 msgid "Change collection name for all books"
@@ -266,7 +266,7 @@ msgstr "Ordre"
 
 #: book.c:500
 msgid "Start:"
-msgstr "Début :"
+msgstr "DÃ©but :"
 
 #: book.c:502
 msgid "#Row:"

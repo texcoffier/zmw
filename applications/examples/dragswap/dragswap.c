@@ -62,7 +62,7 @@ zmw_move_cursor_to 16 34 # 1
 zmw_dump_screen 0
 
 zmw_button_press
-zmw_move_cursor_to 16 54 # A
+zmw_move_cursor_to 16 52 # A
 zmw_dump_screen 1
 
 zmw_move_cursor_to 35 51 # C
@@ -73,12 +73,12 @@ zmw_move_cursor_to 27 35 # 2
 zmw_dump_screen 3
 
 zmw_button_release
-zmw_move_cursor_to 16 51 # A
+zmw_move_cursor_to 16 52 # A
 zmw_button_press
 zmw_dump_screen 4
 
-zmw_move_cursor_to 27 51 # B
-zmw_move_cursor_to 27 70 # F
+zmw_move_cursor_to 25 52 # B
+zmw_move_cursor_to 26 70 # F
 zmw_button_release
 zmw_dump_screen 5
 

@@ -27,6 +27,8 @@
  */
 #include "zmw/zmw.h"
 
+#define ZMW_NOTEBOOK_BORDER 1
+
 /*
  * For internal use, in all the functions, the children table
  * is sorted : all the label, all the pages.
@@ -44,7 +46,7 @@ static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Size *ws)
     ZMW_CHILDREN[i] = ws[i*2] ;
 
   save = ZMW_SIZE_MIN ;
-  zmw_box_horizontal_required_size() ; // Padding taken into account
+  zmw_box_horizontal_required_size(Zmw_False) ; // Padding taken into account
   res = ZMW_SIZE_MIN ;
   ZMW_SIZE_MIN = save ;
 
@@ -72,8 +74,8 @@ static void zmw_notebook_compute_required_size(Zmw_Size *ws)
   /*
    * compute total size
    */
-  ZMW_SIZE_MIN.width = ZMW_MAX(name.width, r.width) ;
-  ZMW_SIZE_MIN.height = name.height + r.height ;
+  ZMW_SIZE_MIN.width = ZMW_MAX(name.width, r.width) + 2*ZMW_NOTEBOOK_BORDER ;
+  ZMW_SIZE_MIN.height = name.height + r.height + 2*ZMW_NOTEBOOK_BORDER ;
 }
 
 static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
@@ -87,7 +89,7 @@ static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
   ZMW_SIZE_ALLOCATED.height = name.height ;
   if ( ZMW_SIZE_ALLOCATED.width > ZMW_SIZE_MIN.width )
     ZMW_SIZE_ALLOCATED.width = ZMW_SIZE_MIN.width ;
-  zmw_box_horizontal_children_allocated_size() ;
+  zmw_box_horizontal_children_allocated_size(Zmw_False) ;
   ZMW_SIZE_ALLOCATED = r ;
   for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
     ws[i*2] = ZMW_CHILDREN[i] ;
@@ -95,10 +97,10 @@ static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
 
   for(i=1;i<ZMW_NB_OF_CHILDREN*2; i += 2)
     {
-      ws[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ws[i].current_state.padding_width ;
-      ws[i].allocated.y = ZMW_SIZE_ALLOCATED.y + name.height + ws[i].current_state.padding_width ;
-      ws[i].allocated.width = ZMW_SIZE_ALLOCATED.width - 2*ws[i].current_state.padding_width ;
-      ws[i].allocated.height = ZMW_SIZE_ALLOCATED.height - name.height - 2*ws[i].current_state.padding_width ;
+      ws[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.y = ZMW_SIZE_ALLOCATED.y + name.height + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.width = ZMW_SIZE_ALLOCATED.width - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.height = ZMW_SIZE_ALLOCATED.height - name.height - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
       
     }
  
@@ -191,10 +193,10 @@ void zmw_notebook_draw(int *page)
   /* Right vertical line */
   zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		+ ZMW_SIZE_ALLOCATED.width
+		+ ZMW_SIZE_ALLOCATED.width - 1
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width - 1
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
 		) ;

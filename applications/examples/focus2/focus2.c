@@ -34,9 +34,9 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 17 38   # First text
+zmw_move_cursor_to 23 41   # First text
 zmw_button_click           # Focus on first text
-zmw_move_cursor_to 20 61   # Second text
+zmw_move_cursor_to 22 66   # Second text
 zmw_key $KEY_BACKSPACE     # Remove char from first text
 zmw_dump_screen 0
 

@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 57 183
-sleep 1
+zmw_move_cursor_to 56 194
+zmw_sleep 1
 zmw_dump_screen 0
 
 zmw_button_click

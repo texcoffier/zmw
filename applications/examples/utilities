@@ -38,10 +38,16 @@ export KEY_ESCAPE=49
 export KEY_TAB=50
 
 start_xvfb() {
+  if [ "" = "$1" ]
+  then
+    RESOLUTION=700x700
+  else
+    RESOLUTION=$1
+  fi
   if true
   then
     # depth 32 does NOT work, the "xwd" command does not work correctly
-    Xvfb :$ZMW_XVFBN -ac -screen 0 700x700x24 -noreset &
+    Xvfb :$ZMW_XVFBN -ac -screen 0 ${RESOLUTION}x24 -noreset &
   else
     Xnest :$ZMW_XVFBN -ac -noreset &
   fi

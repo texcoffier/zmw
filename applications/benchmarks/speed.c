@@ -1,6 +1,10 @@
 #include <sys/times.h>
 #include <unistd.h>
 #include <math.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #ifdef ZMW_DEBUG_NAME
 #include "zmw/zmw.h"
@@ -60,7 +64,7 @@ void vertical(int depth)
     ZMW(zmw_box_vertical())
     {
       for(i=0; i<global_children; i++)
-	vertical(depth-1) ;
+	horizontal(depth-1) ;
     }
 }
 
@@ -155,9 +159,14 @@ void many()
   actions[i].nb++ ;
 
 
+  if ( ZMW_ACTION == zmw_action_draw )
+    {
+      creat("xxx.drawdone", 0700) ;
+    }
+
 
   
-  if ( ZMW_ACTION == zmw_action_draw  || end_tms.tms_utime > 1 * clk ) // some seconds
+  if ( ZMW_ACTION == zmw_action_dispatch_event )
     {
       if ( exiting )
 	return ;
@@ -239,6 +248,7 @@ int main(int argc, char *argv[])
   if ( epsilon < -0.0001 || epsilon > 0.0001 )
     {
       fprintf(stderr, "Epsilon = %g\n", epsilon) ; 
+      creat("xxx.drawdone", 0700) ;
       return 0 ;
     }
 

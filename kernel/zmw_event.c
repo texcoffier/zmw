@@ -73,7 +73,6 @@ Zmw_Boolean zmw_event_to_process()
 	  && ZMW_CALL_NUMBER > 0
 	  && ZMW_SIZE_EVENT_IN_RECTANGLE
 	  && ZMW_SIZE_SENSIBLE
-	  && ZMW_SENSIBLE
 	  ) ;
 }
 
@@ -90,7 +89,7 @@ Zmw_Boolean zmw_state_change_allowed()
 Zmw_Boolean zmw_focus_in()
 {
   return(
-	 ZMW_SENSIBLE
+	 ZMW_SIZE_SENSIBLE
 	 && ZMW_FOCUS->value
 	 && zmw_name_is(ZMW_FOCUS)
 	 ) ;
@@ -101,7 +100,7 @@ Zmw_Boolean zmw_focus_in_by_its_parents()
 	 // && *ZMW_WINDOW == zmw.event->any.window // No cross-window focus
 	 ZMW_FOCUS->value
 	 && zmw_name_is_inside(ZMW_FOCUS)
-	 && ZMW_SENSIBLE
+	 && ZMW_SIZE_SENSIBLE
 	 ) ;
 }
 static int zmw_pass_through(int n)
@@ -127,7 +126,6 @@ static void zmw_widget_is_tested_(int n)
     {
       zMw[-1].u.children[i].sensible = Zmw_True ;
     }
-  //  ZMW_SIZE_SENSIBLE = Zmw_True ; // Added 30/4/2004 (menu3.c)
 }
 
 void zmw_widget_is_tested()
@@ -400,11 +398,11 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
   zmw_widget_previous_is_tested() ;
 
   /*
-   * In some case, the event never come here because
-   * the widget tree traversal stopped (button press elsewhere)
-   * So you must unpop window if necessary in the very first
-   * stage of event dispatching : when computing sizes.
+   * Widget to unpop are known after the event dispatching.
+   * So we unpop badly poped windows when computing required size,
+   * so it is done before the widget drawing or event dispatching.
    */
+
   if ( ZMW_ACTION == zmw_action_compute_required_size
        && ZMW_CALL_NUMBER == 1
        && !zmw_name_contains(&global_inner_visible_menu)
@@ -463,11 +461,6 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
 	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
 	  zmw_window_update_uppers(action) ;
 	}
-      else
-	if ( !zmw_name_contains(&global_inner_visible_menu))
-	  {
-	    *ZMW_MENU_STATE &= ~Zmw_Menu_Is_Poped ;
-	  }
     }
 
   if ( ZMW_ACTION == zmw_action_dispatch_event && ZMW_SUBACTION == Zmw_Init)
@@ -475,15 +468,6 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
       /*
        * It is here BEFORE the event dispatch on children
        */
-      /*
-       *
-       */
-      if ( *ZMW_MENU_STATE & Zmw_Menu_Is_Detached )
-	{
-	  ZMW_PRINTF("I am detached\n") ;
-	  action = Zmw_Menu_Contains_A_Detached ;
-	  zmw_window_update_uppers(action) ;
-	}
       /*
        * If the menu button was activated we do not
        * want the unpop.
@@ -567,7 +551,7 @@ Zmw_Boolean zmw_selected_by_its_parents()
 
 Zmw_Boolean zmw_focused_by_its_parents()
 {
-  return ( ZMW_FOCUS && zmw_name_is_inside(ZMW_FOCUS) ) ;
+  return ( zmw_name_is_inside(ZMW_FOCUS) ) ;
 }
 /*
  * Focus remove
@@ -587,7 +571,11 @@ void zmw_event_remove()
   zmw.event_removed = Zmw_True ;
 }
 /*
- * If your zmw can have the focus, call this function
+ * If your widget can have the focus, call this function
+ * at the beginning of the function defining the widget class
+ * because it is generally needed by Zmw_Draw and Zmw_Input subaction.
+ * It is even possible that a widget has a different size
+ * if it is focused.
  */
 void zmw_focusable()
 {
@@ -601,7 +589,7 @@ void zmw_focusable()
 	zmw_need_repaint() ;
       // zmw_event_remove() ; // Removed the 2004-1-4
      }
-  if ( ZMW_FOCUS && zmw_name_is(ZMW_FOCUS) )
+  if ( zmw_name_is(ZMW_FOCUS) )
     {
       ZMW_SIZE_FOCUSED = Zmw_True ;
     }
@@ -626,7 +614,7 @@ void zmw_selection_clear()
 
 
 /*
- * If your zmw is activable, call this function
+ * If your zmw is activable, call zmw_activable in the Zmw_Input subaction
  */
 
 void zmw_event_button_release()
@@ -636,49 +624,32 @@ void zmw_event_button_release()
 
 void zmw_activable()
 {
-  if ( 0 && zmw.event && zmw.event->type == GDK_BUTTON_PRESS )
-      zmw_event_dump() ;
-
   if (  zmw_event_to_process() && zmw.event->type == GDK_BUTTON_PRESS )
     {
-      if ( global_zmw_selected.name )
-	return ;
-      /*
       if ( zmw_name_registered(&global_zmw_selected) )
-	fprintf(stderr, "Button (%s) press 2 times without releasing\n"
-		, zmw_name_full) ;
-      */
+	{
+	  /* A children has been selected */
+	  return ;
+	}
       zmw_name_register(&global_zmw_selected) ;
     }
   else
-  {
-    
-    if( 0 && ZMW_SUBACTION == Zmw_Input_Event &&zmw.event->type == GDK_BUTTON_RELEASE )
-      zmw_printf("%s\n%s\n sp=%d s=%d event_in=%d name_is_inside (%d) %s\n"
-		 , zmw_name_full
-		 , global_zmw_selected.name?global_zmw_selected.name:"???"
-		 , zmw_selected_by_its_parents()
-		 , zmw_selected()
-		 , ZMW_SIZE_EVENT_IN_RECTANGLE
-		 , zmw_name_is_inside(&global_inner_visible_menu)
-		 , global_inner_visible_menu.name
-		 );
-    if ( 
-	 ZMW_SUBACTION == Zmw_Input_Event
-	 && !zmw.event_removed
-	 && zmw.event
-	 && zmw.event->type == GDK_BUTTON_RELEASE
-	 && ( zmw_name_is_inside(&global_inner_visible_menu)
-	      || zmw_selected() )
-	 )
-      {
-	if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
-	  {
-	    ZMW_SIZE_ACTIVATED = Zmw_True ;
-	    zmw_need_repaint() ;
-	  }
-      }
-  }
+    {
+      if ( 
+	  ZMW_SUBACTION == Zmw_Input_Event
+	  && !zmw.event_removed
+	  && zmw.event
+	  && zmw.event->type == GDK_BUTTON_RELEASE
+	  && (zmw_name_is_inside(&global_inner_visible_menu) || zmw_selected())
+	  )
+	{
+	  if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
+	    {
+	      ZMW_SIZE_ACTIVATED = Zmw_True ;
+	      zmw_need_repaint() ;
+	    }
+	}
+    }
 }
 /*
  *

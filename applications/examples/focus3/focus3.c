@@ -43,18 +43,18 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 21 40   # First text
+zmw_move_cursor_to 24 43   # First text
 zmw_button_click           # focus on first text
-zmw_move_cursor_to 21 63   # Second text
+zmw_move_cursor_to 21 71   # Second text
 zmw_key $KEY_BACKSPACE     # FIRST=empty
-zmw_move_cursor_to 21 118  # Fourth text
+zmw_move_cursor_to 23 126  # Fourth text
 zmw_key $KEY_A             # FIRST=a
 zmw_dump_screen 0
 
 zmw_button_click           # Focus on fourth text
-zmw_move_cursor_to 21 92   # Third text
+zmw_move_cursor_to 22 101  # Third text
 zmw_key $KEY_BACKSPACE     # FOURTH=empty
-zmw_move_cursor_to 21 63   # Second text
+zmw_move_cursor_to 25 69   # Second text
 zmw_key $KEY_BACKSPACE     # FIRST=empty
 zmw_dump_screen 1
 

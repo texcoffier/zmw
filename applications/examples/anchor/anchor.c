@@ -68,7 +68,7 @@ zmw_move_cursor_to 78 41
 zmw_button_release
 zmw_dump_screen 2
 
-zmw_move_cursor_to 115 161
+zmw_move_cursor_to 115 169 # On bottom scrollbar
 zmw_button_press
 zmw_move_cursor_to 20 40
 zmw_button_release

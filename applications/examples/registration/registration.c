@@ -79,11 +79,11 @@ zmw_dump_screen 0
 zmw_button_click
 zmw_dump_screen 1
 
-zmw_move_cursor_to 186 75 # button 2
+zmw_move_cursor_to 189 78 # button 2
 zmw_button_click
 zmw_dump_screen 2
 
-zmw_move_cursor_to 37 97 # button 3
+zmw_move_cursor_to 43 100 # button 3
 zmw_button_click
 zmw_dump_screen 3
 

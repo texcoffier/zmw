@@ -155,8 +155,13 @@ compare_two_images() {
 	  $DISPLAY_IMAGE $2 &
 	  PID2=$!
 	  pnmarith -subtract xxx.1.ppm xxx.2.ppm | pnmhisteq > xxx_dif.ppm
-	  $DISPLAY_IMAGE xxx_dif.ppm &
-	  PID3=$!
+	  if [ -s xxx_dif.ppm ]
+	  then
+	    $DISPLAY_IMAGE xxx_dif.ppm &
+	    PID3=$!	
+	  else
+	    PID3=$PID1
+	  fi
 	  read REPLACE
 	  kill $PID1 $PID2 $PID3
 	fi 2>/dev/null

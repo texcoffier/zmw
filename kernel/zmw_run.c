@@ -76,34 +76,38 @@ void zmw_debug_flags()
 {
   static int display_zmw = 0 ;
   
+  zmw_name("DebugFlags") ;
   ZMW(zmw_box_vertical())
     {
       zmw_toggle_int_with_label(&display_zmw, "Debug flags") ;
       ZMW( zmw_if(display_zmw) )
 	{
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Draw_Cross
-				     , "Draw a cross on widget with event") ;
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Trace
-				     , "Trace all calls") ;
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Event
-				     , "Trace events") ;
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Drag
-				     , "Trace drag and drop") ;
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Cache_Fast
-				     , "Fast checking on cache") ;
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Cache_Slow
-				     , "Slow checking on cache") ;
+	  ZMW(zmw_box_vertical())
+	    {
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Draw_Cross
+					     , "Draw a cross on widget with event") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Trace
+					     , "Trace all calls") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Event
+					     , "Trace events") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Drag
+					     , "Trace drag and drop") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Cache_Fast
+					     , "Fast checking on cache") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Cache_Slow
+					     , "Slow checking on cache") ;
 #if ZMW_DEBUG_NAME
-	  zmw_toggle_bits_int_with_label(&zmw.debug
-				     , Zmw_Debug_Name
-				     , "Some checking on name handling") ;
+	      zmw_toggle_bits_int_with_label(&zmw.debug
+					     , Zmw_Debug_Name
+					     , "Some checking on name handling") ;
 #endif
+	    }
 	}
       if ( zmw_name_registered(&zmw.widget_to_trace) )
 	{
@@ -140,14 +144,10 @@ static void debug_window()
 	  zmw_debug_flags() ;
 
 	  sprintf(tmp, "%f Real Frames per Second", zmw.run->frame_per_sec) ;
+	  zmw_name("FPS") ;
 	  zmw_text(tmp) ;
 	  sprintf(tmp, "%f CPU Frames per Second"
 		  , zmw.run->frame_per_sec_cpu) ;
-	  zmw_text(tmp) ;
-	  sprintf(tmp, "use_window_from_button_press=%d"
-		  , zmw.run->use_window_from_button_press) ;
-	  sprintf(tmp, "event->window=%p"
-		  , zmw.event ? zmw.event->any.window : NULL) ;
 	  zmw_text(tmp) ;
 	}
     }
@@ -647,6 +647,7 @@ void zmw_init(gint *argc, gchar ***argv)
 {
   gdk_init(argc, argv) ;
   gdk_rgb_init() ;
+  zmw_text_init() ; // Pango init
 
   ZMW_MALLOC(zmw.run, 1) ;
 
@@ -681,7 +682,11 @@ void zmw_run(void (*fct)())
   ZMW_SIZE_ALLOCATED.y = 0 ;
   */
 
-  zmw_font("6x13") ;
+  ZMW_FONT_FAMILY = strdup("") ;
+  zmw_font_family("fixed") ;
+  zmw_font_size(8) ;
+  zmw_font_weight(500) ;
+  zmw_font_style(Zmw_Font_Style_Normal) ;
   //zmw_x(ZMW_VALUE_UNDEFINED) ;
   //zmw_y(ZMW_VALUE_UNDEFINED) ;
   //zmw_width(ZMW_VALUE_UNDEFINED) ;
@@ -758,11 +763,10 @@ void zmw_exit(int r)
   ZMW_FREE(zmw.windows) ;
 
 
-  for(i=0; i<ZMW_MAX_DEPTH; i++)
+  for(i=0; i<zmw.zmw_table_depth; i++)
     if ( zmw.zmw_table[i].u.children )
       ZMW_FREE(zmw.zmw_table[i].u.children) ;
 
-  zmw_font_free() ;
   zmw_name_free() ;
   zmw_cache_free() ;
   gdk_exit(r) ;
@@ -790,8 +794,6 @@ void zmw_stack_dump()
       fprintf(stderr, ", External = %d", zmw.zmw_table[i].u.external_state) ;
       fprintf(stderr, "%s", zmw.zmw_table[i].u.do_not_execute_pop
 	      ? ", Do Not execute Pop" : "") ;
-      fprintf(stderr, "%s", zmw.zmw_table[i].u.font_copy_on_write
-	      ? ", Font copy" : "") ;
       fprintf(stderr, "\n") ;
       for(j=0; j<zmw.zmw_table[i].u.nb_of_children; j++)
 	fprintf(stderr, "\t%s\n"

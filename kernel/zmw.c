@@ -209,9 +209,8 @@ void zmw_state_push()
   if ( zMw != zmw.zmw_table ) // Only for the very first push (only one time)
     ZMW_CHILDREN[0].current_state = ZMW_SIZE.current_state ;
 
-
   zMw[1].i = zMw[0].i ;
-  
+    
   if ( ZMW_CALL_NUMBER <= 1 ) /* 4/6/2004 */
     ZMW_NB_OF_CHILDREN = 0 ;
 
@@ -256,47 +255,6 @@ void zmw_state_push()
  *
  */
 
-static char **global_fonts_name = NULL ;
-static GdkFont **global_fonts = NULL ;
-
-GdkFont *zmw_font_load(const char *name)
-{
-  int i ;
-
-  if ( global_fonts_name == NULL )
-    {
-      ZMW_REALLOC(global_fonts_name, 1) ;
-      global_fonts_name[0] = NULL ;
-    }
-  for(i=0; global_fonts_name[i]; i++)
-    if ( strcmp(global_fonts_name[i], name) == 0 )
-      {
-	return( global_fonts[i] ) ;
-      }
-
-  ZMW_REALLOC(global_fonts_name, i+2) ;
-  global_fonts_name[i] = strdup(name) ;
-  global_fonts_name[i+1] = NULL ;
-
-  ZMW_REALLOC(global_fonts, i+2) ;
-  global_fonts[i] = gdk_font_load(name) ;
-
-  return( global_fonts[i] ) ;
-}
-
-void zmw_font_free()
-{
-  int i ;
-
-  for(i=0; global_fonts_name[i]; i++)
-    {
-      gdk_font_unref(global_fonts[i]) ;
-      ZMW_FREE(global_fonts_name[i]) ;
-    }
-  ZMW_FREE(global_fonts) ;
-  ZMW_FREE(global_fonts_name) ;
-}
-
 	 
 /*
  *
@@ -310,6 +268,9 @@ void zmw_state_pop()
     {
       return ;
     }
+  
+  if ( zMw[-1].i.font.family != ZMW_FONT_FAMILY )
+    free(ZMW_FONT_FAMILY) ;
  
   ZMW_NAME[-1] = '\0' ; // Truncate last child name
   zMw-- ;
@@ -333,6 +294,18 @@ Zmw_Hash zmw_hash(Zmw_Hash start, const char *string)
     }
   return start ;
 }
+
+
+void zmw_font_family(const char *family)
+{
+  if ( strcmp(family, ZMW_FONT_FAMILY) )
+    {
+      if ( zMw[-1].i.font.family != ZMW_FONT_FAMILY )
+	free(ZMW_FONT_FAMILY) ;
+      ZMW_FONT_FAMILY = strdup(family) ;
+    }
+}
+
 
 void zmw_init_widget()
 {
@@ -568,9 +541,7 @@ int zmw_action_first_pass()
        *   if ( zmw_activated() ) ....
        */
       if ( !ZMW_SENSIBLE )
-	ZMW_SIZE_SENSIBLE = 0 ;
-
-      // zMw[-1].u.nb_of_children++ ;  4/6/2004
+	ZMW_SIZE_SENSIBLE = Zmw_False ;
 
       if ( ZMW_SIZE_INVISIBLE )
 	{

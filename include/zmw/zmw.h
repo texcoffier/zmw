@@ -64,9 +64,12 @@ typedef enum zmw_subaction
     Zmw_Debug_Message,          /* Display warnings and debugging messages */
   } Zmw_Subaction ;
 
+typedef enum {
+  Zmw_Font_Style_Normal,
+  Zmw_Font_Style_Italic,
+} Zmw_Font_Style ;
 
 #define ZMW_VALUE_UNDEFINED (-32767)
-#define ZMW_MAX_DEPTH 100
 #define ZMW_MAX_NAME_LENGTH 1000
 
 #define Zmw_Debug_Window              1
@@ -151,6 +154,14 @@ typedef struct zmw_size
   } current_state ;
 } Zmw_Size ;
 
+typedef struct zmw_font_description
+{
+  char *family ;
+  int weight ; // 0 .. 1000
+  int size ; // in point
+  Zmw_Font_Style style ;
+} Zmw_Font_Description ;
+
 typedef struct zmw_stackable_inheritable
 {
   int (*action)(void) ;
@@ -159,7 +170,7 @@ typedef struct zmw_stackable_inheritable
   int focus_width ;
   Zmw_Name *focus ;
   int colors[Zmw_Color_Last] ;
-  GdkFont *font ;
+  Zmw_Font_Description font ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
 } Zmw_Stackable_Inheritable ;
@@ -169,7 +180,6 @@ typedef struct zmw_stackable_uninheritable
   int call_number ;		/* Number of call to zmw_begin */
   int nb_of_children, nb_of_children_max ;
   Zmw_Size *children ;
-  Zmw_Boolean font_copy_on_write ;
   Zmw_Boolean do_not_execute_pop ;
   Zmw_Rectangle asked ;		// Size asked by the user
   char *name ;			/* Pointer on the last part of full_name */
@@ -281,17 +291,19 @@ extern Zmw zmw ;
 #define ZMW_SENSIBLE                  	(zMw->i.sensible                     )
 #define ZMW_FOCUS                     	(zMw->i.focus                        )
 #define ZMW_EVENT                     	(zMw->i.event                        )
-#define ZMW_FONT                      	(zMw->i.font                         )
 #define ZMW_COLORS                    	(zMw->i.colors                       )
+#define ZMW_FONT               	        (zMw->i.font                         )
+#define ZMW_FONT_FAMILY               	(zMw->i.font.family                  )
+#define ZMW_FONT_SIZE               	(zMw->i.font.size                    )
+#define ZMW_FONT_WEIGHT               	(zMw->i.font.weight                  )
+#define ZMW_FONT_STYLE               	(zMw->i.font.style                   )
 
-									     
 #define ZMW_CALL_NUMBER               	(zMw->u.call_number                  )
 #define ZMW_NAME                      	(zMw->u.name                         )
 #define ZMW_NAME_INDEX                	(zMw->u.name_index                   )
 #define ZMW_NAME_SEPARATOR            	(zMw->u.name_separator               )
 #define ZMW_NB_OF_CHILDREN            	(zMw->u.nb_of_children               )
 #define ZMW_CHILDREN                  	(zMw->u.children                     )
-#define ZMW_FONT_COPY_ON_WRITE        	(zMw->u.font_copy_on_write           )
 #define ZMW_DO_NOT_EXECUTE_POP        	(zMw->u.do_not_execute_pop           )
 #define ZMW_EXTERNAL_STATE            	(zMw->u.external_state               )
 #define ZMW_ASKED                     	(zMw->u.asked                        )
@@ -345,10 +357,6 @@ extern Zmw zmw ;
 
 #define ZMW1(X) do { X } while(0)
 
-GdkFont *zmw_font_load(const char *name) ;
-void zmw_font_free(void) ;
-/* Liberer les precedents comme pour le GC avec copy on write */
-#define zmw_font(F) ZMW1(ZMW_FONT = zmw_font_load(F) ; ZMW_FONT_COPY_ON_WRITE = 0 ;)
 
 #define ZMW_SIZE_CURRENT_STATE (zMw[-1].u.children[ZMW_CHILD_NUMBER+1].current_state)
 
@@ -370,8 +378,6 @@ void zmw_font_free(void) ;
 #define  zmw_focused() ZMW_SIZE_FOCUSED
 
 #define zmw_name_full (zmw.full_name)
-
-#define zmw_color(T,P) ZMW_COLORS[T] = P
 
 
 #if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
@@ -482,6 +488,11 @@ int zmw_printf(const char *format, ...) ;
 const char *zmw_action_name(void) ;
 const char *zmw_action_name_fct(void) ;
 void zmw_name(const char *s) ;
+void zmw_font_family(const char *s) ;
+#define zmw_font_size(s) ZMW_FONT_SIZE = s
+#define zmw_font_weight(w) ZMW_FONT_WEIGHT = w
+#define zmw_font_style(s) ZMW_FONT_STYLE = s
+#define zmw_color(T,P) ZMW_COLORS[T] = P
 void zmw_state_init(Zmw_State *s) ; /* Used only by zmw_run.c */
 void zmw_state_pop(void) ;
 Zmw_Hash zmw_hash(Zmw_Hash, const char*) ;
@@ -569,12 +580,23 @@ void zmw_int_to_rgb(int c,Zmw_Float_0_1 *r, Zmw_Float_0_1 *g, Zmw_Float_0_1*b);
 void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2) ;
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
 			, int x, int y, int width, int height) ;
-void zmw_draw_string(Zmw_Color c, int x, int y, const char *text) ;
 void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y) ;
 
 void zmw_draw_clip_push_inside(const Zmw_Rectangle *r) ;
 void zmw_draw_clip_pop() ;
 #define zmw_foreground(R,G,B) zmw_color(Zmw_Color_Foreground, zmw_rgb_to_int(R,G,B))
+#define zmw_background(R,G,B) zmw_color(Zmw_Color_Background_Normal, zmw_rgb_to_int(R,G,B))
+void zmw_text_init() ;
+void zmw_text_set_text(const char *text, const Zmw_Font_Description *fd) ;
+void zmw_text_render(Zmw_Color c, int xx, int yy) ;
+void zmw_text_get_size(int *width, int *height) ;
+int zmw_text_xy_to_index(int x, int y) ;
+void zmw_text_get_grapheme_rectangle(int index, Zmw_Rectangle *rect) ;
+void zmw_text_cursor_position(int cursor_pos, Zmw_Rectangle *r) ;
+int zmw_text_next_char(const char *text, int cursor) ;
+int zmw_text_previous_char(const char *text, int cursor) ;
+int zmw_text_delete_char(char *text, int cursor) ;
+
 /*
  * zmw_graphic.c
  */

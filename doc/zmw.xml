@@ -47,7 +47,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.10)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.11)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -2771,13 +2771,54 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_font</function>
-	    (<type>const char *</type><parameter>fontname</parameter>) ;
+	    <function>zmw_font_family</function>
+	    (<type>const char *</type><parameter>font_family</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	      The <parameter>fontname</parameter> is a typical
-	      X11 font name.
+	      The <parameter>font_family</parameter> is a typical
+	      name as <constant>times</constant>,
+		<constant>helvetica</constant>,
+		<constant>courier</constant>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_font_size</function>
+	    (<type>int</type> <parameter>font_size</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		Normal sized font are 10.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_font_weight</function>
+	    (<type>int</type> <parameter>font_weight</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		An integer between 0 and 1000, the bigger the
+		more bold the text is.
+		Medium weight is 500.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_font_style</function>
+	    (<type>Zmw_Font_Style</type> <parameter>font_style</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		<constant>Font_Style_Normal</constant> or
+		<constant>Font_Style_Italic</constant>.
 	    </para>
 	  </listitem>
 	</varlistentry>

@@ -17,7 +17,9 @@ ZMW(zmw_box_vertical())
 	zmw_foreground(1,0,0) ; // Red
         zmw_text("Red") ;
 	zmw_foreground(0,1,0) ; // Green
-        zmw_font("-adobe-helvetica-bold-*-*-*-*-240-*-*-*-*-*-1") ;
+        zmw_font_family("sans") ;
+        zmw_font_size(24) ;
+        zmw_font_style(Zmw_Font_Style_Italic) ;
         zmw_text("Green") ;
       }
     zmw_horizontal_alignment(ZMW_RIGHT) ;

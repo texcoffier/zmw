@@ -15,9 +15,9 @@ void hexa(int i, int nb_digits)
 void appearance(void)
 {
   int i, r, g, b ;
-  static char *fonts[] = { "-adobe-courier-medium-o-*-*-8-*-*-*-*-*-iso8859-1",
-			   "10x20", "12x24", "5x7", "8x13",
-			   "9x15",  "7x13", "7x14" } ;
+  static char *fonts[] = { "courier",
+			   "fixed", "utopia", "helvetica", "times",
+			   "terminal",  "monospace", "sans" } ;
 
   zmw_vertical_expand(Zmw_False) ;
   ZMW(zmw_window("Boxes"))
@@ -39,10 +39,16 @@ void appearance(void)
 		  hexa(b, 2) ;
 		  hexa(RGB(r, g, b), 6) ;
 		  // The color/font change is trapped by the box
-		  ZMW(zmw_box_vertical())
+		  zmw_padding_width(0) ;
+		  ZMW(zmw_box_horizontal())
 		    {
 		      zmw_color(Zmw_Color_Foreground, RGB(r, g, b)) ;
-		      zmw_font(fonts[i]) ;
+		      zmw_font_family(fonts[i]) ;
+		      zmw_font_size(8) ;
+		      zmw_text(fonts[i]) ;
+		      zmw_font_size(10) ;
+		      zmw_text(fonts[i]) ;
+		      zmw_font_size(12) ;
 		      zmw_text(fonts[i]) ;
 		    }
 		  i++ ;
