@@ -69,9 +69,9 @@ void zmw_scrollbar_needed(Zmw_Boolean *x, Zmw_Boolean *y,
 		int v_sb, int h_sb, int vp)
 {
   *x = ZMW_SIZE_ALLOCATED.width
-    < ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].padding_width + P ;
+    < ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width + P ;
   *y = ZMW_SIZE_ALLOCATED.height
-    < ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].padding_width + P ;
+    < ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width + P ;
 
   if ( ! *x )
     ZMW_CHILDREN[h_sb].invisible = Zmw_True ;
@@ -87,7 +87,14 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
 
   if ( ZMW_NB_OF_CHILDREN == 3 )
     zmw_viewport_get_children(&v_sb, &h_sb, &vp) ;
-
+  else
+    {
+      if ( ZMW_CALL_NUMBER != 0 )
+	{
+	  zmw_printf("nb=%d\n", ZMW_NB_OF_CHILDREN) ;
+	  zmw_debug_trace() ;
+	}
+    }
 
   switch( ZMW_SUBACTION )
     {
@@ -107,41 +114,41 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
 
       ZMW_CHILDREN[v_sb].allocated.x = ZMW_SIZE_ALLOCATED.x
 	+ ZMW_SIZE_ALLOCATED.width
-	+ ZMW_CHILDREN[v_sb].padding_width
+	+ ZMW_CHILDREN[v_sb].current_state.padding_width
 	- P ;
-      ZMW_CHILDREN[v_sb].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[v_sb].padding_width ;
-      ZMW_CHILDREN[v_sb].allocated.width = P - 2*ZMW_CHILDREN[v_sb].padding_width ;
-      ZMW_CHILDREN[v_sb].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[v_sb].padding_width ;
+      ZMW_CHILDREN[v_sb].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[v_sb].current_state.padding_width ;
+      ZMW_CHILDREN[v_sb].allocated.width = P - 2*ZMW_CHILDREN[v_sb].current_state.padding_width ;
+      ZMW_CHILDREN[v_sb].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[v_sb].current_state.padding_width ;
       
       ZMW_CHILDREN[h_sb].allocated.y = ZMW_SIZE_ALLOCATED.y
 	+ ZMW_SIZE_ALLOCATED.height
-	+ ZMW_CHILDREN[h_sb].padding_width
+	+ ZMW_CHILDREN[h_sb].current_state.padding_width
 	- P ;
-      ZMW_CHILDREN[h_sb].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[h_sb].padding_width ;
-      ZMW_CHILDREN[h_sb].allocated.height = P - 2*ZMW_CHILDREN[h_sb].padding_width ;
-      ZMW_CHILDREN[h_sb].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[h_sb].padding_width ;
+      ZMW_CHILDREN[h_sb].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[h_sb].current_state.padding_width ;
+      ZMW_CHILDREN[h_sb].allocated.height = P - 2*ZMW_CHILDREN[h_sb].current_state.padding_width ;
+      ZMW_CHILDREN[h_sb].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[h_sb].current_state.padding_width ;
 
            
 
-      ZMW_CHILDREN[vp].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[vp].padding_width ;
-      ZMW_CHILDREN[vp].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[vp].padding_width ;
-      ZMW_CHILDREN[vp].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[vp].padding_width ;
-      ZMW_CHILDREN[vp].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[vp].padding_width ;
+      ZMW_CHILDREN[vp].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[vp].current_state.padding_width ;
+      ZMW_CHILDREN[vp].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[vp].current_state.padding_width ;
+      ZMW_CHILDREN[vp].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[vp].current_state.padding_width ;
+      ZMW_CHILDREN[vp].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[vp].current_state.padding_width ;
 
       *x_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.width - P*y_sb
-				   , ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].padding_width) ;
+				   , ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
       *y_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.height - P*x_sb
-				   , ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].padding_width) ;
+				   , ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
       
       r->x =
 	- zmw_scrollbar_2_viewport(x
-				   ,ZMW_CHILDREN[h_sb].required.width + 2*ZMW_CHILDREN[h_sb].padding_width
-				   ,ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].padding_width) ;
+				   ,ZMW_CHILDREN[h_sb].required.width + 2*ZMW_CHILDREN[h_sb].current_state.padding_width
+				   ,ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
       
       r->y =
 	- zmw_scrollbar_2_viewport(y
-				   ,ZMW_CHILDREN[v_sb].required.height + 2*ZMW_CHILDREN[v_sb].padding_width
-				   ,ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].padding_width) ;
+				   ,ZMW_CHILDREN[v_sb].required.height + 2*ZMW_CHILDREN[v_sb].current_state.padding_width
+				   ,ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
 
       break ;
     case Zmw_Input_Event:

@@ -2,17 +2,15 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WHAT I AM GOING TO PROGRAM NOW:
-        *******************************************************************
-        * Remove duplication of ZMW_SIZE and zMw[-1].u.children
-	* Remove duplication as ZMW_XXX and ZMW_SIZE_XXX when possible.
-        *******************************************************************
-
-	* Make the regression test in menu3.c (recursive menu)
-	* Append menu3.c example in the documentation
+	* Remove the do_not_enter() and zmw_window_restore()
 	* Remove name comparaison optimization (ZMW_INDEX, ...)
 	  because they are too complex, don't allow infinite menu,
 	  slow down many thing because other optimisation are not possible.
+	  And does not accelerate the work (95% cache miss)
+	* Make the regression test in menu3.c (recursive menu)
+	* Append menu3.c example in the documentation
 	* Remove "zmw_pass_through" function (should be used everywhere)
+	* event_in_(masked/focus) put in the correct place.
 
 WIDGETS:
 	- Alignement left/right in an horizontal widget
@@ -20,10 +18,8 @@ WIDGETS:
 	- Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
 	- zmw_table : border are too small to be draggable
-	- Decorator: remove external or internal padding as an option
 	* zmw_window_drag(): Choose the window position relative to cursor
 	* Semantic Lens (move the code from book example to the library)
-	- Change accelerator/menu management in order to have infinite menu
 	- ``infinite'' depth menu are impossible because
 	  Dispatch_Accelerator needs to follow all the menu.
 	  So a widget "zmw_no_accelerator" must be created
@@ -54,11 +50,6 @@ BUGS:
 	- zmw_image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
-	- Lurching : dispatch_accelerator does not manage children list
-	  but everybody use it to test activation. It may be possible
-          to have an action activating many widgets and the next
-	  action is a key press.
-	- ZMW_SIZE_EVENT_IN_RECTANGLE value is incorrect on dispatch_event/3
 	- if ZMW(zmw_popup()) contains a window, it must be its direct child
 
 

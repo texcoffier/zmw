@@ -158,8 +158,6 @@ static void zmw_cache_check(const Zmw_Size *s)
 	p = "index" ;
       if ( memcmp( &s->min, &ss.min, sizeof(s->min) ) )
 	p = "min size" ;
-      if ( memcmp( &s->asked, &ss.asked, sizeof(s->asked) ) )
-	p = "asked size" ;
       if ( memcmp( &s->required, &ss.required, sizeof(s->required) ) )
 	p = "required size" ;
       if ( p )

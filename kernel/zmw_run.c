@@ -174,6 +174,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   zmw.event_removed = Zmw_False ;
   zmw.run->need_dispatch = Zmw_False ;
   ZMW_ACTION = action ;
+  ZMW_CHILD_NUMBER = -1 ;
 
   if ( zmw.debug & Zmw_Debug_Event )
     zmw_printf("CALL %s index=%d\n", zmw_action_name_fct(), zmw.index_last) ;
@@ -190,18 +191,18 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   zmw_display_accelerator_window() ;
   
   if ( zmw.debug & Zmw_Debug_Event )
-    zmw_printf("ENDCALL size_index=%d last_index=%d last_child=%d lcn=%d lcn0=%d\n"
+    zmw_printf("ENDCALL size_index=%d last_index=%d last_child=%d lcn=%d\n"
 	       ,ZMW_SIZE_INDEX
 	       ,zmw.index_last
-	       ,zMw->u.children[zMw->u.nb_of_children_0-1].index
+	       ,zMw->u.children[zMw->u.nb_of_children-1].index
 	       ,zMw->u.nb_of_children
-	       ,zMw->u.nb_of_children_0
 	       ) ;
 
   ZMW_SIZE_INDEX = zmw.index_last + 1 ;
 
-  if ( action != zmw_action_dispatch_accelerator )
-    zmw.index_last = zMw->u.children[zMw->u.nb_of_children_0-1].index ;
+  if ( action != zmw_action_dispatch_accelerator
+       && zMw->u.children[zMw->u.nb_of_children-1].index > zmw.index_last )
+    zmw.index_last = zMw->u.children[zMw->u.nb_of_children-1].index ;
 
   zmw.remove_event = Zmw_False ;
 
@@ -324,6 +325,8 @@ static gboolean timeout(gpointer data)
   gdk_window_get_pointer(zmw.window, &x, &y, NULL) ;
   if ( ! zmw.run->use_window_from_button_press || !zmw.button_pressed )
     e.any.window = gdk_window_at_pointer(&x, &y) ;
+  else
+    e.any.window = NULL ;
   /*
    *
    */
@@ -647,30 +650,27 @@ void zmw_run(void (*fct)())
   Zmw_Name top_level_focus = ZMW_NAME_UNREGISTERED("Top level Focus") ;
 
   zmw.run->fct = fct ;
+  gettimeofday(&zmw.run->last_cursor_move,NULL) ;
+  gettimeofday(&zmw.run->last_user_action,NULL) ;
   zmw.run->need_repaint = Zmw_False ;
   zmw_use_window_from_button_press(Zmw_True) ;
 
   zMw = zmw.zmw_table ;
-  ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
+  // ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
   /*
   ZMW_SIZE_ALLOCATED.x = 0 ;
   ZMW_SIZE_ALLOCATED.y = 0 ;
   */
 
   zmw_font("6x13") ;
-  zmw_x(ZMW_VALUE_UNDEFINED) ;
-  zmw_y(ZMW_VALUE_UNDEFINED) ;
-  zmw_width(ZMW_VALUE_UNDEFINED) ;
-  zmw_height(ZMW_VALUE_UNDEFINED) ;
+  //zmw_x(ZMW_VALUE_UNDEFINED) ;
+  //zmw_y(ZMW_VALUE_UNDEFINED) ;
+  //zmw_width(ZMW_VALUE_UNDEFINED) ;
+  //zmw_height(ZMW_VALUE_UNDEFINED) ;
   ZMW_NAME = zmw.full_name ;
   ZMW_NAME[0] = '\0' ;
   ZMW_NAME_INDEX = ZMW_NAME ;
-  zmw_horizontal_expand(1) ;
-  zmw_vertical_expand(1) ;
-  zmw_horizontal_expand(1) ;
-  zmw_vertical_alignment(0) ;
-  zmw_horizontal_alignment(0) ;
-  zmw_padding_width(2) ;
+  ZMW_CALL_NUMBER = 0 ;
   zmw_border_width(2) ;
   zmw_focus_width(2) ;
   zmw_focus(&top_level_focus) ;
@@ -680,7 +680,19 @@ void zmw_run(void (*fct)())
   zmw_sensible(1) ;
   zmw_rgb(0.75, 0.75, 0.75) ;
 
+  ZMW_NB_OF_CHILDREN = zMw->u.nb_of_children_max = 1 ;
+  ZMW_MALLOC(ZMW_CHILDREN, zMw->u.nb_of_children_max) ;
+
   zmw_state_push() ;
+
+  zmw_horizontal_expand(1) ;
+  zmw_vertical_expand(1) ;
+  zmw_horizontal_expand(1) ;
+  zmw_vertical_alignment(0) ;
+  zmw_horizontal_alignment(0) ;
+  zmw_padding_width(2) ;
+
+
   zmw_draw(fct) ;
 
   zmw.tip_displayed.why = "Tip displayed" ;
@@ -748,12 +760,11 @@ void zmw_stack_dump()
     {
       fprintf(stderr, "======================== STACK[%d]\n", i) ;
       fprintf(stderr, "NOT HERITABLE\n") ;
-      fprintf(stderr, "%s\n", zmw_size_string(&zmw.zmw_table[i].u.size)) ;
-      fprintf(stderr, "CallNum=%d NBC=%d NBMC=%d NBC0=%d name_sep=%d\n"
+      fprintf(stderr, "%s\n", zmw_size_string(&ZMW_SIZE)) ;
+      fprintf(stderr, "CallNum=%d NBC=%d NBMC=%d name_sep=%d\n"
 	      , zmw.zmw_table[i].u.call_number
 	      , zmw.zmw_table[i].u.nb_of_children
 	      , zmw.zmw_table[i].u.nb_of_children_max
-	      , zmw.zmw_table[i].u.nb_of_children_0
 	      , zmw.zmw_table[i].u.name_separator
 	      ) ;
       fprintf(stderr, "End of the name = %s\n", zmw.zmw_table[i].u.name) ;
@@ -766,7 +777,7 @@ void zmw_stack_dump()
       fprintf(stderr, "%s", zmw.zmw_table[i].u.font_copy_on_write
 	      ? ", Font copy" : "") ;
       fprintf(stderr, "\n") ;
-      for(j=0; j<zmw.zmw_table[i].u.nb_of_children_0; j++)
+      for(j=0; j<zmw.zmw_table[i].u.nb_of_children; j++)
 	fprintf(stderr, "\t%s\n"
 		, zmw_size_string(&zmw.zmw_table[i].u.children[j])) ;
       fprintf(stderr, "-------------------- HERITABLE\n") ;

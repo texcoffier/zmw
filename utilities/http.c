@@ -30,9 +30,13 @@ static FILE *global_http ;
 static char *global_url[ZMW_MAX_DEPTH] ;
 static char *global_name = NULL ;
 static int global_x, global_y, global_window, global_event ;
+static Zmw_Size global_size ;
 
 
-#define PTR(I) ((char*)zMw + global_options[I].offset)
+#define PTR(I) ((global_options[I].from_children \
+                ? (char*)&ZMW_SIZE \
+                : (char*)zMw \
+               ) + global_options[I].offset)
 #define GET(I, TYPE) *(TYPE*)(PTR(I))
 
 #define OPTION_BIT(X) (global_option & ( (long long)1 << (X) ))
@@ -49,6 +53,7 @@ struct options
   char *name ;
   char * (*get)(int i) ;
   int offset ;
+  char from_children ;
   char set ; // If true option is asked
 } ;
 
@@ -105,34 +110,48 @@ static char *get_int(int i)
  */
 static char *get_children(int i)
 {
-  Zmw_Size *n ;
-  char *s ;
   int j, k ;
   static char *buf = NULL ;
 
-  n = GET(i, Zmw_Size*) ;
+  if ( zMw->u.nb_of_children == 0 )
+    return "" ;
 
   buf = realloc(buf, 1) ;
-  buf[0] = '\0' ;
+  buf = strdup("<TABLE border><TR>") ;
+  zMw++ ;
 
-  for(j=0; j<zMw->u.nb_of_children_0; j++)
+  buf = realloc(buf, strlen(buf) + 1000) ;
+  
+  for(k=0; global_options[k].name; k++)
     {
+      if ( ! global_options[k].from_children )
+	continue ; // not a size option
+      if ( ! global_options[k].set )
+	continue ; // User not interested
+      sprintf(buf+strlen(buf), "<TH><SMALL><SMALL>%s</SMALL></SMALL></TH>", global_options[k].name) ;
+    }
+  sprintf(buf+strlen(buf), "</TR>") ;
+
+
+  for(j=0; j<zMw[-1].u.nb_of_children; j++)
+    {
+      sprintf(buf+strlen(buf), "<TR>") ;
+      ZMW_CHILD_NUMBER = j ;
       for(k=0; global_options[k].name; k++)
 	{
-	  if ( PTR(k) < (char*)&zMw->u.size
-	       || PTR(k) >= (char*)&zMw->u.size + sizeof(zMw->u.size) )
+	  if ( ! global_options[k].from_children )
 	    continue ; // not a size option
 	  if ( ! global_options[k].set )
 	    continue ; // User not interested
-	  global_options[k].offset += ((char*)&n[j] - (char*)&zMw->u.size) ;
-	  s = global_options[k].get(k) ;
-	  global_options[k].offset -= ((char*)&n[j] - (char*)&zMw->u.size) ;
-          buf = realloc(buf, strlen(buf) + strlen(s) + 10) ;
-	  sprintf(buf + strlen(buf), " %s", s) ;
+
+          buf = realloc(buf, strlen(buf) + 1000) ;
+
+	  sprintf(buf+strlen(buf), "<TD>%s</TD>", global_options[k].get(k)) ;
 	}
-      buf = realloc(buf, strlen(buf) + strlen(s) + 10) ;
-      sprintf(buf + strlen(buf), "<br>") ;
+      sprintf(buf + strlen(buf), "</TR>") ;
     }
+  sprintf(buf + strlen(buf), "</TABLE>") ;
+  zMw-- ;
     
   return buf ;
 }
@@ -213,7 +232,6 @@ static char *get_vertical_alignment(int i)
 
 static char* get_rectangle_(Zmw_Rectangle *ws)
 {
-
   global_buf[0] = '\0' ;
 
   if ( ws->x != ZMW_VALUE_UNDEFINED )
@@ -251,8 +269,10 @@ static char* zmw_http_debug(int i)
   return global_buf ;
 }
 
-#define OFFSET(X)  ((char*)&global_zmw.X - (char*)&global_zmw)
+#define OFFSET(X)  ((char*)&global_zmw.X - (char*)&global_zmw),0
 #define OPTION(X,T) #X, get_ ## T, OFFSET(X)
+#define OFFSET_SIZE(X)  ((char*)&global_size.X - (char*)&global_size),1
+#define OPTION_SIZE(X,T) #X, get_ ## T, OFFSET_SIZE(X)
 
 static char *get_zmw(int i)
 {
@@ -312,32 +332,33 @@ static struct options global_options[] =
     { 0, "action", (char*(*)(int))zmw_action_name_fct, OFFSET(i.action)      },
     { 0, OPTION(u.nb_of_children                     , int                 ) },
     { 0, OPTION(u.nb_of_children_max                 , int                 ) },
-    { 0, OPTION(u.nb_of_children_0                   , int                 ) },
     { 0, OPTION(u.font_copy_on_write                 , boolean             ) },
     { 0, OPTION(u.name_separator                     , int                 ) },
     { 0, OPTION(u.menu_state                         , menu_state          ) },
     { 0, OPTION(u.children                           , children            ) },
-    { 1, OPTION(u.size.min                           , rectangle           ) },
-    { 0, OPTION(u.size.asked                         , rectangle           ) },
-    { 0, OPTION(u.size.required                      , rectangle           ) },
-    { 0, OPTION(u.size.allocated                , rectangle           ) },
-    { 0, OPTION(u.size.used_to_compute_parent_size   , boolean             ) },
-    { 0, OPTION(u.size.index                         , int                 ) },
-    { 0, OPTION(u.size.horizontal_expand             , boolean             ) },
-    { 0, OPTION(u.size.vertical_expand               , boolean             ) },
-    { 0, OPTION(u.size.horizontal_alignment          , horizontal_alignment) },
-    { 0, OPTION(u.size.vertical_alignment            , vertical_alignment  ) },
-    { 0, OPTION(u.size.event_in_rectangle            , boolean             ) },
-    { 0, OPTION(u.size.event_in_children             , boolean             ) },
-    { 0, OPTION(u.size.invisible                     , boolean             ) },
-    { 0, OPTION(u.size.sensible                      , boolean             ) },
-    { 0, OPTION(u.size.focused                       , boolean             ) },
-    { 0, OPTION(u.size.activated                     , boolean             ) },
-    { 0, OPTION(u.size.child_activated               , boolean             ) },
-    { 0, OPTION(u.size.changed                       , boolean             ) },
-    { 0, OPTION(u.size.do_not_map_window             , boolean             ) },
-    { 0, OPTION(u.size.pass_through                  , boolean             ) },
-    { 0, OPTION(u.size.padding_width                 , int                 ) },
+    { 0, OPTION(u.asked                         , rectangle           ) },
+    { 1, OPTION_SIZE(min                           , rectangle           ) },
+    { 0, OPTION_SIZE(required                      , rectangle           ) },
+    { 0, OPTION_SIZE(allocated                , rectangle           ) },
+    { 0, OPTION_SIZE(used_to_compute_parent_size   , boolean             ) },
+    { 0, OPTION_SIZE(index                         , int                 ) },
+    { 0, OPTION_SIZE(current_state.horizontal_expand   , boolean            )},
+    { 0, OPTION_SIZE(current_state.vertical_expand     , boolean            )},
+    { 0, OPTION_SIZE(current_state.horizontal_alignment,horizontal_alignment)},
+    { 0, OPTION_SIZE(current_state.vertical_alignment  , vertical_alignment )},
+    { 0, OPTION_SIZE(horizontal_expand             , boolean            )},
+    { 0, OPTION_SIZE(vertical_expand               , boolean            )},
+    { 0, OPTION_SIZE(event_in_rectangle            , boolean             ) },
+    { 0, OPTION_SIZE(event_in_children             , boolean             ) },
+    { 0, OPTION_SIZE(invisible                     , boolean             ) },
+    { 0, OPTION_SIZE(sensible                      , boolean             ) },
+    { 0, OPTION_SIZE(focused                       , boolean             ) },
+    { 0, OPTION_SIZE(activated                     , boolean             ) },
+    { 0, OPTION_SIZE(child_activated               , boolean             ) },
+    { 0, OPTION_SIZE(changed                       , boolean             ) },
+    { 0, OPTION_SIZE(do_not_map_window             , boolean             ) },
+    { 0, OPTION_SIZE(pass_through                  , boolean             ) },
+    { 0, OPTION_SIZE(current_state.padding_width   , int                 ) },
     { 1, OPTION(i.debug                              , int                 ) },
     { 0, OPTION(i.border_width                       , int                 ) },
     { 0, OPTION(i.focus_width                        , int                 ) },
@@ -350,10 +371,6 @@ static struct options global_options[] =
     { 0, OPTION(i.colors[Zmw_Color_Foreground]       , color               ) },
     { 0, OPTION(i.auto_resize                        , boolean             ) },
     { 0, OPTION(i.sensible                           , boolean             ) },
-    { 0, OPTION(i.horizontal_expand                  , boolean             ) },
-    { 0, OPTION(i.vertical_expand                    , boolean             ) },
-    { 0, OPTION(i.horizontal_alignment               , horizontal_alignment) },
-    { 0, OPTION(i.vertical_alignment                 , vertical_alignment  ) },
     { 1, OPTION(i.font                               , pointer             ) },
     { 0, OPTION(i.window                             , pointer             ) },
     { 0, OPTION(i.gc                                 , pointer             ) },
@@ -471,7 +488,6 @@ static void http_rectangle_display(Zmw_Rectangle *ws)
 static void http_size_display(Zmw_Size *ws)
 {
   http_printf("<TD>\n") ;
-  http_rectangle_display(&ws->asked) ;
   http_printf("</TD>\n") ;
   http_printf("<TD>\n") ;
   http_rectangle_display(&ws->required) ;
@@ -485,12 +501,12 @@ static void http_size_display(Zmw_Size *ws)
 
   http_printf(
 	  "<TD>%s</TD><TD>%s</TD><TD>%s %s %s</TD>"
-	  , ZMW_HORIZONTAL_ALIGNMENT < 0
-	  ? "Left" : (ZMW_HORIZONTAL_ALIGNMENT > 0 ? "Right" : "Center")
-	  , ZMW_VERTICAL_ALIGNMENT < 0
-	  ? "Up" : (ZMW_VERTICAL_ALIGNMENT > 0 ? "Down" : "Center")
-	  , ZMW_SIZE_HORIZONTAL_EXPAND ? "Horizontal" : ""
-	  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : ""
+	  , ZMW_SIZE_HORIZONTAL_ALIGNMENT < 0
+	  ? "Left" : (ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 ? "Right" : "Center")
+	  , ZMW_SIZE_VERTICAL_ALIGNMENT < 0
+	  ? "Up" : (ZMW_SIZE_VERTICAL_ALIGNMENT > 0 ? "Down" : "Center")
+	  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : ""
+	  , ZMW_VERTICAL_EXPAND ? "Vertical" : ""
 	  , ZMW_USED_TO_COMPUTE_PARENT_SIZE ? "" :"NotUsedToComputeParentSize"
 	  ) ;
   http_printf("<TD>%d</TD>\n", ws->index) ;
@@ -518,7 +534,7 @@ int http_node()
 	  http_printf("<TR><TH>Declaration</TH><TD>%s:%d</TD></TR>"
 		      , ZMW_FILE, ZMW_LINE) ;
 	  http_printf("<TR><TH>Asked Size</TH><TD>") ;
-	  http_rectangle_display(&ZMW_SIZE_ASKED) ;
+	  http_rectangle_display(&ZMW_ASKED) ;
 	  http_printf("</TD></TR>") ;
 	  http_printf("<TR><TH>Required Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_REQUIRED) ;
@@ -535,14 +551,14 @@ int http_node()
 		  "<TH>Expand</TH>"
 		  "<TD>%s%s</TD>"
 		  "</TR>\n"
-		  , ZMW_SIZE_HORIZONTAL_EXPAND ? "Horizontal" : "&nbsp;"
-		  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : "&nbsp;"
+		  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : "&nbsp;"
+		  , ZMW_VERTICAL_EXPAND ? "Vertical" : "&nbsp;"
 	  ) ;
 
 	  http_printf("<TR><TH>Debug</TH><TD>%d</TD></TR>\n"
 		  , ZMW_DEBUG) ;
 	  http_printf("<TR><TH>Padding Width</TH><TD>%d</TD></TR>\n"
-		  , ZMW_PADDING_WIDTH) ;
+		  , ZMW_SIZE_PADDING_WIDTH) ;
 	  http_printf("<TR><TH>Border Width</TH><TD>%d</TD></TR>\n"
 		  , ZMW_BORDER_WIDTH) ;
 	  http_printf("<TR><TH>Focus Width</TH><TD>%d</TD></TR>\n"
@@ -575,8 +591,8 @@ int http_node()
 		  ( ZMW_SIZE_VERTICAL_ALIGNMENT>0 ? "Down" : "Centered" )
 		  ) ;
 	  http_printf("<TR><TH>Expension</TH><TD>%s %s</TD></TR>\n"
-		  , ZMW_SIZE_HORIZONTAL_EXPAND ? "Horizontal" : ""
-		  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : ""
+		  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : ""
+		  , ZMW_VERTICAL_EXPAND ? "Vertical" : ""
 		  ) ;
 	  
 	  http_printf("<TR><TH># of children</TH><TD>%d</TD></TR>\n"

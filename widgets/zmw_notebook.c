@@ -66,7 +66,7 @@ static void zmw_notebook_compute_required_size(Zmw_Size *ws)
   for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
     {
       d = ws[2*i+1].required ;
-      zmw_padding_add(&d, ws[2*i+1].padding_width) ;
+      zmw_padding_add(&d, ws[2*i+1].current_state.padding_width) ;
       r = zmw_rectangle_max(&r, &d) ;
     }
   /*
@@ -95,10 +95,10 @@ static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
 
   for(i=1;i<ZMW_NB_OF_CHILDREN*2; i += 2)
     {
-      ws[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ws[i].padding_width ;
-      ws[i].allocated.y = ZMW_SIZE_ALLOCATED.y + name.height + ws[i].padding_width ;
-      ws[i].allocated.width = ZMW_SIZE_ALLOCATED.width - 2*ws[i].padding_width ;
-      ws[i].allocated.height = ZMW_SIZE_ALLOCATED.height - name.height - 2*ws[i].padding_width ;
+      ws[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ws[i].current_state.padding_width ;
+      ws[i].allocated.y = ZMW_SIZE_ALLOCATED.y + name.height + ws[i].current_state.padding_width ;
+      ws[i].allocated.width = ZMW_SIZE_ALLOCATED.width - 2*ws[i].current_state.padding_width ;
+      ws[i].allocated.height = ZMW_SIZE_ALLOCATED.height - name.height - 2*ws[i].current_state.padding_width ;
       
     }
  
@@ -113,7 +113,7 @@ void zmw_notebook_draw(int *page)
   for(i=0; i<ZMW_NB_OF_CHILDREN; i+=2)
     label_height = ZMW_MAX(label_height
 		       , ZMW_CHILDREN[i].allocated.height
-			 + ZMW_CHILDREN[i].padding_width
+			 + ZMW_CHILDREN[i].current_state.padding_width
 			   ) ;
 
   if ( *page )
@@ -124,19 +124,19 @@ void zmw_notebook_draw(int *page)
 		       , ZMW_SIZE_ALLOCATED.y
 		       , ZMW_CHILDREN[2**page].allocated.x
 		       - ZMW_CHILDREN[0].allocated.x
-		       , label_height + ZMW_CHILDREN[0].padding_width
+		       , label_height + ZMW_CHILDREN[0].current_state.padding_width
 		       ) ;
   if ( 2 * *page != ZMW_NB_OF_CHILDREN-2 )
     // Draw the labels background for the labels right to the current page
     zmw_draw_rectangle(Zmw_Color_Background_Pushed
 		       , Zmw_True
-		       , ZMW_CHILDREN[2 * *page+2].allocated.x - ZMW_CHILDREN[2 * *page+2].padding_width
+		       , ZMW_CHILDREN[2 * *page+2].allocated.x - ZMW_CHILDREN[2 * *page+2].current_state.padding_width
 		       , ZMW_SIZE_ALLOCATED.y
 		       , ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x
 		       - ZMW_CHILDREN[2 * *page+2].allocated.x
 		       + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
-		       + 2*ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].padding_width
-		       , label_height + ZMW_CHILDREN[0].padding_width
+		       + 2*ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
+		       , label_height + ZMW_CHILDREN[0].current_state.padding_width
 		       ) ;
 
   for(i=0; i<ZMW_NB_OF_CHILDREN; i+=2)
@@ -145,67 +145,67 @@ void zmw_notebook_draw(int *page)
 	{
 	  /* Bottom label horizontal line */
 	  zmw_draw_line(Zmw_Color_Foreground
-			, ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].padding_width
+			, ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
 			+ ZMW_CHILDREN[i].allocated.width
-			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
-			, ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].padding_width
-			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
+			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+			, ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].current_state.padding_width
+			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
 			) ;
 	}
       /* label vertical line */
       zmw_draw_line(Zmw_Color_Foreground
-		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].padding_width
+		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
 		    + ZMW_CHILDREN[i].allocated.width
 		    , ZMW_SIZE_ALLOCATED.y
-		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].padding_width
+		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
 		    + ZMW_CHILDREN[i].allocated.width
-		    , ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
+		    , ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
 		    ) ;
     }
 
   /* Top above label horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		, ZMW_SIZE_ALLOCATED.y
-		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].padding_width
+		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
 		+ ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
 		, ZMW_SIZE_ALLOCATED.y
 		) ;
   /* Left vertical line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		, ZMW_SIZE_ALLOCATED.y
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
 		) ;
   /* Bottom horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height - 1
 		) ;
   /* Right vertical line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		+ ZMW_SIZE_ALLOCATED.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
+		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
 		) ;
   /* Top right under label horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].padding_width
+		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
 		+ ZMW_SIZE_ALLOCATED.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
-		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].padding_width
+		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
 		+ ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].padding_width
+		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
 		) ;
 
 }
@@ -269,8 +269,8 @@ void zmw_notebook(int *page)
 	    {
 	      if (
 		  zmw.event->any.window == *ZMW_WINDOW
-		  && zmw.x >= ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].padding_width
-		  && zmw.x < ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].padding_width
+		  && zmw.x >= ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].current_state.padding_width
+		  && zmw.x < ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
 		             + ZMW_CHILDREN[i].allocated.width
 		  && zmw.y >= ZMW_SIZE_ALLOCATED.y
 		  && zmw.y  < ZMW_SIZE_ALLOCATED.y + label_height

@@ -42,10 +42,10 @@ int * zmw_table_col_width(int nb_cols, int *computed_col_width)
 
       for(col=0; col<nb_cols; col++)
 	{
-	  computed_col_width[col] = ZMW_CHILDREN[col].required.width + 2*ZMW_CHILDREN[col].padding_width ;
+	  computed_col_width[col] = ZMW_CHILDREN[col].required.width + 2*ZMW_CHILDREN[col].current_state.padding_width ;
 	  for(i = col + nb_cols; i<ZMW_NB_OF_CHILDREN; i += nb_cols)	    
-	    if ( ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].padding_width > computed_col_width[col] )
-	      computed_col_width[col] =  ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].padding_width ;
+	    if ( ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].current_state.padding_width > computed_col_width[col] )
+	      computed_col_width[col] =  ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].current_state.padding_width ;
 	}
 
     }
@@ -65,11 +65,11 @@ int *zmw_table_row_height(int nb_cols, int *nb_rows)
   pos = 0 ;
   for(row=0; row<*nb_rows; row++)
     {
-      height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width ;
+      height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].current_state.padding_width ;
       pos++ ;
       for(i = 1; i < nb_cols && pos <ZMW_NB_OF_CHILDREN; i++, pos++)
-	if ( ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width > height[row] )
-	  height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width ;
+	if ( ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].current_state.padding_width > height[row] )
+	  height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].current_state.padding_width ;
     }
   return( height ) ;
 }
@@ -104,23 +104,23 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
   if ( ZMW_NB_OF_CHILDREN == 0 )
     return ;
 
-  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].padding_width ;
-  y = ZMW_SIZE_ALLOCATED.y  + ZMW_CHILDREN[0].padding_width ;
+  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].current_state.padding_width ;
+  y = ZMW_SIZE_ALLOCATED.y  + ZMW_CHILDREN[0].current_state.padding_width ;
 
   for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
     {
       ZMW_CHILDREN[i].allocated.x = x ;
       ZMW_CHILDREN[i].allocated.y = y ;
-      w = width[i%nb_cols] - 2*ZMW_CHILDREN[i].padding_width ;
-      h = height[i/nb_cols] - 2*ZMW_CHILDREN[i].padding_width ;
-      if ( ZMW_CHILDREN[i].horizontal_expand )
+      w = width[i%nb_cols] - 2*ZMW_CHILDREN[i].current_state.padding_width ;
+      h = height[i/nb_cols] - 2*ZMW_CHILDREN[i].current_state.padding_width ;
+      if ( ZMW_CHILDREN[i].current_state.horizontal_expand )
 	ZMW_CHILDREN[i].allocated.width = w;
       else
 	{
 	  if ( ZMW_CHILDREN[i].required.width < w )
 	    {
 	      ZMW_CHILDREN[i].allocated.width = ZMW_CHILDREN[i].required.width ;
-	      switch(ZMW_CHILDREN[i].horizontal_alignment)
+	      switch(ZMW_CHILDREN[i].current_state.horizontal_alignment)
 		{
 	      	case 0: 
 		  ZMW_CHILDREN[i].allocated.x +=
@@ -135,14 +135,14 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
 	    ZMW_CHILDREN[i].allocated.width = w ;
 	}
 
-      if ( ZMW_CHILDREN[i].vertical_expand )
+      if ( ZMW_CHILDREN[i].current_state.vertical_expand )
 	ZMW_CHILDREN[i].allocated.height = h ;
       else
 	{
 	  if ( ZMW_CHILDREN[i].required.height < h )
 	    {
 	      ZMW_CHILDREN[i].allocated.height = ZMW_CHILDREN[i].required.height ;
-	      switch(ZMW_CHILDREN[i].vertical_alignment)
+	      switch(ZMW_CHILDREN[i].current_state.vertical_alignment)
 		{
 	      	case 0: 
 		  ZMW_CHILDREN[i].allocated.y +=
@@ -161,7 +161,7 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
       x += width[i%nb_cols] + ZMW_TABLE_VERTICAL_WIDTH ;
       if ( (i+1)%nb_cols == 0 )
       	{
-	  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].padding_width ;
+	  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].current_state.padding_width ;
 	  y += height[i/nb_cols] ;
       	}
     }

@@ -163,6 +163,7 @@ zmw_button_press           # START DRAG
 zmw_move_cursor_to 60 49  # box0[0] = 6
 zmw_button_release
 zmw_gizmo
+zmw_sleep 1
 zmw_dump_screen 11
 
 zmw_move_cursor_to 205 49 # box2[0] = 6

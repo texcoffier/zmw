@@ -22,11 +22,11 @@
 #                 (If the good file does not exists, it is created)
 #                 If there is a difference, asks the user if the good
 #                 file must be replaced.
-#         While they are not equals (if too long creates: regtest.fail)
+#         While they are not equals (if too long to create: regtest.fail)
 #       - Loop on
 #               - Creates the application dumps (with cache)
 #               - Compare with the good files
-#         While they are not equals (if too long creates: regtest.fail)
+#         While they are not equals (if too long to create: regtest.fail)
 #       - Make some cleaning
 #       - Creates "regtest.pass"
 
@@ -35,6 +35,15 @@ export NAME=`basename $(pwd)`
 export ZMW_EXECUTION_ARGS="--mstimout=10 --debug=2046"
 export ZMW_EXECUTION_ARGS="--mstimout=10"
 export DISPLAY_IMAGE="xv"
+
+# If not empty, connect a debugger to given tty.
+# It is useful if the program makes core dump only on regression tests.
+GDBTTY="/dev/tty8"
+GDBTTY=""
+
+# Use valgrind if defined, not usable with gdb
+VALGRIND="valgrind"
+VALGRIND=""
 
 # Test if the test need to be done
 
@@ -79,7 +88,13 @@ make_dumps() {
   # Move cursor always in the same place
   zmw_move_cursor_to 1000 1000
   # Run the application in background
-  $NAME.exe $1 $ZMW_EXECUTION_ARGS &
+  if [ "$GDBTTY" != "" ]
+  then
+    echo "r $1 $ZMW_EXECUTION_ARGS" > "xxx.gdb"
+    gdb <"$GDBTTY" >"$GDBTTY" 2>&1 --command="xxx.gdb" $NAME.exe &
+  else
+    $VALGRIND $NAME.exe $1 $ZMW_EXECUTION_ARGS &
+  fi
   # Take the pid to kill it after
   ZMWPID=$!
   # Wait the application start

@@ -104,14 +104,9 @@ typedef struct zmw_name
 typedef struct zmw_size
 {
   Zmw_Rectangle min ;		// Size needed for correct display
-  Zmw_Rectangle asked ;		// Size asked by the user
   Zmw_Rectangle required ;	// It is : needed overrided by asked
   Zmw_Rectangle allocated ;   // Size usable (_padded less padding)
   int index ;
-  Zmw_Boolean horizontal_expand ;
-  Zmw_Boolean vertical_expand ;
-  char horizontal_alignment ;
-  char vertical_alignment ;
   Zmw_Boolean used_to_compute_parent_size ;
   Zmw_Boolean event_in_rectangle ;
   Zmw_Boolean event_in_children ;
@@ -122,8 +117,8 @@ typedef struct zmw_size
   Zmw_Boolean activated ;
   Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean changed ;	        /* True if the widget has changed */
-
-  int padding_width ;
+  Zmw_Boolean horizontal_expand ;
+  Zmw_Boolean vertical_expand ;
   /*
    * If true, the widget is transparent for size, sensible, activate, ...
    * requests. Because it is not this widget we want to test
@@ -131,6 +126,19 @@ typedef struct zmw_size
    * It is used for "tip" for example.
    */
   Zmw_Boolean pass_through ;
+  /*
+   * These values are stored for each widgets in the child list.
+   * But A subset of these values are the current state that
+   * must be passed to the next sibling or to the first child.
+   */
+  struct
+  {
+    Zmw_Boolean horizontal_expand ;
+    Zmw_Boolean vertical_expand ;
+    char horizontal_alignment ;
+    char vertical_alignment ;
+    int padding_width ;
+  } current_state ;
 } Zmw_Size ;
 
 typedef struct zmw_stackable_inheritable
@@ -147,11 +155,6 @@ typedef struct zmw_stackable_inheritable
   Zmw_Rectangle clipping ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
-  Zmw_Boolean horizontal_expand ;
-  Zmw_Boolean vertical_expand ;
-  Zmw_Boolean horizontal_alignment ;
-  Zmw_Boolean vertical_alignment ;
-  int padding_width ;
   int index ;
   /*
    * These values should not be inherited
@@ -164,11 +167,11 @@ typedef struct zmw_stackable_inheritable
 
 typedef struct zmw_stackable_uninheritable
 {
-  Zmw_Size size ;
   int call_number ;		/* Number of call to zmw_begin */
-  int nb_of_children, nb_of_children_max, nb_of_children_0 ;
+  int nb_of_children, nb_of_children_max ;
   Zmw_Size *children ;
   Zmw_Boolean font_copy_on_write ;
+  Zmw_Rectangle asked ;		// Size asked by the user
   char *name ;			/* Pointer on the last part of full_name */
   char *name_index ;		/* Pointer on the '.#' part of name */
   int name_separator ;		/* In case of ambiguity of the name */
@@ -256,76 +259,78 @@ typedef struct zmw
 
 extern Zmw zmw ;
 
-
-
 #define zMw zmw.ptr
 
+#define ZMW_INDEX                     	(zMw->i.index                        )
+#define ZMW_WINDOW                    	(zMw->i.window                       )
+#define ZMW_ACTION                    	(zMw->i.action                       )
+#define ZMW_DEBUG                     	(zMw->i.debug                        )
+#define ZMW_BORDER_WIDTH              	(zMw->i.border_width                 )
+#define ZMW_FOCUS_WIDTH               	(zMw->i.focus_width                  )
+#define ZMW_AUTO_RESIZE               	(zMw->i.auto_resize                  )
+#define ZMW_SENSIBLE                  	(zMw->i.sensible                     )
+#define ZMW_FOCUS                     	(zMw->i.focus                        )
+#define ZMW_EVENT_IN_FOCUS            	(zMw->i.event_in_focus               )
+#define ZMW_EVENT                     	(zMw->i.event                        )
+#define ZMW_FONT                      	(zMw->i.font                         )
+#define ZMW_COLORS                    	(zMw->i.colors                       )
+#define ZMW_GC                        	(zMw->i.gc                           )
+#define ZMW_CLIPPING                  	(zMw->i.clipping                     )
+#define ZMW_EVENT_IN_MASKED           	(zMw->i.event_in_masked              )
+									     
+#define ZMW_CALL_NUMBER               	(zMw->u.call_number                  )
+#define ZMW_NAME                      	(zMw->u.name                         )
+#define ZMW_NAME_INDEX                	(zMw->u.name_index                   )
+#define ZMW_NAME_SEPARATOR            	(zMw->u.name_separator               )
+#define ZMW_NB_OF_CHILDREN            	(zMw->u.nb_of_children               )
+#define ZMW_CHILDREN                  	(zMw->u.children                     )
+#define ZMW_FONT_COPY_ON_WRITE        	(zMw->u.font_copy_on_write           )
+#define ZMW_DO_NOT_EXECUTE_POP        	(zMw->u.do_not_execute_pop           )
+#define ZMW_EXTERNAL_STATE            	(zMw->u.external_state               )
+#define ZMW_ASKED                     	(zMw->u.asked                        )
+#define ZMW_TYPE                      	(zMw->u.type                         )
+#define ZMW_FILE                      	(zMw->u.file                         )
+#define ZMW_LINE                      	(zMw->u.line                         )
+#define ZMW_SUBACTION                 	(zMw->u.subaction                    )
+#define ZMW_MENU_STATE                	(zMw->u.menu_state                   )
+#define ZMW_CHILD_NUMBER              	(zMw->u.child_number                 )
 
-#define ZMW_INDEX                     (zMw->i.index                     )
-#define ZMW_WINDOW                    (zMw->i.window                    )
-#define ZMW_ACTION                    (zMw->i.action                    )
-#define ZMW_PADDING_WIDTH             (zMw->i.padding_width             )
-#define ZMW_SIZE_PADDING_WIDTH        (zMw->u.size.padding_width        )
-#define ZMW_DEBUG                     (zMw->i.debug                     )
-#define ZMW_BORDER_WIDTH              (zMw->i.border_width              )
-#define ZMW_FOCUS_WIDTH               (zMw->i.focus_width               )
-#define ZMW_AUTO_RESIZE               (zMw->i.auto_resize               )
-#define ZMW_SENSIBLE                  (zMw->i.sensible                  )
-#define ZMW_FOCUS                     (zMw->i.focus                     )
-#define ZMW_EVENT_IN_FOCUS            (zMw->i.event_in_focus            )
-#define ZMW_EVENT                     (zMw->i.event                     )
-#define ZMW_SIZE_EVENT_IN_RECTANGLE   (zMw->u.size.event_in_rectangle   )
-#define ZMW_SIZE_EVENT_IN_CHILDREN    (zMw->u.size.event_in_children    )
-#define ZMW_FONT                      (zMw->i.font                      )
-#define ZMW_COLORS                    (zMw->i.colors                    )
-#define ZMW_GC                        (zMw->i.gc                        )
-#define ZMW_CLIPPING                  (zMw->i.clipping                  )
-#define ZMW_HORIZONTAL_EXPAND         (zMw->i.horizontal_expand         )
-#define ZMW_HORIZONTAL_ALIGNMENT      (zMw->i.horizontal_alignment      )
-#define ZMW_VERTICAL_EXPAND           (zMw->i.vertical_expand           )
-#define ZMW_VERTICAL_ALIGNMENT        (zMw->i.vertical_alignment        )
-#define ZMW_EVENT_IN_MASKED           (zMw->i.event_in_masked           )
-#define ZMW_SIZE_ALLOCATED            (zMw->u.size.allocated            )
-#define ZMW_SIZE_ASKED                (zMw->u.size.asked                )
-#define ZMW_SIZE_REQUIRED             (zMw->u.size.required             )
-#define ZMW_SIZE_MIN                  (zMw->u.size.min                  )
-#define ZMW_SIZE_FOCUSED              (zMw->u.size.focused              )
-#define ZMW_SIZE_ACTIVATED            (zMw->u.size.activated            )
-#define ZMW_SIZE_CHILD_ACTIVATED      (zMw->u.size.child_activated      )
-#define ZMW_SIZE_CHANGED              (zMw->u.size.changed              )
-#define ZMW_SIZE                      (zMw->u.size                      )
-#define ZMW_CALL_NUMBER               (zMw->u.call_number               )
-#define ZMW_NAME                      (zMw->u.name                      )
-#define ZMW_NAME_INDEX                (zMw->u.name_index                )
-#define ZMW_NAME_SEPARATOR            (zMw->u.name_separator            )
-#define ZMW_SIZE_INDEX                (zMw->u.size.index                )
-#define ZMW_SIZE_HORIZONTAL_EXPAND    (zMw->u.size.horizontal_expand    )
-#define ZMW_SIZE_HORIZONTAL_ALIGNMENT (zMw->u.size.horizontal_alignment )
-#define ZMW_SIZE_VERTICAL_EXPAND      (zMw->u.size.vertical_expand      )
-#define ZMW_SIZE_VERTICAL_ALIGNMENT   (zMw->u.size.vertical_alignment   )
-#define ZMW_SIZE_DO_NOT_MAP_WINDOW    (zMw->u.size.do_not_map_window    )
-#define ZMW_NB_OF_CHILDREN            (zMw->u.nb_of_children            )
-#define ZMW_CHILDREN                  (zMw->u.children                  )
-#define ZMW_FONT_COPY_ON_WRITE        (zMw->u.font_copy_on_write        )
-#define ZMW_DO_NOT_EXECUTE_POP        (zMw->u.do_not_execute_pop        )
-#define ZMW_EXTERNAL_STATE            (zMw->u.external_state            )
-#define ZMW_INVISIBLE                 (zMw->u.size.invisible            )
-#define ZMW_SIZE_SENSIBLE             (zMw->u.size.sensible             )
-#define ZMW_SIZE_PASS_THROUGH         (zMw->u.size.pass_through         )
-#define ZMW_TYPE                      (zMw->u.type                      )
-#define ZMW_FILE                      (zMw->u.file                      )
-#define ZMW_LINE                      (zMw->u.line                      )
-#define ZMW_SUBACTION                 (zMw->u.subaction                 )
-#define ZMW_USED_TO_COMPUTE_PARENT_SIZE (zMw->u.size.used_to_compute_parent_size )
-#define ZMW_MENU_STATE                (zMw->u.menu_state                )
-#define ZMW_CHILD_NUMBER              (zMw->u.child_number              )
+#define ZMW_SIZE                      	(zMw[-1].u.children[ZMW_CHILD_NUMBER])
+#define ZMW_SIZE_CS                   	(ZMW_SIZE.current_state              )
 
-#define ZMW_CHILD_REQUIRED_PADDED_WIDTH(I) (ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].padding_width)
-#define ZMW_CHILD_REQUIRED_PADDED_HEIGHT(I) (ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].padding_width)
-#define ZMW_CHILD_REQUIRED_PADDED_RIGHT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].padding_width)
-#define ZMW_CHILD_REQUIRED_PADDED_LEFT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].padding_width)
-#define ZMW_CHILD_REQUIRED_PADDED_TOP(I) (ZMW_CHILDREN[I].required.y + ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].padding_width)
+#define ZMW_SIZE_INVISIBLE            	(ZMW_SIZE.invisible                  )
+#define ZMW_SIZE_SENSIBLE             	(ZMW_SIZE.sensible                   )
+#define ZMW_SIZE_PASS_THROUGH         	(ZMW_SIZE.pass_through               )
+#define ZMW_SIZE_EVENT_IN_RECTANGLE   	(ZMW_SIZE.event_in_rectangle         )
+#define ZMW_SIZE_EVENT_IN_CHILDREN    	(ZMW_SIZE.event_in_children          )
+#define ZMW_SIZE_ALLOCATED            	(ZMW_SIZE.allocated                  )
+#define ZMW_SIZE_REQUIRED             	(ZMW_SIZE.required                   )
+#define ZMW_SIZE_MIN                  	(ZMW_SIZE.min                        )
+#define ZMW_SIZE_FOCUSED              	(ZMW_SIZE.focused                    )
+#define ZMW_SIZE_ACTIVATED            	(ZMW_SIZE.activated                  )
+#define ZMW_SIZE_CHILD_ACTIVATED      	(ZMW_SIZE.child_activated            )
+#define ZMW_SIZE_CHANGED              	(ZMW_SIZE.changed                    )
+#define ZMW_SIZE_INDEX                	(ZMW_SIZE.index                      )
+#define ZMW_SIZE_DO_NOT_MAP_WINDOW    	(ZMW_SIZE.do_not_map_window          )
+#define ZMW_USED_TO_COMPUTE_PARENT_SIZE (ZMW_SIZE.used_to_compute_parent_size)
+#define ZMW_SIZE_HORIZONTAL_EXPAND    	(ZMW_SIZE.horizontal_expand          )
+#define ZMW_SIZE_VERTICAL_EXPAND      	(ZMW_SIZE.vertical_expand            )
+#define ZMW_HORIZONTAL_EXPAND         	(ZMW_SIZE_CS.horizontal_expand       )
+#define ZMW_SIZE_HORIZONTAL_ALIGNMENT 	(ZMW_SIZE_CS.horizontal_alignment    )
+#define ZMW_VERTICAL_EXPAND           	(ZMW_SIZE_CS.vertical_expand         )
+#define ZMW_SIZE_VERTICAL_ALIGNMENT   	(ZMW_SIZE_CS.vertical_alignment      )
+#define ZMW_SIZE_PADDING_WIDTH        	(ZMW_SIZE_CS.padding_width           )
 
+#define ZMW_CHILD_REQUIRED_PADDED_WIDTH(I) (ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].current_state.padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_HEIGHT(I) (ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].current_state.padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_RIGHT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].current_state.padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_LEFT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].current_state.padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_TOP(I) (ZMW_CHILDREN[I].required.y + ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].current_state.padding_width)
+
+
+#define ZMW_SIZE_OF(Z)  ((Z)[-1].u.children[(Z)->u.child_number])
+#define ZMW_PARENT_SIZE  ZMW_SIZE_OF(zMw-1)
+#define ZMW_WIDGET_TOP (zMw <= &zmw.zmw_table[1])
 
 #define ZMW1(X) do { X } while(0)
 
@@ -334,22 +339,24 @@ void zmw_font_free(void) ;
 /* Liberer les precedents comme pour le GC avec copy on write */
 #define zmw_font(F) ZMW1(ZMW_FONT = zmw_font_load(F) ; ZMW_FONT_COPY_ON_WRITE = 0 ;)
 
-#define                zmw_width(X) ZMW_SIZE_ASKED.width      = X
-#define               zmw_height(X) ZMW_SIZE_ASKED.height     = X
-#define                    zmw_x(X) ZMW_SIZE_ASKED.x          = X
-#define                    zmw_y(X) ZMW_SIZE_ASKED.y          = X
+#define ZMW_SIZE_CURRENT_STATE (zMw[-1].u.children[ZMW_CHILD_NUMBER+1].current_state)
+
+#define                zmw_width(X) ZMW_ASKED.width      = X
+#define               zmw_height(X) ZMW_ASKED.height     = X
+#define                    zmw_x(X) ZMW_ASKED.x          = X
+#define                    zmw_y(X) ZMW_ASKED.y          = X
 #define                zmw_debug(D) ZMW_DEBUG                 = D
-#define    zmw_horizontal_expand(B) ZMW_HORIZONTAL_EXPAND     = B
-#define      zmw_vertical_expand(B) ZMW_VERTICAL_EXPAND       = B
-#define zmw_horizontal_alignment(B) ZMW_HORIZONTAL_ALIGNMENT  = B
-#define   zmw_vertical_alignment(B) ZMW_VERTICAL_ALIGNMENT    = B
-#define        zmw_padding_width(B) ZMW_PADDING_WIDTH         = B
+#define    zmw_horizontal_expand(B) ZMW_SIZE_CURRENT_STATE.horizontal_expand     = B
+#define      zmw_vertical_expand(B) ZMW_SIZE_CURRENT_STATE.vertical_expand       = B
+#define zmw_horizontal_alignment(B) ZMW_SIZE_CURRENT_STATE.horizontal_alignment  = B
+#define   zmw_vertical_alignment(B) ZMW_SIZE_CURRENT_STATE.vertical_alignment    = B
+#define        zmw_padding_width(B) ZMW_SIZE_CURRENT_STATE.padding_width         = B
 #define         zmw_border_width(B) ZMW_BORDER_WIDTH          = B
 #define          zmw_focus_width(B) ZMW_FOCUS_WIDTH           = B
 #define          zmw_auto_resize(B) ZMW_AUTO_RESIZE           = B
 #define             zmw_sensible(B) ZMW_SENSIBLE              = B
 
-#define   zmw_focus(X) ZMW1(ZMW_FOCUS = X; ZMW_EVENT_IN_FOCUS = zMw[-1].u.size.event_in_rectangle;)
+#define   zmw_focus(X) ZMW1(ZMW_FOCUS = X; /* ZMW_EVENT_IN_FOCUS = zMw[-1].u.size.event_in_rectangle; */)
 #define  zmw_focused() ZMW_SIZE_FOCUSED
 
 #define zmw_name_full (zmw.full_name)
@@ -547,8 +554,6 @@ void zmw_resource_pointer_get(void **pointer_value, const char *resource
  * zmw_size.c
  */
 /* void zmw_compute_box_size(int allocated) ; */
-void zmw_compute_no_size(void) ;
-void zmw_asked_size_set_required_size(void) ;
 Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
 void zmw_swap_x_y(void) ;
 void zmw_padding_add(Zmw_Rectangle *r, int padding) ;

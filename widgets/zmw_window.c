@@ -86,7 +86,7 @@ static void zmw_compute_window_size()
   ZMW_SIZE_ALLOCATED.y = 0 ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
   ZMW_CHILDREN[the_child].allocated = ZMW_SIZE_ALLOCATED ;
-  zmw_padding_remove(&ZMW_CHILDREN[the_child].allocated, ZMW_CHILDREN[the_child].padding_width) ;
+  zmw_padding_remove(&ZMW_CHILDREN[the_child].allocated, ZMW_CHILDREN[the_child].current_state.padding_width) ;
 }
 
 
@@ -152,13 +152,17 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       /* If the cursor is in a popped window, the window shouldstay popped */
       if ( pop && !zmw_window_is_detached() && zmw.event && *ZMW_WINDOW == zmw.event->any.window )
 	zmw_window_update_uppers(Zmw_Menu_Is_Poped * (1+Zmw_Menu_State_New)) ;
-      
+
+
+      /* Here because top level widgets are called only once */
+      /* Not nice, may be we should enclose all the application
+	 in a special widget */
+      ZMW_SIZE_MIN.width = 0 ;
+      ZMW_SIZE_MIN.height = 0 ;
+      ZMW_SIZE_REQUIRED = ZMW_SIZE_MIN ;
       break ;
 
     case Zmw_Compute_Required_Size:
-      /* To make cache checking happy */
-      ZMW_SIZE_MIN.width = 0 ;
-      ZMW_SIZE_MIN.height = 0 ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size:
@@ -196,11 +200,11 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	  s = zmw_widget_previous_size() ;
 	  gdk_window_move(*ZMW_WINDOW
 			  , x
-			  + s->allocated.x - s->padding_width
-			  + (pop==Zmw_Popup_Right ? s->allocated.width + 2*s->padding_width  : 0 )
+			  + s->allocated.x - s->current_state.padding_width
+			  + (pop==Zmw_Popup_Right ? s->allocated.width + 2*s->current_state.padding_width  : 0 )
 			  , y
-			  + s->allocated.y - s->padding_width
-			  + (pop==Zmw_Popup_Bottom ? s->allocated.height + 2*s->padding_width  : 0)
+			  + s->allocated.y - s->current_state.padding_width
+			  + (pop==Zmw_Popup_Bottom ? s->allocated.height + 2*s->current_state.padding_width  : 0)
 			  ) ;
 	}
       if ( title
@@ -208,8 +212,12 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	gdk_window_set_title(*ZMW_WINDOW, title) ;
 
 
-
-      if ( zMw[-1].u.size.do_not_map_window )
+      /*
+       * The test is not nice.
+       * The do_not_map window should be set in the parent
+       * and not by a grand parent.
+       */
+      if ( !ZMW_WIDGET_TOP && ZMW_PARENT_SIZE.do_not_map_window )
 	{
 	  //	  if ( gdk_window_is_visible(*ZMW_WINDOW) )
 	    gdk_window_hide(*ZMW_WINDOW) ;	  

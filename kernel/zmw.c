@@ -24,6 +24,9 @@
 #include "zmw/zmw.h"
 #include <gdk/gdkkeysyms.h>
 
+
+#define ZMW_PRINTF if(0) zmw_printf
+
 /*
  *
  * Draw Zmw :
@@ -93,11 +96,7 @@ const char* zmw_size_string(const Zmw_Size *s)
   static char buf[200] ;
 
   sprintf(buf
-	  ,"Ask %3dx%-3d %3d,%-3d Min %3dx%-3d %3d,%-3d Req%3dx%-3d %3d,%-3d All%3dx%-3d %3d,%-3d INDEX=%6d %s%s%s%s%s%s%s%s"
-	  ,s->asked.width
-	  ,s->asked.height
-	  ,s->asked.x
-	  ,s->asked.y
+	  ,"Min %3dx%-3d %3d,%-3d Req%3dx%-3d %3d,%-3d All%3dx%-3d %3d,%-3d INDEX=%6d %s%s%s%s%s%s%s%s"
 	  ,s->min.width
 	  ,s->min.height
 	  ,s->min.x
@@ -111,10 +110,10 @@ const char* zmw_size_string(const Zmw_Size *s)
 	  ,s->allocated.x
 	  ,s->allocated.y
 	  ,s->index
-	  ,s->horizontal_expand ? " HE" : ""
-	  ,s->vertical_expand ? " VE" : ""
-	  ,s->horizontal_alignment ? "HA" : ""
-	  ,s->vertical_alignment ? "VA" : ""
+	  ,s->current_state.horizontal_expand ? " HE" : ""
+	  ,s->current_state.vertical_expand ? " VE" : ""
+	  ,s->current_state.horizontal_alignment ? "HA" : ""
+	  ,s->current_state.vertical_alignment ? "VA" : ""
 	  ,s->used_to_compute_parent_size ? " Used" : ""
 	  ,s->invisible ? " Inv" : ""
 	  ,s->sensible ? " Sens" : ""
@@ -126,18 +125,18 @@ const char* zmw_size_string(const Zmw_Size *s)
 int zmw_event_in()
 {
   /* Because of viewport, the event must be in the upper window (no clip) */
-  if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].u.size.event_in_rectangle )
+  if ( zMw[-1].i.window == ZMW_WINDOW && ! ZMW_PARENT_SIZE.event_in_rectangle )
     return(0) ;
 
   return
     ( zmw.event
       && zmw.event->any.window == *ZMW_WINDOW
-      && zmw.x >= ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH
+      && zmw.x >= ZMW_SIZE_ALLOCATED.x - ZMW_SIZE_PADDING_WIDTH
       && zmw.x
-      < ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH
-      && zmw.y >= ZMW_SIZE_ALLOCATED.y - ZMW_PADDING_WIDTH
+      < ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_SIZE_PADDING_WIDTH
+      && zmw.y >= ZMW_SIZE_ALLOCATED.y - ZMW_SIZE_PADDING_WIDTH
       && zmw.y
-      < ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height + ZMW_PADDING_WIDTH
+      < ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height + ZMW_SIZE_PADDING_WIDTH
      ) ;
 }
 
@@ -158,9 +157,25 @@ void zmw_widget_change()
 
 void zmw_state_push()
 {
+  ZMW_PRINTF("state_push\n") ;
+  
+  /*
+   * Copy the widget current state to the first child
+   */
+  if ( zMw->u.nb_of_children_max == 0 )
+    {
+      zMw->u.nb_of_children_max = 1 ;
+      ZMW_MALLOC(ZMW_CHILDREN, 1) ;
+    }
+  if ( zMw != zmw.zmw_table ) // Only for the very first push (only one time)
+    ZMW_CHILDREN[0].current_state = ZMW_SIZE.current_state ;
+
+
   zMw[1].i = zMw[0].i ;
   
-  ZMW_NB_OF_CHILDREN = 0 ;
+  if ( ZMW_CALL_NUMBER <= 1 ) /* 4/6/2004 */
+    ZMW_NB_OF_CHILDREN = 0 ;
+
   /*
    *
    */
@@ -177,19 +192,16 @@ void zmw_state_push()
   ZMW_LINE = -1 ;
 #endif
 
-
-
   ZMW_NAME_SEPARATOR = -1 ;
   ZMW_NAME = zMw[-1].u.name + strlen(zMw[-1].u.name) + 1 ;
   strcpy(&ZMW_NAME[-1], "/") ;	/* Doesn't inherit name */
   ZMW_NAME_INDEX = ZMW_NAME ;
   ZMW_DO_NOT_EXECUTE_POP = Zmw_False ;
-  ZMW_INVISIBLE = Zmw_False ;
-  ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
-  ZMW_SIZE_MIN.y = ZMW_VALUE_UNDEFINED ;
 
+  /*
   ZMW_MENU_STATE = NULL ; // Because of : zmw_tearoff first in a widget
   ZMW_SUBACTION = Zmw_Init ; // Because of : zmw_tearoff first in a widget
+  */
 
   ZMW_CHILD_NUMBER = -1 ;
 
@@ -253,6 +265,8 @@ void zmw_font_free()
 
 void zmw_state_pop()
 {
+  ZMW_PRINTF("state_pop\n") ;
+
   zmw_widget_change() ;
 
   if ( ZMW_DO_NOT_EXECUTE_POP )
@@ -311,6 +325,8 @@ void zmw_decrement_index()
 */
 void zmw_init_widget()
 {
+  ZMW_PRINTF("init_widget parent callnumber %d\n", zMw[-1].u.call_number) ;
+
   if ( zmw.external_do_not_make_init )
     {
       /* The init was yet done by the widget calling the external compose */
@@ -318,24 +334,57 @@ void zmw_init_widget()
       return ;
     }
   /* If the previous widget was activated, remove event */
-  if ( ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED )
+  if ( ZMW_CHILD_NUMBER != -1 && (ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED) )
     zmw_event_remove() ;
 
-  ZMW_SIZE_INDEX = -1000 ; // XXX to debug
+  ZMW_CHILD_NUMBER++ ;
+
+  /* First pass on the children, initialize their data */
+  if ( zMw[-1].u.call_number <= 1  )
+    {
+      /* Go here only once.
+       * if zMw[-1].u.call_number == 0 for top level widgets
+       *                               it will never be 1 (no loop)
+       *    zMw[-1].u.call_number == 1 for other widgets
+       *                               it can't be 0
+       *
+       * There is one element reserved for spare.
+       * It is used to store the current state.
+       */
+      if ( zMw[-1].u.nb_of_children + 1 >= zMw[-1].u.nb_of_children_max )
+	{
+	  zMw[-1].u.nb_of_children_max = 10 + 2*zMw[-1].u.nb_of_children_max  ;
+	  ZMW_REALLOC(zMw[-1].u.children, zMw[-1].u.nb_of_children_max) ;
+	}
+      zMw[-1].u.nb_of_children++ ;
+      
+      ZMW_SIZE_INDEX = -1000000 ; // XXX to debug
+      ZMW_SIZE_SENSIBLE = Zmw_False ;
+      ZMW_SIZE_ACTIVATED = Zmw_False ;
+      ZMW_SIZE_CHILD_ACTIVATED = Zmw_False ;
+      ZMW_SIZE_CHANGED = Zmw_False ;
+      ZMW_SIZE_FOCUSED = Zmw_False ;
+      ZMW_SIZE_PASS_THROUGH = Zmw_False ;
+      ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
+      ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_False ;
+      ZMW_SIZE_INVISIBLE = Zmw_False ;
+      ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
+      ZMW_SIZE_MIN.y = ZMW_VALUE_UNDEFINED ;
+      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
+      ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_False ;
+      /*
+       * Copy the widget current state to the next widget
+       */
+      ZMW_SIZE_CURRENT_STATE = ZMW_SIZE.current_state ;
+    }
+  // ZMW_SIZE_CURRENT_STATE = ZMW_SIZE.current_state ;
   ZMW_CALL_NUMBER = 0 ;
   zmw_increment_index() ;
-  ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
-  ZMW_SIZE_SENSIBLE = Zmw_False ;
   ZMW_SUBACTION = Zmw_Init ;
-  ZMW_SIZE_ACTIVATED = Zmw_False ;
-  ZMW_SIZE_CHILD_ACTIVATED = Zmw_False ;
-  ZMW_SIZE_CHANGED = Zmw_False ;
-  ZMW_SIZE_FOCUSED = Zmw_False ;
-  ZMW_SIZE_PASS_THROUGH = Zmw_False ;
-  ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
   ZMW_MENU_STATE = NULL ;
-  ZMW_CHILD_NUMBER++ ;
   zmw_debug_set() ;
+
+  ZMW_PRINTF("init_widget fin child_number=%d\n", ZMW_CHILD_NUMBER) ;
 }
 
 /*
@@ -343,6 +392,8 @@ void zmw_init_widget()
  * This function needs to be rewrote properly to work
  * on all the possible cases.
  * The hard part are the possible use of EXTERNAL and void in the parents.
+ *
+ * This function is only used by zmw_window
  */
 Zmw_Size* zmw_widget_previous_size()
 {
@@ -351,27 +402,20 @@ Zmw_Size* zmw_widget_previous_size()
   Zmw_State *state ;
   
   state = zMw - 1 ;
-  while ( ( ! state->u.size.used_to_compute_parent_size
-	    || state->u.nb_of_children <= 1
-	    )
-	  && state != zmw.zmw_table+1
-	  )
-     state-- ;
-  
-  
-  for(i=2; ; i++)
+  while ( state->u.child_number == 0  &&  state != zmw.zmw_table+1 )
     {
-      if ( state->u.nb_of_children < i ) /* Impossible case */
-	{
-	  zmw_printf("state.Type: %s\n", state->u.type) ;
-	  zmw_printf("Level: %d\n", state - zMw) ;
-	  zmw_printf("nb=%d i=%d\n", state->u.nb_of_children, i) ;
-	  ZMW_ABORT ;
-	}
-      s = &state->u.children[state->u.nb_of_children - i ] ;
+      state-- ;
+    }
+  for(i = state->u.child_number - 1; i >= 0 ; i--)
+    {
+      s = &state[-1].u.children[i] ;
       if ( s->used_to_compute_parent_size )
 	return(s) ;
     }
+  zmw_printf("state.Type: %s\n", state->u.type) ;
+  zmw_printf("Level: %d\n", state - zMw) ;
+  zmw_printf("nb=%d i=%d\n", state->u.nb_of_children, i) ;
+  ZMW_ABORT ;
 }
 
 
@@ -380,20 +424,16 @@ Zmw_Size* zmw_widget_previous_size()
  */
 void zmw_action_do_not_enter()
 {
+  ZMW_PRINTF("Do no enter\n") ;
   zmw_window_restore() ;
-  /*  ZMW_CALL_NUMBER-- ; */
-  /*
-  if ( zMw == zmw.zmw_table+1 )
-    ZMW_INDEX = zMw[1].i.index ;
-  else
-    ZMW_INDEX = ZMW_SIZE_INDEX ;
-  */
 }
 
 
 int zmw_action_compute_required_size()
 {
   int i ;
+
+  ZMW_PRINTF("compute_required call=%d child=%d\n", ZMW_CALL_NUMBER, ZMW_CHILD_NUMBER) ;
 
   ZMW_EXTERNAL_HANDLING ;
 
@@ -430,11 +470,6 @@ int zmw_action_compute_required_size()
 	  if ( !ZMW_SIZE_EVENT_IN_CHILDREN )
 	    for(i=0;i<ZMW_NB_OF_CHILDREN;i++)
 	      ZMW_SIZE_EVENT_IN_CHILDREN |= ZMW_CHILDREN[i].event_in_children ;
-	  /*
-	   * This one will be computed once the allocated size
-	   * for itself is known
-	   */
-	  // ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
 	}
 
       /*
@@ -444,44 +479,25 @@ int zmw_action_compute_required_size()
       ZMW_SIZE_REQUIRED = ZMW_SIZE_MIN ;
       ZMW_SIZE_HORIZONTAL_EXPAND = ZMW_HORIZONTAL_EXPAND ;
       ZMW_SIZE_VERTICAL_EXPAND = ZMW_VERTICAL_EXPAND ;
-      ZMW_SIZE_HORIZONTAL_ALIGNMENT = ZMW_HORIZONTAL_ALIGNMENT ;
-      ZMW_SIZE_VERTICAL_ALIGNMENT = ZMW_VERTICAL_ALIGNMENT ;
-      ZMW_SIZE_PADDING_WIDTH = ZMW_PADDING_WIDTH ;
-      
-      if ( ZMW_SIZE_ASKED.width != ZMW_VALUE_UNDEFINED )
+      if ( ZMW_ASKED.width != ZMW_VALUE_UNDEFINED )
 	{
-	  ZMW_SIZE_REQUIRED.width = ZMW_SIZE_ASKED.width ;
-	  ZMW_SIZE_HORIZONTAL_EXPAND = Zmw_False ;
+	  ZMW_SIZE_REQUIRED.width = ZMW_ASKED.width ;
+	  ZMW_SIZE_HORIZONTAL_EXPAND = Zmw_False ; // 10/6/2004
 	}
-      if ( ZMW_SIZE_ASKED.height != ZMW_VALUE_UNDEFINED )
+      if ( ZMW_ASKED.height != ZMW_VALUE_UNDEFINED )
 	{
-	  ZMW_SIZE_REQUIRED.height = ZMW_SIZE_ASKED.height ;
-	  ZMW_SIZE_VERTICAL_EXPAND = Zmw_False ;
+	  ZMW_SIZE_REQUIRED.height = ZMW_ASKED.height ;
+	  ZMW_SIZE_VERTICAL_EXPAND = Zmw_False ; // 10/6/2004
 	}
-      if ( ZMW_SIZE_ASKED.x != ZMW_VALUE_UNDEFINED )
-	  ZMW_SIZE_REQUIRED.x = ZMW_SIZE_ASKED.x ;
-      if ( ZMW_SIZE_ASKED.y != ZMW_VALUE_UNDEFINED )
-	ZMW_SIZE_REQUIRED.y = ZMW_SIZE_ASKED.y ;
+      if ( ZMW_ASKED.x != ZMW_VALUE_UNDEFINED )
+	  ZMW_SIZE_REQUIRED.x = ZMW_ASKED.x ;
+      if ( ZMW_ASKED.y != ZMW_VALUE_UNDEFINED )
+	ZMW_SIZE_REQUIRED.y = ZMW_ASKED.y ;
 
-      ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_False ;
 
       /*    if ( ZMW_USED_TO_COMPUTE_PARENT_SIZE ) */
       zmw_cache_set_size(&ZMW_SIZE) ;
     }
-
-
-
-  /*
-   * Store informations in father
-   */
-  if ( zMw[-1].u.nb_of_children == zMw[-1].u.nb_of_children_max )
-    {
-      zMw[-1].u.nb_of_children_max = 10 + 2*zMw[-1].u.nb_of_children_max  ;
-      ZMW_REALLOC(zMw[-1].u.children, zMw[-1].u.nb_of_children_max) ;
-    }
-
-  zMw[-1].u.children[zMw[-1].u.nb_of_children] = ZMW_SIZE ;
-  zMw[-1].u.nb_of_children++ ;
 
   zmw_action_do_not_enter() ;
   return(0) ;
@@ -499,10 +515,6 @@ int zmw_action_first_pass()
   if ( zMw[-1].u.nb_of_children_max != 0 )
     {
       /*
-       * Not top level, so size is yet computed
-       */
-      ZMW_SIZE = zMw[-1].u.children[ZMW_CHILD_NUMBER] ;
-      /*
        * We know about sensitivity AFTER the first pass on the parent
        *   zmw_button("quit") ;
        *   if ( zmw_activated() ) ....
@@ -510,9 +522,9 @@ int zmw_action_first_pass()
       if ( !ZMW_SENSIBLE )
 	ZMW_SIZE_SENSIBLE = 0 ;
 
-      zMw[-1].u.nb_of_children++ ;
+      // zMw[-1].u.nb_of_children++ ;  4/6/2004
 
-      if ( ZMW_INVISIBLE )
+      if ( ZMW_SIZE_INVISIBLE )
 	{
           zmw.index_last = ZMW_SIZE_INDEX - 1 ;  /* -+1 the 3/7/2003 */
 	  zmw_action_do_not_enter() ;
@@ -536,7 +548,6 @@ void zmw_action_second_pass_()
 
 void zmw_action_second_pass()
 {
-  zMw->u.nb_of_children_0 = zMw->u.nb_of_children ;
   ZMW_SIZE_EVENT_IN_RECTANGLE = zmw_event_in() ;
 
   zmw_action_second_pass_() ;  
@@ -545,11 +556,8 @@ void zmw_action_second_pass()
 static void zmw_debug_children(Zmw_State *z)
 {
   int i ;
-  fprintf(stderr, "nbchild=%d nbchild0=%d"
-	  , z->u.nb_of_children
-	  , z->u.nb_of_children_0
-	  ) ;
-  for(i=0; i<z->u.nb_of_children_0; i++)
+  fprintf(stderr, "nbchild=%d", z->u.nb_of_children) ;
+  for(i=0; i<z->u.nb_of_children; i++)
     {
       if ( i == z->u.nb_of_children )
 	fprintf(stderr, " *") ;
@@ -568,8 +576,8 @@ void zmw_debug_trace()
 	     , zmw_action_name_fct()+11
 	     , ZMW_CALL_NUMBER
 	     , zmw_event_to_process() ? " EtP" : ""
-	     , ZMW_SIZE_EVENT_IN_RECTANGLE ? " EIR" : ""
-	     , ZMW_SIZE_EVENT_IN_CHILDREN ? " EIC" : ""
+	     , ZMW_CHILD_NUMBER>=0 && ZMW_SUBACTION == Zmw_Input_Event && ZMW_SIZE_EVENT_IN_RECTANGLE ? " EIR" : ""
+	     , ZMW_CHILD_NUMBER>=0 && ZMW_SUBACTION  == Zmw_Input_Event && ZMW_SIZE_EVENT_IN_CHILDREN  ? " EIC" : ""
 	     ) ;
   if ( 0 )
   	{
@@ -672,12 +680,10 @@ int zmw_action_dispatch_event()
     {
       ZMW_CALL_NUMBER++ ;
       zmw_action_do_not_enter() ;
-      zMw[-1].u.nb_of_children = zMw[-1].u.nb_of_children_0 ;
 
-      if ( ZMW_SIZE_ACTIVATED && zMw[-1].u.nb_of_children )
+      if ( !ZMW_WIDGET_TOP && ZMW_SIZE_ACTIVATED && zMw[-1].u.nb_of_children )
 	{
-	  zMw[-1].u.children[ZMW_CHILD_NUMBER].child_activated = Zmw_True;
-	  zMw[-1].u.size.child_activated = Zmw_True;
+	  ZMW_PARENT_SIZE.child_activated = Zmw_True;
 	}
       return(0) ;
     }
@@ -696,16 +702,18 @@ int zmw_action_dispatch_event()
        * Event are computed for the window with the cursor : first
        * Or the widget containing the window with the cursor : first
        */
-      if ( zMw[-1].u.size.event_in_children
+      if ( !ZMW_WIDGET_TOP &&
+	   (ZMW_PARENT_SIZE.event_in_children
            ? ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_CHILDREN )
                 || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_CHILDREN )
                 )
-           : ( zMw[-1].u.size.event_in_rectangle
+           : ( ZMW_PARENT_SIZE.event_in_rectangle
                && ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_RECTANGLE )
                     || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_RECTANGLE )
                     )
                )
            )
+	   )
 	{
 	  if ( ZMW_DEBUG )
 	    zmw_printf("Event in masked\n") ;
@@ -723,7 +731,7 @@ int zmw_action_dispatch_event()
       break ;
 
     case 2:
-      if ( ZMW_SIZE_EVENT_IN_RECTANGLE && !zmw_activated() && !ZMW_SIZE_CHILD_ACTIVATED && !zmw.event_removed && !ZMW_SIZE_CHANGED )
+      if ( ZMW_SIZE_EVENT_IN_RECTANGLE && !ZMW_SIZE_ACTIVATED && !ZMW_SIZE_CHILD_ACTIVATED && !zmw.event_removed && !ZMW_SIZE_CHANGED )
 	{
 	  ZMW_SUBACTION = Zmw_Input_Event ;
 	  zmw_state_push() ;
@@ -741,10 +749,9 @@ int zmw_action_dispatch_event()
       ZMW_SIZE_CHILD_ACTIVATED = Zmw_True ;
     }
   
-  if ( ZMW_SIZE_CHILD_ACTIVATED && zMw[-1].u.nb_of_children )
+  if ( !ZMW_WIDGET_TOP && ZMW_SIZE_CHILD_ACTIVATED && zMw[-1].u.nb_of_children )
     {
-      zMw[-1].u.children[ZMW_CHILD_NUMBER].child_activated = Zmw_True;
-      zMw[-1].u.size.child_activated = Zmw_True;
+      ZMW_PARENT_SIZE.child_activated = Zmw_True;
     }
 
   /*

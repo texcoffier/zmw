@@ -45,14 +45,14 @@ void gate_output(int *output, int gate)
 
 void gate_output_coordinates(const Gate *g, int *x, int *y)
 {
-  *x = g->x + g->w + zMw[-1].u.size.allocated.x + gate_width  ;
-  *y = g->y + g->h/2 + zMw[-1].u.size.allocated.y ;
+  *x = g->x + g->w + ZMW_PARENT_SIZE.allocated.x + gate_width  ;
+  *y = g->y + g->h/2 + ZMW_PARENT_SIZE.allocated.y ;
 }
 
 void gate_input_coordinates(const Gate *g, int port, int *x, int *y)
 {
-  *x = g->x + zMw[-1].u.size.allocated.x ;
-  *y = g->y + zMw[-1].u.size.allocated.y ;
+  *x = g->x + ZMW_PARENT_SIZE.allocated.x ;
+  *y = g->y + ZMW_PARENT_SIZE.allocated.y ;
   if ( number_of_inputs[g->type] == 1 )
     *y += g->h/2 ;
   else

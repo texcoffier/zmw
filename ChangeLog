@@ -1,3 +1,10 @@
+2004-06-15 (0.0.8)
+	Remove data duplication: ZMW_SIZE is now zMw[-1].u.children[Child.]
+	Many bugs corrected thanks to "valgrind"
+	Remove of the attribute "nb_of_children_0" (no more useful)
+	Children list is created only once when evaluating a parent
+	Horizontal/Vertical expands are not modified if the width is given
+	
 2004-06-02 (0.0.7)
 	The user can stop the widget-tree traversal with zmw_event_remove()
 	The drag and drop no more use transient widgets but zmw_if

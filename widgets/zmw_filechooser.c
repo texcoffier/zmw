@@ -205,8 +205,8 @@ void zmw_filechooser(Zmw_Boolean *visible
   err = errno ;
   activated = Zmw_False ;
 
-  width = ZMW_SIZE_ASKED.width ;
-  height = ZMW_SIZE_ASKED.height ;
+  width = ZMW_ASKED.width ;
+  height = ZMW_ASKED.height ;
 
   ZMW(zmw_window(title))
     {

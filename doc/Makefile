@@ -52,6 +52,21 @@ ps:picture_eps example_sgml
 
 doc:: html ps
 
+webpictures:
+	if [ `id -nu` = 'exco' ] ; \
+	then \
+		$(MAKE) $(HOME)/public_html/ZMW/stack.png ; \
+		$(MAKE) $(HOME)/public_html/ZMW/execution.png ; \
+	fi
+
+FIG2PNG=fig2dev -Lpng -S4 -b10
+
+$(HOME)/public_html/ZMW/stack.png: stack.fig
+	$(FIG2PNG) -m1 <`basename $@ .png`.fig >$@
+$(HOME)/public_html/ZMW/execution.png: execution.fig Makefile
+	$(FIG2PNG) -m1 <`basename $@ .png`.fig >$@
+
+
 clean::
 	rm -f zmw.html zmw.ps 2>/dev/null
 

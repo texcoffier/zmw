@@ -110,6 +110,10 @@ new_release:makefile_clean clean
 	then \
 	echo "Creating a new release" ; \
 	$(CREATE_TGZ) zmw-$(ZMW_VERSION) >~/public_html/ZMW/zmw-$(ZMW_VERSION).tgz ; \
+	if [ -d ~/public_html/ZMW/zmw-$(ZMW_VERSION) ] ; \
+	then rm -r ~/public_html/ZMW/zmw ; \
+	     mv ~/public_html/ZMW/zmw-$(ZMW_VERSION) ~/public_html/ZMW/zmw ; \
+        fi ; \
 	fi
 
 ##############################################################################
@@ -131,7 +135,7 @@ night:
 ##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.6" ; NEW="0.0.7" ; \
+	OLD="0.0.7" ; NEW="0.0.8" ; \
 	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
@@ -156,7 +160,7 @@ diff:
 		--exclude="xxx*" \
 		--exclude="regteststatus" \
 		--exclude="#*" \
-		../zmw-0.0.6 .
+		../zmw-0.0.7 .
 ##############################################################################
 # Search unused functions
 ##############################################################################

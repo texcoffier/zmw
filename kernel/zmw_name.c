@@ -50,7 +50,6 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    "zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index=%d\n" 		    "zMw[-1].u.children[zMw[-1].u.nb_of_children].index=%d\n" 
 		    "index_of_next_next() = %d\n" 
 		    "zMw[-1].u.nb_of_children=%d\n" 
-		    "zMw[-1].u.nb_of_children0=%d\n"
 		    "event_type=%s\n" 
 		    , n->index			
 		    , ZMW_INDEX			
@@ -68,7 +67,6 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    , zMw[-1].u.children[zMw[-1].u.nb_of_children].index 
 		    , zmw_index_of_next_widget()
 		    , zMw[-1].u.nb_of_children 
-		    , zMw[-1].u.nb_of_children_0 
 		    , zmw.event->type == GDK_NOTHING ? "NOTHING" : "?"
 		    ) ;
 }
@@ -288,21 +286,9 @@ Zmw_Boolean zmw_name_is_inside(const Zmw_Name *n)
     return( Zmw_False ) ;
 }
 
-static int zmw_index_of_next_widget_rec(Zmw_State *z)
-{
-   if ( z->u.nb_of_children < z->u.nb_of_children_0 )
-   	return ( z->u.children[z->u.nb_of_children].index ) ;
-   	
-   if ( z < zmw.zmw_table )
-   	ZMW_ABORT ;
-   	
-   return( zmw_index_of_next_widget_rec(z - 1) ) ;
-}
-
 static int zmw_index_of_next_widget()
 {
-	return( ZMW_SIZE_INDEX ) ;
-   return( zmw_index_of_next_widget_rec(zMw-1) ) ;
+  return( ZMW_SIZE_INDEX ) ;
 }
 
 Zmw_Boolean zmw_name_contains(const Zmw_Name *n)

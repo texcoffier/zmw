@@ -102,7 +102,7 @@ void zmw_anchor_vertical(int *x)
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
       ZMW_SIZE_CHANGED = Zmw_True ;
-      *x = zmw.x - zMw[-1].u.size.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
+      *x = zmw.x - ZMW_PARENT_SIZE.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
     }
 
   // I do not know why it is necessary here, it bugs with cache
@@ -132,8 +132,8 @@ void zmw_anchor_vertical_float(float *x)
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
       ZMW_SIZE_ACTIVATED = Zmw_True ;
-      *x = (zmw.x - zMw[-1].u.size.allocated.x)
-	/ (float)zMw[-1].u.size.allocated.width ;
+      *x = (zmw.x - ZMW_PARENT_SIZE.allocated.x)
+	/ (float)ZMW_PARENT_SIZE.allocated.width ;
     }
 }
 
@@ -181,7 +181,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 
 	  ZMW_CHILDREN[i].allocated = ZMW_SIZE_ALLOCATED ;
 	  zmw_padding_remove(&ZMW_CHILDREN[i].allocated
-			     , ZMW_CHILDREN[i].padding_width ) ;
+			     , ZMW_CHILDREN[i].current_state.padding_width ) ;
 	}
       break ;
     case Zmw_Post_Drawing:
@@ -235,8 +235,8 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
-	  nx = zmw.x - zMw[-1].u.size.allocated.x ;
-	  ny = zmw.y - zMw[-1].u.size.allocated.y ;
+	  nx = zmw.x - ZMW_PARENT_SIZE.allocated.x ;
+	  ny = zmw.y - ZMW_PARENT_SIZE.allocated.y ;
 	  switch(corner)
 	    {
 	    case 0:
@@ -382,8 +382,8 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
-	  nx = zmw.x - zMw[-1].u.size.allocated.x ;
-	  ny = zmw.y - zMw[-1].u.size.allocated.y ;
+	  nx = zmw.x - ZMW_PARENT_SIZE.allocated.x ;
+	  ny = zmw.y - ZMW_PARENT_SIZE.allocated.y ;
 	  *x = nx - ZMW_SIZE_ALLOCATED.width/2 ;
 	  *y = ny - ZMW_SIZE_ALLOCATED.height/2 ;
 	  zmw_event_remove() ;

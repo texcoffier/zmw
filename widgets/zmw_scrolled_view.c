@@ -26,7 +26,7 @@ Zmw_Boolean zmw_child_visible(int child)
   if ( !ZMW_CHILDREN[child].used_to_compute_parent_size )
     return Zmw_False ;
   return ZMW_CHILDREN[child].allocated.y + ZMW_CHILDREN[child].allocated.height
-    < zMw[-1].u.size.allocated.y + zMw[-1].u.size.allocated.height ;
+    < ZMW_PARENT_SIZE.allocated.y + ZMW_PARENT_SIZE.allocated.height ;
 }
 
 /* Assume that the height of the next child is the same */
@@ -34,7 +34,7 @@ Zmw_Boolean zmw_child_next_visible(int child)
 {
   return ZMW_CHILDREN[child].allocated.y
     + 2*ZMW_CHILDREN[child].allocated.height
-    < zMw[-1].u.size.allocated.y + zMw[-1].u.size.allocated.height ;
+    < ZMW_PARENT_SIZE.allocated.y + ZMW_PARENT_SIZE.allocated.height ;
 }
 
 void zmw_scrolled_view_clamp(int *start, int *nb, int max)

@@ -134,7 +134,7 @@ void zmw_text_draw_text(const char *text, int x, int y, Zmw_Boolean activable
   /*
    * Draw text normal or gray if not sensitive
    */
-  if ( (zMw[-1].u.size.sensible && ZMW_SENSIBLE) ||
+  if ( (ZMW_PARENT_SIZE.sensible && ZMW_SENSIBLE) ||
        (!activable && !editable) )
     zmw_draw_string(Zmw_Color_Foreground, x, y, text) ;
   

@@ -93,24 +93,24 @@ void zmw_box_horizontal_children_allocated_size()
 	  if ( first )
 	    {
 	      if ( nb_expandable != 0 )
-		ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
+		ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
 	      else
 		{
 		  if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT < 0 )
-		    ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
+		    ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
 		  else
 		    {
 		      if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 )
 			ZMW_CHILDREN[i].allocated.x
 			= ZMW_SIZE_ALLOCATED.x
-			  + ZMW_CHILDREN[i].padding_width
+			  + ZMW_CHILDREN[i].current_state.padding_width
 			  + ( ZMW_SIZE_ALLOCATED.width
 			      - ZMW_SIZE_REQUIRED.width )
 			  ;
 		      else
 			ZMW_CHILDREN[i].allocated.x
 			  = ZMW_SIZE_ALLOCATED.x
-			  + ZMW_CHILDREN[i].padding_width
+			  + ZMW_CHILDREN[i].current_state.padding_width
 			  + ( ZMW_SIZE_ALLOCATED.width
 			      - ZMW_SIZE_REQUIRED.width ) / 2 ;
 			  ;
@@ -122,8 +122,8 @@ void zmw_box_horizontal_children_allocated_size()
 	      ZMW_CHILDREN[i].allocated.x =
 		ZMW_CHILDREN[last].allocated.x
 		+ ZMW_CHILDREN[last].allocated.width
-		+ ZMW_CHILDREN[last].padding_width
-		+ ZMW_CHILDREN[i].padding_width
+		+ ZMW_CHILDREN[last].current_state.padding_width
+		+ ZMW_CHILDREN[i].current_state.padding_width
 		;
 	    }
 	}
@@ -135,12 +135,12 @@ void zmw_box_horizontal_children_allocated_size()
       if ( ZMW_CHILDREN[i].required.y != ZMW_VALUE_UNDEFINED )
 	{
 	  ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y
-	    + ZMW_CHILDREN[i].padding_width
+	    + ZMW_CHILDREN[i].current_state.padding_width
 	    + ZMW_CHILDREN[i].required.y ;
 	  ZMW_CHILDREN[i].allocated.height = ZMW_SIZE_ALLOCATED.y
 	    + ZMW_SIZE_ALLOCATED.height
 	    - ZMW_CHILDREN[i].allocated.y
-	    - ZMW_CHILDREN[i].padding_width
+	    - ZMW_CHILDREN[i].current_state.padding_width
 	    ;
 
 	}
@@ -241,12 +241,12 @@ void zmw_box_compute_required_size()
   int i ;
 
   c = ZMW_CHILDREN[0].required ;
-  zmw_padding_add(&c, ZMW_CHILDREN[0].padding_width) ;
+  zmw_padding_add(&c, ZMW_CHILDREN[0].current_state.padding_width) ;
   for(i=1; i<ZMW_NB_OF_CHILDREN; i++)
       if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
 	{
 	  d = ZMW_CHILDREN[i].required ;
-	  zmw_padding_add(&d, ZMW_CHILDREN[i].padding_width) ;
+	  zmw_padding_add(&d, ZMW_CHILDREN[i].current_state.padding_width) ;
 	  c = zmw_rectangle_max(&d, &c) ;
 	}
 
@@ -281,8 +281,8 @@ void zmw_box()
 	    continue ;
 
 	  ZMW_CHILDREN[i].allocated = ZMW_CHILDREN[i].required ;
-	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
-	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[i].padding_width ;
+	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
+	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[i].current_state.padding_width ;
 	}
       break ;
 
