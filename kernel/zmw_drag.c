@@ -237,7 +237,76 @@ char *zmw_drag_data_get()
   return(global_zmw_drag_data) ;
 }
 
+/*
+ * "p"     is the item being displayed (an index into "order")
+ * "order" contains the data list to display.
+ * "current" is "-1" if there is nothing to drag,
+ *           or it is an indice in the "order" table (given by "p").
+ *
+ * old_current is here in order to stop infinite swapping.
+ * You can't immediatly swap back the widget.
+ */
 
+Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current)
+{
+  Zmw_Boolean display_window ;
+  int tmp ;
+
+  display_window = Zmw_False ;
+  switch( zmw_drag_from_state() )
+    {
+    case Zmw_Drag_From_No: /* Not being dragged */
+      break ;
+    case Zmw_Drag_From_Begin: /* Start being dragged */
+      *current = p ;
+      zmw_drag_data_set("Data on the column") ;
+      break ;
+    case Zmw_Drag_From_Running: /* Being dragged */
+      display_window = Zmw_True ;
+      break ;
+    case Zmw_Drag_From_End: /* The drop is done */
+      *current = -1 ;
+      break ;
+    default:
+      ZMW_ABORT ;
+      break ;
+    }
+  if ( *current != -1 )
+    switch( zmw_drag_to_state() )
+      {
+      case Zmw_Drag_To_Enter:
+
+	if ( p != *old_current )
+	  {
+	    tmp = order[*current] ;
+	    order[*current] = order[p] ;
+	    order[p] = tmp ;
+	    
+	    *old_current = *current ;
+	    *current = p ;
+	    
+	    zmw_drag_accept_set(Zmw_True) ;
+	  }
+	else
+	  *old_current = -1 ;
+	    
+	break ;
+      case Zmw_Drag_To_End:
+	/* fall thru */
+      case Zmw_Drag_To_Leave:
+	break ;
+      case Zmw_Drag_To_No_Change:
+	break ;
+      default:
+	ZMW_ABORT ;
+	break ;
+      }
+  return display_window ;
+}
+
+/*
+ *
+ */
 
 void zmw_drag_debug_window()
 {
@@ -246,7 +315,7 @@ void zmw_drag_debug_window()
   
   ZMW(zmw_box_vertical())
     {
-      zmw_toggle_with_label(&display_drag_state, "drag state") ;
+      zmw_toggle_int_with_label(&display_drag_state, "drag state") ;
       if ( display_drag_state )
 	{
 	  sprintf(buf, "FROM=%s", zmw_name_registered(&global_zmw_drag_from)) ;

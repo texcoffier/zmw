@@ -19,9 +19,23 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
+
 #include "zmw/zmw.h"
 
 typedef enum { Zmw_Popup_None, Zmw_Popup_Right, Zmw_Popup_Bottom } Zmw_Popup ;
+
+/*
+ * This function is called from "zmw.c/zmw_action_do_no_enter"
+ * This could be considered as a current state from parent to child
+ * but not between siblings.
+ */
+
+void zmw_window_restore()
+{
+  ZMW_WINDOW = zMw[-1].i.window ; /* Restore window */
+  ZMW_GC = zMw[-1].i.gc ; /* Restore GC */
+  ZMW_CLIPPING = zMw[-1].i.clipping ;
+}
 
 /*
  * This function is not called on the first pass.
@@ -65,58 +79,20 @@ static void zmw_compute_window_size()
   ZMW_CHILDREN[the_child].allocated = ZMW_SIZE_ALLOCATED ;
 }
 
-/* This stack is not nice because redondent with zmw one.
- * It is needed because the widget can't execute code
- * just before the first child.
- * If it was possible, the "gc" change should be done at this place
- */
-static GdkGC *global_gc_stack[9][ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE)] ;
-static Zmw_Boolean global_copy[9][ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE)] ;
-static int global_gc_nb = 0 ;
-
-void zmw_gc_push()
-{
-  int i ;
-  
-  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-    {
-      global_gc_stack[global_gc_nb][i] = ZMW_GC[i] ;
-      global_copy[global_gc_nb][i] = ZMW_GC_COPY_ON_WRITE[i] ;
-      ZMW_GC_COPY_ON_WRITE[i] = Zmw_True ;
-    }
-  global_gc_nb++ ;
-}
-
-void zmw_gc_pop()
-{
-  int i ;
-  
-  global_gc_nb-- ;
-  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-    {
-      if ( ZMW_GC[i] != global_gc_stack[global_gc_nb][i] )
-      {
-	      gdk_gc_destroy(ZMW_GC[i]) ;
-      	      ZMW_GC[i] = global_gc_stack[global_gc_nb][i] ;
-              ZMW_GC_COPY_ON_WRITE[i] = global_copy[global_gc_nb][i] ;
-      }
-    }
-}
-
-
 
 void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 			, const int *detached, int follow_mouse
-			, const char *title)
+			, const char *title, GdkGC **gc)
 {
   GdkWindowAttr wa ;
   gint x, y ;
   Zmw_Size *s ;
   Zmw_Resource r = { "WindowID", 0 } ;
+  Zmw_Resource rgc = { "WindowGC", 0 } ;
   GdkRectangle rect ;
-  int i ;
 
   zmw_resource_pointer_get((void**)&w, &r) ;
+  zmw_resource_pointer_get((void**)&gc, &rgc) ;
 
   switch( ZMW_SUBACTION )
     {
@@ -145,33 +121,19 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	  
 	  *w = gdk_window_new(NULL, &wa, GDK_WA_COLORMAP|GDK_WA_VISUAL) ;
 	  gdk_window_set_events(*w, GDK_ALL_EVENTS_MASK) ;
-
-	  /*
-	  if ( gdk_drawable_get_colormap(*w) == NULL )
-	    {
-	      static GdkColormap *cm = NULL ;
-	      if ( cm == NULL )
-		{
-		  cm = gdk_colormap_new(gdk_visual_get_best(),1) ;
-		  if ( cm == NULL )
-		    ZMW_ABORT ;
-		}
-	      gdk_drawable_set_colormap(*w, cm) ;
-	    }
-	  */
+	  *gc = gdk_gc_new(*w) ;
 
 	  {
 	    GdkColor c ;
-	    if ( pop )
-	      c.pixel = 0xD0D0D0D0 ;
-	    else
-	      c.pixel = 0xC0C0C0C0 ;
+	    c.pixel = ZMW_COLORS[Zmw_Color_Background_Normal] ;
 	    gdk_window_set_background(*w, &c) ;
 	  }
 
 	  zmw_resource_set(&r) ;
+	  zmw_resource_set(&rgc) ;
 	}
       ZMW_WINDOW = *w ;
+      ZMW_GC = *gc ;
       ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
       
       break ;
@@ -184,60 +146,34 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-
-      zmw_gc_push() ;
-      
-      /* This should not be done.
-       * Because it destroy current color and so, we can't change window
-       * color. It is done like this because :
-       *    - New GC must be created for the window
-       *    - We don't know the current color
-       *    - There is not gc_get_background
-       * So it must be corrected.
-       */
-      
-      zmw_color(ZMW_FOREGROUND, 0x00000000) ;
-      if ( pop )
-	{
-	  zmw_color(ZMW_BACKGROUND_NORMAL, 0xD0D0D0D0) ;
-	  zmw_color(ZMW_BACKGROUND_PUSHED, 0xC0C0C0C0) ;
-	  zmw_color(ZMW_BACKGROUND_POPED, 0xE0E0E0E0) ;
-	  zmw_color(ZMW_BORDER_LIGHT, 0xF0F0F0F0) ;
-	  zmw_color(ZMW_BORDER_DARK, 0x70707070) ;
-	}
-      else
-	{
-	  zmw_color(ZMW_BACKGROUND_NORMAL, 0xC0C0C0C0) ;
-	  zmw_color(ZMW_BACKGROUND_PUSHED, 0xB0B0B0B0) ;
-	  zmw_color(ZMW_BACKGROUND_POPED, 0xD0D0D0D0) ;
-	  zmw_color(ZMW_BORDER_LIGHT, 0xE0E0E0E0) ;
-	  zmw_color(ZMW_BORDER_DARK, 0x60606060) ;
-	}
-     
       zmw_compute_window_size() ;
 
       /* Remove the clipping rectangle */
       
-      rect.x = 0 ;
-      rect.y = 0 ;
-      rect.width = ZMW_SIZE_ALLOCATED.width ;
-      rect.height = ZMW_SIZE_ALLOCATED.height ;
-      for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-	{
-	  zmw_modify_gc(gdk_gc_set_clip_rectangle(ZMW_GC[i], &rect);, i) ;
-	}
+      ZMW_CLIPPING.x = 0 ;
+      ZMW_CLIPPING.y = 0 ;
+      ZMW_CLIPPING.width = ZMW_SIZE_ALLOCATED.width ;
+      ZMW_CLIPPING.height = ZMW_SIZE_ALLOCATED.height ;
+      zmw_draw_clip_push(&ZMW_CLIPPING) ;
 
 #if GLIB_MAJOR_VERSION > 1
+      rect.x = ZMW_CLIPPING.x ;
+      rect.y = ZMW_CLIPPING.y ;
+      rect.width = ZMW_CLIPPING.width ;
+      rect.height = ZMW_CLIPPING.height ;
+
       gdk_window_begin_paint_rect(ZMW_WINDOW, &rect) ;
 #endif
-      gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_BACKGROUND_NORMAL], 1,
+      
+      zmw_draw_rectangle(Zmw_Color_Background_Normal, Zmw_True,
 			 0,0,9999,9999) ;
-
+      
       if ( !gdk_window_is_visible(*w) )
 	gdk_window_show(*w) ;
 
       if ( pop && zMw[-1].i.window
-	   && gdk_window_get_type(ZMW_WINDOW) == GDK_WINDOW_TEMP )
+	   && gdk_window_get_type(ZMW_WINDOW) == GDK_WINDOW_TEMP
+	   && !follow_mouse )
 	{
 	  gdk_window_get_origin(zMw[-1].i.window, &x, &y) ;
 	  s = zmw_widget_previous_size() ;
@@ -259,6 +195,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       zmw.windows[zmw.nb_windows-1].window = *w;
       break ;
     case Zmw_Post_Drawing:
+      zmw_draw_clip_pop() ;
       if ( follow_mouse && gdk_window_is_visible(*w) )
 	{	
 	  /* the -10 so the cursor don't easely go over the popup
@@ -272,7 +209,6 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 			  
 
 	}
-      zmw_gc_pop() ;
 #if GLIB_MAJOR_VERSION > 1
       gdk_window_end_paint(ZMW_WINDOW) ;
 #endif
@@ -327,7 +263,7 @@ static char * zmw_detached_name(Zmw_Detached where)
 }
 
 Zmw_Boolean zmw_window_detached(const int *detached
-						, Zmw_Detached where)
+				, Zmw_Detached where)
 {
   int d ;
   char *name ;
@@ -365,7 +301,7 @@ void zmw_window_detached_toggle(int *detached, Zmw_Detached where)
 
 void zmw_window_with_id(GdkWindow **w, const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_None, 0, 0, title) ;
+  zmw_window_generic(w, Zmw_Popup_None, 0, 0, title, NULL) ;
 }
 void zmw_window(const char *title)
 {
@@ -375,11 +311,11 @@ void zmw_window(const char *title)
 
 void zmw_window_popup_right_with_id_and_detached(GdkWindow **w, const int *detached)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, NULL, NULL) ;
 }
 void zmw_window_popup_right_with_id(GdkWindow **w)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, NULL, 0, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_Right, NULL, 0, NULL, NULL) ;
 }
 void zmw_window_popup_right_with_detached(const int *detached)
 {
@@ -392,7 +328,7 @@ void zmw_window_popup_right()
 
 void zmw_window_popup_bottom_with_id_and_detached(GdkWindow **w, const int *detached)
 {
-  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, NULL, NULL) ;
 }
 void zmw_window_popup_bottom_with_detached(const int *detached)
 {
@@ -407,7 +343,7 @@ void zmw_window_popup_bottom()
 void zmw_window_popup_right_with_id_and_detached_and_title(GdkWindow **w, const int *detached
 					      , const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, title) ;
+  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, title, NULL) ;
 }
 void zmw_window_popup_right_with_detached_and_title(const int *detached, const char *title)
 {
@@ -423,7 +359,7 @@ void zmw_window_popup_bottom_with_id_and_detached_and_title(GdkWindow **w
 						, const int *detached
 					      , const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, title) ;
+  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, title, NULL) ;
 }
 void zmw_window_popup_bottom_with_detached_and_title(const int *detached, const char *title)
 {
@@ -437,7 +373,7 @@ void zmw_window_popup_bottom_with_title(const char *title)
 
 void zmw_window_drag_with_id(GdkWindow **w)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, 0, 1, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_Right, 0, 1, NULL, NULL) ;
 }
 
 void zmw_window_drag()

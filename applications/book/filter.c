@@ -25,44 +25,80 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-void library_filter(Library *lib, const char *filter, int only_borrowed)
+void library_filter(Library *lib, const char *filter, int only_borrowed
+		    , char **filters, int only_modified)
 {
-  int i, e ;
-  char *filter_lower ;
-  char *title_lower, *author_lower, *borrower_lower ;
+  int i, j, e, ok ;
+  char *filter_lower, *filters_lower[Column_Last] ;
+  char *lower[Column_Last], tmp[20] ;
 
   filter_lower = lower_case(filter) ;
+  for(i=0; i<Column_Last; i++)
+    filters_lower[i] = lower_case(filters[i]) ;
+
   lib->filtered_number = 0 ;
+
+
   for(i=0; i<lib->books_number; i++)
     {
-      if ( only_borrowed
-	   && ( lib->books[i].borrowers_number == 0
-		|| lib->books[i].borrowers[lib->books[i].borrowers_number-1] > 0)
-	   )
-	continue ;
-
-      title_lower = lower_case(lib->books[i].title) ;
-      author_lower = lower_case(lib->authors.strings[lib->books[i].author_index]) ;
-
-      e = lib->books[i].borrowers_number ;
-      if ( e )
+      if ( only_modified )
 	{
-	  borrower_lower = lower_case(library_borrower_name(lib, lib->books[i].borrowers[e-1])) ;
+	  ok = (lib->books[i].checksum
+		!= library_book_checksum(lib, &lib->books[i] )) ;
 	}
       else
 	{
-	  borrower_lower = strdup("") ;
-	}
-      
-      if ( filter_lower[0] == '\0'
-	   || strstr(title_lower, filter_lower) != NULL
-	   || strstr(author_lower, filter_lower) != NULL
-	   || strstr(borrower_lower, filter_lower) != NULL
-	   )
-	lib->filtered_books[lib->filtered_number++] = &lib->books[i] ;
+	  if ( only_borrowed
+	       && ( lib->books[i].borrowers_number == 0
+		    || lib->books[i].borrowers[lib->books[i].borrowers_number-1] > 0)
+	       )
+	    continue ;
 
-      free(title_lower) ;
-      free(author_lower) ;
+	  lower[Column_Title] = lower_case(lib->books[i].title) ;
+	  lower[Column_Author] = lower_case(lib->authors.strings[lib->books[i].author_index]) ;
+	  lower[Column_Collection] = lower_case(lib->collections.strings[lib->books[i].collection_index]) ;
+	  sprintf(tmp, "%d", lib->books[i].rate) ;
+	  lower[Column_Rate] = strdup(tmp) ;
+	  sprintf(tmp, "%d", lib->books[i].number) ;
+	  lower[Column_Number] = strdup(tmp) ;
+	  
+	  e = lib->books[i].borrowers_number ;
+	  if ( e )
+	    {
+	      lower[Column_Borrower] = lower_case(library_borrower_name(lib, lib->books[i].borrowers[e-1])) ;
+	    }
+	  else
+	    {
+	      lower[Column_Borrower] = strdup("") ;
+	    }
+	  
+	  ok = (filter_lower[0] == '\0') ;
+	  if ( !ok )
+	    for(j=0; j<Column_Last; j++)
+	      if ( strstr(lower[j], filter_lower) != NULL )
+		{
+		  ok = 1 ;
+		  break ;
+		}
+	  if ( ok )
+	    for(j=0; j<Column_Last; j++)
+	      if ( filters_lower[j][0]
+		   && strstr(lower[j], filters_lower[j]) == NULL )
+		{
+		  ok = 0 ;
+		  break ;
+		}
+
+	  for(j=0; j<Column_Last; j++)
+	    free(lower[j]) ;
+	}
+      if ( ok )
+	{	  
+	  lib->filtered_books[lib->filtered_number++] = &lib->books[i] ;
+	}
     }
   free(filter_lower) ;
+  for(i=0; i<Column_Last; i++)
+    free(filters_lower[i]) ;
+
 }

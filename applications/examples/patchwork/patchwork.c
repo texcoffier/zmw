@@ -14,7 +14,7 @@ void box(const char *title)
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
 	      zmw_horizontal_expand(Zmw_False) ;
-	      zmw_color(ZMW_FOREGROUND, 0xFF0000) ;
+	      zmw_color(Zmw_Color_Foreground, 0xFF0000) ;
 	      zmw_text(title) ;
 	    }
 	  ZMW_EXTERNAL ;
@@ -74,7 +74,7 @@ void patchwork(void)
 					    , GDK_CONTROL_MASK, 'S') ;
 
 	      ZMW(box("zmw_toggle_with_label"))
-		zmw_toggle_with_label(&toggle, "label") ;
+		zmw_toggle_int_with_label(&toggle, "label") ;
 
 	      ZMW(box("zmw_radio"))
 		{

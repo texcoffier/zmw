@@ -26,15 +26,15 @@ void test_state(const char *title)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_horizontal_alignment(0) ;
-	  zmw_color(ZMW_FOREGROUND, 0x000000FF) ;
+	  zmw_color(Zmw_Color_Foreground, 0x000000ff) ;
 	  zmw_text("Blue") ;
 	  ZMW(zmw_box_vertical())
 	    {
 	      zmw_horizontal_alignment(-1) ;
 	      zmw_text("Blue") ;
-	      zmw_color(ZMW_FOREGROUND, 0x00FF0000) ;
+	      zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
 	      zmw_text("Red") ;
-	      zmw_color(ZMW_FOREGROUND, 0x0000FF00) ;
+	      zmw_color(Zmw_Color_Foreground, 0x0000ff00) ;
 	      zmw_font("-*-utopia-bold-*-*-*-33-*-*-*-*-*-*-1") ;
 	      zmw_text("Green") ;
 	    }

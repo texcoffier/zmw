@@ -71,13 +71,11 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
       
       zmw_focusable() ;
       zmw_activable() ;
-      if ( zmw_button_pressed() )
-	zmw_window_unpop_all() ;
 
       if ( zmw_selected() )
 	{
 	  zmw.dragged = Zmw_True ;
-	  zmw.activated = Zmw_True ;
+	  zmw.changed = Zmw_True ;
 	  *x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
 	    / (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
 	  *y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)

@@ -8,10 +8,13 @@ html:
 	then \
 		D="$(HOME)/public_html/ZMW/zmw-$(ZMW_VERSION)" ; \
 		rm -rf $$D ; \
-		mkdir $$D $$D/examples ; \
+		mkdir $$D ; \
 		cp zmw.css zmw.html $$D ; \
-		cp -Rap examples/* $$D/examples ; \
-		find $$D/examples ! -type d ! -name "*.png" -print | xargs rm ; \
+		fgrep -i "<imagedata" <zmw.xml | \
+		fgrep ".png" | \
+		sed -e 's/.* fileref="//' -e 's/".*//' | \
+		tar --files-from=- -cf - | \
+		(cd $$D; tar -xvf -) ; \
 	fi
 
 ps:

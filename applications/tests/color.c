@@ -38,7 +38,7 @@ void test_color(const char *title)
 	    {
 	      for(j=0; j<ZMW_TABLE_SIZE(strings); j++)
 		{
-		  zmw_color(ZMW_FOREGROUND, color[j]) ;
+		  zmw_color(Zmw_Color_Foreground, color[j]) ;
 		  zmw_name(strings[j]) ;
 		  zmw_text(strings[j]) ;
 		  zmw_border_relief_out_draw() ;

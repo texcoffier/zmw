@@ -19,7 +19,26 @@
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
+#include <string.h>
 #include "library.h"
+
+int library_modified(Library *lib)
+{
+  int i ;
+
+  for(i=0; i<lib->books_number; i++)
+    if ( lib->books[i].checksum != library_book_checksum(lib, &lib->books[i]))
+      {
+	return 1 ;
+      }
+  return 0 ;
+}
+
+int library_book_modified(Library *lib, int index)
+{
+  return lib->filtered_books[index]->checksum
+    != library_book_checksum(lib, lib->filtered_books[index]) ;
+}
 
 int library_book_number(Library *lib)
 {
@@ -51,9 +70,37 @@ char** library_book_author_pointer_get(Library *lib, int index)
   return &lib->authors.strings[lib->filtered_books[index]->author_index] ;
 }
 
+char** library_book_collection_pointer_get(Library *lib, int index)
+{
+  return &lib->collections.strings[lib->filtered_books[index]->collection_index] ;
+}
 const char* library_book_collection_get(Library *lib, int index)
 {
-  return lib->collections.strings[lib->filtered_books[index]->collection_index] ;
+  return *library_book_collection_pointer_get(lib, index) ;
+}
+void library_book_collection_new(Library *lib, int index, int collection_index)
+{
+  lib->filtered_books[index]->collection_index = collection_index ;
+}
+
+int library_book_number_get(Library *lib, int index)
+{
+  return lib->filtered_books[index]->number ;
+}
+
+int library_book_rate_get(Library *lib, int index)
+{
+  return lib->filtered_books[index]->rate ;
+}
+
+int* library_book_number_pointer_get(Library *lib, int index)
+{
+  return &lib->filtered_books[index]->number ;
+}
+
+int* library_book_rate_pointer_get(Library *lib, int index)
+{
+  return &lib->filtered_books[index]->rate ;
 }
 
 char** library_borrower_pointer_name(Library *lib, int borrower_index)
@@ -123,6 +170,30 @@ int library_book_borrower_have_it(Library *lib, int index, int borrower)
     % lib->filtered_books[index]->borrowers_number ;
 
   return lib->filtered_books[index]->borrowers[borrower] <= 0 ;
+}
+
+void library_book_new(Library *lib, char **values)
+{
+  Book *b ;
+  Valued v ;
+
+
+  lib->books_number++ ;
+  REALLOC(lib->books, lib->books_number) ;
+  b = &lib->books[lib->books_number-1] ;
+
+  strings_search(values[Column_Collection], &lib->collections, &v, 1) ;
+  b->collection_index = v.index ;
+
+  b->number = atoi(values[Column_Number]) ;
+
+  strings_search(values[Column_Author], &lib->authors, &v, 1) ;
+  b->author_index = v.index ;
+
+  b->title = strdup(values[Column_Title]) ;
+  b->rate = atoi(values[Column_Rate]) ;
+  b->borrowers_number = 0 ;
+  b->borrowers = NULL ;
 }
 
 

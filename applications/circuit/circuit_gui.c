@@ -130,8 +130,7 @@ void gate_draw_input_arcs(Circuit *c, int i)
 	    gate_output_coordinates(&c->gates[c->gates[i].input[j]]
 				    , &x1, &y1) ;
 	    gate_input_coordinates(&c->gates[i], j, &x2, &y2) ;
-	    gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
-			  , x1, y1, x2, y2) ;
+	    zmw_draw_line(Zmw_Color_Foreground, x1, y1, x2, y2) ;
 	  }
     }
 }
@@ -177,8 +176,7 @@ void gate_draw_interactive_arc(Circuit *c, int *input, int *output)
 	    {
 	      gate_input_coordinates(&c->gates[*input/2], *input%2, &x1, &y1) ;
 		  
-	      gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
-			    , x1, y1, zmw.x, zmw.y) ;
+	      zmw_draw_line(Zmw_Color_Foreground, x1, y1, zmw.x, zmw.y) ;
 	    }
 	}
     }
@@ -189,8 +187,7 @@ void gate_draw_interactive_arc(Circuit *c, int *input, int *output)
 	  {
 	    gate_output_coordinates(&c->gates[*output], &x1, &y1) ;
 		  
-	    gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
-			  , x1, y1, zmw.x, zmw.y) ;
+	    zmw_draw_line(Zmw_Color_Foreground, x1, y1, zmw.x, zmw.y) ;
 	  }
       }
 }
@@ -322,7 +319,7 @@ void circuit_menu_bar(Circuit *c)
 	      zmw_button_with_accelerator("Redo",GDK_CONTROL_MASK, 'R') ;
 	      if ( c->history_position < c->history_size && zmw_activated() )
 		circuit_do(c, 1) ;
-	      zmw_toggle_with_label(&display_history, "Undo/Redo Logs") ;
+	      zmw_toggle_int_with_label(&display_history, "Undo/Redo Logs") ;
 	    }
 	}
     }
@@ -354,20 +351,20 @@ void circuit_mode(const Circuit *c, Type *s)
   int i ;
   char buf[999] ;
  
-  zmw_color(ZMW_BACKGROUND_POPED, 0x00D0D0D0) ;
+  zmw_color(Zmw_Color_Background_Poped, 0x00D0D0D0) ;
   zmw_horizontal_expand(0) ;
   ZMW(zmw_box_vertical())
     {
       for(i=0; names[i]; i++)
 	{
 	  if ( i == *s )
-	    zmw_color(ZMW_BACKGROUND_POPED, 0x0000FF00) ;
+	    zmw_color(Zmw_Color_Background_Poped, 0x0000FF00) ;
 	  if ( icones[i][0] )
 	    zmw_image_from_file_activable_with_pixbuf(icones[i], &pb[i]) ;
 	  else
 	    zmw_button(names[i]) ;
 	  if ( i == *s )
-	    zmw_color(ZMW_BACKGROUND_POPED, 0x00D0D0D0) ;
+	    zmw_color(Zmw_Color_Background_Poped, 0x00D0D0D0) ;
 	  if ( zmw_activated() )
 	    *s = i ;
 	}

@@ -78,7 +78,9 @@ night:
 
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	change 0.0.1 0.0.2 README Makefile.config
+	OLD="0.0.3" ; NEW="0.0.4" ; \
+	change "$$OLD" "$$NEW" README Makefile.config
+	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
 diff:
 	diff -rubB \
@@ -90,6 +92,6 @@ diff:
 		--exclude="*.regtest" \
 		--exclude="xxx*" \
 		--exclude="#*" \
-		../WIDGET-0.0.1 .
+		../zmw-0.0.2 .
 
 # DO NOT DELETE

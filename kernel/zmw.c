@@ -86,7 +86,7 @@ const char *zmw_action_name()
   return zmw_action_name_( ZMW_SUBACTION ) ;
 }
 
-const char* zmw_size_string(Zmw_Size *s)
+const char* zmw_size_string(const Zmw_Size *s)
 {
   static char buf[200] ;
 
@@ -168,11 +168,8 @@ void zmw_widget_change()
 
 void zmw_state_push()
 {
-  int i ;
-
   zMw[1].i = zMw[0].i ;
   
-
   ZMW_NB_OF_CHILDREN = 0 ;
   /*
    *
@@ -189,12 +186,6 @@ void zmw_state_push()
 #endif
 
 
-  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-    {
-      ZMW_GC_COPY_ON_WRITE[i] = Zmw_True ;
-    }
-  ZMW_FONT_COPY_ON_WRITE = Zmw_True ;
-  //  zmw_printf("state push after GC[3] = %p\n", ZMW_GC[3]) ;
 
   ZMW_NAME_SEPARATOR = -1 ;
   ZMW_NAME = zMw[-1].u.name + strlen(zMw[-1].u.name) + 1 ;
@@ -266,8 +257,6 @@ void zmw_font_free()
 
 void zmw_state_pop()
 {
-  int i ;
-
   zmw_widget_change() ;
 
   if ( ZMW_DO_NOT_EXECUTE_POP )
@@ -275,12 +264,6 @@ void zmw_state_pop()
       return ;
     }
  
-  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-    if ( ZMW_GC_COPY_ON_WRITE[i] == Zmw_False )
-      {
-	//	zmw_printf("Destroy [%d] = %p\n", i, ZMW_GC[i]) ;
-	gdk_gc_destroy(ZMW_GC[i]) ;
-      }
   ZMW_NAME[-1] = '\0' ;
   zMw-- ;
 }
@@ -373,6 +356,7 @@ void zmw_init_widget()
   ZMW_SIZE_SENSIBLE = Zmw_False ;
   ZMW_SUBACTION = Zmw_Init ;
   zmw.activated = Zmw_False ; // Why should this be done ?
+  zmw.changed = Zmw_False ; // Why should this be done ?
   zmw.child_activated = Zmw_False;
   zmw.dragged = Zmw_False ;
   zmw_debug_set() ;
@@ -416,7 +400,7 @@ void zmw_remove_transient_name()
  */
 void zmw_action_do_not_enter()
 {
-  ZMW_WINDOW = zMw[-1].i.window ; /* Restore window */
+  zmw_window_restore() ;
   /*  ZMW_CALL_NUMBER-- ; */
   /*
   if ( zMw == zmw.zmw_table+1 )
@@ -437,38 +421,6 @@ static void zmw_padding_remove(Zmw_Rectangle *r)
  if ( r->y != ZMW_VALUE_UNDEFINED )
    r->y += ZMW_PADDING_WIDTH ;
 }
-
-#if ZMW_DEBUG_CACHE_SLOW
-static void zmw_cache_check(Zmw_Size *s)
-{
-	Zmw_Size ss ;
-	char *p ;
-
-	if ( zmw_cache_get_size(&ss) )
-		zmw_cache_set_size(s) ;
-	else
-		{
-			p = NULL ;
-			if ( s->index != ss.index )
-				p = "index" ;
-			if ( memcmp( &s->min, &ss.min, sizeof(s->min) ) )
-				p = "min size" ;
-			if ( memcmp( &s->asked, &ss.asked, sizeof(s->asked) ) )
-				p = "asked size" ;
-			if ( memcmp( &s->required, &ss.required, sizeof(s->required) ) )
-				p = "required size" ;
-			if ( p )
-			{
-			zmw_printf("[%d] Problems in cache_check : %s\n", ZMW_INDEX, p) ;
-			zmw_printf("Stored = %s !\n",zmw_size_string(&ss)) ;
-			zmw_printf("Comput = %s !\n",zmw_size_string(s)) ;
-			exit(1) ;
-			}
-		}		
-}
-#define zmw_cache_get_size(X) 1
-#define zmw_cache_set_size(X) zmw_cache_check(X)
-#endif
 
 
 int zmw_action_compute_required_size()
@@ -769,6 +721,7 @@ int zmw_action_dispatch_event()
 	  ZMW_EVENT_IN_MASKED = Zmw_False ;
 
           zmw.activated = Zmw_False ;
+          zmw.changed = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}
@@ -779,6 +732,7 @@ int zmw_action_dispatch_event()
 	{
 	  ZMW_SUBACTION = Zmw_Input_Event ;
           zmw.activated = Zmw_False ;
+          zmw.changed = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}

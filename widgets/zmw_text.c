@@ -119,7 +119,7 @@ void zmw_text_draw_selection(const char *text, int start_pos, int cursor_pos
 		       , &lbearing, &rbearing, &end, &ascent, &descent
 		       ) ;
       
-      gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_BACKGROUND_POPED], 1
+      zmw_draw_rectangle(Zmw_Color_Background_Poped, Zmw_True
 			 , x + ZMW_MIN(start, end)
 			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_ABS(start - end)
@@ -136,15 +136,12 @@ void zmw_text_draw_text(const char *text, int x, int y, Zmw_Boolean activable
    */
   if ( (zMw[-1].u.size.sensible && ZMW_SENSIBLE) ||
        (!activable && !editable) )
-    gdk_draw_string(ZMW_WINDOW, ZMW_FONT, ZMW_GC[ZMW_FOREGROUND]
-		    , x, y, text) ;
+    zmw_draw_string(Zmw_Color_Foreground, x, y, text) ;
   
   else
     {
-      gdk_draw_string(ZMW_WINDOW, ZMW_FONT, ZMW_GC[ZMW_BORDER_LIGHT]
-		      , x-1, y-1, text) ;
-      gdk_draw_string(ZMW_WINDOW, ZMW_FONT, ZMW_GC[ZMW_BORDER_DARK]
-		      , x, y, text) ;
+      zmw_draw_string(Zmw_Color_Border_Light, x-1, y-1, text) ;
+      zmw_draw_string(Zmw_Color_Border_Dark , x  , y , text) ;
     }
 }
 
@@ -159,12 +156,12 @@ void zmw_text_draw_cursor(const char *text, int x, int cursor_pos)
   xx = x + width ;
   if ( width != 0 )
     xx-- ;
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_BORDER_LIGHT]
-			, xx
-			, ZMW_SIZE_ALLOCATED.y - 1
-			, xx
-			, ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height
-			) ;
+  zmw_draw_line(Zmw_Color_Border_Light
+		, xx
+		, ZMW_SIZE_ALLOCATED.y - 1
+		, xx
+		, ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height
+		) ;
 }
 
 void zmw_text_selection_take(const char *text, Zmw_Boolean *button_1_pressed
@@ -301,7 +298,7 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	  if ( zmw.event->key.keyval == GDK_BackSpace )
 	    {
 	      zmw_text_backspace(text, cursor_pos, start_pos) ;
-	      zmw.activated = Zmw_True ;
+	      zmw.changed = Zmw_True ;
 	    }
 	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Left )
 	    {
@@ -313,11 +310,15 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	      if ( *text && *cursor_pos < strlen(*text) )
 		(*cursor_pos)++ ;
 	    }
+	  else if ( zmw.event->key.string[0] == '\n' )
+	    {
+	      zmw.activated = Zmw_True ;
+	    }  
 	  else if ( zmw.event->key.string[0] )
 	    {
 	      zmw_text_insert(text, cursor_pos, start_pos
 			      , zmw.event->key.string) ;
-	      zmw.activated = Zmw_True ;
+	      zmw.changed = Zmw_True ;
 	    }  
 	  zmw_event_remove() ;
 	}
@@ -357,24 +358,24 @@ void zmw_text(const char *text)
 void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
 					     , int *start_pos)
 {
+  int changed ;
+
   ZMW(zmw_decorator(  Zmw_Decorator_Border_Relief
 		    | Zmw_Decorator_Border_In
 		    | Zmw_Decorator_Interior
 		    | Zmw_Decorator_Focusable
-		    | Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup
 		    )
       )
     {
       ZMW(zmw_text_simple( text, Zmw_True, Zmw_False, cursor_pos, start_pos))
 	{ }
-      if ( zmw_activated() )
-	{
-	}
+      changed = zmw_changed() ;
     }
   if ( zmw_activated() )
     {
     }
 
+  zmw.changed = changed ;
   if ( zmw.child_activated )
     {
       zmw.activated = Zmw_True ;

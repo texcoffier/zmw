@@ -105,9 +105,8 @@ void zmw_notebook_draw(int *page)
 
   if ( *page )
     // Draw the labels background for the labels left to the current page
-    gdk_draw_rectangle(ZMW_WINDOW
-		       , ZMW_GC[ZMW_BACKGROUND_PUSHED]
-		       , 1
+    zmw_draw_rectangle(Zmw_Color_Background_Pushed
+		       , Zmw_True
 		       , ZMW_SIZE_ALLOCATED.x
 		       , ZMW_SIZE_ALLOCATED.y
 		       , ZMW_CHILDREN[2**page].allocated.x
@@ -116,9 +115,8 @@ void zmw_notebook_draw(int *page)
 		       ) ;
   if ( 2 * *page != ZMW_NB_OF_CHILDREN-2 )
     // Draw the labels background for the labels right to the current page
-    gdk_draw_rectangle(ZMW_WINDOW
-		       , ZMW_GC[ZMW_BACKGROUND_PUSHED]
-		       , 1
+    zmw_draw_rectangle(Zmw_Color_Background_Pushed
+		       , Zmw_True
 		       , ZMW_CHILDREN[2 * *page+2].allocated.x
 		       , ZMW_SIZE_ALLOCATED.y
 		       , ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x
@@ -131,7 +129,7 @@ void zmw_notebook_draw(int *page)
     {
       if ( 2 * *page != i )
 	{
-	  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+	  zmw_draw_line(Zmw_Color_Foreground
 			, ZMW_CHILDREN[i].allocated.x
 			+ ZMW_CHILDREN[i].allocated.width
 			, ZMW_SIZE_ALLOCATED.y + label_height
@@ -140,7 +138,7 @@ void zmw_notebook_draw(int *page)
 			) ;
 	}
 				     
-      gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+      zmw_draw_line(Zmw_Color_Foreground
 		    , ZMW_CHILDREN[i].allocated.x
 		    + ZMW_CHILDREN[i].allocated.width
 		    , ZMW_SIZE_ALLOCATED.y
@@ -150,19 +148,19 @@ void zmw_notebook_draw(int *page)
 		    ) ;
     }
 
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+  zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x, ZMW_SIZE_ALLOCATED.y
 		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x
 		+ ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
 		, ZMW_SIZE_ALLOCATED.y
 		) ;
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+  zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x, ZMW_SIZE_ALLOCATED.y
 		, ZMW_CHILDREN[0].allocated.x
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
 		) ;
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+  zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x
 		, ZMW_SIZE_ALLOCATED.y
 		+ ZMW_SIZE_ALLOCATED.height - 1
@@ -170,7 +168,7 @@ void zmw_notebook_draw(int *page)
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height - 1
 		) ;
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+  zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y
@@ -179,7 +177,7 @@ void zmw_notebook_draw(int *page)
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y + label_height
 		) ;
-  gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+  zmw_draw_line(Zmw_Color_Foreground
 		, ZMW_CHILDREN[0].allocated.x
 		+ ZMW_SIZE_ALLOCATED.width
 		, ZMW_SIZE_ALLOCATED.y + label_height

@@ -29,9 +29,9 @@ static void toggle_page()
   ZMW(zmw_box_vertical())
     {
       zmw_text("Toggle A") ;
-      zmw_toggle(&toggle_a) ;
+      zmw_toggle_int(&toggle_a) ;
       zmw_text("Toggle B") ;
-      zmw_toggle(&toggle_b) ;
+      zmw_toggle_int(&toggle_b) ;
     }
 }
 static void text_page()

@@ -64,6 +64,7 @@ void zmw_window_drag_with_id(GdkWindow **w);
 void zmw_window_drag(void);
 
 char* zmw_window_name(void) ;
+void zmw_window_restore() ;
 
 /*
  * zmw_text.c
@@ -92,10 +93,23 @@ void zmw_int(int i) ;
 /*
  * zmw_toggle.c
  */
-void zmw_toggle(int *value) ;
-void zmw_toggle_with_label(int *value, const char *label) ;
-void zmw_toggle_bits(int *value, int bits) ;
-void zmw_toggle_bits_with_label(int *value, int bits, const char *label) ;
+int zmw_toggle(int value) ;
+void zmw_toggle_int(int *value) ;
+void zmw_toggle_char(char *value) ;
+
+int zmw_toggle_with_label(int value, const char *label) ;
+void zmw_toggle_int_with_label(int *value, const char *label) ;
+void zmw_toggle_char_with_label(char *value, const char *label) ;
+
+int zmw_toggle_bits(int value, int bits) ;
+void zmw_toggle_bits_int(int *value, int bits) ;
+void zmw_toggle_bits_char(char *value, int bits) ;
+
+int zmw_toggle_bits_with_label(int value, int bits, const char *label) ;
+void zmw_toggle_bits_int_with_label(int *value, int bits, const char *label) ;
+void zmw_toggle_bits_char_with_label(char *value, int bits, const char *label);
+
+
 void zmw_radio(int *value, int number) ;
 void zmw_radio_with_label(int *value, int number, const char *label) ;
 /*
@@ -193,12 +207,13 @@ void zmw_message(Zmw_Boolean *visible
 #define Zmw_Decorator_Border_Focus                            0x0040
 #define Zmw_Decorator_Interior                                0x0080
 #define Zmw_Decorator_Pushable                                0x0100
-#define Zmw_Decorator_Unpop_On_Activate                       0x0200
+// #define Zmw_Decorator_Unpop_On_Activate                       0x0200
 #define Zmw_Decorator_Activable_By_Key                        0x0400
 #define Zmw_Decorator_Clip                                    0x0800
 #define Zmw_Decorator_Translate                               0x1000
-#define Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup     0x2000
-#define Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup 0x4000
+// #define Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup     0x2000
+// #define Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup 0x4000
+#define Zmw_Decorator_Border_Out                              0x8000
 
 #define Zmw_Decorator_Border_Any (Zmw_Decorator_Border_Relief|Zmw_Decorator_Border_Solid|Zmw_Decorator_Border_Embossed|Zmw_Decorator_Pushable)
 #define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)

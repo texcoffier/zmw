@@ -35,17 +35,15 @@ static void zmw_anchor_vertical_()
       break ;
 
     case Zmw_Post_Drawing:
-      gdk_draw_rectangle(ZMW_WINDOW
-			 , ZMW_GC[ZMW_BORDER_DARK]
-			 , 1
+      zmw_draw_rectangle(Zmw_Color_Border_Dark
+			 , Zmw_True
 			 , ZMW_SIZE_ALLOCATED.x
 			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_BORDER_WIDTH
 			 , ZMW_SIZE_ALLOCATED.height
 			 ) ;
-      gdk_draw_rectangle(ZMW_WINDOW
-			 , ZMW_GC[ZMW_BORDER_LIGHT]
-			 , 1
+      zmw_draw_rectangle(Zmw_Color_Border_Light
+			 , Zmw_True
 			 , ZMW_SIZE_ALLOCATED.x + ZMW_BORDER_WIDTH
 			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_BORDER_WIDTH
@@ -53,9 +51,8 @@ static void zmw_anchor_vertical_()
 			 ) ;
       if ( zmw_focused() )
 	{
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_DARK]
-			     , 1
+	  zmw_draw_rectangle(Zmw_Color_Border_Dark
+			     , Zmw_True
 			     , ZMW_SIZE_ALLOCATED.x - (2*ZMW_BORDER_WIDTH)/2
 			     , ZMW_SIZE_ALLOCATED.y
 			     + ZMW_SIZE_ALLOCATED.height/2
@@ -63,9 +60,8 @@ static void zmw_anchor_vertical_()
 			     , 3*ZMW_BORDER_WIDTH
 			     , 3*ZMW_BORDER_WIDTH
 			     ) ;
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_LIGHT]
-			     , 1
+	  zmw_draw_rectangle(Zmw_Color_Border_Light
+			     , Zmw_True
 			     , ZMW_SIZE_ALLOCATED.x - ZMW_BORDER_WIDTH/2
 			     , ZMW_SIZE_ALLOCATED.y
 			     + ZMW_SIZE_ALLOCATED.height/2
@@ -196,9 +192,8 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 
       if ( zmw_focused() )
 	{
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_DARK]
-			     , 0
+	  zmw_draw_rectangle(Zmw_Color_Border_Dark
+			     , Zmw_False
 			     , ZMW_SIZE_ALLOCATED.x
 			     , ZMW_SIZE_ALLOCATED.y
 			     , ZMW_SIZE_ALLOCATED.width
@@ -207,9 +202,8 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	  for(i=0; i<9; i++)
 	    {
 	      zmw_coordinates(i, &xx, &yy) ;
-	      gdk_draw_rectangle(ZMW_WINDOW
-				 , ZMW_GC[ZMW_BORDER_DARK]
-				 , 0
+	      zmw_draw_rectangle(Zmw_Color_Border_Dark
+				 , Zmw_False
 				 , xx-ZMW_BORDER_WIDTH
 				 , yy-ZMW_BORDER_WIDTH
 				 , ZMW_BORDER_WIDTH*2
@@ -347,9 +341,8 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 
       if ( zmw_focused() )
 	{
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_DARK]
-			     , 0
+	  zmw_draw_rectangle(Zmw_Color_Border_Dark
+			     , Zmw_False
 			     , ZMW_SIZE_ALLOCATED.x
 			     , ZMW_SIZE_ALLOCATED.y
 			     , ZMW_SIZE_ALLOCATED.width
@@ -357,17 +350,15 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 			     ) ;
 
 	  zmw_coordinates(4, &xx, &yy) ;
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_DARK]
-			     , 0
+	  zmw_draw_rectangle(Zmw_Color_Border_Dark
+			     , Zmw_False
 			     , xx-ZMW_BORDER_WIDTH
 			     , yy-ZMW_BORDER_WIDTH
 			     , ZMW_BORDER_WIDTH*2
 			     , ZMW_BORDER_WIDTH*2
 			     ) ;
-	  gdk_draw_rectangle(ZMW_WINDOW
-			     , ZMW_GC[ZMW_BORDER_LIGHT]
-			     , 0
+	  zmw_draw_rectangle(Zmw_Color_Border_Light
+			     , Zmw_False
 			     , xx-ZMW_BORDER_WIDTH+1
 			     , yy-ZMW_BORDER_WIDTH+1
 			     , ZMW_BORDER_WIDTH*2-2

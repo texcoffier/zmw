@@ -90,12 +90,9 @@ static int zmw_decorator_border(int options)
 
 void zmw_decorator(int options, ...)
 {
-  static int nb = 0 ; // Size of the stack of clipping rectangles
-  static GdkRectangle rect[10] ; // 10 : FIXME
-
   int border, border_width ;
-  int i ;
   int tx, ty ;
+  Zmw_Rectangle clip ;
   va_list ap;
 
   va_start(ap, options);
@@ -148,6 +145,8 @@ void zmw_decorator(int options, ...)
 	{
 	  if ( zmw_selected() )
 	    border |= Zmw_Border_In ;
+	  else
+	    border |= Zmw_Border_Out ;
 	}
       if ( options & Zmw_Decorator_Border_Relief )
 	border |= Zmw_Border_Relief ;
@@ -157,46 +156,22 @@ void zmw_decorator(int options, ...)
 	border |= Zmw_Border_Embossed ;
       if ( options & Zmw_Decorator_Border_In )
 	border |= Zmw_Border_In ;
+      if ( options & Zmw_Decorator_Border_Out )
+	border |= Zmw_Border_Out ;
       if ( options & Zmw_Decorator_Interior )
 	border |= Zmw_Border_Background ;
+
       zmw_border_draw(border) ;
 
 
       if ( options & Zmw_Decorator_Clip )
 	{
-	  if ( nb )
-	    {		 
-	      rect[nb].x = ZMW_MAX(ZMW_SIZE_ALLOCATED.x + border_width
-				   , rect[nb-1].x) ;
-	      rect[nb].y = ZMW_MAX(ZMW_SIZE_ALLOCATED.y + border_width
-				   , rect[nb-1].y) ;
-	      rect[nb].width = ZMW_MIN(ZMW_SIZE_ALLOCATED.x
-				       +ZMW_SIZE_ALLOCATED.width
-				       - 2*border_width
-				       ,rect[nb-1].x + rect[nb-1].width)
-		- rect[nb].x ;
-	      rect[nb].height = ZMW_MIN(ZMW_SIZE_ALLOCATED.y
-					+ ZMW_SIZE_ALLOCATED.height
-					- 2*border_width
-					,rect[nb-1].y + rect[nb-1].height)
-		- rect[nb].y ;	  
-	    }
-	  else
-	    {
-	      rect[nb].x = ZMW_SIZE_ALLOCATED.x + border_width ;
-	      rect[nb].y = ZMW_SIZE_ALLOCATED.y + border_width ;
-	      rect[nb].width = ZMW_SIZE_ALLOCATED.width - 2*border_width ;
-	      rect[nb].height = ZMW_SIZE_ALLOCATED.height - 2*border_width ;
-	    }
+	  clip.x = ZMW_SIZE_ALLOCATED.x + border_width ;
+	  clip.y = ZMW_SIZE_ALLOCATED.y + border_width ;
+	  clip.width = ZMW_SIZE_ALLOCATED.width - 2*border_width ;
+	  clip.height = ZMW_SIZE_ALLOCATED.height - 2*border_width ;
 
-	  zmw_gc_push() ;
-	  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-	    {
-	      zmw_modify_gc(gdk_gc_set_clip_rectangle(ZMW_GC[i], &rect[nb]);
-			    ,i) ;
-	    }
-	  // zmw_printf("CLIP in %dx%d {%p}\n",rect[nb].width, rect[nb].height,ZMW_GC[3]) ;
-	  nb++ ;
+	  zmw_draw_clip_push_inside(&clip) ;
 	}
 
       /* fall thru */
@@ -224,36 +199,24 @@ void zmw_decorator(int options, ...)
 
     case Zmw_Post_Drawing:
       if ( options & Zmw_Decorator_Clip )
-	{
-	  //	  zmw_printf("CLIP out\n") ;
-      	  zmw_gc_pop() ;
-          nb-- ;
-	}
+	zmw_draw_clip_pop() ;
       break ;
 
     case Zmw_Input_Event:
-      if ( (options & Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup)
-	   && gdk_window_get_type(ZMW_WINDOW) != GDK_WINDOW_TEMP
-	   && zmw_button_pressed()
-	   )
-	zmw_window_unpop_all() ;
       if ( options & Zmw_Decorator_Focusable )
 	zmw_focusable() ;
       if ( options & Zmw_Decorator_Activable )
-	zmw_activable() ;
+	{
+	  zmw_activable() ;
+	  if ( zmw.activated )
+	    {
+	      zmw_window_unpop_all() ;
+	    }
+	}
       if ( options & Zmw_Decorator_Activable_By_Key )
 	if ( zmw_key_pressed() && zmw.event->key.string[0] )
 	  zmw.activated = Zmw_True ;
 
-      if ( zmw.activated )
-	{
-	  if (options & Zmw_Decorator_Unpop_On_Activate)
-	    zmw_window_unpop_all() ;
-	  else
-	    if ( (options & Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup)
-		 && gdk_window_get_type(ZMW_WINDOW) != GDK_WINDOW_TEMP )
-	      zmw_window_unpop_all() ;
-	}
       break ;
 
     default:

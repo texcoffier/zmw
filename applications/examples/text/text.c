@@ -33,7 +33,7 @@ void text(void)
 
 	  zmw_horizontal_alignment(-1) ; // Left
 	  zmw_text_editable_with_cursor(&text1, &cursor_pos) ;
-	  if ( zmw_activated() )
+	  if ( zmw_changed() )
 	    text1_length = strlen(text1) ;
 
 	  sprintf(tmp, "text1_length = %d", text1_length) ;

@@ -35,8 +35,7 @@ void test_animation(const char *title)
 	  zmw_text(ctime(&tv.tv_sec)) ;
 
 	  if ( zmw_drawing() )
-	    gdk_draw_line(ZMW_WINDOW
-			  , ZMW_GC[ZMW_BORDER_DARK]
+	    zmw_draw_line(Zmw_Color_Border_Dark
 			  , 50, 50
 			  , 50 + 50*cos((tv.tv_sec+tv.tv_usec/1000000.))
 			  , 50 + 50*sin((tv.tv_sec+tv.tv_usec/1000000.))

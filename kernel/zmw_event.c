@@ -161,12 +161,22 @@ Zmw_Boolean zmw_button_released_anywhere()
 	 && zmw.event->type == GDK_BUTTON_RELEASE ) ;
 }
 /*
- * True if the cursor is pressed and released in the zmw
+ * True if the previous widget was activated
  */
 Zmw_Boolean zmw_activated()
 {
   zmw_widget_is_tested() ;
   return( zmw.activated
+	  && ( ZMW_ACTION == zmw_action_dispatch_event
+	       || ZMW_ACTION == zmw_action_dispatch_accelerator) ) ;
+}
+/*
+ * True if the previous widget was modified (text, scrollbar)
+ */
+Zmw_Boolean zmw_changed()
+{
+  zmw_widget_is_tested() ;
+  return( zmw.changed
 	  && ( ZMW_ACTION == zmw_action_dispatch_event
 	       || ZMW_ACTION == zmw_action_dispatch_accelerator) ) ;
 }
@@ -536,7 +546,7 @@ void zmw_event_debug_window()
   
   ZMW(zmw_box_vertical())
     {
-      zmw_toggle_with_label(&display_zmw, "zmw") ;
+      zmw_toggle_int_with_label(&display_zmw, "zmw") ;
       if ( display_zmw )
 	{
 	  sprintf(buf, "event=%p", zmw.event) ;

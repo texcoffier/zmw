@@ -24,15 +24,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *line_read(FILE *file)
+double library_book_checksum(Library *lib, Book *b)
 {
-  char lig[999] ;
+  double cs ;
+  int i ;
 
-  if ( fgets(lig, sizeof(lig), file) == NULL )
-    ABORT ;
-  lig[strlen(lig)-1] = '\0' ;
-  return strdup(lig) ;
+  cs  =  1 + b->collection_index ;
+  cs *=  1 + b->number ;
+  cs *=  1 + b->author_index ;
+  cs *=  1 + b->rate ;
+  for(i=0; b->title[i]; i++)
+    cs *=  b->title[i] + 1 - ' ' ;
+  for(i=0; i<b->borrowers_number; i++)
+    cs *=  b->borrowers[i] ;
+
+  return cs ;
 }
+
 
 
 void library_free(Library *lib)
@@ -60,6 +68,7 @@ Library* library_load(const char *filename)
   FILE *file ;
   int i,k ;
   Library *lib ;
+  char *filter[Column_Last] = {"","","","","","" } ;
 
   file = fopen(filename , "r" ) ;
   if ( file == NULL )
@@ -86,7 +95,7 @@ Library* library_load(const char *filename)
 		  ,&lib->books[i].collection_index
 		  ,&lib->books[i].number
 		  ,&lib->books[i].author_index
-		  ,&lib->books[i].interest
+		  ,&lib->books[i].rate
 		  ,&lib->books[i].borrowers_number
 		  )
 	   != 5 )
@@ -102,10 +111,12 @@ Library* library_load(const char *filename)
 	}
       free(line_read(file)) ;
       lib->books[i].title = line_read(file) ;
+      lib->books[i].checksum = library_book_checksum(lib, &lib->books[i]) ;
+
     }
   fclose(file) ;
 
-  library_filter(lib, "", 0) ;
+  library_filter(lib, "", 0, filter, 0) ;
 
   return lib ;
 }
@@ -114,7 +125,7 @@ Library* library_load(const char *filename)
  * is created without problems
  */
 
-void library_save(const Library* lib, const char *filename)
+void library_save(Library* lib, const char *filename)
 {
   FILE *file ;
   int i,k ;
@@ -138,7 +149,7 @@ void library_save(const Library* lib, const char *filename)
 	    ,lib->books[i].collection_index
 	    ,lib->books[i].number
 	    ,lib->books[i].author_index
-	    ,lib->books[i].interest
+	    ,lib->books[i].rate
 	    ,lib->books[i].borrowers_number
 	    ) ;
       for(k=0; k < lib->books[i].borrowers_number ; k++)
@@ -148,4 +159,9 @@ void library_save(const Library* lib, const char *filename)
       fprintf(file, "\n%s\n", lib->books[i].title) ;
     }
   fclose(file) ;
+
+  for(i=0; i < lib->books_number; i++)
+    {
+      lib->books[i].checksum = library_book_checksum(lib, &lib->books[i]) ;
+    }
 }

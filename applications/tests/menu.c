@@ -72,7 +72,7 @@ static void popup_node()
 	    }
 	  zmw_horizontal_expand(0) ;
 	  zmw_name("ToggleBox") ;
-	  zmw_toggle_with_label(&v, "Toggle in menu") ;
+	  zmw_toggle_int_with_label(&v, "Toggle in menu") ;
 	  zmw_text_editable(&text) ;
 	  
 	  zmw_button("Print a message") ;

@@ -7,11 +7,12 @@ WIDGETS:
 	- Semantic Lens
 	- Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
+	- zmw_table : border are too small to be draggable
+	- Decorator: remove external or internal padding as an option
 
 LIBRARY CORE:
-	* Use only one GC instead of 6 (start of OpenGL conversion)
 	- Make a pile by attribute with a bit vector to indicate
-	  which attributes where pushed (as it is yet done with GC's)
+	  which attributes where pushed.
 	  So in the most current case, there only one 'int' to push
 	  to push all the attributes.
 	  Define the attributes in current state dynamicly
@@ -23,8 +24,6 @@ LIBRARY CORE:
 	- Having children "not_used_to_compute_parent_size" in CHILDREN
 	  complexify the size computation.
 	  Should the CHILDREN_VISIBLE table be created ?
-	- Add a zmw_modified() to zmw_activated() for text or scrollbar
-	  modification.
 	- Should zmw_action_dispatch_event be separated into
 	  zmw_dispatch_button_press, zwm_dispatch_key_press, ...
 	  It will simplify the drag and drop operation,
@@ -32,6 +31,8 @@ LIBRARY CORE:
 	- Cursor shape change
 	- Does the tips should appear if the mouse button is pressed?
 	- Create zmw_font_name zmw_font_size zmw_font_weight ...
+	- Creation of substructs in zmw in order to clarify things
+
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
 	- Key pressed have not the current coordinates, but the last
@@ -43,7 +44,7 @@ BUGS:
 	  (scrollbar, table, ...) (it is due to bad x,y conversion because
 	  the cursor change of window.)
 	- filechooser at top level does not always appear in a framed window
-	- image_from_file are not freed : when is the question.
+	- image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
 	  

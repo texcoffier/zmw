@@ -34,12 +34,16 @@
 #include <unistd.h>
 #include <string.h>
 
-#define ZMW_BACKGROUND_NORMAL 0
-#define ZMW_BACKGROUND_PUSHED 1
-#define ZMW_BACKGROUND_POPED 2
-#define ZMW_BORDER_LIGHT 3
-#define ZMW_BORDER_DARK 4
-#define ZMW_FOREGROUND 5
+typedef enum
+  {
+    Zmw_Color_Background_Normal,
+    Zmw_Color_Background_Pushed,
+    Zmw_Color_Background_Poped,
+    Zmw_Color_Border_Light,
+    Zmw_Color_Border_Dark,
+    Zmw_Color_Foreground,
+    Zmw_Color_Last
+  } Zmw_Color ;
 
 #define ZMW_VALUE_UNDEFINED (-32767)
 #define ZMW_MAX_DEPTH 100
@@ -123,6 +127,9 @@ enum zmw_boolean { Zmw_False, Zmw_True } ;
 #define Zmw_Debug_Draw               32 // Output # of draw in "xxx.nb_draw"
 #define Zmw_Debug_Drag               64
 #define Zmw_Debug_Window_Auto_Resize 128
+#define Zmw_Debug_Cache_Fast         256
+#define Zmw_Debug_Cache_Slow         512
+#define Zmw_Debug_Name              1024
 
 typedef struct zmw_stackable_inheritable
 {
@@ -132,9 +139,11 @@ typedef struct zmw_stackable_inheritable
   int border_width ;
   int focus_width ;
   Zmw_Name *focus ;
+  int colors[Zmw_Color_Last] ;
   GdkFont *font ;
   GdkWindow *window ;
-  GdkGC *gc[6] ;
+  GdkGC *gc ;
+  Zmw_Rectangle clipping ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
   Zmw_Boolean horizontal_expand ;
@@ -158,7 +167,6 @@ typedef struct zmw_stackable_uninheritable
   int call_number ;		/* Number of call to zmw_begin */
   int nb_of_children, nb_of_children_max, nb_of_children_0 ;
   Zmw_Size *children ;
-  Zmw_Boolean gc_copy_on_write[6] ;
   Zmw_Boolean font_copy_on_write ;
   char *name ;			/* Pointer on the last part of full_name */
   char *name_index ;		/* Pointer on the '.#' part of name */
@@ -202,6 +210,7 @@ typedef struct zmw
   int x, y, x_root, y_root ;	/* Pointer position */
   Zmw_Boolean activated ;	/* True if the last widget was activated */
   Zmw_Boolean child_activated ; /* True if a child was activated */
+  Zmw_Boolean changed ;	        /* True if the last widget has changed */
   Zmw_Boolean dragged ;		/* True if being dragged */
   Zmw_Boolean remove_event ;    /* Remove event before entering next widget */
   Zmw_Boolean next_is_transient;/* for tips, menu, ... */
@@ -265,8 +274,10 @@ typedef enum zmw_drag_to
 #define ZMW_EVENT_IN_FOCUS            (zMw->i.event_in_focus            )
 #define ZMW_EVENT                     (zMw->i.event                     )
 #define ZMW_EVENT_IN                  (zMw->i.event_in                  )
-#define ZMW_GC                        (zMw->i.gc                        )
 #define ZMW_FONT                      (zMw->i.font                      )
+#define ZMW_COLORS                    (zMw->i.colors                    )
+#define ZMW_GC                        (zMw->i.gc                        )
+#define ZMW_CLIPPING                  (zMw->i.clipping                  )
 #define ZMW_HORIZONTAL_EXPAND         (zMw->i.horizontal_expand         )
 #define ZMW_HORIZONTAL_ALIGNMENT      (zMw->i.horizontal_alignment      )
 #define ZMW_VERTICAL_EXPAND           (zMw->i.vertical_expand           )
@@ -289,7 +300,6 @@ typedef enum zmw_drag_to
 #define ZMW_SIZE_VERTICAL_ALIGNMENT   (zMw->u.size.vertical_alignment   )
 #define ZMW_NB_OF_CHILDREN            (zMw->u.nb_of_children            )
 #define ZMW_CHILDREN                  (zMw->u.children                  )
-#define ZMW_GC_COPY_ON_WRITE          (zMw->u.gc_copy_on_write          )
 #define ZMW_FONT_COPY_ON_WRITE        (zMw->u.font_copy_on_write        )
 #define ZMW_DO_NOT_EXECUTE_POP        (zMw->u.do_not_execute_pop        )
 #define ZMW_EXTERNAL_STATE            (zMw->u.external_state            )
@@ -327,39 +337,8 @@ void zmw_font_free(void) ;
 #define   zmw_focus(X) ZMW1(ZMW_FOCUS = X; ZMW_EVENT_IN_FOCUS = ZMW_EVENT_IN ;)
 #define zmw_name_full (zmw.full_name)
 
-/*
- * If the GC is read only, a copy is done and it become writable.
- * Any function modifying GC must call this function before.
- */
+#define zmw_color(T,P) ZMW_COLORS[T] = P
 
-#define zmw_modify_gc(X,I)			\
-do						\
-{						\
-  if ( ZMW_GC_COPY_ON_WRITE[I] )		\
-    {						\
-      GdkGC *gc_tmp ;				\
-      ZMW_GC_COPY_ON_WRITE[I] = 0 ;		\
-      gc_tmp = gdk_gc_new(ZMW_WINDOW) ;		\
-      if ( ZMW_GC[I] )				\
-          gdk_gc_copy(gc_tmp, ZMW_GC[I]) ;	\
-      ZMW_GC[I] = gc_tmp ;			\
-    }						\
-  X						\
-}						\
-while(0)
-
-#define zmw_modify_gc_color(I,X,P)					   \
-zmw_modify_gc(								   \
-		 if ( ZMW_ACTION == zmw_action_draw )                      \
-                     {							   \
-		       GdkColor __color__ ;				   \
-		       __color__.pixel = P ;				   \
-		       X(ZMW_GC[I], &__color__) ;			   \
-		     }							   \
-                 , I							   \
-		 )
-
-#define zmw_color(T,P) zmw_modify_gc_color(T,gdk_gc_set_foreground,P)
 
 #if ZMW_DEBUG_STORE_WIDGET_TYPE
 #define ZMW(TYPE) for(ZMW_TYPE=#TYPE,zmw_init_widget(); \
@@ -455,7 +434,7 @@ void zmw_next_widget_could_be_transient(void) ;
 void zmw_state_push(void) ;
 void zmw_init_widget(void) ;
 const char *zmw_action_name_(Zmw_Subaction sa) ;
-const char* zmw_size_string(Zmw_Size *s) ;
+const char* zmw_size_string(const Zmw_Size *s) ;
 int zmw_action_compute_required_size(void) ;
 int zmw_action_draw(void) ;
 int zmw_action_dispatch_event(void) ;
@@ -510,8 +489,20 @@ void zmw_compute_no_size(void) ;
 void zmw_asked_size_set_required_size(void) ;
 Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
 void zmw_swap_x_y(void) ;
+
 /*
- * zmw_border.c
+ * zmw_device.c
+ */
+void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2) ;
+void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
+			, int x, int y, int width, int height) ;
+void zmw_draw_string(Zmw_Color c, int x, int y, const char *text) ;
+void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y) ;
+
+void zmw_draw_clip_push_inside(const Zmw_Rectangle *r) ;
+void zmw_draw_clip_pop() ;
+/*
+ * zmw_graphic.c
  */
 #define Zmw_Border_Draw_Focus  1
 #define Zmw_Border_Focusable   2
@@ -520,6 +511,7 @@ void zmw_swap_x_y(void) ;
 #define Zmw_Border_Relief      16
 #define Zmw_Border_Background  32
 #define Zmw_Border_In          64
+#define Zmw_Border_Out         128
 #define Zmw_Border_Relief_In   (Zmw_Border_Relief | Zmw_Border_In)
 #define Zmw_Border_Relief_Out   Zmw_Border_Relief
 #define Zmw_Border_Embossed_In (Zmw_Border_Embossed | Zmw_Border_In)
@@ -532,10 +524,13 @@ void zmw_border_relief_out_draw(void) ;
 void zmw_border_embossed_in_draw(void) ;
 void zmw_border_embossed_out_draw(void) ;
 void zmw_cross_draw(void) ;
+void zmw_draw_clip_push(const Zmw_Rectangle *r) ;
+void zmw_rgb(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 /*
  * zmw_event.c
  */
 Zmw_Boolean zmw_activated(void) ;
+Zmw_Boolean zmw_changed(void) ;
 Zmw_Boolean zmw_dragged(void) ;
 Zmw_Boolean zmw_button_pressed(void) ;
 Zmw_Boolean zmw_button_released(void) ;
@@ -590,6 +585,8 @@ char *zmw_drag_data_get(void) ;
 
 void zmw_drag_to_nothing(void) ;
 void zmw_drag_cancel(void) ;
+
+Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current) ;
 
 void zmw_drag_debug(FILE *f) ;
 void zmw_drag_debug_window(void) ;

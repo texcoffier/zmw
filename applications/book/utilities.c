@@ -24,6 +24,19 @@
 #include "library.h"
 #include <string.h>
 
+
+char *line_read(FILE *file)
+{
+  char lig[999] ;
+
+  if ( fgets(lig, sizeof(lig), file) == NULL )
+    ABORT ;
+  lig[strlen(lig)-1] = '\0' ;
+  return strdup(lig) ;
+}
+
+
+
 char *lower_case(const char *t)
 {
   char *s ;

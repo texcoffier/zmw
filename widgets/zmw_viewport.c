@@ -140,6 +140,7 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
 	- zmw_scrollbar_2_viewport(y
 				   ,ZMW_CHILDREN[v_sb].required.height
 				   ,ZMW_CHILDREN[vp].required.height) ;
+
       break ;
     case Zmw_Input_Event:
       zmw_scrollbar_needed(&x_sb, &y_sb, v_sb, h_sb, vp) ;

@@ -20,8 +20,8 @@ void viewport2(void)
 	    {
 	      zmw_height(100) ;
 	      zmw_width(100) ;
-	      zmw_color(ZMW_BORDER_LIGHT, 0x00FF0000) ;
-	      zmw_color(ZMW_BORDER_DARK, 0x00800000) ;
+	      zmw_color(Zmw_Color_Border_Light, 0x00FF0000) ;
+	      zmw_color(Zmw_Color_Border_Dark, 0x00800000) ;
 
 	      ZMW(zmw_viewport_with_scrollbar(&x2, &y2))
 		{

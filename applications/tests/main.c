@@ -87,7 +87,7 @@ void page_test(const char *label, struct menu *tests)
       zmw_vertical_alignment(0) ;
       
       for(i=0; tests[i].text; i++)
-	  zmw_toggle_with_label(&tests[i].on_screen, tests[i].text) ;
+	  zmw_toggle_int_with_label(&tests[i].on_screen, tests[i].text) ;
     }
 }
 
@@ -145,7 +145,7 @@ void page_option(void (**box)(), int *border_width, int *padding_width
       zmw_radio_with_label((int*)font_name, (int)"7x14", "7x14") ;
       
       zmw_text("Misc") ;
-      zmw_toggle_with_label(auto_resize, "Window auto resize") ;
+      zmw_toggle_int_with_label(auto_resize, "Window auto resize") ;
     }
 }
 

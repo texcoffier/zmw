@@ -2,14 +2,18 @@
 
 case `hostname` in
 big) # Pentium 150 MHz
-    SMALL1=0.1
-    SMALL2=0.3
+    SMALL1=0.3
+    SMALL2=1
     ;;
 ligimpc37) # Pentium 1.5 GHz
     SMALL1=0.1
     SMALL2=0.3
     ;;
 ligimpc22) # Pentium 1 GHz
+    SMALL1=0.1
+    SMALL2=0.3
+    ;;
+lirispaj) # Pentium 3 GHz
     SMALL1=0.1
     SMALL2=0.3
     ;;

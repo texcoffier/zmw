@@ -40,7 +40,7 @@ void test_sensible(const char *title)
 	{
 	  ZMW(zmw_box_vertical())
 	    {
-	      zmw_toggle_with_label(&button, "Next button is sensible") ;
+	      zmw_toggle_int_with_label(&button, "Next button is sensible") ;
 	      zmw_button("A button") ;
 	      if ( button && zmw_activated() )
 		fprintf(stderr, "button is activated\n") ;
@@ -50,8 +50,8 @@ void test_sensible(const char *title)
 
 	  ZMW(zmw_box_vertical())
 	    {
-	      zmw_toggle_with_label(&toggle, "Next toggle is sensible (doesn't work)") ;
-	      zmw_toggle(&a_toggle) ;
+	      zmw_toggle_int_with_label(&toggle, "Next toggle is sensible (doesn't work)") ;
+	      zmw_toggle_int(&a_toggle) ;
 	      if ( toggle && zmw_activated() )
 		fprintf(stderr, "toggle change\n") ;
 	    }
@@ -60,7 +60,7 @@ void test_sensible(const char *title)
 	  
 	  ZMW(zmw_box_vertical())
 	    {
-	      zmw_toggle_with_label(&text, "Next text is sensible (doesn't work)") ;
+	      zmw_toggle_int_with_label(&text, "Next text is sensible (doesn't work)") ;
 	      zmw_text_editable(&a_text) ;
 	      if ( text && zmw_activated() )
 		fprintf(stderr, "text is activated\n") ;
@@ -69,7 +69,7 @@ void test_sensible(const char *title)
 
 	  ZMW(zmw_box_vertical())
 	    {
-	      zmw_toggle_with_label(&box, "Next box is sensible") ;
+	      zmw_toggle_int_with_label(&box, "Next box is sensible") ;
 
 	      zmw_sensible(box) ;
 	      ZMW(zmw_box_vertical())
@@ -77,7 +77,7 @@ void test_sensible(const char *title)
 		  zmw_button("A button in the box") ;
 		  if ( zmw_activated() )
 		    fprintf(stderr, "Button in box activated\n") ;
-		  zmw_toggle(&a_toggle2) ;
+		  zmw_toggle_int(&a_toggle2) ;
 		  if ( zmw_activated() )
 		fprintf(stderr, "Toggle in box change\n") ;
 		  zmw_text_editable(&a_text2) ;
@@ -89,7 +89,7 @@ void test_sensible(const char *title)
 	  zmw_border_embossed_in_draw() ;
 
 	  zmw_sensible(self) ;
-	  zmw_toggle_with_label(&self, "This toggle is sensible") ;
+	  zmw_toggle_int_with_label(&self, "This toggle is sensible") ;
 	}
     }
 }

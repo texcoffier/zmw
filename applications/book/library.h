@@ -45,9 +45,10 @@ typedef struct
   int number ;
   int author_index ;
   char *title ;
-  int interest ;
+  int rate ;
   int borrowers_number ;
   int *borrowers ;
+  double checksum ; // To see if the book was modified
 } Book ;
 
 typedef struct
@@ -74,51 +75,78 @@ typedef struct
   int value ;
 } Valued ;
 
+typedef enum
+  {
+    Column_Title, Column_Author, Column_Borrower
+    , Column_Collection, Column_Number, Column_Rate
+    , Column_Last
+  } Columns ;
 
+
+/* utilities.c */
+char *line_read(FILE *file) ;
 char *lower_case(const char *t) ;
 int strcmp_caseless(const char *a, const char *b) ;
 const char *surname(const char *a) ;
 
+/* strings.c */
 void strings_read(FILE *file, Strings *s) ;
 void strings_write(FILE *file, const Strings *s) ;
 void strings_free(Strings *s) ;
 int strings_add(Strings *s, char *newv) ;
 int strings_search(const char *pin, Strings *straw, Valued *index, int nb);
 
-char *line_read(FILE *file) ;
+/* loadsave.c */
+double library_book_checksum(Library *lib, Book *b) ;
 Library* library_load(const char *filename) ;
 void library_free(Library *lib) ;
-void library_save(const Library *lib, const char *filename) ;
+void library_save(Library *lib, const char *filename) ;
 
-void library_filter(Library *lib, const char *filter, int only_borrowed) ;
+/* filter.c */
+void library_filter(Library *lib, const char *filter, int only_borrowed
+		    , char **filters, int only_modified) ;
 
+/* sort.c */
 void library_sort_author_surname(Library *lib) ;
 void library_sort_author_firstname(Library *lib) ;
 void library_sort_title(Library *lib) ;
 void library_sort_last_borrower_surname(Library *lib) ;
 void library_sort_last_borrower_firstname(Library *lib) ;
+void library_sort_collection(Library *lib) ;
+void library_sort_number(Library *lib) ;
+void library_sort_rate(Library *lib) ;
 
+/* library.c */
+int         library_modified                   (Library*) ;
+int         library_book_number                (Library*) ;
 
-int         library_book_number              (Library*) ;
+void        library_book_new                   (Library*, char **values) ;
+char**      library_borrower_pointer_name      (Library*, int borrower_id) ;
+const char* library_borrower_name              (Library*, int borrower_id) ;
 
-char**      library_borrower_pointer_name    (Library*, int borrower_id) ;
-const char* library_borrower_name            (Library*, int borrower_id) ;
+int         library_book_modified              (Library*, int id) ;
 
-const char* library_book_title_get           (Library*, int id) ;
-char**      library_book_title_pointer_get   (Library*, int id) ;
+const char* library_book_title_get             (Library*, int id) ;
+char**      library_book_title_pointer_get     (Library*, int id) ;
 
-const char* library_book_author_get	     (Library*, int id) ;
-void        library_book_author_set	     (Library*, int id, int author);
-char**      library_book_author_pointer_get  (Library*, int id) ;
+const char* library_book_author_get	       (Library*, int id) ;
+void        library_book_author_set	       (Library*, int id, int author);
+char**      library_book_author_pointer_get    (Library*, int id) ;
 
-const char* library_book_collection_get      (Library*, int id) ;
+const char* library_book_collection_get        (Library*, int id) ;
+char**      library_book_collection_pointer_get(Library*, int id) ;
+void        library_book_collection_new(Library *lib, int index, int collection_index) ;
+int         library_book_number_get          	(Library*, int id) ;
+int         library_book_rate_get            	(Library*, int id) ;
+int*        library_book_number_pointer_get  	(Library *lib, int index) ;
+int*        library_book_rate_pointer_get    	(Library *lib, int index) ;
 
 /* If borrower==-1 it is the last */
-int         library_book_borrower_number     (Library*, int id) ;
-char**      library_book_borrower_pointer_get(Library*, int id, int borrower) ;
-void        library_book_borrower_give_back  (Library*, int id)  ;
-const char* library_book_borrower_get        (Library*, int id, int borrower) ;
-void        library_book_borrower_new        (Library*, int id, int borrower) ;
-int         library_book_borrower_have_it    (Library*, int id, int borrower) ;
+int         library_book_borrower_number     	(Library*, int id) ;
+char**      library_book_borrower_pointer_get	(Library*, int id, int borrower) ;
+void        library_book_borrower_give_back  	(Library*, int id)  ;
+const char* library_book_borrower_get        	(Library*, int id, int borrower) ;
+void        library_book_borrower_new        	(Library*, int id, int borrower) ;
+int         library_book_borrower_have_it    	(Library*, int id, int borrower) ;
 
 #endif

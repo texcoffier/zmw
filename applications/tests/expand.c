@@ -44,7 +44,7 @@ void expand(const char *title)
 		{
 		  zmw_horizontal_expand(0) ;
 		  zmw_vertical_expand(0) ;
-		  zmw_toggle_with_label(&hexpand[i], "Horizontal Expand") ;
+		  zmw_toggle_int_with_label(&hexpand[i], "Horizontal Expand") ;
 		  zmw_text("Horizontal Alignment") ;
 		  ZMW(zmw_box_horizontal())
 		    {
@@ -52,7 +52,7 @@ void expand(const char *title)
 		      zmw_radio(&halign[i], 0) ;
 		      zmw_radio(&halign[i], 1) ;
 		    }
-		  zmw_toggle_with_label(&vexpand[i], "Vertical Expand") ;
+		  zmw_toggle_int_with_label(&vexpand[i], "Vertical Expand") ;
 		  zmw_text("Vertical Alignment") ;
 		  ZMW(zmw_box_horizontal())
 		    {

@@ -84,6 +84,52 @@ void library_sort_title(Library *lib)
 }
 
 
+int library_compare_collection(const void *a, const void *b)
+{
+  const Book **aa = (void*)a ;
+  const Book **bb = (void*)b ;
+
+  return strcmp_caseless(global_lib->collections.strings[(*aa)->collection_index]
+		       , global_lib->collections.strings[(*bb)->collection_index]) ;
+}
+
+void library_sort_collection(Library *lib)
+{
+  global_lib = lib ;
+  qsort(lib->filtered_books, lib->filtered_number
+	, sizeof(*lib->filtered_books), library_compare_collection) ;
+}
+
+int library_compare_rate(const void *a, const void *b)
+{
+  const Book **aa = (void*)a ;
+  const Book **bb = (void*)b ;
+
+  return (*aa)->rate - (*bb)->rate ;
+}
+
+void library_sort_rate(Library *lib)
+{
+  qsort(lib->filtered_books, lib->filtered_number
+	, sizeof(*lib->filtered_books), library_compare_rate) ;
+}
+
+
+int library_compare_number(const void *a, const void *b)
+{
+  const Book **aa = (void*)a ;
+  const Book **bb = (void*)b ;
+
+  return (*aa)->number - (*bb)->number ;
+}
+
+void library_sort_number(Library *lib)
+{
+  qsort(lib->filtered_books, lib->filtered_number
+	, sizeof(*lib->filtered_books), library_compare_number) ;
+}
+
+
 
 static const char *last_borrower_name(Library *lib, const Book **book)
 {

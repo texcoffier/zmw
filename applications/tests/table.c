@@ -53,9 +53,9 @@ void test_table(const char *title)
 	      	{
 	      	   ZMW(zmw_window_popup_right())
 	      	   	{
-		        zmw_color(ZMW_FOREGROUND, 0x00FF0000) ;
-		        zmw_color(ZMW_BORDER_LIGHT, 0x00FF8080) ;
-		        zmw_color(ZMW_BORDER_DARK, 0x00900000) ;
+		        zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
+		        zmw_color(Zmw_Color_Border_Light, 0x00FF8080) ;
+		        zmw_color(Zmw_Color_Border_Dark, 0x00900000) ;
 	      	   	ZMW(zmw_box_vertical())
 	      	   		{
 	      	   		sprintf(tip, "Text=%s", buf) ;

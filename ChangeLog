@@ -1,3 +1,22 @@
+2003-11-12 (0.0.3)
+	Many changes have been made to make OpenGL port easy
+	There is now only one GC by window
+	Name checking can now be enabled/disabled interactively
+	Size-cache checking can now be enabled/disabled interactively
+	zmw_window...(): Do not change the colors anymore
+	zmw_rgb(): Allow to give the chroma of the interface
+	zmw_text(): It is zmw_activated() on <return> key.
+	zmw_text(): Use zmw_changed() in place of zmw_activated()
+	zmw_changed() indicates if the previous widget has been modified
+	examples: Add regression test "tip.c"
+	examples: Add regression test "popdown.c"
+	examples: Add regression test "dragswap.c" and documentation
+	zmw_drag_swap() function added to change widget order
+	The window popdown is now done automaticaly on window events
+	zmw_toggle.c: Toggle label activation now popdown menus
+	zmw_toggle.c : API changes, zmw_toggle returns now the toggle value
+	application/book: Many enhancements
+
 2003-10-31 (0.0.2)
 	Regression tests are OK with GTK 2.0.2
 	No more flickering display with GTK 2

@@ -10,7 +10,7 @@ void rectangle(/* any parameter you may want */)
       ZMW_SIZE_MIN.height = 5 ;
       break ;
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-      gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND], 1
+      zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_True
 			 , ZMW_SIZE_ALLOCATED.x
 			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_SIZE_ALLOCATED.width

@@ -52,11 +52,11 @@ void test_focus(const char *title)
 
 	      zmw_text("Focus Group 1") ;
 	      zmw_text_editable(&text[0]) ;
-	      zmw_toggle(&t0) ;
+	      zmw_toggle_int(&t0) ;
 	      zmw_text_editable(&text[2]) ;
 	    }
 	  zmw_border_embossed_in_draw() ;
-	  zmw_toggle(&t2) ;
+	  zmw_toggle_int(&t2) ;
 	  zmw_name("Group 2") ;
 	  ZMW(zmw_box_vertical())
 	    {
@@ -64,7 +64,7 @@ void test_focus(const char *title)
 
 	      zmw_text("Focus Group 2") ;
 	      zmw_text_editable(&text[3]) ;
-	      zmw_toggle(&t1) ;
+	      zmw_toggle_int(&t1) ;
 
 	      zmw_name("Group 3") ;
 	      ZMW(zmw_box_vertical())
@@ -73,7 +73,7 @@ void test_focus(const char *title)
 
 		  zmw_text("Focus Group 3") ;
 		  zmw_text_editable(&text[6]) ;
-		  zmw_toggle(&t3) ;
+		  zmw_toggle_int(&t3) ;
 		  zmw_text_editable(&text[8]) ;
 		}
 	      zmw_border_embossed_in_draw() ;

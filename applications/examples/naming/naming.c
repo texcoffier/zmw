@@ -8,7 +8,7 @@ void toggle_and_its_name(int *value)
 
   ZMW(zmw_box_horizontal())
     {
-      zmw_toggle(value) ;
+      zmw_toggle_int(value) ;
       strcpy(buf, zmw_name_full) ;
       zmw_text("toggle named") ;
       zmw_text(buf) ;

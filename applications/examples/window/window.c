@@ -32,7 +32,7 @@ void menu()
 	  if ( zmw_window_is_popped() )
 	    submenu() ;
 	  zmw_button("An action") ;
-	  zmw_toggle_with_label(&boolean, "Toggle") ;
+	  zmw_toggle_int_with_label(&boolean, "Toggle") ;
 	  zmw_text_editable(&text) ;
 	}
     }

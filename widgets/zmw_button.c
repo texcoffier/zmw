@@ -70,7 +70,6 @@ void zmw_button(const char *text)
 		    | Zmw_Decorator_Activable
 		    | Zmw_Decorator_Activable_By_Key
 		    | Zmw_Decorator_Pushable
-		    | Zmw_Decorator_Unpop_On_Activate
 		    )
       )
     {

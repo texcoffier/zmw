@@ -242,7 +242,7 @@ void zmw_table_draw(int nb_cols, int *width, int *height, Zmw_Boolean *selection
       for(i=0; i<ZMW_NB_OF_CHILDREN; i += nb_cols)
    	{
 	  if ( selection[i/nb_cols] )
-	    gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_BACKGROUND_PUSHED], 1
+	    zmw_draw_rectangle(Zmw_Color_Background_Pushed, Zmw_True
 			       , ZMW_SIZE_ALLOCATED.x
 			       , y
 			       , ZMW_SIZE_ALLOCATED.width
@@ -258,7 +258,7 @@ void zmw_table_draw(int nb_cols, int *width, int *height, Zmw_Boolean *selection
   x = ZMW_SIZE_ALLOCATED.x /* - ZMW_PADDING_WIDTH + ZMW_TABLE_VERTICAL_WIDTH*/ ;
   for(i=0; i<=nb_cols; i++)
     {
-      gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
+      zmw_draw_line(Zmw_Color_Foreground
 		    , x /* + 1 */
 		    , ZMW_SIZE_ALLOCATED.y
 		    , x /* + 1 */

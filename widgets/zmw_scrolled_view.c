@@ -84,7 +84,7 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
 	}
       zmw_vertical_expand(Zmw_True) ;
       zmw_scrollbar_vertical_with_delta(&y, y_size, 1. / *nb) ;
-      if ( zmw_activated() )
+      if ( zmw_changed() )
 	{
 	  *start = y * max + 0.5 ;
 	}

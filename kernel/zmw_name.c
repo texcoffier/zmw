@@ -80,12 +80,12 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    ) ;
 }
 
-#define ZMW_NAME_ASSERT(X) ZMW1(		\
-    if ( !(X) )					\
-       {					\
-	 zmw_printf("\nASSERT %s FAILED in %s\n",#X, __FUNCTION__) ;\
-	 zmw_name_debug_print(n) ; \
-       }					\
+#define ZMW_NAME_ASSERT(X) ZMW1(					\
+    if ( (zmw.debug & Zmw_Debug_Name) && !(X) )			\
+       {								\
+	 zmw_printf("\nASSERT %s FAILED in %s\n",#X, __FUNCTION__) ;	\
+	 zmw_name_debug_print(n) ;					\
+       }								\
     )
 #else
 #define ZMW_NAME_ASSERT(X) 
@@ -481,7 +481,7 @@ void zmw_name_debug_window()
   ZMW( zmw_box_vertical() )
     {
       zmw_font("5x8") ;
-      zmw_toggle_with_label(&display_name_state, "Ressources and Registration") ;
+      zmw_toggle_int_with_label(&display_name_state, "Ressources and Registration") ;
       if ( display_name_state )
 	{
 	  ZMW( zmw_box_vertical() )

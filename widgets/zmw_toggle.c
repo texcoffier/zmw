@@ -21,7 +21,7 @@
 
 #include "zmw/zmw.h"
 
-void zmw_toggle_bits(int *value, int bits)
+int zmw_toggle_bits(int value, int bits)
 {
   ZMW(zmw_decorator(Zmw_Decorator_Interior
 		    | Zmw_Decorator_Border_Relief
@@ -29,8 +29,7 @@ void zmw_toggle_bits(int *value, int bits)
 		    | Zmw_Decorator_Pushable
 		    | Zmw_Decorator_Activable
 		    | Zmw_Decorator_Activable_By_Key
-		    | Zmw_Decorator_Unpop_On_Activate
-		    | ( (*value & bits) ? Zmw_Decorator_Border_In : 0 ) 
+		    | ( (value & bits) ? Zmw_Decorator_Border_In : 0 ) 
 		    )
       )
     {
@@ -39,16 +38,37 @@ void zmw_toggle_bits(int *value, int bits)
     zmw_cross_draw() ;
   if ( zmw_activated() )
     {
-      *value ^= bits ;
+      value ^= bits ;
     }
+  return value ;
 }
 
-void zmw_toggle(int *value)
+void zmw_toggle_bits_int(int *value, int bits)
 {
-  zmw_toggle_bits(value, 1) ;
+  *value = zmw_toggle_bits(*value, bits) ;
 }
 
-void zmw_toggle_bits_with_label(int *value, int bits, const char *label)
+void zmw_toggle_bits_char(char *value, int bits)
+{
+  *value = zmw_toggle_bits(*value, bits) ;
+}
+
+int zmw_toggle(int value)
+{
+  return zmw_toggle_bits(value, 1) ;
+}
+
+void zmw_toggle_int(int *value)
+{
+  *value = zmw_toggle_bits(*value, 1) ;
+}
+
+void zmw_toggle_char(char *value)
+{
+  *value = zmw_toggle_bits(*value, 1) ;
+}
+
+int zmw_toggle_bits_with_label(int value, int bits, const char *label)
 {
   Zmw_Boolean a ;
 
@@ -57,23 +77,45 @@ void zmw_toggle_bits_with_label(int *value, int bits, const char *label)
       zmw_horizontal_expand(0) ;
       zmw_vertical_expand(0) ;
 
-      zmw_toggle_bits(value, bits) ;
+      value = zmw_toggle_bits(value, bits) ;
       a = zmw_activated() ;
 
       zmw_text(label) ;
     }
   if ( zmw_activated() )
     {
-      *value ^= bits ;
+      value ^= bits ;
+      zmw_window_unpop_all() ;
     }
   if ( a )
     zmw.activated = Zmw_True ;
 
+  return value ;
 }
 
-void zmw_toggle_with_label(int *value, const char *label)
+void zmw_toggle_bits_int_with_label(int *value, int bits, const char *label)
 {
-  zmw_toggle_bits_with_label(value, 1, label) ;
+  *value = zmw_toggle_bits_with_label(*value, bits, label) ;
+}
+
+void zmw_toggle_bits_char_with_label(char *value, int bits, const char *label)
+{
+  *value = zmw_toggle_bits_with_label(*value, bits, label) ;
+}
+
+int zmw_toggle_with_label(int value, const char *label)
+{
+  return zmw_toggle_bits_with_label(value, 1, label) ;
+}
+
+void zmw_toggle_int_with_label(int *value, const char *label)
+{
+  *value = zmw_toggle_bits_with_label(*value, 1, label) ;
+}
+
+void zmw_toggle_char_with_label(char *value, const char *label)
+{
+  *value = zmw_toggle_bits_with_label(*value, 1, label) ;
 }
 
 
@@ -82,7 +124,7 @@ void zmw_radio(int *value, int number)
   int v ;
 
   v = ( *value == number ) ; 
-  zmw_toggle( &v ) ;
+  zmw_toggle_int( &v ) ;
   if ( v )
     *value = number ;
 }
@@ -100,5 +142,6 @@ void zmw_radio_with_label(int *value, int number, const char *label)
   if ( zmw_activated() )
     {
       *value = number ;
+      zmw_window_unpop_all() ;
     }
 }

@@ -33,10 +33,6 @@ static int global_cache_size = 0 ;
 static gint global_input_http ;
 static void (*global_fct)() ;
 
-void zmw_do_nothing()
-{
-}
-
 void zmw_need_repaint()
 {
   zmw.need_repaint = 1 ;
@@ -49,21 +45,32 @@ void zmw_debug_flags()
   
   ZMW(zmw_box_vertical())
     {
-      zmw_toggle_with_label(&display_zmw, "Debug flags") ;
+      zmw_toggle_int_with_label(&display_zmw, "Debug flags") ;
       if ( display_zmw )
 	{
-	  zmw_toggle_bits_with_label(&zmw.debug
+	  zmw_toggle_bits_int_with_label(&zmw.debug
 				     , Zmw_Debug_Draw_Cross
 				     , "Draw a cross on widget with event") ;
-	  zmw_toggle_bits_with_label(&zmw.debug
+	  zmw_toggle_bits_int_with_label(&zmw.debug
 				     , Zmw_Debug_Trace
 				     , "Trace all calls") ;
-	  zmw_toggle_bits_with_label(&zmw.debug
+	  zmw_toggle_bits_int_with_label(&zmw.debug
 				     , Zmw_Debug_Event
 				     , "Trace events") ;
-	  zmw_toggle_bits_with_label(&zmw.debug
+	  zmw_toggle_bits_int_with_label(&zmw.debug
 				     , Zmw_Debug_Drag
 				     , "Trace drag and drop") ;
+	  zmw_toggle_bits_int_with_label(&zmw.debug
+				     , Zmw_Debug_Cache_Fast
+				     , "Fast checking on cache") ;
+	  zmw_toggle_bits_int_with_label(&zmw.debug
+				     , Zmw_Debug_Cache_Slow
+				     , "Slow checking on cache") ;
+#if ZMW_DEBUG_NAME
+	  zmw_toggle_bits_int_with_label(&zmw.debug
+				     , Zmw_Debug_Name
+				     , "Some checking on name handling") ;
+#endif
 	}
       if ( zmw_name_registered(&zmw.widget_to_trace) )
 	{
@@ -350,6 +357,7 @@ void event_handler(GdkEvent *e, gpointer o)
 {
   void (*fct)() = o ;
   GdkEvent *ee ;
+  GdkWindow *w ;
   
   zmw.event_saved = *e ;
 
@@ -362,12 +370,20 @@ void event_handler(GdkEvent *e, gpointer o)
       int x, y, origin_x, origin_y ;
       x = e->button.x_root ;
       y = e->button.y_root ;
-      e->any.window = gdk_window_at_pointer(&x, &y) ;
-      gdk_window_get_origin(e->any.window, &origin_x, &origin_y) ;
-      e->button.x = e->button.x_root - origin_x ;
-      e->button.y = e->button.y_root - origin_y ;
+      w = gdk_window_at_pointer(&x, &y) ;
+      if ( w )
+	{
+	  e->any.window = w ;
+	  gdk_window_get_origin(e->any.window, &origin_x, &origin_y) ;
+	  e->button.x = e->button.x_root - origin_x ;
+	  e->button.y = e->button.y_root - origin_y ;
+	}
     }
 #endif
+  if ( e->type == GDK_KEY_PRESS )
+    {
+      e->any.window = gdk_window_at_pointer(&zmw.x, &zmw.y) ;      
+    }
 
   zmw.event = e ;
   zmw.activated = Zmw_False ;
@@ -469,6 +485,10 @@ void event_handler(GdkEvent *e, gpointer o)
 		zmw.debug ^= Zmw_Debug_Window ;	
 		zmw_need_repaint() ;
 	   }
+      if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
+	{
+	  zmw_window_unpop_all() ;
+	}
 
       zmw_accelerator_init() ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
@@ -484,16 +504,16 @@ void event_handler(GdkEvent *e, gpointer o)
 		   , e->type == GDK_BUTTON_RELEASE ? "release" : "press"
 		   , e->any.window
 		   ) ;
-      if ( e->type == GDK_BUTTON_RELEASE )
-	if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP
-	     && e->type != GDK_BUTTON_RELEASE )
-	  {
-	    if ( zmw.debug & Zmw_Debug_Event )
-	      {
-		zmw_printf("Unpop because event on non-popup window\n") ;
-	      }
-	    zmw_window_unpop_all() ;
-	  }
+      
+      if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
+	{
+	  if ( zmw.debug & Zmw_Debug_Event )
+	    {
+	      zmw_printf("Unpop because event on non-popup window\n") ;
+	    }
+	  zmw_window_unpop_all() ;
+	}
+      
 
       zmw_call_widget(fct, zmw_action_dispatch_event) ;
       /* You always make repaint because a button release
@@ -515,17 +535,17 @@ void event_handler(GdkEvent *e, gpointer o)
     case GDK_ENTER_NOTIFY:
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** ENTER!\n") ;
-      return ; /* 2003/10/27 do waste less CPU and see less debug garbage */
+      return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
       break ;
     case GDK_LEAVE_NOTIFY:
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** LEAVE!\n") ;
-      return ; /* 2003/10/27 do waste less CPU and see less debug garbage */
+      return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
       break ;
     default:
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** ????\n") ;
-      return ; /* 2003/10/8 do waste less CPU and see less debug garbage */
+      return ; /* 2003/10/8 to waste less CPU and see less debug garbage */
       break ;
     }
     /* Compute the accelerator list */
@@ -561,6 +581,8 @@ void zmw_init(gint *argc, gchar ***argv)
 
   gdk_init(argc, argv) ;
   gdk_rgb_init() ;
+
+  zmw.debug = Zmw_Debug_Cache_Fast | Zmw_Debug_Cache_Slow | Zmw_Debug_Name ;
 
   for(i=0; i<*argc; i++)
     {
@@ -606,7 +628,8 @@ void zmw_run(void (*fct)())
   zmw_debug( !!(zmw.debug & Zmw_Debug_Widget) ) ;
   zmw_auto_resize(0) ;
   zmw_sensible(1) ;
-
+  zmw_rgb(0.75, 0.75, 0.75) ;
+  
   zmw_state_push() ;
   zmw_draw(fct) ;
 

@@ -41,7 +41,7 @@ void appearance(void)
 		  // The color/font change is trapped by the box
 		  ZMW(zmw_box_vertical())
 		    {
-		      zmw_color(ZMW_FOREGROUND, RGB(r, g, b)) ;
+		      zmw_color(Zmw_Color_Foreground, RGB(r, g, b)) ;
 		      zmw_font(fonts[i]) ;
 		      zmw_text(fonts[i]) ;
 		    }

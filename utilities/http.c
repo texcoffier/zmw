@@ -151,8 +151,6 @@ static void http_size_display(Zmw_Size *ws)
 
 int http_node()
 {
-  int i ;
-
   ZMW_EXTERNAL_HANDLING ;
   
   switch ( ZMW_CALL_NUMBER++ )
@@ -211,10 +209,6 @@ int http_node()
 	  http_printf("<TR><TH>Window</TH><TD>%p</TD></TR>\n"
 		  , ZMW_WINDOW) ;
 	  http_printf("<TR><TH>GC</TH><TD>") ;
-	  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC); i++)
-	    http_printf(" %p%s", ZMW_GC[i]
-		    , ZMW_GC_COPY_ON_WRITE[i] ? "" : "(Modified)"
-		    ) ;
 	  http_printf("</TD></TR>") ;
 
 	  http_printf("<TR><TH>Auto resize</TH><TD>%d</TD></TR>\n"

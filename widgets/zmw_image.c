@@ -34,17 +34,13 @@ static void zmw_image_general(GdkPixbuf *pb)
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-      PRINTF("win %p gc %p %d %d %dx%d\n"
-	     , ZMW_WINDOW, ZMW_GC[0]
+      PRINTF("win %p %d %d %dx%d\n"
+	     , ZMW_WINDOW
 	     , ZMW_SIZE_ALLOCATED.x, ZMW_SIZE_ALLOCATED.y
 	     , gdk_pixbuf_get_width(pb), gdk_pixbuf_get_height(pb)) ;
 
-      gdk_pixbuf_render_to_drawable(pb, ZMW_WINDOW, ZMW_GC[0], 0, 0
-				    , ZMW_SIZE_ALLOCATED.x
-				    , ZMW_SIZE_ALLOCATED.y
-				    , gdk_pixbuf_get_width(pb)
-				    , gdk_pixbuf_get_height(pb)
-				    , GDK_RGB_DITHER_NORMAL, 0, 0) ;
+      zmw_pixbuf_render_to_drawable(pb, ZMW_SIZE_ALLOCATED.x
+				    , ZMW_SIZE_ALLOCATED.y) ;
       break ;
 
     default:

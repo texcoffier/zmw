@@ -20,10 +20,10 @@ void notebook2(void)
 	    }
 
 	  zmw_text("T1") ;
-	  zmw_toggle(&t1) ;
+	  zmw_toggle_int(&t1) ;
 
 	  zmw_text("T2") ;
-	  zmw_toggle(&t2) ;
+	  zmw_toggle_int(&t2) ;
 	}
     }
 }

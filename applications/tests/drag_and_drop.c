@@ -55,9 +55,9 @@ void test_drag_and_drop(const char *title)
 		  if ( j == drag_to )
 		    {
 		      if ( drag_to_k )
-			zmw_color(ZMW_FOREGROUND, 0x0000FF00) ;
+			zmw_color(Zmw_Color_Foreground, 0x0000ff00) ;
 		      else
-			zmw_color(ZMW_FOREGROUND, 0x00FF0000) ;
+			zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
 		    }
 
 		  zmw_name("Title") ;

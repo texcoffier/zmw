@@ -40,12 +40,13 @@
 <!ENTITY examplehidden SYSTEM "examples/hidden/hidden.sgml">
 <!ENTITY exampledefine SYSTEM "examples/define/define.sgml">
 <!ENTITY exampleanimation SYSTEM "examples/animation/animation.sgml">
+<!ENTITY exampledragswap SYSTEM "examples/dragswap/dragswap.sgml">
 <!ENTITY scale "50">
 ]>
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.2)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.3)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -89,7 +90,7 @@
       An research report was made in march 2003:
       http://www710.univ-lyon1.fr/~exco/ZMW/rr_2003_03_11.pdf
       it was published with the version 0.0.0 of the library.
-      The version 0.0.1 was released the 27 october 2003.
+      The version 0.0.1 was released publicly the 27 october 2003.
     </para>
     <para>
       Sorry for the poor English, it is not my native language.</para>
@@ -680,9 +681,9 @@
 
 	<varlistentry>
 	  <term>
-	    <type>void</type>
+	    <type>int</type>
 	    <function>zmw_toggle</function>
-	    (<type>int *</type><parameter>value</parameter>) ;
+	    (<type>int</type> <parameter>value</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
@@ -694,6 +695,9 @@
 	      the toggle value.
 	      It is allowed to have several toggles modifying
 	      the same value.
+	      The returned value should be copied into the parameter,
+	      so it is possible to have toggles stored in a
+	      single bit.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -701,9 +705,9 @@
 
       <varlistentry>
 	<term>
-	  <type>void</type>
+	  <type>int</type>
 	  <function>zmw_toggle_with_label</function>
-	  (<type>int *</type><parameter>value</parameter>,
+	  (<type>int</type> <parameter>value</parameter>,
 	  <type>const char *</type><parameter>label</parameter>
 	  ) ;
 	</term>
@@ -717,9 +721,9 @@
 
       <varlistentry>
 	<term>
-	  <type>void</type>
+	  <type>int</type>
 	  <function>zmw_toggle_bits</function>
-	  (<type>int *</type><parameter>value</parameter>,
+	  (<type>int</type> <parameter>value</parameter>,
 	  <type>int</type> <parameter>bits</parameter>
 	  ) ;
 	</term>
@@ -734,9 +738,9 @@
       
       <varlistentry>
 	<term>
-	  <type>void</type>
+	  <type>int</type>
 	  <function>zmw_toggle_bits_with_label</function>
-	  (<type>int *</type><parameter>value</parameter>,
+	  (<type>int</type> <parameter>value</parameter>,
 	  <type>int</type> <parameter>bits</parameter>,
 	  <type>const char *</type><parameter>label</parameter>
 	  ) ;
@@ -747,6 +751,21 @@
 	  </para>
 	</listitem>
       </varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_toggle[_bits]_(int|char)[_with_label]</function>
+	    (<type>(int|char) *</type><parameter>value</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      These eight functions allow to use
+	      former functions without using affectation operator.
+	    </para>
+	  </listitem>
+	</varlistentry>
 
 
       <varlistentry>
@@ -894,7 +913,13 @@
 	      and <parameter>y_delta</parameter>,
 	      <constant>0.5</constant> means that the scrollbar
 	      is translated on half its size.
-	      On position change, the widget is activated.
+	      On position change, <function>zmw_changed()</function>
+	      will return true.
+	      When the user release the scrollbar or use
+	      keys to change the scrollbar value
+	      then the widget is activated
+	      and  <function>zmw_activated()</function>
+	      will return true.	      
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -1987,15 +2012,6 @@
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><constant>Zmw_Decorator_Unpop_On_Activate</constant></term>
-	  <listitem>
-	    <para>All the popup windows are closed is
-	      the widget is activated.
-	      It is useful for the menus.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
 	  <term><constant>Zmw_Decorator_Clip</constant></term>
 	  <listitem>
 	    <para>The child is clipped.
@@ -2056,7 +2072,6 @@
 	| Zmw_Decorator_Focusable
 	| Zmw_Decorator_Activable
 	| Zmw_Decorator_Pushable
-	| Zmw_Decorator_Unpop_On_Activate
 	</constant>
       </para>
 
@@ -2411,8 +2426,6 @@
       </para>
 
 
-    <para>color, focus, ...</para>
-
     <sect1>
       <title>Widget geometry</title>
 
@@ -2642,22 +2655,38 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_foreground</function>
-	    (<type>int</type> <parameter>type</parameter>,
+	    <function>zmw_color</function>
+	    (<type>Zmw_Color</type> <parameter>type</parameter>,
 	    <type>int</type> <parameter>colour</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      The <parameter>type</parameter> indicate the widget part
 	      to be modified. It can be:
-	      <constant>ZMW_BACKGROUND_NORMAL</constant>
-	      <constant>ZMW_BACKGROUND_PUSHED</constant>
-	      <constant>ZMW_BACKGROUND_POPED</constant>
-	      <constant>ZMW_BORDER_LIGHT</constant>
-	      <constant>ZMW_BORDER_DARK</constant>
-	      <constant>ZMW_FOREGROUND</constant>.
+	      <constant>Zmw_Color_Background_Normal</constant>
+	      <constant>Zmw_Color_Background_Pushed</constant>
+	      <constant>Zmw_Color_Background_Poped</constant>
+	      <constant>Zmw_Color_Border_Light</constant>
+	      <constant>Zmw_Color_Border_Dark</constant>
+	      <constant>Zmw_Color_Foreground</constant>.
 	      The <parameter>colour</parameter> is an integer
 	      coded as 256*(256*R+V)+B where RVB are between 0 and 255.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_rgb</function>
+	    (<type>Zmw_Float_0_1</type> <parameter>red</parameter>,
+	    <type>Zmw_Float_0_1</type> <parameter>green</parameter>,
+	    <type>Zmw_Float_0_1</type> <parameter>blue</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Set <constant>Zmw_Color_Background_Normal</constant>
+	      to the color given and all the others accordingly
+	      to this one.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -2808,8 +2837,27 @@
 	  </term>
 	  <listitem>
 	    <para>
-	    Return true if the widget is activated.
-	    The event can be a click or a key press.
+	      Return true if the widget is activated.
+	      The event can be a click or a key <keysym>Return</keysym>
+	      press.
+	      If true is returned, the program is allowed to
+	      change its state.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_changed</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    Return true if the widget has changed.
+	    This event indicates that the widget changed
+	      but the user does not terminate the interaction
+	      for example for <function>zmw_text_editable</function>
+	      and <function>zmw_scrollbar</function>.
 	    If true is returned, the program is allowed to
 	    change its state.
 	    </para>
@@ -2939,7 +2987,44 @@
 	    </variablelist>
 	  </para>
 	</listitem>
-      </varlistentry>	    
+	</varlistentry>	    
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_swap</function>
+	    (<type>int</type> <parameter>index</parameter>,
+	    <type>int *</type><parameter>table</parameter>,
+	    <type>int *</type><parameter>index_current</parameter>,
+	    <type>int *</type><parameter>index_old</parameter>
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This function allows to swap widgets by dragging them,
+	      it could be used to change columns order in a table.
+	      The <parameter>table</parameter> contains
+	      widget number.
+	      What is named <parameter>index</parameter>
+	      is an index in <parameter>table</parameter>.
+	      The function is called
+	      after the widget whose position is <parameter>index</parameter>.
+	      <parameter>index_current</parameter> is <constant>-1</constant>
+	      if there is no dragging, else it is the
+	      index of the widget being dragged.
+	      Beware the indexes change when there is a swap and
+	      there is swaps while the button is pressed.
+	      If this function returns true, an informative
+	      widget must be displayed.
+	      The example may be more informative than
+	      this text.
+	      <parameter>index_old</parameter> is here to stop
+	      swapping infinity loop, it is not nice at all.
+	      The other ways are to move the cursor (screen pointer)
+	      to a better position when swapping or to not immediately
+	      swap widgets. If you have better ideas, tell me.
+	    </para>
+	  </listitem>
+	</varlistentry>	    
 
     </variablelist>
       <example>
@@ -2985,6 +3070,43 @@
       and the dragged value can also give this feedback
       to indicate if it was accepted or refused.
     </para>
+
+
+      <example>
+	<title>Changing widget order</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampledragswap;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/dragswap/dragswap.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/dragswap/dragswap.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>Value 1 swapped with 3</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/dragswap/dragswap.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/dragswap/dragswap.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>Swap between A, B and F</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/dragswap/dragswap.5.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/dragswap/dragswap.5.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
     </sect1>
 
     <sect1>

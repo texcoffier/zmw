@@ -10,8 +10,7 @@ ZMW_EXECUTION_ARGS=--mstimout=10
 
 # Small goal to test only one example
 ZMW_CURRENT_TEST=draganddrop
-ZMW_CURRENT_TEST=window
-# ZMW_CURRENT_TEST=image
+ZMW_CURRENT_TEST=tip
 
 compile_current:
 	cd $(ZMW_CURRENT_TEST) && $(MAKE) -f ../Makefile $(ZMW_CURRENT_TEST).exe
