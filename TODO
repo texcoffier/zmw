@@ -2,17 +2,19 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WHAT I AM GOING TO PROGRAM NOW:
-	* Change menu API in order to not store informations in
-	  the resource system for detached menu.
+	* Convert d&d (widget/test/circuit/book/example/doc) to use
+	  zmw_if in place of transients.
+	* Remove all the transient management from the kernel.
+	* Remove name_next and other next functions (and for previous)
 	* Make the regression test in menu3.c (recursive menu)
 	* Append menu3.c example in the documentation
-	* Change menu API in documentation
-	* Apply the idea (end of this file) about new transient management.
-	* Convert tip (widget/test/circuit/book/example/doc) from old to new
-	* Convert menu (widget/test/circuit/book/example/doc) from old to new
-	* Convert d&d (widget/test/circuit/book/example/doc) from old to new
-	* Remove all the transient management from the kernel.
-	* Change accelerator management in order to have infinite menu
+	* Remove duplication as ZMW_XXX and ZMW_SIZE_XXX when possible.
+          May be change padding convention to do the same thing
+	  for the size (they are not the same : +-padding)
+	* Remove name comparaison optimization (ZMW_INDEX, ...)
+	  because they are too complex, don't allow infinite menu,
+	  slow down many thing because other optimisation are not possible.
+	* Remove "zmw_pass_through" function (should be used everywhere)
 
 WIDGETS:
 	- Alignement left/right in an horizontal widget
@@ -22,7 +24,12 @@ WIDGETS:
 	- zmw_table : border are too small to be draggable
 	- Decorator: remove external or internal padding as an option
 	* zmw_window_drag(): Choose the window position relative to cursor
-	* Semantic Lens (move the code from book to the library)
+	* Semantic Lens (move the code from book example to the library)
+	- Change accelerator/menu management in order to have infinite menu
+	- ``infinite'' depth menu are impossible because
+	  Dispatch_Accelerator needs to follow all the menu.
+	  So a widget "zmw_no_accelerator" must be created
+	  to stop the recursion. 
 
 
 LIBRARY CORE:
@@ -35,23 +42,14 @@ LIBRARY CORE:
 	  and [1] for Y axis.
 	- Use OpenGL
 	- zmw_name must not be called with the same name for sibling.
-	* Cursor shape change when it enter in a widget
-	- animation: It must be possible to specify the next frame time
+	* Cursor shape change when it enters in a widget
+	- animation: Specify the next frame time
 	- Create zmw_font_name zmw_font_size zmw_font_weight ...
 	- Creation of substructs in zmw in order to clarify things
-	- ``infinite'' depth menu are impossible because
-	  Dispatch_Accelerator needs to follow all the menu.
-	  So a "menu_not_containing_accelerator" must be created
-	  to stop the recursion. 
-	- Detached menu works in all the case but only if the
-	  detached state is stored in a resource in all the menu parents.
-	  It is because to compute the visibility an information
-	  must be obtained from the NEXT widget CHILDREN.
-	  But this information does not yet exists.
-	  See idea on transient idea at the end of file.
 
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
+	* zmw_text(): the selection must be cleared on button 1 press
 	- Window content has not the correct size a little time when the window
 	  is mapped the first time. It is because gdk_window_resize
 	  does not immediatly change the gdk_window_get_size result.
@@ -59,6 +57,10 @@ BUGS:
 	- zmw_image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
+	- Lurching : dispatch_accelerator does not manage children list
+	  but everybody use it to test activation. It may be possible
+          to have an action activating many widgets and the next
+	  action is a key press.
 
 
 LIMITATIONS:
@@ -69,12 +71,12 @@ QUESTIONS:
 	- Window in an invisible notebook page is not visible? Is it a problem?
 	- Having children "not_used_to_compute_parent_size" in CHILDREN
 	  complexify the size computation.
-	  Should the CHILDREN_VISIBLE table be created ?
+	  Should the CHILDREN_VISIBLE table be created?
 	- Should zmw_action_dispatch_event be separated into
 	  zmw_dispatch_button_press, zwm_dispatch_key_press, ...
 	  It will simplify the drag and drop operation,
 	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
-	- Create an zmw_action_assert to verify widget tree ?
+	- Create an zmw_action_assert to verify widget tree?
 
 	  
 NOT TO DO THINGS :
@@ -86,6 +88,15 @@ NOT TO DO THINGS :
 	  Very bad idea, some functions may need a full traversal.
 	  It does not speed hugely things so it is not interesting.
 
+	- Stop dispatching event when one is received by a widget.
+          Because other widget may test the receiver widget.
+	  (see the filechooser for example)
+
+	- Code optimization done by computing an INDEX affected
+	  to each widget is a bad idea.
+		- The code is very complex
+		- Other optimisations are not possible
+		- 
 
 /*
 *****************************************************************************
@@ -187,3 +198,58 @@ Or :
 		ZMW(zmw_window_drag())
 			{
 			}
+
+
+*****************************************************************************
+*****************************************************************************
+
+Menu:
+
+State:   1 if the menu is detached
+       + 2 if the menu is poped
+       + 4 if it contains a detached sub-menu
+
+FullState:   State (current)
+           + 8 if the new state value should be copied over the current one
+	   + 16 * State (new)
+
+The FullState is stored in the "int *detached" given by the
+application or in the resource system.
+
+When not dispatching event, if the new state value
+should be copied it is done.
+
+When dispatching event, the new state value is set to 0 and recomputed.
+If current menu is detached or poped, upper menu new state are updated
+until a detached one.
+
+On read, the current state is read:
+If  state&1, then the menu is detached   , the recursion continue
+else
+If  state&2, then the menu is poped      , the recursion continue
+else
+If  state&4, then somebody visible under , the recursion continue
+else
+             the recursion stop, nobody visible here or under
+
+
+
+1c -+- 11i -+- 111i -+- 1111i
+    |       |        +- 1112i
+    |       +- 112i -+- 1121i
+    |       |	     +- 1122i
+    |       +- 113i -+- 1131i
+    |		     +- 1132i
+    +- 12c -+- 121i -+- 1211i
+    |	    |	     +- 1212i
+    |	    +- 122d -+- 1221v -+- 12211v
+    |	    |	     +- 1222i
+    |	    +- 123i -+- 1231i
+    |		     +- 1232i
+    +- 13c -+- 131i -+- 1311i
+	    |	     +- 1312i
+	    +- 132i -+- 1321i
+	    |	     +- 1322i
+	    +- 133c -+- 1331i
+		     +- 1332d
+

@@ -31,13 +31,27 @@ export KEY_BACKSPACE=42
 export KEY_F1=43
 export KEY_PAGEUP=44
 export KEY_UP=45
+export KEY_ALT=46
+export KEY_META=47
+export KEY_SHIFT=48
+export KEY_ESCAPE=49
+export KEY_TAB=50
 
 start_xvfb() {
-  Xvfb :$ZMW_XVFBN -ac -screen 0 700x700x24 -noreset &
+  if true
+  then
+    # depth 32 does NOT work, the "xwd" command does not work correctly
+    Xvfb :$ZMW_XVFBN -ac -screen 0 700x700x24 -noreset &
+  else
+    Xnest :$ZMW_XVFBN -ac -noreset &
+  fi
   echo $! >xvfb.pid
-  # Xnest :$(ZMW_XVFBN) -ac -noreset & echo $$! >xvfb.pid
   sleep 1
   xsetroot -display $ZMW_XVFB -solid white
+  # Clear the keyboard
+  xmodmap -display $ZMW_XVFB -pke | sed 's/= .*/=/' |
+          xmodmap -display $ZMW_XVFB -
+  # Define the keyboard
   xmodmap -display $ZMW_XVFB -e "keycode $KEY_A = a" \
    -e "keycode $KEY_B = b" \
    -e "keycode $KEY_SLASH = slash" \
@@ -46,14 +60,30 @@ start_xvfb() {
    -e "keycode $KEY_CONTROL = Control_L" \
    -e "keycode $KEY_F1 = F1" \
    -e "keycode $KEY_PAGEUP = Prior" \
+   -e "keycode $KEY_ALT = Alt_L" \
+   -e "keycode $KEY_META = Meta_L" \
+   -e "keycode $KEY_SHIFT = Shift_L" \
    -e "keycode $KEY_UP = Up" \
-   -e "add control = Control_L"
+   -e "keycode $KEY_ESCAPE = Escape" \
+   -e "keycode $KEY_TAB = Tab" \
+   -e "clear Lock" \
+   -e "clear Shift" \
+   -e "clear Mod1" \
+   -e "clear Mod2" \
+   -e "clear Mod3" \
+   -e "clear Mod4" \
+   -e "clear Mod5" \
+   -e "clear Control" \
+   -e "add Shift = Shift_L" \
+   -e "add Mod1 = Alt_L" \
+   -e "add Mod2 = Meta_L" \
+   -e "add Control = Control_L"
   fvwm2 -display $ZMW_XVFB -f `pwd`/.fvwm2rc &
 }
 
 stop_xvfb() {
   kill `cat xvfb.pid`
-  rm xvfb.pid
+  rm xvfb.pid || true
 }
 
 
@@ -117,7 +147,7 @@ zmw_dump_screen() {
 	echo -n "$1"
 	zmw_sleep $SMALL2
 	xwd -root -screen |
-	    xwdtopnm 2>/dev/null |
-	    pnmcrop -white 2>/dev/null >"xxx.$NAME.$1.ppm"
+	    xwdtopnm  |
+	    pnmcrop -white >"xxx.$NAME.$1.ppm"
 }
 

@@ -30,7 +30,7 @@ void test_accel(const char *title)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Menu To Change The Value") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW( zmw_popup() )
 	    {
 	      ZMW( zmw_window_popup_right() )
 		{

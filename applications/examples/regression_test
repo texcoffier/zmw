@@ -37,19 +37,9 @@ export DISPLAY_IMAGE="eeyes"
 
 # Test if the test need to be done
 
-if [ -f "regtest.pass" ]
-then
-  N="regtest.pass"
-else
-  if [ -f "regtest.fail" ]
-  then
-    N="regtest.fail"
-  else
-    N=""
-  fi
-fi
-
-if [ "$N" != "" -a -f "$N" -a "$N" -nt "$NAME.c" -a "$N" -nt "../../../zmw.so" ]
+if [ -f "regteststatus" \
+     -a "regteststatus" -nt "$NAME.c" \
+     -a "regteststatus" -nt "../../../zmw.so" ]
 then
   exit 0
 fi
@@ -67,7 +57,7 @@ fi
 if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$NAME.c" >/dev/null
 then
   echo "$NAME : No regression test on this one"
-  touch "regtest.pass"
+  echo "pass" > "regteststatus"
   exit 0
 fi
 
@@ -78,14 +68,13 @@ else
   REPLACE="noforall"
 fi
 
-rm -f regtest.pass regtest.fail 2>/dev/null
+rm -f regteststatus 2>/dev/null
 
 make -f ../Makefile $NAME.exe || exit
 
-
 make_dumps() {
   (
-  DISPLAY="$ZMW_XVFB"
+  export DISPLAY="$ZMW_XVFB"
   # Move cursor always in the same place
   zmw_move_cursor_to 1000 1000
   # Run the application in background
@@ -185,8 +174,6 @@ compare_all_images() {
   done
 }
 
-
-
 (
 
 
@@ -228,9 +215,10 @@ echo
 
 if [ "$ALL_RESULTS" = "ok" ]
 then
-  mv xxx.logs regtest.pass
+  echo "pass" >regteststatus
 else
-  mv xxx.logs regtest.fail
+  echo "fail" >regteststatus
+  ( cd .. ; make stop_xvfb start_xvfb )
 fi
 
 

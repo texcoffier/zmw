@@ -246,7 +246,7 @@ void zmw_notebook(int *page)
 	  for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
 	    {
 	      if (
-		  zmw.event->any.window == ZMW_WINDOW
+		  zmw.event->any.window == *ZMW_WINDOW
 		  && zmw.x >= ZMW_CHILDREN[i].allocated.x
 		  && zmw.x < ZMW_CHILDREN[i].allocated.x
 		             + ZMW_CHILDREN[i].allocated.width

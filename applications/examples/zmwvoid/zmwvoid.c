@@ -23,6 +23,9 @@ void zmwvoid(void)
 		}
 	    }
 	  zmw_button("Same Grey") ;
+	  ZMW(zmw_void())
+	    ZMW(zmw_void())
+	      zmw_text("Void in Void") ;
 	}
     }
 }

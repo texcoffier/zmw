@@ -120,7 +120,7 @@ void window_page()
 	}
       zmw_name("menu button") ;
       zmw_button("Menu") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(zmw_window_popup_right())
 	    {

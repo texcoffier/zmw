@@ -30,6 +30,8 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
   Zmw_Float_0_1 new_x, new_y ;
   
   border = ZMW_BORDER_WIDTH + ZMW_FOCUS_WIDTH ;
+  zmw_focusable() ;
+
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
@@ -69,10 +71,7 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
       break ;
       
     case Zmw_Input_Event:
-      
-      zmw_focusable() ;
       zmw_activable() ;
-
 
       if ( zmw_selected() )
 	{
@@ -110,11 +109,11 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
       
       if ( new_x != *x || new_y != *y )
 	{
-	  zmw.changed = Zmw_True ;
+	  ZMW_SIZE_CHANGED = Zmw_True ;
 	  *x = new_x ;
 	  *y = new_y ;
 	  if ( zmw_key_pressed() )
-	    zmw.activated = Zmw_True ;
+	    ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
       break ;
 

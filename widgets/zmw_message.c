@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ int zmw_message(int visible, const char *title, const char *button_name)
 {
   ZMW_EXTERNAL_RESTART ;
 
-  if ( visible )
+  ZMW( zmw_if(visible) )
     ZMW(zmw_window(title))
     {
       ZMW(zmw_box_vertical())

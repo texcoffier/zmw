@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2003  Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2003-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -106,6 +106,8 @@ void zmw_decorator(int options, ...)
 
   border_width = zmw_decorator_border(options) ;
 
+  if ( options & Zmw_Decorator_Focusable )
+    zmw_focusable() ;
 
 
   switch( ZMW_SUBACTION )
@@ -203,20 +205,20 @@ void zmw_decorator(int options, ...)
       break ;
 
     case Zmw_Input_Event:
-      if ( options & Zmw_Decorator_Focusable )
-	zmw_focusable() ;
       if ( options & Zmw_Decorator_Activable )
 	{
 	  zmw_activable() ;
-	  if ( zmw.activated )
-	    {
-	      zmw_window_unpop_all() ;
-	    }
 	}
       if ( options & Zmw_Decorator_Activable_By_Key )
 	if ( zmw_key_pressed() && zmw.event->key.string[0] )
-	  zmw.activated = Zmw_True ;
+	  {
+	    ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  }
 
+      if ( ZMW_SIZE_ACTIVATED )
+	{
+	  zmw_window_unpop_all() ;
+	}
       break ;
 
     default:

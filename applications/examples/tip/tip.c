@@ -9,6 +9,7 @@ void popup(Zmw_Boolean bottom)
     }
 }
 
+
 void tip(void)
 {
   ZMW(zmw_window("Anchor"))
@@ -16,17 +17,17 @@ void tip(void)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Unsensible with tip") ;
-	  if ( zmw_tip_visible() )
+	  ZMW(zmw_tip())
 	    popup(Zmw_False) ;
 
 	  zmw_button("tip + activate") ;
-	  if ( zmw_tip_visible() )
+	  ZMW(zmw_tip())
 	    popup(Zmw_False) ;
 	  if ( zmw_activated() )
 	    printf("Activated") ;
 
 	  zmw_button("activate + tip") ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_False) ;
 	  if ( zmw_activated() )
 	    printf("Activated") ;
@@ -34,27 +35,40 @@ void tip(void)
 	  zmw_button("activate + tip + tip") ;
 	  if ( zmw_activated() )
 	    printf("Activated") ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_False) ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_True) ;
 
 	  zmw_button("tip + tip + activate") ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_False) ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_True) ;
 	  if ( zmw_activated() )
 	    printf("Activated") ;
 
 	  zmw_button("tip + tip") ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    popup(Zmw_False) ;
-	  if ( zmw_tip_visible() )
-	    popup(Zmw_True) ;
+	  ZMW( zmw_tip() )
+	    popup(Zmw_True) ;	  
 	}
     }
 }
+
+void tip2(void)
+{
+  ZMW(zmw_window("Anchor"))
+    {
+      ZMW(zmw_box_vertical())
+	{
+	  zmw_button("Unsensible with tip") ;
+	  zmw_button("tip + tip") ;
+	}
+    }
+}
+
 /* DO NOT DISPLAY */
 int main(int argc, char *argv[])
 {

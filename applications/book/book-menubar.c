@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2003 Thierry EXCOFFIER
+  Copyright (C) 2003-2004 Thierry EXCOFFIER
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,24 +25,23 @@
 void menu_popup(float color[3], char *title, Position position)
 {
   ZMW_EXTERNAL_RESTART ;
-  ZMW(zmw_void())
+
+  ZMW(position == Bottom
+      ? zmw_window_popup_bottom_with_title(title)
+      : zmw_window_popup_right_with_title(title)
+      )
     {
       zmw_padding_width(3) ;
       zmw_border_width(3) ;
       zmw_rgb(color[0], color[1], color[2]) ;
-      ZMW(position == Bottom
-	  ? zmw_window_popup_bottom_with_title(title)
-	  : zmw_window_popup_right_with_title(title)
-	  )
+
+      ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
+	ZMW(zmw_box_vertical())
 	{
-	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
-	    ZMW(zmw_box_vertical())
-	    {
-	      zmw_border_width(1) ;
-	      zmw_padding_width(1) ;
-	      zmw_tearoff() ;
-	      ZMW_EXTERNAL ;
-	    }
+	  zmw_border_width(1) ;
+	  zmw_padding_width(1) ;
+	  zmw_tearoff() ;
+	  ZMW_EXTERNAL ;
 	}
     }
   ZMW_EXTERNAL_STOP ;
@@ -51,7 +50,7 @@ void menu_popup(float color[3], char *title, Position position)
 static void menu_bar_file(Library_GUI *gui)
 {
   zmw_button(_("File")) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("File"), Bottom))
 	{
@@ -85,7 +84,7 @@ static void menu_bar_file(Library_GUI *gui)
    */
   zmw_filechooser(&gui->filechooser_load, &gui->filename_load
 		  , _("Library Load"), _("Library Load")) ;
-  if ( zmw_activated() )
+  if ( gui->filechooser_load && zmw_activated() )
     {
       library_free(gui->lib) ;
       gui->lib = library_load(gui->filename_load) ;
@@ -96,7 +95,7 @@ static void menu_bar_file(Library_GUI *gui)
    */
   zmw_filechooser(&gui->filechooser_save_as, &gui->filename_save
 		  , _("Library Save As"), _("Library Save As")) ;
-  if ( zmw_activated() )
+  if ( gui->filechooser_save_as && zmw_activated() )
     {
       library_save(gui->lib, gui->filename_save) ;
     }  
@@ -132,7 +131,7 @@ static void menu_bar_view(Library_GUI *gui)
   int i ;
 
   zmw_button(_("View")) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("View"),Bottom))
 	{
@@ -163,7 +162,7 @@ static void color_editor(const char *label, float c[3])
 static void menu_bar_edit_color(Library_GUI *gui)
 {
   zmw_button(_("Interface colors")) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("Edit colors"), Right))
 	{
@@ -183,7 +182,7 @@ static void menu_bar_edit_default(Library_GUI *gui)
   int i ;
 
   zmw_button(_("New book defaults")) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("New book defaults"), Right))
 	{
@@ -206,26 +205,40 @@ static void menu_bar_edit_default(Library_GUI *gui)
 
 static void menu_bar_edit_language(Library_GUI *gui)
 {
-  gui->prefs.new_language = NULL ;
+  int i, lang ;
+  static char *langs[] = { "C", "fr_FR@euro" } ;
+  static char *languages[] = { "English", "Français" } ;
+
   zmw_button(_("Language")) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("Language"), Right))
 	{
-	  zmw_button("English") ;
-	  if ( zmw_activated() )
-	    gui->prefs.new_language = "C" ;
-	  zmw_button("Français") ;
-	  if ( zmw_activated() )
-	    gui->prefs.new_language = "fr_FR@euro" ;
+	  lang = 0 ; // Default language
+	  for(i=0; i<ZMW_TABLE_SIZE(langs); i++)
+	    if ( strcmp(gui->prefs.new_language
+			? gui->prefs.new_language
+			: gui->prefs.language
+			, langs[i]) == 0 )
+	      lang = i ;
+
+	  for(i=0; i<ZMW_TABLE_SIZE(langs); i++)
+	    zmw_radio_with_label(&lang, i, languages[i]) ;
+
+	  if ( strcmp(gui->prefs.language, langs[lang]) )
+	    {
+	      gui->prefs.new_language = langs[lang] ;
+	    }
 	}
     }
 }
 
 static void menu_bar_edit(Library_GUI *gui)
 {
+  zmw_name("Edit") ;
   zmw_button(_("Edit")) ;
-  if ( zmw_window_is_popped() )
+  zmw_name("EditPopup") ;
+  ZMW( zmw_popup() )
     {
       ZMW(menu_popup(gui->prefs.menu_color,_("Edit"), Bottom))
 	{
@@ -253,17 +266,17 @@ void semantic_len(Library_GUI *gui)
 {
   static int stop = 0 ;
   extern void library_top_level(Library_GUI *gui) ;
-  extern void change_language(Library_GUI *gui) ;
-  char *lang ;
+  extern void set_language(char*) ;
 
   zmw_button("SL") ;
-  if ( stop == 0 && zmw_window_is_popped() )
+  ZMW( zmw_if(stop == 0 && zmw_window_is_popped()) )
     {
+      if ( stop )
+	continue ;
+
       stop = 1 ;
 
-      lang = gui->prefs.language ;
-      gui->prefs.new_language = "C" ;
-      change_language(gui) ;
+      set_language("C") ;
 
       ZMW(zmw_window_drag())
 	{
@@ -278,8 +291,7 @@ void semantic_len(Library_GUI *gui)
 	    }
 	}
 
-      gui->prefs.new_language = lang ;
-      change_language(gui) ;
+      set_language(gui->prefs.language) ;
 
       stop = 0 ;
     }
@@ -338,6 +350,7 @@ int menu_approximation(Library_GUI *gui, Strings *choices)
   if ( result )
     {
       gui->action = Nothing ;			  
+      gui->new_name = NULL ;
       nb = 0 ;
     }
   return result ;

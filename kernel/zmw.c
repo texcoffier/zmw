@@ -19,6 +19,8 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
+/* -*- outline-minor -*- */
+
 #include "zmw/zmw.h"
 #include <gdk/gdkkeysyms.h>
 
@@ -114,9 +116,9 @@ const char* zmw_size_string(const Zmw_Size *s)
 	  ,s->horizontal_alignment ? "HA" : ""
 	  ,s->vertical_alignment ? "VA" : ""
 	  ,s->used_to_compute_parent_size ? " Used" : ""
-	  ,s->event_in ? " EIn" : ""
 	  ,s->invisible ? " Inv" : ""
 	  ,s->sensible ? " Sens" : ""
+	  ,s->pass_through ? " PT" : ""
 	  ) ;
   return(buf) ;
 }
@@ -126,7 +128,6 @@ int zmw_event_in()
   if ( 0 )
     {
       zmw_printf("zMw[-1].i.window = %p\n", zMw[-1].i.window) ;
-      zmw_printf("ZMW_WINDOW = %p\n", zMw[-1].i.event_in) ;
       if ( zmw.event )
 	zmw_printf("zmw.event->any.window = %p\n", zmw.event->any.window) ;
       zmw_printf("zmw.x = %d\n", zmw.x) ;
@@ -135,13 +136,18 @@ int zmw_event_in()
     }
 
   /* Because of viewport, the event must be in the upper window (no clip) */
+  /* 26/4/2004
   if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].i.event_in )
+    return(0) ;
+  */
+
+  if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].u.size.event_in_rectangle )
     return(0) ;
 
 
   return
     ( zmw.event
-      && zmw.event->any.window == ZMW_WINDOW
+      && zmw.event->any.window == *ZMW_WINDOW
       && zmw.x >= ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH
       && zmw.x
       < ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH
@@ -161,7 +167,7 @@ void zmw_widget_change()
   if ( zmw.remove_event )
   	{
   		zmw.remove_event = Zmw_False ;
-		zmw.event->type = GDK_NOTHING ;
+		zmw.event_removed = Zmw_True ;
   	}
 }
 
@@ -198,6 +204,10 @@ void zmw_state_push()
   ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
   ZMW_SIZE_MIN.y = ZMW_VALUE_UNDEFINED ;
 
+  ZMW_MENU_STATE = NULL ; // Because of : zmw_tearoff first in a widget
+  ZMW_SUBACTION = Zmw_Init ; // Because of : zmw_tearoff first in a widget
+
+  ZMW_CHILD_NUMBER = -1 ;
 
   zmw.index_last = ZMW_INDEX ;
 
@@ -357,7 +367,8 @@ void zmw_init_widget()
       zmw.external_do_not_make_init = Zmw_False ;
       return ;
     }
-  if ( zmw.activated || zmw.changed )
+  /* If the previous widget was activated, remove event */
+  if ( ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED )
     zmw_event_remove() ;
 
   ZMW_SIZE_INDEX = -1000 ; // XXX to debug
@@ -366,9 +377,13 @@ void zmw_init_widget()
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
   ZMW_SIZE_SENSIBLE = Zmw_False ;
   ZMW_SUBACTION = Zmw_Init ;
-  zmw.activated = Zmw_False ; // Why should this be done ?
-  zmw.changed = Zmw_False ; // Why should this be done ?
-  zmw.child_activated = Zmw_False;
+  ZMW_SIZE_ACTIVATED = Zmw_False ;
+  ZMW_SIZE_CHILD_ACTIVATED = Zmw_False ;
+  ZMW_SIZE_CHANGED = Zmw_False ;
+  ZMW_SIZE_FOCUSED = Zmw_False ;
+  ZMW_SIZE_PASS_THROUGH = Zmw_False ;
+  ZMW_MENU_STATE = NULL ;
+  ZMW_CHILD_NUMBER++ ;
   zmw_debug_set() ;
 }
 
@@ -484,15 +499,20 @@ int zmw_action_compute_required_size()
 	  /*
 	   * True if it is the window with the cursor
 	   */
-	  ZMW_SIZE_EVENT_IN = (ZMW_WINDOW == zmw.event->any.window
+	  ZMW_SIZE_EVENT_IN_CHILDREN = (*ZMW_WINDOW == zmw.event->any.window
 			       && zMw[-1].i.window != ZMW_WINDOW
 			       ) ;
 	  /*
 	   * Also true if one of the child contains the window with the cursor
 	   */
-	  if ( !ZMW_SIZE_EVENT_IN )
+	  if ( !ZMW_SIZE_EVENT_IN_CHILDREN )
 	    for(i=0;i<ZMW_NB_OF_CHILDREN;i++)
-	      ZMW_SIZE_EVENT_IN |= ZMW_CHILDREN[i].event_in ;
+	      ZMW_SIZE_EVENT_IN_CHILDREN |= ZMW_CHILDREN[i].event_in_children ;
+	  /*
+	   * This one will be computed once the allocated size
+	   * for itself is known
+	   */
+	  ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
 	}
 
       /*
@@ -560,7 +580,7 @@ int zmw_action_first_pass()
       /*
        * Not top level, so size is yet computed
        */
-      ZMW_SIZE = zMw[-1].u.children[zMw[-1].u.nb_of_children] ;
+      ZMW_SIZE = zMw[-1].u.children[ZMW_CHILD_NUMBER] ;
       /*
        * We know about sensitivity AFTER the first pass on the parent
        *   zmw_button("quit") ;
@@ -588,10 +608,21 @@ int zmw_action_first_pass()
   return(1) ;
 }
 
+void zmw_action_second_pass_()
+{
+  if ( zMw[-1].u.nb_of_children )
+    zMw[-1].u.children[ZMW_CHILD_NUMBER].event_in_rectangle
+      = ZMW_SIZE_EVENT_IN_RECTANGLE ;
+
+}
+	
+
 void zmw_action_second_pass()
 {
   zMw->u.nb_of_children_0 = zMw->u.nb_of_children ;
-  ZMW_EVENT_IN = zmw_event_in() ;
+  ZMW_SIZE_EVENT_IN_RECTANGLE = zmw_event_in() ;
+
+  zmw_action_second_pass_() ;  
 }
 
 static void zmw_debug_children(Zmw_State *z)
@@ -620,8 +651,8 @@ void zmw_debug_trace()
 	     , zmw_action_name_fct()+11
 	     , ZMW_CALL_NUMBER
 	     , zmw_event_to_process() ? " EtP" : ""
-	     , ZMW_SUBACTION == Zmw_Input_Event && ZMW_EVENT_IN ? " EI" : ""
-	     , ZMW_SUBACTION == Zmw_Input_Event && ZMW_SIZE_EVENT_IN ? " SEI" : ""
+	     , ZMW_SIZE_EVENT_IN_RECTANGLE ? " EIR" : ""
+	     , ZMW_SIZE_EVENT_IN_CHILDREN ? " EIC" : ""
 	     ) ;
   if ( 0 )
   	{
@@ -656,7 +687,9 @@ int zmw_action_draw()
       zmw_action_second_pass() ;
       ZMW_SUBACTION = Zmw_Post_Drawing ;
 
-      if ( (zmw.debug & Zmw_Debug_Draw_Cross) && ZMW_EVENT_IN && ZMW_WINDOW )
+      if ( (zmw.debug & Zmw_Debug_Draw_Cross)
+	   && ZMW_SIZE_EVENT_IN_RECTANGLE
+	   && *ZMW_WINDOW )
 	{
 	  zmw_cross_draw() ;
 	}
@@ -676,10 +709,19 @@ int zmw_action_draw()
  */
 int zmw_action_dispatch_accelerator()
 {
+  int i ;
+
   ZMW_EXTERNAL_HANDLING ;
 
   if ( ZMW_CALL_NUMBER++ == 0 )
     {
+      /* To remove random activation */
+      for(i=0; i<zMw->u.nb_of_children_max; i++)
+	{
+	  ZMW_CHILDREN[i].activated = Zmw_False ;
+	  ZMW_CHILDREN[i].changed = Zmw_False ;
+	}
+
       ZMW_SUBACTION = Zmw_Nothing ;
       zmw_state_push() ;
       return(1) ;
@@ -696,19 +738,30 @@ int zmw_action_dispatch_event()
 {
   ZMW_EXTERNAL_HANDLING ;
 
-  if ( zmw.activated || zmw.changed )
-    zmw_event_remove() ;
-  
+  if ( ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED )
+    {
+      zmw_event_remove() ;  
+    }  
+
+  /*
+   * Stop widget tree traversal if a widget has been activated.
+   * If it is not done, size in cache are no more valid
+   */
+  /*
   if ( zmw.event->type == GDK_NOTHING || zmw.remove_event )
     {
       ZMW_CALL_NUMBER++ ;
       zmw_action_do_not_enter() ;
       zMw[-1].u.nb_of_children = zMw[-1].u.nb_of_children_0 ;
 
-      if ( zmw.activated )
-  	zmw.child_activated = Zmw_True;
-      return(0) ;    
+      if ( ZMW_SIZE_ACTIVATED && zMw[-1].u.nb_of_children )
+	{
+	  zMw[-1].u.children[ZMW_CHILD_NUMBER].child_activated = Zmw_True;
+	  zMw[-1].u.size.child_activated = Zmw_True;
+	}
+      return(0) ;
     }
+  */
 
   switch ( ZMW_CALL_NUMBER++ )
     {
@@ -719,42 +772,20 @@ int zmw_action_dispatch_event()
       zmw_action_second_pass() ;
 
       ZMW_SUBACTION = Zmw_Input_Event ;
-
-      /*
-       * Do not enter if no event to dispatch
-       */
-      /*
-      if ( zmw.event->type == GDK_NOTHING )
-	{
-	  zmw_action_do_not_enter() ;
-	  return(0) ;    
-	}
-      */
-      /*
-       * Not nice at all.
-       * This is required (test_focus4) because
-       * the top level windows are not in a widget.
-       * So, they are only processed once.
-       */
-      /* But this test break hierarcical menu
-       * So I remove this shortcut
-       */
-      if ( 0 && zMw[-1].i.window == NULL && !ZMW_EVENT_IN )
-	break ; /* Do not dispatch event */
       /*
        * Event are computed for the window with the cursor : first
        * Or the widget containing the window with the cursor : first
        */
-      if ( zMw[-1].u.size.event_in
-	   ? ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN )
-		|| ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN )
-		)
-	   : ( zMw[-1].i.event_in
-	       && ( ( zMw[-1].u.call_number == 2 && !ZMW_EVENT_IN )
-		    || ( zMw[-1].u.call_number == 3 && ZMW_EVENT_IN )
-		    )
-	       )
-	   )
+      if ( zMw[-1].u.size.event_in_children
+           ? ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_CHILDREN )
+                || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_CHILDREN )
+                )
+           : ( zMw[-1].u.size.event_in_rectangle
+               && ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_RECTANGLE )
+                    || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_RECTANGLE )
+                    )
+               )
+           )
 	{
 	  if ( ZMW_DEBUG )
 	    zmw_printf("Event in masked\n") ;
@@ -766,32 +797,43 @@ int zmw_action_dispatch_event()
 	  if ( ZMW_DEBUG )
 	    zmw_printf("Event in not masked\n") ;
 	  ZMW_EVENT_IN_MASKED = Zmw_False ;
-
-          zmw.activated = Zmw_False ;
-          zmw.changed = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}
       break ;
 
     case 2:
-      if ( ZMW_EVENT_IN )
+      if ( ZMW_SIZE_EVENT_IN_RECTANGLE && !zmw_activated() && !ZMW_SIZE_CHILD_ACTIVATED && !zmw.event_removed && !ZMW_SIZE_CHANGED )
 	{
 	  ZMW_SUBACTION = Zmw_Input_Event ;
-          zmw.activated = Zmw_False ;
-          zmw.changed = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}
       break ;
     }
   /*
+   * So the event dispatching for ourself is terminated.
+   * We update the father with local information
+   */
+  if ( ZMW_SIZE_ACTIVATED )
+    {
+      zMw[-1].u.children[ZMW_CHILD_NUMBER].activated = Zmw_True;
+      ZMW_SIZE_CHILD_ACTIVATED = Zmw_True ;
+    }
+  
+  if ( ZMW_SIZE_CHILD_ACTIVATED && zMw[-1].u.nb_of_children )
+    {
+      zMw[-1].u.children[ZMW_CHILD_NUMBER].child_activated = Zmw_True;
+      zMw[-1].u.size.child_activated = Zmw_True;
+    }
+
+  /*
    *
    */
   if ( zmw.event->type == GDK_KEY_PRESS
        && ( zmw.event->key.state & 4 )
        &&  zmw.event->key.keyval == GDK_F2
-       && ZMW_EVENT_IN
+       && ZMW_SIZE_EVENT_IN_RECTANGLE
        )
     {
       zmw_name_register(&zmw.widget_to_trace) ;
@@ -824,7 +866,7 @@ int zmw_action_search()
       zmw_state_push() ;
       return(1) ;
     case 2:
-      if ( ZMW_EVENT_IN )
+      if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
 	{
 	  zmw_name_register(&zmw.found) ;
 	}

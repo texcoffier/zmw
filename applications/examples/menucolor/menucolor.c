@@ -10,7 +10,7 @@ void menucolor(void)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW ( zmw_popup() )
 	    {
 	      ZMW(zmw_window_popup_right())
 		{

@@ -37,13 +37,27 @@ Zmw_Boolean zmw_child_next_visible(int child)
     < zMw[-1].u.size.allocated.y + zMw[-1].u.size.allocated.height ;
 }
 
+void zmw_scrolled_view_clamp(int *start, int *nb, int max)
+{
+  if ( *start + *nb >= max )
+    {
+      *start = max - *nb ;
+      if ( *start < 0 )
+	{
+	  *start = 0 ;
+	  *nb = max ;
+	}
+    }
+}
+
 void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
 {
-  Zmw_Float_0_1 y, y_size ;
+  Zmw_Float_0_1 y, y_size, delta ;
   int i, j ;
 
   ZMW_EXTERNAL_RESTART ;
 
+  zmw_scrolled_view_clamp(start, nb, max) ;
   ZMW(zmw_box_horizontal())
     {
       zmw_horizontal_expand(Zmw_True) ;
@@ -52,8 +66,22 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
       
       ZMW_EXTERNAL ;
 
+      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+	continue ;
+
+
       if ( max>*nb && zmw_drawing() )
 	{
+	  if (  *nb * nb_cols > ZMW_NB_OF_CHILDREN )
+	    {
+	      ZMW_HERE ;
+	      zmw_debug_trace() ;
+	      zmw_printf("zmw_scrolled_view does not contains "
+			 "the good number of children (%d) *nb=%d\n"
+			 , ZMW_NB_OF_CHILDREN, *nb);
+	      continue ;
+	    }
+
 	  /* Trim number of item displayed */
 	  for(i=ZMW_NB_OF_CHILDREN-1; i>=0; i--)
 	    if ( zmw_child_visible(i) )
@@ -65,29 +93,41 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
 		*nb /= nb_cols ;
 		break ;
 	      }
-	  /* Augment number of item displayed */
+	  /* Increase the number of items displayed */
 	  if ( zmw_child_next_visible(ZMW_NB_OF_CHILDREN-1) )
-	    *nb *= 2 ;
+	    *nb = *nb * 1.5 + 10 ; // Replace this by a better one
+	  zmw_scrolled_view_clamp(start, nb, max) ;
 	}
       
       zmw_horizontal_expand(Zmw_False) ;
-      y = *start / (float)max ;
-      y_size = *nb / (float)max ;
-      if ( y_size > 1 )
-	y_size = 1 ;
-      if ( y > 1 - y_size )
+
+      if ( max )
 	{
-	  y = 1 - y_size ;
-	  *start = max - *nb ;
-	  if ( *start < 0 )
-	    *start = 0 ;
+	  y = *start / (float)max ;
+	  y_size = *nb / (float)max ;
+	  if ( y_size > 1 )
+	    y_size = 1 ;
+	  if ( y > 1 - y_size )
+	    {
+	      y = 1 - y_size ;
+	      *start = max - *nb ;
+	    }
+	  delta = 1. / *nb ;
+	}
+      else
+	{
+	  y = 0 ;
+	  y_size = 1 ;
+	  delta = 0 ;
 	}
       zmw_vertical_expand(Zmw_True) ;
-      zmw_scrollbar_vertical_with_delta(&y, y_size, 1. / *nb) ;
+      zmw_scrollbar_vertical_with_delta(&y, y_size, delta) ;
       if ( zmw_changed() )
 	{
-	  *start = y * max + 0.5 ;
+	  *start = y * max + 0.499 ;
+	  zmw_scrolled_view_clamp(start, nb, max) ;
 	}
+
     }
   ZMW_EXTERNAL_STOP ;
 }

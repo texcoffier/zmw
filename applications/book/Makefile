@@ -35,6 +35,6 @@ locale/fr/LC_MESSAGES/zmwbook.mo:locale/fr/LC_MESSAGES/zmwbook.po
 	msgfmt $? -o$@
 
 clean::
-	rm -f locale/*/*/*~ locale/*/*/*.mo
+	rm -f book locale/*/*/*~ locale/*/*/*.mo
 
 # DO NOT DELETE

@@ -34,8 +34,8 @@ void box_item_draggable(int *box, int item)
     case Zmw_Drag_From_Running:
       ZMW(zmw_window_drag())
 	{
-	  sprintf(message, "%d is%s accepted", box[item],
-		  zmw_drag_accept_get() ? "" : " not"
+	  sprintf(message, "%d %s accepted", box[item],
+		  zmw_drag_accept_get() ? " is" : " not"
 		  ) ;
 	  zmw_text(message) ;
 	}
@@ -111,25 +111,35 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_small_scale 2 
+zmw_small_scale 1
+
+# To solve some problems with random event handling
+zmw_gizmo() {
+XX=$X
+YY=$Y
+zmw_move_cursor_to 400 400
+zmw_move_cursor_to $XX $YY
+}
 
 zmw_move_cursor_to 74 49  # box0[0] = 1
 zmw_dump_screen 0
 
-zmw_button_press          # START DRAG not accepted but it is a bug
+zmw_button_press          #
 zmw_dump_screen 1
 
 zmw_move_cursor_to 117 52 # box1[0] = 2 It is not accepted
+zmw_sleep 1
 zmw_dump_screen 2
 
 zmw_move_cursor_to 205 49 # box2[0] = 3 It is not accepted
+zmw_sleep 1
 zmw_dump_screen 3
 
 zmw_button_release        # DROP not accepted
 zmw_dump_screen 4
 
 zmw_move_cursor_to 37 71  # box1[1] = 6
-zmw_button_press          # START DRAG not accepted but it is a bug
+zmw_button_press          #
 zmw_dump_screen 5
 
 zmw_move_cursor_to 117 52 # box1[0] = 2 It is accepted
@@ -151,9 +161,10 @@ zmw_button_release        # DRAG/DROP, this change item order
 zmw_dump_screen 10
 
 zmw_move_cursor_to 205 49 # box2[0] = 3
-zmw_button_press          # START DRAG
-zmw_move_cursor_to 74 49  # box0[0] = 6
+zmw_button_press           # START DRAG
+zmw_move_cursor_to 60 49  # box0[0] = 6
 zmw_button_release
+zmw_gizmo
 zmw_dump_screen 11
 
 zmw_move_cursor_to 205 49 # box2[0] = 6
@@ -166,12 +177,14 @@ zmw_move_cursor_to 117 52 # box1[0] = 2
 zmw_button_press          # START DRAG
 zmw_move_cursor_to 74 49  # box0[0] = 6 It is accepted
 zmw_button_release
+zmw_gizmo
 zmw_dump_screen 13
 
 zmw_move_cursor_to 136 70 # box1[1] = 6
 zmw_button_press          # START DRAG
 zmw_move_cursor_to 208 49 # box2[0] = 9 It is accepted
 zmw_button_release
+zmw_gizmo
 zmw_dump_screen 14
 
 zmw_small_restore

@@ -29,7 +29,7 @@ void menu()
 	{
 	  zmw_tearoff() ;
 	  zmw_button("Submenu") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW ( zmw_popup() )
 	    submenu() ;
 	  zmw_button("An action") ;
 	  zmw_toggle_int_with_label(&boolean, "Toggle") ;
@@ -45,7 +45,7 @@ void window(void)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW ( zmw_popup() )
 	    menu() ;
 	}
     }
@@ -80,7 +80,7 @@ zmw_move_cursor_to 125 126 # Text
 zmw_button_click
 zmw_key $KEY_A
 zmw_move_cursor_to 93 106 # Toggle
-zmw_button_click
+zmw_button_click                      # Push the Toggle
 zmw_move_cursor_to 126 55 # Submenu
 zmw_button_click
 zmw_dump_screen 5
@@ -90,7 +90,7 @@ zmw_button_click
 zmw_move_cursor_to 29 35 # Menu
 zmw_button_press
 zmw_move_cursor_to 44 130 # Toggle
-zmw_button_release
+zmw_button_release                    # Pop the Toggle
 zmw_dump_screen 6
 
 zmw_move_cursor_to 29 35 # Menu

@@ -66,9 +66,9 @@ static void zmw_compute_window_size()
       ZMW_ABORT ;
     }
 
-  if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(ZMW_WINDOW) )
+  if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(*ZMW_WINDOW) )
     {
-      gdk_window_resize(ZMW_WINDOW
+      gdk_window_resize(*ZMW_WINDOW
 			, ZMW_CHILDREN[the_child].required.width
 			, ZMW_CHILDREN[the_child].required.height) ;
       ZMW_SIZE_ALLOCATED.width = ZMW_CHILDREN[the_child].required.width ;
@@ -76,7 +76,7 @@ static void zmw_compute_window_size()
     }
   else
     {
-      gdk_window_get_size(ZMW_WINDOW
+      gdk_window_get_size(*ZMW_WINDOW
 			  , &ZMW_SIZE_ALLOCATED.width
 			  , &ZMW_SIZE_ALLOCATED.height
 			  ) ;
@@ -89,35 +89,34 @@ static void zmw_compute_window_size()
 
 
 void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
-			, const int *detached, int follow_mouse
+			, int follow_mouse
 			, const char *title, GdkGC **gc)
 {
   GdkWindowAttr wa ;
   gint x, y ;
   Zmw_Size *s ;
-  Zmw_Resource r = { "WindowID", 0 } ;
-  Zmw_Resource rgc = { "WindowGC", 0 } ;
   GdkRectangle rect ;
 
   switch( ZMW_SUBACTION )
     {
     case Zmw_Init:
-      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+      // Kludge to make zmw_window_name works
+      if ( ZMW_WINDOW )
 	{
-	  ZMW_WINDOW++ ; // Kludge to make zmw_window_name works
-	  break ;
+	  ZMW_WINDOW = (GdkWindow**)((int)ZMW_WINDOW + 1) ;
+	  ZMW_WINDOW = NULL ;
 	}
-
-      zmw_resource_pointer_get((void**)&w, &r) ;
-      zmw_resource_pointer_get((void**)&gc, &rgc) ;
+	
+      zmw_resource_pointer_get((void**)&w, "WindowID", NULL) ;
+      zmw_resource_pointer_get((void**)&gc, "WindowGC", 0) ;
       if ( *w == NULL )
 	{
 	  wa.title = "toto" ;
 	  wa.width = 350 ;
 	  wa.height = 500 ;
 	  wa.wclass = GDK_INPUT_OUTPUT ;
-	  
-	  if ( pop && !zmw_window_detached(detached, Zmw_Detached_Here) )
+
+	  if ( pop && !zmw_window_is_detached() )
 	    {
 	      wa.window_type = GDK_WINDOW_TEMP ;
 	    }
@@ -150,13 +149,14 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	    c.pixel = ZMW_COLORS[Zmw_Color_Background_Normal] ;
 	    gdk_window_set_background(*w, &c) ;
 	  }
-
-	  zmw_resource_set(&r) ;
-	  zmw_resource_set(&rgc) ;
 	}
-      ZMW_WINDOW = *w ;
+      ZMW_WINDOW = w ;
       ZMW_GC = *gc ;
       ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
+
+      /* If the cursor is in a popped window, the window shouldstay popped */
+      if ( pop && !zmw_window_is_detached() && zmw.event && *ZMW_WINDOW == zmw.event->any.window )
+	zmw_window_update_uppers(Zmw_Menu_Is_Poped * (1+Zmw_Menu_State_New)) ;
       
       break ;
 
@@ -187,19 +187,19 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       rect.width = ZMW_CLIPPING.width ;
       rect.height = ZMW_CLIPPING.height ;
 
-      gdk_window_begin_paint_rect(ZMW_WINDOW, &rect) ;
+      gdk_window_begin_paint_rect(*ZMW_WINDOW, &rect) ;
 #endif
       
       zmw_draw_rectangle(Zmw_Color_Background_Normal, Zmw_True,
 			 0,0,9999,9999) ;
       
       if ( pop && zMw[-1].i.window
-	   && gdk_window_get_type(ZMW_WINDOW) == GDK_WINDOW_TEMP
+	   && gdk_window_get_type(*ZMW_WINDOW) == GDK_WINDOW_TEMP
 	   && !follow_mouse )
 	{
-	  gdk_window_get_origin(zMw[-1].i.window, &x, &y) ;
+	  gdk_window_get_origin(*zMw[-1].i.window, &x, &y) ;
 	  s = zmw_widget_previous_size() ;
-	  gdk_window_move(ZMW_WINDOW
+	  gdk_window_move(*ZMW_WINDOW
 			  , x
 			  + s->allocated.x
 			  + (pop==Zmw_Popup_Right ? s->allocated.width : 0 )
@@ -209,29 +209,34 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 			  ) ;
 	}
       if ( title
-	   && ( !pop || zmw_window_detached(detached, Zmw_Detached_Here) ) )
-	gdk_window_set_title(ZMW_WINDOW, title) ;
+	   && ( !pop || zmw_window_is_detached() ) )
+	gdk_window_set_title(*ZMW_WINDOW, title) ;
 
 
 
-      if ( ! ZMW_SIZE_DO_NOT_MAP_WINDOW )
+      if ( zMw[-1].u.size.do_not_map_window )
 	{
-	  if ( !gdk_window_is_visible(ZMW_WINDOW) )
-	    gdk_window_show(ZMW_WINDOW) ;
+	  //	  if ( gdk_window_is_visible(*ZMW_WINDOW) )
+	    gdk_window_hide(*ZMW_WINDOW) ;	  
+	}
+      else
+	{
+	  if ( !gdk_window_is_visible(*ZMW_WINDOW) )
+	    gdk_window_show(*ZMW_WINDOW) ;
 	  
 	  zmw.nb_windows++ ;
 	  ZMW_REALLOC(zmw.windows, zmw.nb_windows ) ;
-	  zmw.windows[zmw.nb_windows-1].window = ZMW_WINDOW;
+	  zmw.windows[zmw.nb_windows-1].window = *ZMW_WINDOW;
 	}
       break ;
     case Zmw_Post_Drawing:
       zmw_draw_clip_pop() ;
-      if ( follow_mouse && gdk_window_is_visible(ZMW_WINDOW) )
+      if ( follow_mouse && gdk_window_is_visible(*ZMW_WINDOW) )
 	{	
 	  /* the -10 is not required.
 	   * It should be a parameter.
 	   */
-	  gdk_window_move(ZMW_WINDOW
+	  gdk_window_move(*ZMW_WINDOW
 			  , zmw.x_root - ZMW_SIZE_ALLOCATED.width - 10
 			  , zmw.y_root - ZMW_SIZE_ALLOCATED.height - 10
 			  ) ;
@@ -239,7 +244,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 
 	}
 #if GLIB_MAJOR_VERSION > 1
-      gdk_window_end_paint(ZMW_WINDOW) ;
+      gdk_window_end_paint(*ZMW_WINDOW) ;
 #endif
       break ;
     default:
@@ -259,10 +264,12 @@ char* zmw_window_name(Zmw_Boolean up)
 
   if ( up )
     {
-      while( s->i.window == ZMW_WINDOW )
+      while( s->i.window == ZMW_WINDOW && s >= zmw.zmw_table )
 	s-- ;
       s++ ;
       /* We are on the toplevel window */
+      if ( s == zmw.zmw_table )
+	return strdup("not found") ;
     }
 
   // And now we go up until a transient
@@ -282,152 +289,36 @@ char* zmw_window_name(Zmw_Boolean up)
   return(name) ;
 }
 
-static char * zmw_detached_name(Zmw_Detached where)
+Zmw_Boolean zmw_window_is_detached()
 {
-  char *name ;
-  
-  switch(where)
-  {
-  	case Zmw_Detached_Here:
-  		name = zmw_window_name(Zmw_False) ;
-  		// name = strdup(zmw_name_full) ;
-  		break ;
-  	case Zmw_Detached_Next:
-		zmw_name_of_the_transient_begin() ;
-  		name = strdup(zmw_name_full) ;
-		zmw_name_of_the_transient_end() ;
-		break ;
-  	case Zmw_Detached_Up:
-  		name = zmw_window_name(Zmw_True) ;
-  		break ;
-  }
-  return(name) ;
-}
-
-Zmw_Boolean zmw_window_detached(const int *detached
-				, Zmw_Detached where)
-{
-  int d ;
-  char *name ;
-
-  if ( detached )
-    return( *detached ) ;
-
-  name = zmw_detached_name(where) ;
-
-  d = Zmw_False ;
-  zmw_name_get_value_int_with_name(name, "WindowDetached", &d) ;
-
-  free(name) ;
-
-  return(d) ;
-}
-
-/*
- * Search the deepest detached window containing name.
- * It is used to compute if a menu should be displayed or not.
- * Return NULL if there is no such window.
- */
-Zmw_Name* zmw_window_detached_containing(const char *name)
-{
-  int d, len ;
-  char *n ;
-  Zmw_Name *na ;
-
-  n = strdup(name) ;
-  d = Zmw_False ;
-  len = strlen(n) ;
-
-  do
+  Zmw_State *s ;
+  /*
+   * Search a state up
+   */
+  for(s=zMw; s >= zmw.zmw_table; s--)
     {
-      if ( zmw_name_is_transient(n, len) )
+      if ( s->u.menu_state )
 	{
-	  na = zmw_name_get_name(n, "WindowDetached") ;
-	  if ( na && na->value )
-	    {
-	      free(n) ;
-	      return na ;
-	    }
-	}
-      zmw_name_cut_last(n, &len) ;
-    }
-  while(len > 0 ) ;
-  free(n) ;
-  return NULL ;
-}
-
-/*
- * Returns true if the next window (transient) contains
- * a detached window.
- * In fact returns the number of detached menu contained.
- */
-
-int zmw_window_contains_detached()
-{
-  int d ;
-  char *name ;
-
-  name = zmw_detached_name(Zmw_Detached_Next) ;
-
-  d = 0 ;
-  zmw_name_get_value_int_with_name(name, "WindowContainsDetached", &d) ;
-
-  free(name) ;
-
-  return(d) ;
-}
-
-
-void zmw_mark_windows_rec(char *name, int detached, int len)
-{
-  int n ;
-
-  zmw_name_cut_last(name, &len) ;
-  if ( len < 0 )
-    return ;
-
-  if ( zmw_name_is_transient(name, len) )
-    {
-      n = 0 ;
-      zmw_name_get_value_int_with_name(name, "WindowContainsDetached", &n);
-      if ( detached )
-	{
-	  zmw_name_set_value_int_with_name(name, "WindowContainsDetached",n+1);
-	}
-      else
-	{
-	  if ( n > 1 )
-	    zmw_name_set_value_int_with_name(name, "WindowContainsDetached"
-					     ,n-1);
+	  if ( *s->u.menu_state & Zmw_Menu_Is_Detached )
+	    return Zmw_True ;
 	  else
-	    zmw_name_unregister_value(name, "WindowContainsDetached") ;
+	    return Zmw_False ;
 	}
     }
-
-  zmw_mark_windows_rec(name, detached, len) ;
-  name[len] = '/' ;
+  return Zmw_False ;
 }
 
-void zmw_mark_windows(char *name, int detached)
+/* Update the new state because we are dispatching event */
+void zmw_window_detached_toggle()
 {
-  zmw_mark_windows_rec(name, detached, strlen(name)) ;
-}
+  Zmw_State *s ;
 
-void zmw_window_detached_toggle(int *detached, Zmw_Detached where)
-{
-	int value ;
-	char *name ;
-	
-	if ( detached )
-	      *detached = 1 - *detached ;
-	else
+  for(s=zMw; s >= zmw.zmw_table; s--)
+      if ( s->u.menu_state )
 	{
-		value = Zmw_False ;
-		name = zmw_detached_name(where) ;
-		zmw_name_get_value_int_with_name(name,"WindowDetached", &value) ;
-		zmw_name_set_value_int_with_name(name, "WindowDetached", 1 - value) ;
-		zmw_mark_windows(name, 1 - value) ;
-		free(name) ;
+	  *s->u.menu_state ^= Zmw_Menu_Is_Detached * Zmw_Menu_State_New ;
+	  *s->u.menu_state ^= Zmw_Menu_Is_Detached ;
+	  break ;
 	}
 }
 
@@ -435,7 +326,7 @@ void zmw_window_detached_toggle(int *detached, Zmw_Detached where)
 
 void zmw_window_with_id(GdkWindow **w, const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_None, 0, 0, title, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_None, 0, title, NULL) ;
 }
 void zmw_window(const char *title)
 {
@@ -443,71 +334,48 @@ void zmw_window(const char *title)
 }
 
 
-void zmw_window_popup_right_with_id_and_detached(GdkWindow **w, const int *detached)
-{
-  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, NULL, NULL) ;
-}
-void zmw_window_popup_right_with_id(GdkWindow **w)
-{
-  zmw_window_generic(w, Zmw_Popup_Right, NULL, 0, NULL, NULL) ;
-}
-void zmw_window_popup_right_with_detached(const int *detached)
-{
-  zmw_window_popup_right_with_id_and_detached(NULL, detached) ;
-}
-void zmw_window_popup_right()
-{
-  zmw_window_popup_right_with_id_and_detached(NULL, NULL) ;
-}
-
-void zmw_window_popup_bottom_with_id_and_detached(GdkWindow **w, const int *detached)
-{
-  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, NULL, NULL) ;
-}
-void zmw_window_popup_bottom_with_detached(const int *detached)
-{
-  zmw_window_popup_bottom_with_id_and_detached(NULL, detached) ;
-}
-void zmw_window_popup_bottom()
-{
-  zmw_window_popup_bottom_with_id_and_detached(NULL, NULL) ;
-}
 
 
-void zmw_window_popup_right_with_id_and_detached_and_title(GdkWindow **w, const int *detached
-					      , const char *title)
+
+void zmw_window_popup_right_with_id_and_title(GdkWindow **w, const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, detached, 0, title, NULL) ;
-}
-void zmw_window_popup_right_with_detached_and_title(const int *detached, const char *title)
-{
-  zmw_window_popup_right_with_id_and_detached_and_title(NULL, detached, title) ;
+  zmw_window_generic(w, Zmw_Popup_Right, 0, title, NULL) ;
 }
 void zmw_window_popup_right_with_title(const char *title)
 {
-  zmw_window_popup_right_with_id_and_detached_and_title(NULL, NULL, title) ;
+  zmw_window_popup_right_with_id_and_title(NULL, title) ;
+}
+void zmw_window_popup_right_with_id(GdkWindow **w)
+{
+  zmw_window_popup_right_with_id_and_title(w, NULL) ;
+}
+void zmw_window_popup_right()
+{
+  zmw_window_popup_right_with_id(NULL) ;
 }
 
 
-void zmw_window_popup_bottom_with_id_and_detached_and_title(GdkWindow **w
-						, const int *detached
-					      , const char *title)
+void zmw_window_popup_bottom_with_id_and_title(GdkWindow **w,const char *title)
 {
-  zmw_window_generic(w, Zmw_Popup_Bottom, detached, 0, title, NULL) ;
-}
-void zmw_window_popup_bottom_with_detached_and_title(const int *detached, const char *title)
-{
-  zmw_window_popup_bottom_with_id_and_detached_and_title(NULL, detached, title) ;
+  zmw_window_generic(w, Zmw_Popup_Bottom, 0, title, NULL) ;
 }
 void zmw_window_popup_bottom_with_title(const char *title)
 {
-  zmw_window_popup_bottom_with_id_and_detached_and_title(NULL, NULL, title) ;
+  zmw_window_popup_bottom_with_id_and_title(NULL, title) ;
+}
+void zmw_window_popup_nottom_with_id(GdkWindow **w)
+{
+  zmw_window_popup_bottom_with_id_and_title(w, NULL) ;
+}
+void zmw_window_popup_bottom()
+{
+  zmw_window_generic(NULL, Zmw_Popup_Bottom, 0, NULL, NULL) ;
 }
 
 
 void zmw_window_drag_with_id(GdkWindow **w)
 {
-  zmw_window_generic(w, Zmw_Popup_Right, 0, 1, NULL, NULL) ;
+  zmw_window_generic(w, Zmw_Popup_Right, 1, NULL, NULL) ;
 }
 
 void zmw_window_drag()

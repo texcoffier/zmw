@@ -21,31 +21,39 @@
 
 #include "zmw/zmw.h"
 
+static GdkVisual *global_visual = NULL ;
+
 int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b)
 {
-  static GdkVisual *visual = NULL ;
   static int sr, sg, sb ;
 
-  if ( visual == NULL )
+  if ( global_visual == NULL )
     {
-      visual = gdk_rgb_get_visual() ;
-      sr = visual->red_mask >> visual->red_shift ;
-      sg = visual->green_mask >> visual->green_shift ;
-      sb = visual->blue_mask >> visual->blue_shift ;
+      global_visual = gdk_rgb_get_visual() ;
+      sr = global_visual->red_mask >> global_visual->red_shift ;
+      sg = global_visual->green_mask >> global_visual->green_shift ;
+      sb = global_visual->blue_mask >> global_visual->blue_shift ;
       if ( 0 )
 	zmw_printf("%d %d  %d %d  %d %d\n",
-		   visual->red_mask, visual->red_shift,
-		   visual->green_mask, visual->green_shift,
-		   visual->blue_mask, visual->blue_shift)	 ;
+		   global_visual->red_mask, global_visual->red_shift,
+		   global_visual->green_mask, global_visual->green_shift,
+		   global_visual->blue_mask, global_visual->blue_shift)	 ;
     }
 
   ZMW_CLAMP(r, 0, 1) ;
   ZMW_CLAMP(g, 0, 1) ;
   ZMW_CLAMP(b, 0, 1) ;
-  return ((int)(r*sr) << visual->red_shift)
-    + ((int)(g*sg) << visual->green_shift)
-    + ((int)(b*sb) << visual->blue_shift)
+  return ((int)(r*sr) << global_visual->red_shift)
+    + ((int)(g*sg) << global_visual->green_shift)
+    + ((int)(b*sb) << global_visual->blue_shift)
     ;
+}
+
+void zmw_int_to_rgb(int c,Zmw_Float_0_1 *r, Zmw_Float_0_1 *g, Zmw_Float_0_1 *b)
+{
+  *r = (c&global_visual->red_mask)/(float)global_visual->red_mask ;
+  *g = (c&global_visual->green_mask)/(float)global_visual->green_mask ;
+  *b = (c&global_visual->blue_mask)/(float)global_visual->blue_mask ;
 }
 
 Zmw_Boolean zmw_draw_set_gc(Zmw_Color c)
@@ -65,26 +73,26 @@ Zmw_Boolean zmw_draw_set_gc(Zmw_Color c)
 void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2)
 {
   if ( zmw_draw_set_gc(c) )
-    gdk_draw_line(ZMW_WINDOW, ZMW_GC, x1, y1, x2, y2) ;
+    gdk_draw_line(*ZMW_WINDOW, ZMW_GC, x1, y1, x2, y2) ;
 }
 
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
 			, int x, int y, int width, int height)
 {
   if ( zmw_draw_set_gc(c) )
-    gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC, filled, x, y, width, height) ;
+    gdk_draw_rectangle(*ZMW_WINDOW, ZMW_GC, filled, x, y, width, height) ;
 }
 
 void zmw_draw_string(Zmw_Color c, int x, int y, const char *text)
 {
   if ( zmw_draw_set_gc(c) )
-    gdk_draw_string(ZMW_WINDOW, ZMW_FONT, ZMW_GC, x, y, text) ;
+    gdk_draw_string(*ZMW_WINDOW, ZMW_FONT, ZMW_GC, x, y, text) ;
 }
 
 void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y)
 {
   if ( ZMW_ACTION == zmw_action_draw )
-    gdk_pixbuf_render_to_drawable(pb, ZMW_WINDOW, ZMW_GC, 0, 0
+    gdk_pixbuf_render_to_drawable(pb, *ZMW_WINDOW, ZMW_GC, 0, 0
 				  , x
 				  , y
 				  , gdk_pixbuf_get_width(pb)

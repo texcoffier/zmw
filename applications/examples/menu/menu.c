@@ -2,14 +2,16 @@
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
 
-void menu(int *detached)
+void menu()
 {
-  ZMW(zmw_window_popup_bottom_with_detached_and_title(detached, "Menu"))
+  ZMW(zmw_window_popup_bottom_with_title("Menu"))
     {
       ZMW(zmw_box_vertical())
 	{
-	  zmw_tearoff_with_detached(detached) ;
+	  zmw_tearoff() ;
 	  zmw_button("An action") ;
+	  if ( zmw_activated() )
+	    printf("Action!\n") ;
 	}
     }
 }
@@ -23,8 +25,8 @@ void window(void)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped_with_detached(&detached) )
-	    menu(&detached) ;
+	  ZMW(zmw_popup_with_detached(&detached))
+	    menu() ;
 	}
     }
 }

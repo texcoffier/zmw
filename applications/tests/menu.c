@@ -65,7 +65,7 @@ static void popup_node()
 	      sprintf(name, "Button-%d", i) ;
 	      zmw_name(name) ;
 	      zmw_button(name) ;
-	      if ( zmw_window_is_popped() )
+	      ZMW( zmw_popup() )
 		{
 		  popup_leaf(i, &radio[i*3]) ;
 		}
@@ -90,7 +90,7 @@ void test_menu(const char *title)
       ZMW(zmw_box_vertical())
 	{
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW( zmw_popup() )
 	    popup_node() ;
 	}
     }
@@ -102,7 +102,7 @@ void test_minimal_menu(const char *title)
     {
       zmw_name("But") ;
       zmw_button("Menu") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(zmw_window_popup_right())
 	    {
@@ -117,7 +117,7 @@ void test_minimal_menu(const char *title)
 
 void test_basic_menu(const char *title)
 {
-  static int detached0 = 0, detached1 = 0, detached2 = 0 ;
+  static int detached0 = 0, detached1 = 0 ;
 
   ZMW(zmw_window(title))
     {
@@ -126,15 +126,15 @@ void test_basic_menu(const char *title)
 	{
 	  zmw_name("But") ;
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped_with_detached(&detached0) )
+	  ZMW( zmw_popup_with_detached(&detached0) )
 	    {
-	      ZMW(zmw_window_popup_right_with_detached(&detached1))
+	      ZMW(zmw_window_popup_right())
 		{
 		  zmw_name("But1") ;
 		  zmw_button("But1") ;
-		  if ( zmw_window_is_popped_with_detached(&detached1) )
+		  ZMW( zmw_popup_with_detached(&detached1) )
 		    {
-		      ZMW(zmw_window_popup_right_with_detached(&detached2))
+		      ZMW(zmw_window_popup_right())
 			{
 			  zmw_name("But2") ;
 			  zmw_button("But2") ;
@@ -156,13 +156,13 @@ void test_basic_menu2(const char *title)
 	{
 	  zmw_name("But") ;
 	  zmw_button("Menu") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW( zmw_popup() )
 	    {
 	      ZMW(zmw_window_popup_right())
 		{
 		  zmw_name("But1") ;
 		  zmw_button("But1") ;
-	/*	  if ( zmw_tip_visible() )
+	/*	  ZMW ( zmw_tip() )
 		  	{
 		  	  ZMW(zmw_window_popup_right(0) )
 		  	  	{
@@ -172,7 +172,7 @@ void test_basic_menu2(const char *title)
 		  	*/
 		  if ( zmw_activated() )
 		  	zmw_printf("button activated\n") ;
-		  if ( zmw_tip_visible() )
+		  ZMW ( zmw_tip() )
 		  	{
 		  	  ZMW(zmw_window_popup_bottom() )
 		  	  	{
@@ -190,13 +190,13 @@ void test_menu_tearoff_simple(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_button("Menu") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
-	  ZMW(zmw_window_popup_right_with_id_and_detached_and_title(NULL, NULL, "pop"))
+	  ZMW(zmw_window_popup_right_with_title("pop"))
 	    {
 	      ZMW(zmw_box_vertical())
 		{
-		  zmw_tearoff_with_detached_and_id(NULL, NULL) ;
+		  zmw_tearoff() ;
 		  zmw_button("button") ;
 		}
 	    }
@@ -212,13 +212,13 @@ void test_menu_tearoff_simple_orig(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_button("Menu") ;
-      if ( zmw_window_is_popped_with_detached(&detached) )
+      ZMW( zmw_popup_with_detached(&detached) )
 	{
-	  ZMW(zmw_window_popup_right_with_id_and_detached_and_title(&w, &detached, "pop"))
+	  ZMW(zmw_window_popup_right_with_id_and_title(&w, "pop"))
 	    {
 	      ZMW(zmw_box_vertical())
 		{
-		  zmw_tearoff_with_detached_and_id(&detached, &w) ;
+		  zmw_tearoff() ;
 		  zmw_button("button") ;
 		}
 	    }

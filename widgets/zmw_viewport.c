@@ -184,7 +184,7 @@ void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 	  depth-- ;
 	}
     }   
-  zmw.activated = activated[depth] ;
+  ZMW_SIZE_ACTIVATED = activated[depth] ;
   ZMW_EXTERNAL_STOP ;
 }
 

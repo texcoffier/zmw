@@ -1,3 +1,6 @@
+# Executables are relinked only if you make a "make clean"
+# Most of the time it is not necessary to relink them.
+
 default: test
 
 include ../../Makefile.config
@@ -7,18 +10,6 @@ include ../../Makefile.config
 ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; if [ "$$1" = "clean" ] ; then TARGET="$$1" ; else TARGET="$$I.$$1" ; fi ; cd $$I ; $(MAKE) -f ../Makefile $$TARGET ) ; done || true ; } ; zmw_make
 
 
-sgml:
-	$(ZMW_LOOP) $@
-eps:
-	for I in */*.png ; do if [ -s $$I ] ; then I=`dirname $$I`/`basename $$I .png` ; convert $$I.png $$I.eps ; fi ; done
-
-
-.c.sgml:
-	awk <$*.c 'BEGIN{I=0;}/REGRESSION TEST/||/DO NOT DISPLAY/{I=1-I;next;}I==0{print;}' | \
-	sed -e 's/&/\&#38;/g' -e 's/</\&#60;/g' \
-	 -e 's/\/\*STARTEMPHASIS\*\//<emphasis>/g' \
-         -e 's/\/\*STOPEMPHASIS\*\//<\/emphasis>/g'| \
-	 pr -T -e >$*.sgml
 
 .o.exe:
 	echo "Link example $*"
@@ -27,7 +18,6 @@ eps:
 .c.regtest:
 	../regression_test
 
-# depth 32 does NOT work, the "xwd" command does not work correctly
 start_xvfb:
 	. utilities ; start_xvfb
 
@@ -40,6 +30,13 @@ testwithoutquestion:start_xvfb noforall regtest stop_xvfb
 
 regtest:
 	$(ZMW_LOOP) $@
+	A=`fgrep fail */regteststatus` ; \
+	if [ "" = "$$A" ] ; \
+		then echo "All tests are fine" ; \
+	else \
+		echo "================ List of failed tests ==============" ; \
+		echo "$$A" | sed 's/\/.*//' ; \
+	fi
 
 ask:
 	echo "" >xxx.replace
@@ -51,6 +48,7 @@ exe::
 	$(ZMW_LOOP) $@
 
 clean::
-	rm -f xvfb.pid */*.sgml */*.exe */*.eps */regtest.* */xxx* 2>/dev/null
+	rm -f xvfb.pid */*.sgml */*.exe */*.eps */xxx* 2>/dev/null
+	if [ -f "Makefile" ] ; then $(ZMW_LOOP) $@ ; fi
 
 # DO NOT DELETE

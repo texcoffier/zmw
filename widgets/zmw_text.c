@@ -164,7 +164,7 @@ void zmw_text_draw_cursor(const char *text, int x, int cursor_pos)
 		) ;
 }
 
-void zmw_text_selection_take(const char *text, Zmw_Boolean *button_1_pressed
+void zmw_text_selection_take(const char *text, Zmw_Name *selectionning
 			     , int *start_pos, const int *cursor_pos)
 {
   char *t ;
@@ -181,13 +181,13 @@ void zmw_text_selection_take(const char *text, Zmw_Boolean *button_1_pressed
       strncpy(t, &text[ZMW_MIN(*start_pos, *cursor_pos)], len);
       t[len] = '\0' ;
       
-      zmw_set_selection("PRIMARY", "STRING", ZMW_WINDOW, t) ;
+      zmw_set_selection("PRIMARY", "STRING", *ZMW_WINDOW, t) ;
     }
-  *button_1_pressed = Zmw_False ;
+  zmw_name_unregister(selectionning) ;
 }
 
 void zmw_text_cursor_set(const char *text, int *cursor_pos
-			 , int *start_pos, Zmw_Boolean *button_1_pressed)
+			 , int *start_pos, Zmw_Name *selectionning)
 {
   int i ;
 
@@ -196,7 +196,7 @@ void zmw_text_cursor_set(const char *text, int *cursor_pos
   if ( start_pos )
     {
       *start_pos = i ;
-      *button_1_pressed = Zmw_True ;
+      zmw_name_register(selectionning) ;
     }
 }
 
@@ -217,11 +217,9 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 		     , int *cursor_pos, int *start_pos)
 {
   int x, y ;
-  static Zmw_Boolean button_1_pressed = 0 ;
+  static Zmw_Name selectionning = ZMW_NAME_UNREGISTERED("Selectionning") ;
   gint height ;
   int len = strlen(*text) ;
-  Zmw_Resource cursor = { "TextCursorPos", len } ;
-  Zmw_Resource start = { "TextStartPos", -1 } ;
 
   ZMW_ASSERT( *text != NULL ) ;
 
@@ -235,9 +233,9 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	== Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing)
 	 ) && editable )
     {
-      zmw_resource_int_get(&cursor_pos, &cursor) ;
+      zmw_resource_int_get(&cursor_pos, "TextCursorPos", len) ;
       ZMW_CLAMP(*cursor_pos, 0, len) ;
-      zmw_resource_int_get(&start_pos, &start) ;
+      zmw_resource_int_get(&start_pos, "TextStartPos", -1) ;
       ZMW_CLAMP(*start_pos, -1, len) ;
     }
 
@@ -249,7 +247,7 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
 
-      if ( start_pos && !zmw_selection_have() && !button_1_pressed )
+      if ( start_pos && !zmw_selection_have() && !zmw_name_registered(&selectionning) )
       	{
 	  *start_pos = -1 ;
       	}
@@ -269,8 +267,8 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       /*
        * Set the selection on button 1 release
        */
-      if ( zmw_button_released_anywhere() && button_1_pressed )
-	zmw_text_selection_take(*text, &button_1_pressed
+      if ( zmw_button_released_anywhere() && zmw_name_is(&selectionning) )
+	zmw_text_selection_take(*text, &selectionning
 				, start_pos, cursor_pos) ;
       /*
        * Position the text cursor on button 1 click
@@ -279,26 +277,36 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       if ( zmw_button_pressed() && cursor_pos && *text )
       	{
 	  if ( zmw.event->button.button == 1 )
-	    zmw_text_cursor_set(*text,cursor_pos, start_pos,&button_1_pressed);
+	    zmw_text_cursor_set(*text,cursor_pos, start_pos,&selectionning);
 	  else if ( zmw.event->button.button == 2 )
 	    {
 	      zmw_text_insert(text, cursor_pos, start_pos
 			      , zmw_get_selection("PRIMARY", "STRING"
-						  , ZMW_WINDOW)
+						  , *ZMW_WINDOW)
 			      ) ;
 	      zmw_event_remove() ;
 	    }
-	  //	  zmw_event_remove() ;  decorator must take this event
+	  // zmw_event_remove() ;  decorator must take this event
+	  // zmw.event_removed = 1 ;
       	}
       /*
        * Insert some key
        */
+      if ( 0 )
+	zmw_printf("key pressed = %d removed=%d EIF=%d EIM=%d insode=%d sensible=%d\n"
+		   , zmw_key_pressed()
+		   , zmw.event_removed
+		   , ZMW_EVENT_IN_FOCUS
+		   , ZMW_EVENT_IN_MASKED
+		   , zmw_name_is_inside(ZMW_FOCUS)
+		   , ZMW_SENSIBLE
+		   ) ;
       if ( zmw_key_pressed() )
 	{
 	  if ( zmw.event->key.keyval == GDK_BackSpace )
 	    {
 	      zmw_text_backspace(text, cursor_pos, start_pos) ;
-	      zmw.changed = Zmw_True ;
+	      ZMW_SIZE_CHANGED = Zmw_True ;
 	    }
 	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Left )
 	    {
@@ -312,28 +320,31 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	    }
 	  else if ( zmw.event->key.string[0] == '\n' )
 	    {
-	      zmw.activated = Zmw_True ;
+	      ZMW_SIZE_ACTIVATED = Zmw_True ;
 	    }  
 	  else if ( zmw.event->key.string[0] )
 	    {
 	      zmw_text_insert(text, cursor_pos, start_pos
 			      , zmw.event->key.string) ;
-	      zmw.changed = Zmw_True ;
+	      ZMW_SIZE_CHANGED = Zmw_True ;
 	    }  
 	  zmw_event_remove() ;
 	}
 
-      if ( button_1_pressed )
+      if ( zmw_name_is(&selectionning) )
       	{
-	  *start_pos = zmw_text_find_cursor(*text) ;
-	  if ( *start_pos != start.old_value )
-	    zmw_need_repaint() ;
+	  x = zmw_text_find_cursor(*text) ;
+	  if ( x != *start_pos )
+	    {
+	      zmw_need_repaint() ;
+	      *start_pos = x ;
+	    }
 	}
 
       /* An editable text is not draggable because
        * the decorator does not receive the button press
        */
-      if ( button_1_pressed && zmw.event->type == GDK_MOTION_NOTIFY
+      if ( zmw_name_registered(&selectionning) && zmw.event->type == GDK_MOTION_NOTIFY
 	   && editable )
 	{
 	  /* If the event is not removed, we see selection move
@@ -345,9 +356,6 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
     default:
       break ;
     }
-
-  zmw_resource_set(&cursor) ;
-  zmw_resource_set(&start) ;
 }
 
 void zmw_text(const char *text)
@@ -372,14 +380,15 @@ void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
 	{ }
       changed = zmw_changed() ;
     }
+
   if ( zmw_activated() )
     {
     }
 
-  zmw.changed = changed ;
-  if ( zmw.child_activated )
+  ZMW_SIZE_CHANGED = changed ;
+  if ( ZMW_SIZE_CHILD_ACTIVATED )
     {
-      zmw.activated = Zmw_True ;
+      ZMW_SIZE_ACTIVATED = Zmw_True ;
     }
 }
 

@@ -12,7 +12,7 @@ void hello_world(void)
 	  zmw_button("Quit") ;
 	  if ( zmw_activated() )
 	    zmw_exit(0) ;
-	  if ( zmw_tip_visible() )
+	  ZMW( zmw_tip() )
 	    {
 	      zmw_border_width(2) ;
 	      ZMW(zmw_window_popup_right_with_id(&id_tip))

@@ -42,12 +42,19 @@ void zmw_void()
       if ( nb > 1 )
 	ZMW_ABORT ;
 
+      /* Retrieve size even if not used (to please cache check) */
       if ( ZMW_CHILDREN[0].used_to_compute_parent_size )
 	{
 	  /* Remove the padding */
 	  ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
 	  ZMW_SIZE_MIN.width -= 2 * ZMW_PADDING_WIDTH ;
 	  ZMW_SIZE_MIN.height -= 2 * ZMW_PADDING_WIDTH ;
+	}
+      else
+	{
+	  /* To make cache checking happy */
+	  ZMW_SIZE_MIN.width = 0 ;
+	  ZMW_SIZE_MIN.height = 0 ;
 	}
 
       ZMW_USED_TO_COMPUTE_PARENT_SIZE
@@ -67,5 +74,50 @@ void zmw_void()
 
     default:
     }
+}
+
+/*
+ * As zmw_void but do not display the children if not visible
+ */
+
+
+void zmw_if(Zmw_Boolean visible)
+{
+  if ( ! visible )
+    {
+      if ( ZMW_CALL_NUMBER > 0 )
+	ZMW_CALL_NUMBER = 100 ;
+      if (  ZMW_SUBACTION == Zmw_Compute_Required_Size )
+	{
+	  ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
+	  /* To make cache checking happy */
+	  /* Must be the same values than in the former function */
+	  ZMW_SIZE_MIN.width = 0 ;
+	  ZMW_SIZE_MIN.height = 0 ;
+	}
+      return ;
+    }
+
+  zmw_void() ;
+}
+
+/*
+ * To make coding easy.
+ * Should be used inside ZMW()
+ */
+
+void zmw_tip()
+{
+  zmw_if(zmw_tip_visible()) ;
+}
+
+void zmw_popup()
+{
+  zmw_if(zmw_window_is_popped()) ;
+}
+
+void zmw_popup_with_detached(int *detached)
+{
+  zmw_if(zmw_window_is_popped_with_detached(detached)) ;
 }
 

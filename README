@@ -19,14 +19,13 @@ Makefile goals (at all levels) are :
 	- clean    Remove constructed files and backup
 	- dep      Compute dependencies
 
-Other usefull top level goals
+Other top level goals
 	- TAGS	   Compute tags
-	- retest   Remake all the tests
 There is no install goal, it is intented.
 
 
 If you can not compile the documentation, it is browsable from :
-	http://www710.univ-lyon1.fr/~exco/ZMW/zmw-0.0.5/zmw.html
+	http://www710.univ-lyon1.fr/~exco/ZMW/
 The documentation examples are in "examples" directory.
 
 

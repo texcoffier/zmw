@@ -3,15 +3,9 @@
 /* DO NOT DISPLAY */
 void text_with_width(char *text, int *width)
 {
-  Zmw_Resource text_width =
-    {
-      "TextWidth" // Attribut name
-      , 100       // default resource value
-    } ;
-
   // Set width to a correct value if it is a NULL pointer
   // It is also possible to use "zmw_resource_pointer_get"
-  zmw_resource_int_get(&width, &text_width) ;
+  zmw_resource_int_get(&width, "TextWidth", 100 /* Default */) ;
 
   ZMW(zmw_box_horizontal())
     {
@@ -25,8 +19,6 @@ void text_with_width(char *text, int *width)
       if ( zmw_activated() )
 	  *width *= 1.5 ;
     }
-  // If width was from the resource system, store it.
-  zmw_resource_set(&text_width) ;
 }
 
 void resource(void)

@@ -139,7 +139,7 @@ void gate_debug(Circuit *c, int i)
 {
   char buf[999] ;
 
-  if ( zmw_tip_visible() )
+  ZMW ( zmw_tip() )
     {
       ZMW(zmw_window_popup_right())
 	{      	   
@@ -199,7 +199,7 @@ void gate_area(Circuit *c, Type s)
   static int output = -1 ;
   static int x, y ;
   Gate ng ;
- 
+
   zmw_horizontal_alignment(0) ;
   zmw_vertical_alignment(0) ;
   zmw_horizontal_expand(1) ;
@@ -208,6 +208,7 @@ void gate_area(Circuit *c, Type s)
 
   ZMW(zmw_box())
     {
+ 
       for(i=0; c->gates[i].type != Gate_EOT; i++)
 	{
 	  if ( c->gates[i].type == Gate_Deleted )
@@ -225,7 +226,6 @@ void gate_area(Circuit *c, Type s)
 	      c->gates[i].y = y ;
 	      circuit_add_to_history(c, i,&ng,"Move %d to %dx%d",i,ng.x,ng.y) ;
 	    }
-	  gate_debug(c, i) ;
           if ( s == Gate_Delete && zmw_button_pressed() )
 	    {
 	      circuit_gate_delete(c, i) ;
@@ -236,6 +236,7 @@ void gate_area(Circuit *c, Type s)
 	    }
 	  if ( zmw_selected() )
 	      circuit_eval(c) ;	/* Recompute circuit size */
+	  gate_debug(c, i) ;
 	  gate_draw_input_arcs(c, i) ;
 	}
       gate_draw_interactive_arc(c, &input, &output) ;
@@ -283,7 +284,7 @@ void circuit_menu_bar(Circuit *c)
     {
       zmw_horizontal_expand(0) ;
       zmw_button("File") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	ZMW(zmw_window_popup_bottom())
 	{
 	  ZMW(zmw_box_vertical())
@@ -304,7 +305,7 @@ void circuit_menu_bar(Circuit *c)
 	    }
 	}
       zmw_button("Edit") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	ZMW(zmw_window_popup_bottom())
 	{
 	  ZMW(zmw_box_vertical())
@@ -414,7 +415,7 @@ void circuit()
 		  zmw_height(c.h) ;
 		  gate_area(&c, s) ;
 		  /*
-  if ( zmw_tip_visible() )
+  ZMW ( zmw_tip() )
     {
       ZMW(zmw_window_popup_right())
 	{      	   

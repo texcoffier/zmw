@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2003 Thierry EXCOFFIER
+  Copyright (C) 2003-2004 Thierry EXCOFFIER
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,7 @@
 
 void tip(Library_GUI *gui, const char *text)
 {
-  if ( zmw_tip_visible() )
-      ZMW(zmw_void())
+  ZMW ( zmw_tip() )
     {
       zmw_rgb(gui->prefs.tip_color[0], gui->prefs.tip_color[1], gui->prefs.tip_color[2]) ;
       ZMW(zmw_window_popup_bottom())
@@ -92,7 +91,10 @@ void table_header(Library_GUI *gui)
 		  zmw_button( _("Book title") ) ;
 		  tip(gui, _("Sort by book title")) ;
 		  if ( zmw_activated() )
-		    gui->sort = library_sort_title ;
+		    {
+		      gui->sort = library_sort_title ;
+		      ZMW_HERE ;
+		    }
 		  break ;
 	      
 		case Column_Author:
@@ -199,7 +201,7 @@ void author(Library_GUI *gui, int i)
   else
     {
       zmw_button( library_book_author_get(gui->lib, i) ) ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
@@ -214,7 +216,7 @@ void author(Library_GUI *gui, int i)
 		{
 		  gui->book = i ;
 		  gui->action = Author_Name_For_Book ;
-		  free(gui->new_name) ;
+		  if ( gui->new_name ) free(gui->new_name) ;
 		  gui->new_name
 		    = strdup(library_book_author_get(gui->lib, i)) ;
 		}
@@ -239,7 +241,7 @@ void borrowers_menu(Library_GUI *gui, int i)
   else
     {
       zmw_button( library_book_borrower_get(gui->lib, i, -1) ) ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
@@ -265,7 +267,8 @@ void borrowers_menu(Library_GUI *gui, int i)
 		  zmw_button(_("This book is borrowed by...")) ;
 		  if ( zmw_activated() )
 		    {
-		      gui->new_name[0] = '\0' ;
+		      if ( gui->new_name ) free(gui->new_name) ;
+		      gui->new_name = strdup("") ;
 		      gui->book = i ;
 		      gui->action = Borrower_New ;
 		    }
@@ -306,7 +309,7 @@ void collection(Library_GUI *gui, int i)
   else
     {
       zmw_button( library_book_collection_get(gui->lib, i) ) ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
@@ -320,7 +323,8 @@ void collection(Library_GUI *gui, int i)
 	      zmw_button(_("Change collection")) ;
 	      if ( zmw_activated() )
 		{
-		  gui->new_name[0] = '\0' ;
+		  if ( gui->new_name ) free(gui->new_name) ;
+		  gui->new_name = strdup("") ;
 		  gui->book = i ;
 		  gui->action = Collection_New ;
 		}
@@ -451,6 +455,7 @@ void table(Library_GUI *gui)
 
   zmw_vertical_expand(Zmw_True) ;
   zmw_padding_width(1) ;
+
   ZMW(zmw_scrolled_view_with_columns(&gui->start, &gui->nb
 				     , library_book_number(gui->lib)
 				     , number_of_columns))
@@ -466,9 +471,10 @@ void table(Library_GUI *gui)
 	    table_row(gui, i) ;
 	}
     }
-
+  /* 14/5/2004 */
   if ( zmw_activated() )
     gui->action = Nothing ;
+
 }
 
 
@@ -518,19 +524,27 @@ Columns column_name_to_index(ColDef *c, const char *name)
   ZMW_ABORT ;
 }
 
-void change_language(Library_GUI *gui)
+void set_language(const char *lang)
 {
   char *a ;
 
+  setenv ("LANGUAGE", lang, 1);
+  setlocale(LC_ALL, "") ;
+  a = setlocale(LC_MESSAGES, lang) ;
+  if ( a == NULL )
+    {
+      zmw_printf("locale problem with %s\n", lang) ;
+    }
+}
+
+void change_language(Library_GUI *gui)
+{
   if ( gui->prefs.new_language == NULL )
     return ;
 
   gui->prefs.language = gui->prefs.new_language ;
   gui->prefs.new_language = NULL ;
-
-  setenv ("LANGUAGE", gui->prefs.language, 1);
-  setlocale(LC_ALL, "") ;
-  a = setlocale(LC_MESSAGES, gui->prefs.language) ;
+  set_language(gui->prefs.language) ;
 }
 
 void library_top_level(Library_GUI *gui)
@@ -579,7 +593,7 @@ void library()
       gui.filename_save = strdup(".") ;
       gui.filechooser_load = Zmw_False ;
       gui.action = Nothing ;
-      gui.new_name = strdup("") ;
+      gui.new_name = NULL ;
       gui.lib = library_load(gui.filename_load) ;
 
       for(i=0; i<Column_Last; i++)

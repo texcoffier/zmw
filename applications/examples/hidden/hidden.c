@@ -12,16 +12,14 @@ void hidden(void)
   ZMW(zmw_window("FC"))
     {
       zmw_button("File") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
+	ZMW(zmw_window_popup_bottom())
 	{
-	  ZMW(zmw_window_popup_bottom())
-	    {
-	      zmw_button("Load") ;
-	      if ( zmw_activated() )
-		choosing_a_filename = Zmw_True ;
-	    }
+	  zmw_button("Load") ;
+	  if ( zmw_activated() )
+	    choosing_a_filename = Zmw_True ;
 	}
-      /* The file chooser must be here and not before.
+      /* The file chooser must be here and not inside the former block.
        * If it is before it will disappear when the menu popdown
        */
       zmw_height(100) ;

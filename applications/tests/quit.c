@@ -27,7 +27,7 @@ void test_quit(const char *title)
       zmw_button("Quit") ;
       if ( zmw_activated() )
 	exit(0) ;
-      if ( zmw_tip_visible() )
+      ZMW ( zmw_tip() )
 	{
 	  ZMW(zmw_window_popup_right())
 	    {

@@ -12,7 +12,7 @@ void movepressed(void)
 	{
 	  zmw_scrollbar_horizontal(&x, 0.1) ;
 	  zmw_button("Menu 1") ;
-	  if ( zmw_window_is_popped() )
+	  ZMW( zmw_popup() )
 	    ZMW(zmw_window_popup_bottom())
 	      zmw_button("Action 1") ;
 	}
@@ -20,9 +20,9 @@ void movepressed(void)
   ZMW(zmw_window("MovePressed"))
     {
       zmw_button("Menu 2") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	ZMW(zmw_window_popup_bottom())
-	  zmw_button("Action 2") ;
+	   zmw_button("Action 2") ;
     }
 }
 /* DO NOT DISPLAY */

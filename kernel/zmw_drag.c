@@ -177,7 +177,7 @@ Zmw_Drag_To zmw_drag_to_state()
   zmw_drag_printf("name_contains %s === %d\ncursor in === %d\n",
   	zmw.found.name, zmw_name_contains(&zmw.found), zmw_cursor_in()) ;
 
-  if ( ZMW_EVENT_IN )
+  if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
   	{
 	  /* The drag area contains the cursor */
 	  if ( zmw_name_is(&global_zmw_drag_to) )

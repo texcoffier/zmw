@@ -2,6 +2,10 @@
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
 
+/* Create a widget to simplify detachable menu creation.
+ * It automaticaly define the tearoff and the vertical box
+ */
+
 void popup(char *title)
 {
   ZMW_EXTERNAL_RESTART ;
@@ -13,6 +17,9 @@ void popup(char *title)
 	  zmw_tearoff() ;
 	  ZMW_EXTERNAL ;
 	}
+
+
+
     }
   ZMW_EXTERNAL_STOP ;
 }
@@ -22,7 +29,7 @@ void menuexternal(void)
   ZMW(zmw_window("Menu"))
     {
       zmw_button("Menu") ;
-      if ( zmw_window_is_popped() )
+      ZMW( zmw_popup() )
 	{
 	  ZMW(popup("Menu1"))
 	    {
@@ -42,9 +49,10 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 26 36
+zmw_move_cursor_to 12 29
 zmw_button_click
-zmw_move_cursor_to 98 38 # Detach
+
+zmw_move_cursor_to 109 29 # Detach
 zmw_button_click
 zmw_dump_screen 0
 

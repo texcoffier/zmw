@@ -26,6 +26,9 @@
  *
  * It was possible to make safe functions, but it will take much time
  * because it needs a tree traversal for each enter/leave.
+ *
+ * And this example is stupid because we have direct access
+ * to in2_ in3_ by testing ZMW_SIZE_EVENT_IN_RECTANGLE after the widget.
  */
 void test_cursorin(const char *title)
 {

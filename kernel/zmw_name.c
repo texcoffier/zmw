@@ -324,7 +324,6 @@ static int zmw_index_of_next_widget()
    return( zmw_index_of_next_widget_rec(zMw-1) ) ;
 }
 
-
 Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
 {
   global_name_check++ ;
@@ -374,19 +373,59 @@ Zmw_Boolean zmw_name_is_my_transient(const char *n)
 	
 }
 
+/* Test if the name is one of the previous
+ * until a pass_through FALSE (it is tested)
+ * It is used to search the first tip
+ */
+Zmw_Boolean zmw_name_pass_through_is(const Zmw_Name *n)
+{
+  int i ;
+
+  PRINTF("Pass through is (%d) INDEX=%d\n", n->index, ZMW_INDEX) ;
+
+  if ( n->index == ZMW_INDEX )
+    return Zmw_True ;
+
+
+  for(i = ZMW_CHILD_NUMBER ;
+      i>=0 && zMw[-1].u.children[i].pass_through ;
+      i--
+      )
+    {
+      PRINTF("Compare to %d pt=%d\n", zMw[-1].u.children[i].index
+		 ,zMw[-1].u.children[i].pass_through ) ;
+      if ( zMw[-1].u.children[i].index == n->index )
+	return Zmw_True ;
+    }
+  if ( i >= 0 )
+    return zMw[-1].u.children[i].index == n->index ;
+
+  return Zmw_False ;
+}
+
+int zmw_name_first_index_of_previous_widget()
+{
+  int i ;
+
+  for(i = ZMW_CHILD_NUMBER - 1 ; i>=0 ; i--)
+    if ( ! zMw[-1].u.children[i].pass_through )
+      return zMw[-1].u.children[i].index ;
+
+  return( zMw[-1].i.index + 1) ;
+}
 
 static int zmw_name_last_index_of_next_widget()
 {
-     return( zMw[-1].u.children[zMw[-1].u.nb_of_children].index ) ;
+     return( zMw[-1].u.children[ZMW_CHILD_NUMBER + 1].index ) ;
 
 
-   if ( zMw[-1].u.nb_of_children <= zMw[-1].u.nb_of_children_0 )
-     return( zMw[-1].u.children[zMw[-1].u.nb_of_children].index ) ;
+   if ( ZMW_CHILD_NUMBER+1 <= zMw[-1].u.nb_of_children_0 )
+     return( zMw[-1].u.children[ZMW_CHILD_NUMBER+1].index ) ;
    else
      return( 2000000000 ) ; /* Current widget is the last one */
 
-   if ( zMw[-1].u.nb_of_children+1 < zMw[-1].u.nb_of_children_0 )
-   	return( zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index ) ;
+   if ( ZMW_CHILD_NUMBER+2 < zMw[-1].u.nb_of_children_0 )
+   	return( zMw[-1].u.children[ZMW_CHILD_NUMBER+2].index ) ;
    return ( zmw_index_of_next_widget_rec(zMw-2) ) ;
 }
 
@@ -412,6 +451,21 @@ Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n)
     {
       return( zmw_name_next_string_contains(n->name) ) ;
     }
+}
+
+Zmw_Boolean zmw_name_previous_contains(const Zmw_Name *n)
+{
+  /*
+    global_name_check++ ;	
+    global_name_fast++ ;
+  */
+  if ( n->name == NULL )
+    return Zmw_False ;
+
+  return(
+	 n->index <= ZMW_INDEX
+	 && n->index >= zmw_name_first_index_of_previous_widget()
+	 ) ;
 }
 
 /*
@@ -585,7 +639,38 @@ Zmw_Name* zmw_name_get_name(const char *name, const char *why)
       return global_registered[index] ;
     }
   return( NULL ) ;
-}  
+}
+
+void *zmw_name_get_pointer_on_resource_with_name_and_type_and_default(const char *name, const char *why, Zmw_Name_Type nt, void *default_value)
+{
+  int index ;
+
+  if ( zmw_name_search_index(name, why, &index) )
+    return &global_registered[index]->value ;
+  else
+    {
+      zmw_name_register_value(name, why, default_value, nt) ;
+      zmw_name_search_index(name, why, &index) ;
+      return &global_registered[index]->value ;
+    }
+}
+
+void *zmw_name_get_pointer_on_resource_with_name_and_type(const char *name, const char *why, Zmw_Name_Type nt)
+{
+  return zmw_name_get_pointer_on_resource_with_name_and_type_and_default
+    (name, why, nt, NULL) ;
+}
+
+int *zmw_name_get_pointer_on_int_resource_with_name(const char *name, const char *why)
+{
+  return zmw_name_get_pointer_on_resource_with_name_and_type(name, why, Zmw_Is_A_Resource_Int) ;
+}
+
+int *zmw_name_get_pointer_on_int_resource(const char *why)
+{
+  return zmw_name_get_pointer_on_int_resource_with_name(zmw_name_full, why) ;
+}
+
 
 Zmw_Boolean zmw_name_get_value_pointer_with_name(const char *name, const char *why, void **value)
 {
@@ -673,6 +758,7 @@ void zmw_name_register_with_name(Zmw_Name *n, const char *name)
 void zmw_name_register(Zmw_Name *n)
 {
   zmw_name_register_with_name(n, zmw_name_full) ;
+  n->index = ZMW_INDEX ;
 }
 
 
@@ -704,59 +790,32 @@ void zmw_name_unregister(Zmw_Name *n)
 /*
  * If *pointer_value is not NULL, nothing is done
  * Else, it is set to local value and initialized if it does not exists,
- * or retrieved from ressource if it exists.
+ * or retrieved from resource if it exists.
  */
 
-void zmw_resource_int_get(int **pointer_value, Zmw_Resource *r)
+void zmw_resource_get(void **pointer_value, const char *resource
+		      , void *default_value, Zmw_Name_Type nt)
 {
   if ( *pointer_value == NULL )
     {
-      *pointer_value = &r->value ;
-      r->value = r->initial_value ;
-      if ( r->widget_name == NULL )
-	{
-	  zmw_name_get_value_int(r->name, &r->value) ;
-	  r->widget_name_used_for_get = strdup(zmw_name_full) ;
-	}
-      else
-	{
-	  zmw_name_get_value_int_with_name(r->widget_name, r->name, &r->value) ;
-	  r->widget_name_used_for_get = NULL ;
-	}
-      r->old_value = r->value ;
-      r->initialized = Zmw_True ;
-    }
-  else
-    r->old_value = **pointer_value ;
-  r->type = Zmw_Is_A_Resource_Int ;
-}
-
-void zmw_resource_pointer_get(void **pointer_value, Zmw_Resource *r)
-{
-  zmw_resource_int_get((int**)pointer_value, r) ;
-  r->type = Zmw_Is_A_Resource_Pointer ;
-}
-
-void zmw_resource_set(Zmw_Resource *r)
-{
-  if ( r->initialized && r->value != r->old_value )
-    {
-      if ( r->widget_name_used_for_get )
-	{
-	  zmw_name_register_value( r->widget_name_used_for_get
-				   , r->name
-				   , (void*)r->value
-				   , r->type
-				   ) ;
-	  free(r->widget_name_used_for_get) ;
-	}
-      else
-	zmw_name_register_value( r->widget_name
-				 , r->name
-				 , (void*)r->value
-				 , r->type
-				 ) ;
+      *pointer_value
+	= zmw_name_get_pointer_on_resource_with_name_and_type_and_default
+	( zmw_name_full, resource, nt, default_value) ;  
     }
 }
 
-  
+void zmw_resource_int_get(int **pointer_value, const char *resource
+		      , int default_value)
+{
+  zmw_resource_get((void**)pointer_value, resource, (void*)default_value
+		   , Zmw_Is_A_Resource_Int) ;
+}
+
+
+void zmw_resource_pointer_get(void **pointer_value, const char *resource
+		      , void *default_value)
+{
+  zmw_resource_get((void**)pointer_value, resource, default_value
+		   , Zmw_Is_A_Resource_Pointer) ;
+}
+

@@ -142,21 +142,23 @@ void zmw_filechooser(Zmw_Boolean *visible
   struct dirent **d ;
   int err ;
   Zmw_Boolean activated ;
+  Zmw_Boolean take_focus ;
   char buf[999] ;
-  static Zmw_Boolean just_created = Zmw_False ;
-
+  static Zmw_Boolean old_visible = Zmw_False ;// XXX only one file chooser at a time...
   static Zmw_Float_0_1 x, y ; // XXX only one file chooser at a time...
 
-  if ( ! *visible )
+
+  take_focus = Zmw_False ;
+
+  if ( *visible != old_visible )
     {
-      zmw.activated = 0 ;
-      return ;
+      old_visible = *visible ;
+      if ( *visible )
+	take_focus = Zmw_True ;
     }
-  /* If the file chooser it just launched we take the focus.
-   * We assume that the filechooser is launched by an activation
-   * of the previous widget
-   */
-  just_created |= zmw_activated() ;
+
+  if ( ! *visible )
+    return ;
   /*
    * Create current dir file name if NULL filename
    */
@@ -262,11 +264,8 @@ void zmw_filechooser(Zmw_Boolean *visible
 	    }
 	  zmw_vertical_expand(0) ;
 	  zmw_text_editable(filename) ;
-	  if ( just_created )
-	    {
-	      just_created = Zmw_False ;
-	      zmw_name_register(ZMW_FOCUS) ;
-	    }
+	  if ( take_focus )
+	    zmw_name_register(ZMW_FOCUS) ;
 	  /* XXX Not nice, but effective.
 	   * I don't know yet how to get keys
 	   * on not focused items.
@@ -315,7 +314,7 @@ void zmw_filechooser(Zmw_Boolean *visible
     free(d) ;
 
   if ( activated )
-    zmw.activated = Zmw_True ;
+    ZMW_SIZE_ACTIVATED = Zmw_True ;
 }
 
 

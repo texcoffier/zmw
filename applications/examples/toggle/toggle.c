@@ -61,21 +61,21 @@ zmw_dump_screen 1
 zmw_button_release
 zmw_dump_screen 2
 
-zmw_move_cursor_to 19 85 # On toggle 1 was activated
+zmw_move_cursor_to 19 79 # On toggle 1 was activated
 zmw_button_click
 zmw_move_cursor_to 19 36 # On toggle 1 square
 zmw_button_press
 zmw_dump_screen 3
 
 zmw_button_release
-zmw_move_cursor_to 17 174 # On "yes"
+zmw_move_cursor_to 17 159 # On "yes"
 zmw_button_click
-zmw_move_cursor_to 74 99 # On a bit
+zmw_move_cursor_to 74 90 # On a bit
 zmw_button_click
 zmw_dump_screen 4
 
 
-zmw_move_cursor_to 16 118 # Start of the integer
+zmw_move_cursor_to 16 109 # Start of the integer
 zmw_button_click
 zmw_key $KEY_A
 zmw_dump_screen 5

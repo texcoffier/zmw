@@ -2,24 +2,27 @@
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
 
-void recursive_menu(int level)
+#define SPAN 2
+
+void recursive_menu(int id)
 {
   char buf[99] ;
+  int i ;
 
-  if ( level > 1000 )
+  if ( id > 31 )
     return ;
 
-  sprintf(buf, "L%d", level) ;
+  sprintf(buf, "#%d", id) ;
   zmw_button(buf) ;
-  if ( zmw_window_is_popped() )
+  ZMW( zmw_popup() )
     {
       ZMW(zmw_window_popup_right_with_title(buf))
 	{
 	  ZMW(zmw_box_vertical())
 	    {
 	      zmw_tearoff() ;
-	      recursive_menu(2*level) ;
-	      recursive_menu(2*level+1) ;
+	      for(i=0; i<SPAN; i++)
+		recursive_menu(SPAN*id + i) ;
 	    }
 	}
     }

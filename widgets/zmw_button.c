@@ -31,21 +31,25 @@ void zmw_button_name(const char *text
 	  , (state & GDK_SHIFT_MASK) ? "Shift+" : ""
 	  , (state & GDK_LOCK_MASK) ? "Lock+" : ""
 	  , (state & GDK_CONTROL_MASK) ? "Control+" : ""
-	  , (state & GDK_MOD1_MASK) ? "Meta+" : ""
-	  , (state & GDK_MOD2_MASK) ? "Alt+" : ""
+	  , (state & GDK_MOD1_MASK) ? "Alt+" : ""
+	  , (state & GDK_MOD2_MASK) ? "Meta+" : ""
 	  , character
 	  ) ;
 }	
 
 static int global_zmw_accelerators_nb = 0 ;
 static int global_zmw_accelerators_nb_max = 0 ;
-static char **global_zmw_accelerators = NULL ;
+static struct
+{
+  char *button ;
+  GdkModifierType state ;
+} *global_zmw_accelerators = NULL ;
  
 void zmw_accelerator_init()
 {
   global_zmw_accelerators_nb = 0 ;
 }
-static void zmw_accelerator_add(const char *text)
+static void zmw_accelerator_add(const char *text, GdkModifierType state)
 {
   int i ;
 	
@@ -54,11 +58,12 @@ static void zmw_accelerator_add(const char *text)
       global_zmw_accelerators_nb_max = global_zmw_accelerators_nb_max*2 + 10 ;
       ZMW_REALLOC(global_zmw_accelerators, global_zmw_accelerators_nb_max) ;
       for(i=global_zmw_accelerators_nb; i<global_zmw_accelerators_nb_max; i++)
-	global_zmw_accelerators[i] = NULL ;
+	global_zmw_accelerators[i].button = NULL ;
     }
-  ZMW_REALLOC(global_zmw_accelerators[global_zmw_accelerators_nb],
+  ZMW_REALLOC(global_zmw_accelerators[global_zmw_accelerators_nb].button,
 	      strlen(text)+1) ;
-  strcpy(global_zmw_accelerators[global_zmw_accelerators_nb], text) ;
+  strcpy(global_zmw_accelerators[global_zmw_accelerators_nb].button, text) ;
+  global_zmw_accelerators[global_zmw_accelerators_nb].state = state ;
   global_zmw_accelerators_nb++ ;
 }
 
@@ -90,15 +95,17 @@ void zmw_button_general(const char *text
 
   zmw_button_name(text, state, character, buf) ;
   if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
-    zmw_accelerator_add(buf) ;      
+    zmw_accelerator_add(buf, state) ;      
 
   if ( display )
     zmw_button(buf) ;
   else
     zmw_button(text) ;
 
-  if ( !zmw.activated && zmw_accelerator(state, character) )
-    zmw.activated = Zmw_True ;
+  if ( !ZMW_SIZE_ACTIVATED && zmw_accelerator(state, character) )
+    {
+      ZMW_SIZE_ACTIVATED = Zmw_True ;
+    }
 }
 
 void zmw_button_with_hidden_accelerator(const char *text
@@ -117,7 +124,7 @@ void zmw_button_with_accelerator(const char *text
 
 
 
-void zmw_accelerators_window(const char *filter)
+void zmw_accelerators_window(GdkModifierType filter)
 {
   int i ;
   int save_auto_resize ;
@@ -126,7 +133,7 @@ void zmw_accelerators_window(const char *filter)
     {
       for(i=0;i<global_zmw_accelerators_nb; i++)
 	{
-	  if ( strstr(global_zmw_accelerators[i], filter) )
+	  if ( (global_zmw_accelerators[i].state & filter) == filter )
 	    break ;
 	}
       if ( i == global_zmw_accelerators_nb )
@@ -139,23 +146,13 @@ void zmw_accelerators_window(const char *filter)
     {
       ZMW(zmw_box_vertical())
 	{
-	  if ( filter )
-	    {
-	      zmw_text("Accelerators filtered by:") ;
-	      zmw_text(filter) ;
-	    }
-	  else
-	    zmw_text("Accelerators") ;
+	  zmw_text("Accelerators") ;
 	  zmw_text("-----------------------") ;
 	  for(i=0;i<global_zmw_accelerators_nb; i++)
 	    {
-	      if ( !filter 
-		   || (filter
-		       && strstr(global_zmw_accelerators[i], filter)
-		       )
-		   )
+	      if ( (global_zmw_accelerators[i].state & filter) == filter )
 		{
-		  zmw_text(global_zmw_accelerators[i]) ;
+		  zmw_text(global_zmw_accelerators[i].button) ;
 		}
 	    }
 	}
@@ -169,33 +166,18 @@ void zmw_accelerators_window(const char *filter)
  ******************************************************************************
  */
 
-void zmw_tearoff_with_detached_and_id(int *detached, GdkWindow **w)
+void zmw_tearoff()
 {
-  if ( zmw_window_detached(detached, Zmw_Detached_Up) )
+  if ( zmw_window_is_detached() )
     zmw_button("<<--- attach ---") ;
   else
     zmw_button("--- detach --->>") ;
   if ( zmw_activated() )
     {
-      gdk_window_destroy(ZMW_WINDOW) ;
-      if ( w )
-	{
-	  *w = NULL ;
-	}
-      else
-	{
-	  zmw_name_unregister_value_by_pointer("WindowID", ZMW_WINDOW) ;
-	}
-      zmw_window_detached_toggle(detached, Zmw_Detached_Up) ;
+      gdk_window_destroy(*ZMW_WINDOW) ;
+      zmw.window = NULL ;
+      *ZMW_WINDOW = NULL ;
+      zmw_window_detached_toggle() ;
     }
 }
 
-void zmw_tearoff()
-{
-  zmw_tearoff_with_detached_and_id(NULL, NULL) ;
-}
-
-void zmw_tearoff_with_detached(int *detached)
-{
-  zmw_tearoff_with_detached_and_id(detached, NULL) ;
-}

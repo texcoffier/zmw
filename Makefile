@@ -1,8 +1,9 @@
 
-
 default:verify_config TAGS dep lib # run_tests
 
 test::lib
+
+exe::lib
 
 include Makefile.config
 
@@ -20,36 +21,10 @@ run_circuit:lib
 run_book:lib
 	cd applications/book ; $(MAKE)
 
-TAGS:
+TAGS:kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed
 	echo "Make TAGS"
 	etags */*.[ch]
 
-tar:makefile_clean clean
-	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
-	echo "Creating tar archive"
-	P=`pwd` ; \
-	cd /tmp ; \
-	ln -s $$P zmw-$(ZMW_VERSION) ; \
-	tar -cvf - zmw-$(ZMW_VERSION)/* | \
-	gzip -9 >~/public_html/ZMW/zmw-$(ZMW_VERSION).tgz ; \
-	rm /tmp/zmw-$(ZMW_VERSION)
-
-# Remove all dependencies from Makefiles
-makefile_clean:
-	find . -name "Makefile" -print | \
-	while read M ; \
-		do \
-		awk <$$M 'P!=1 {print;} /^# DO NOT DELETE/ {P=1;}' >xxx ; \
-		mv xxx $$M ; \
-		done
-
-
-exe::lib
-
-retest:clean_regtest test
-
-clean_regtest:
-	-rm applications/examples/*/regtest.*
 
 doc::lib
 
@@ -59,75 +34,110 @@ zmw.so:kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed
 	echo "Make library zmw.so"
 	$(CC) $(CFLAGS) kernel/*.o utilities/*.o widgets/*.o -o zmw.so
 
+kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed:
+	cd `dirname $@` ; $(MAKE)
+
 clean::
 	@rm -f TAGS zmw.so include/zmw/*~ include/zmw/*.bak include/zmw/"#"*
 
 
 ##############################################################################
-# Next goals are the ZMW developpers
+##############################################################################
+# Next goals are for the ZMW developpers
+##############################################################################
 ##############################################################################
 
-# Always make copy
-makecopy:
-	echo "Make backup copy"
-	F=`date '+WIDGET_%Y_%m_%d'` ; \
-	rm -f "/tmp/$$F" 2>/dev/null ; \
-	ln -s `pwd` "/tmp/$$F" ; \
-	( cd /tmp ; tar -cf - $$F/* ) | gzip -9 >../$$F.tar.gz
 
-# copy only if the source are modified in the las 24 hours.
-copy:
-	if [ "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
-	then \
-	$(MAKE) makecopy ; \
-	fi
-
-# This file contains true if the test passed
-xxx.regtestpassed:zmw.so test
-	rm -f $@
-	if [ "`echo applications/examples/*/regtest.fail`" = "applications/examples/*/regtest.fail" -a `id -nu` = exco ] ; \
-	then \
-		echo "yes" >$@ ; \
-		for I in applications/examples/*/. ; \
+##############################################################################
+# Remove all dependencies from Makefiles
+##############################################################################
+makefile_clean:
+	find . -name "Makefile" -print | \
+	while read M ; \
 		do \
-			FF="$$I/regtest.pass" ; \
-			if [ ! -f "$$FF" ] ; \
-				then \
-				echo "Where is $$F?" ; \
-				echo "no" >$@ ; \
+		awk <$$M 'P!=1 {print;} /^# DO NOT DELETE/ {P=1;}' >xxx ; \
+		mv xxx $$M ; \
+		done
+
+##############################################################################
+# This file contains "pass" if the test passed
+##############################################################################
+regteststatus:zmw.so test
+	rm -f $@
+	echo "pass" >$@ ;
+	for I in applications/examples/*/. ; \
+	do \
+		FF="$$I/regteststatus" ; \
+		if [ ! -f "$$FF" ] ; \
+			then \
+			echo "Where is $$F?" ; \
+			echo "fail" >$@ ; \
+			break ; \
 			fi ; \
-		done \
-	else \
-		echo "no" >$@ ; \
-	fi
+		if [ `cat "$$FF"` != "pass" ] ; \
+			then \
+			echo "fail" >$@ ; \
+			break ; \
+			fi ; \
+	done
+	echo "Regression test: `cat $@`"
 
-public:xxx.regtestpassed
-	F=`date '+WIDGET_%Y_%m_%d.tar.gz'` ; \
-	if [ `cat xxx.regtestpassed` = "yes" -a -f ../$$F ] ; \
+##############################################################################
+# Create the tar
+##############################################################################
+CREATE_TGZ=create_tgz() { (P=`pwd`; cd /tmp; ln -s $$P $$1; tar --exclude "*regteststatus" -cvf - $$1/* | gzip -9; rm $$1;) } ; create_tgz
+
+##############################################################################
+# Create a nightly version if regtest passed
+##############################################################################
+nightly_release:regteststatus makefile_clean clean
+	if [ `cat regteststatus` = "pass" -a \
+	     "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
 	then \
-		echo "I Make the last version public (no regtest errors)" ; \
-		rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
-		cp ../$$F /home/exco/public_html/ZMW ; \
-		sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
-	else \
-		echo "REGTEST Failed: no public version" ; \
+	echo "Create a nightly release" ; \
+	F=`date '+WIDGET_%Y_%m_%d'` ; $(CREATE_TGZ) $$F >../$$F.tar.gz ; \
+	rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
+	cp ../$$F.tar.gz /home/exco/public_html/ZMW ; \
+	sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
 	fi
 
-nightjob:dep clean copy default test doc public
+##############################################################################
+# Create a new release
+##############################################################################
+new_release:makefile_clean clean
+	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
+	if [ `cat regteststatus` = "pass" ] ; \
+	then \
+	echo "Creating a new release" ; \
+	$(CREATE_TGZ) zmw-$(ZMW_VERSION) >~/public_html/ZMW/zmw-$(ZMW_VERSION).tgz ; \
+	fi
 
+##############################################################################
+# Goals to execute each night
+##############################################################################
+
+nightjob:clean default test nightly_release default doc
+
+# Remove ``normal'' messages from log
 nightfilter:
 	(date ; make nightjob 2>&1 ; date) | \
-	      grep -v -e 'Dump' -e 'Clean' -e 'Using ' -e '[a-z0-9]* [[]1].*[0-9]$$' -e 'Compiling' -e 'Link' -e '^Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0'
+	      grep -v -e 'Dump' -e 'Clean' -e 'Using ' -e '[a-z0-9]* [[]1].*[0-9]$$' -e 'Compiling' -e 'Link' -e '^Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0' -e '^WIDGET_200'
 
 night:
 	echo "make nightfilter night" | at 07:00
 
+##############################################################################
+# Change the version number in some files
+##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
 	OLD="0.0.5" ; NEW="0.0.6" ; \
-	change "$$OLD" "$$NEW" README Makefile.config
+	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
+##############################################################################
+# Display difference between developpement files and the last version
+##############################################################################
 diff:
 	diff -rubB \
 		--exclude="Makefile" \
@@ -142,10 +152,9 @@ diff:
 		--exclude="*.eps" \
 		--exclude="*.sgml" \
 		--exclude="*.png" \
-		--exclude="regtest.fail" \
-		--exclude="regtest.pass" \
 		--exclude="xxx*" \
+		--exclude="regteststatus" \
 		--exclude="#*" \
-		../WIDGET_2003_12_05 .
+		../zmw-0.0.5 .
 
 # DO NOT DELETE

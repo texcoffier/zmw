@@ -1,3 +1,21 @@
+2004-05-18 (0.0.6)
+	The event reception no more stops the widget-tree traversal
+	zmw_if(): add the widget, the regression test, the documentation
+	Only examples used in the documentation are converted (use less space)
+        zmw_tip() use now zmw_if
+	if(zmw_window_is_poped...) { } replaced by ZMW(zmw_popup...) { }
+	The focused, activated, changed states is now stored in the stack
+	The web debugging have been enhanced, see the ``widget table''
+	...EVENT_IN renamed into ZMW_SIZE_EVENT_IN_RECTANGLE, _IN_CHILDREN
+	Command line options where very badly interpreted
+	High level resource manipulation is now really easy (one line)
+	Add regression test for zmw_anchor_box
+	Add regression test for TWO zmw_scrollbar2 each with its window
+	Add regression test for popup/tip or tip/popup on the same button
+	Add regression test for accelerator (remove tons of bugs)
+	Remove some random activation (see zmw.c) (regtest bug1.c created)
+	The empty scrolled_view was bugged (regtest bug2.c created)
+	
 2003-12-15 (0.0.5)
 	Detached subsubmenu is visible even if the submenu is not detached
 	debugging: The widget-stack indicates "file:line" of widget use

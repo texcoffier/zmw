@@ -19,12 +19,12 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-
 static int tip_in_place = 0 ;
+static int new_tip_in_place = 0 ;
 
 static void tip(const char *t, int right)
 {
-  if ( zmw_tip_visible() )
+  ZMW ( zmw_tip() )
     {
       ZMW(tip_in_place
 	  ? zmw_box_vertical()
@@ -55,7 +55,7 @@ void test_tips(const char *title)
 	  tip("This button does really nothing",1) ;
 	  zmw_button("Button to pop a menu with help") ;
 	  tip("Try it!",1) ;
-	  if ( zmw_window_is_popped() )
+	  ZMW( zmw_popup() )
 	    ZMW(zmw_window_popup_right())
 	    {
 	      ZMW(zmw_box_vertical())
@@ -71,7 +71,7 @@ void test_tips(const char *title)
 		  tip("Some other action",1) ;
 		}
 	    }
-	  zmw_toggle_int_with_label(&tip_in_place, "Tip opened in place") ;
+	  zmw_toggle_int_with_label(&new_tip_in_place, "Tip opened in place") ;
 	  tip("This toogle allows to not use a new window for the tip",1);
 	  zmw_button("Two tips on this button") ;
 	  tip("Right tip", 1) ;
@@ -81,4 +81,7 @@ void test_tips(const char *title)
 	}
       tip("Generic window tip for items without tips",1) ;
     }
+
+  if ( zmw_state_change_allowed() )
+    tip_in_place = new_tip_in_place ;
 }

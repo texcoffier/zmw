@@ -1264,31 +1264,13 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_tearoff_with_detached_and_id</function>
-	    (<type>int *</type><parameter>detached</parameter>,
-	    <type>GdkWindow **</type><parameter>window</parameter>) ;
+	    <function>zmw_tearoff_with_id</function>
+	    (<type>GdkWindow **</type><parameter>window</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      When the tearoff is clicked, the window is
 	      destroyed, the window pointer become <constant>NULL</constant>,
-	      the value of <varname>detached</varname>
-	      is updated.
-	    </para>
-	  </listitem>
-	</varlistentry>
-
-	<varlistentry>
-	  <term>
-	    <type>void</type>
-	    <function>zmw_tearoff_with_detached</function>
-	    (<type>int *</type><parameter>detached</parameter>) ;
-	  </term>
-	  <listitem>
-	    <para>
-	      As <function>zmw_tearoff_with_detached_and_id</function>
-	      but the destroyed window is the window containing
-	      the tearoff.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -1300,8 +1282,8 @@
 	  </term>
 	  <listitem>
 	    <para>
-	      As <function>zmw_tearoff_with_detached</function>
-	      but the detached state is stored as the window resource.
+	      As <function>zmw_tearoff_with_id</function>
+	      but the id is stored as the window resource.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -1364,45 +1346,14 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_window_popup_right_with_id_and_detached</function>
-	    (<type>GdkWindow **</type><parameter>id</parameter>,
-	    <type>const int *</type><parameter>detached</parameter>
-	    ) ;
+	    <function>zmw_window_popup_right_with_id</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      It is a popup window, so it has no frame around.
 	      It appears on the right of the last widget defined
 	      because it is usually a button used to popup a menu.
-	      The <parameter>detached</parameter> parameter
-	      is usually the same one used in the <function>zmw_tearoff_with_detached</function> widget defined inside the menu.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>
-	    <type>void</type>
-	    <function>zmw_window_popup_right_with_id</function>
-	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
-	  </term>
-	  <listitem>
-	    <para>  
-	      As <function>zmw_window_popup_right_with_id_and_detached</function>
-	      but the detached state is stored in the resource system
-	      if it is used.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>
-	    <type>void</type>
-	    <function>zmw_window_popup_right_with_detached</function>
-	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
-	  </term>
-	  <listitem>
-	    <para>  
-	      As <function>zmw_window_popup_right_with_id_and_detached</function>
-	      but the id is stored in the resource system.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -1524,8 +1475,6 @@
 
       <para>
 	There is no menu widget as you can see in the previous example.
-	This section is not about widget but about the event
-	allowing to create a menu.
       </para>
 
       <variablelist>
@@ -1533,28 +1482,28 @@
 
 	<varlistentry>
 	  <term>
-	    <type>void</type>
+	    <type>Zmw_Boolean</type>
 	    <function>zmw_window_is_popped_with_detached</function>
 	    (<type>const int *</type><parameter>detached</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>  
-	      This function return true if the button is pressed
-	      or if the user navigate in the menu or if the
-	      menu is detached.
-	      This function must be called after a button.
-	      If this function return true, it must be followed
-	      by a window widget.
-	      The window widget must contain a
-	      <function>zmw_tearoff_with_detached</function>.
-	      The window and tearoff widgets must use the same
-	      <parameter>detached</parameter> value.
+		This function return true if the button is pressed
+		or if the user navigate in the menu or if the
+		menu is detached.
+		This function must be called after a button
+		and as a <function>zmw_if</function> widget
+		parameter.
+		The window widget must contain a
+		<function>zmw_tearoff_with_detached</function>.
+		The window and tearoff widgets must use the same
+		<parameter>detached</parameter> value.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term>
-	    <type>void</type>
+	    <type>Zmw_Boolean</type>
 	    <function>zmw_window_is_popped</function>
 	    () ;
 	  </term>
@@ -1562,9 +1511,29 @@
 	    <para>
 	      As <function>zmw_window_is_popped_with_detached</function>
 	      but the detached value is stored in the resource system.
-	      The window and the tearoff widgets
+	      Both the window and the tearoff widgets
 	      must not have a <parameter>detached</parameter>
 	      parameter.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popped_with_detached</function>
+	    (<type>const int *</type><parameter>detached</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		This widget displays its content only
+		if the previous button is pressed.
+		
+		It must contains a
+		window widget with a
+		<function>zmw_tearoff_with_detached</function>.
+		The window and tearoff widgets must use the same
+		<parameter>detached</parameter> value.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -2195,6 +2164,49 @@
       </example>
 
 </sect1>
+    <sect1>
+      <title>If widget</title>
+
+      <para>
+	This widget allows to display or not its content.
+	It is the base of the transient widget.
+	This widget allows transients to appear and diseapear
+	without changing sibling names.
+      </para>
+
+      <variablelist>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_if</function>
+	    (<type>Zmw_Boolean</type> <parameter>visible</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If <parameter>visible</parameter> is true,
+	      the content is here.
+	      The parameter can not change of value at any time.
+	      Only if <function>zmw_state_change_allowed()</function>
+	      is true.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_tip_visible</function>
+	    (<type>Zmw_Void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      True if the tip should be displayed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </sect1>
 
     <sect1>
     <title>Composed widgets</title>
@@ -2819,6 +2831,8 @@
 	       <parameter>focus</parameter> could be a pointer
 	      on a local static variable initialised to
 	      <command>ZMW_NAME_UNREGISTERED("a comment")</command>
+	      The focus change must be made before the first
+	      child of the container.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -4270,14 +4284,6 @@
 	<para>
 	  I did not find a documentation on how to use
 	  the interprocess drag and drop from <acronym>GDK</acronym>.
-	</para>
-      </sect2>
-
-      <sect2>
-	<title>Detached menu not displayed</title>
-	<para>If a parent menu of a detached menu is not displayed
-	  the detached menu is not displayed.
-	  This should be easily corrected.
 	</para>
       </sect2>
 

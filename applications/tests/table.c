@@ -49,7 +49,7 @@ void test_table(const char *title)
 	      	zmw_border_embossed_in_draw() ;
 	      	}
 	      	
-	      if ( zmw_tip_visible() )
+	      ZMW ( zmw_tip() )
 	      	{
 	      	   ZMW(zmw_window_popup_right())
 	      	   	{

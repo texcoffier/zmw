@@ -25,6 +25,8 @@
 
 static void zmw_anchor_vertical_()
 {
+  zmw_focusable() ;
+
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
@@ -72,7 +74,6 @@ static void zmw_anchor_vertical_()
 	}
       break ;
     case Zmw_Input_Event:
-      zmw_focusable() ;
       zmw_activable() ;
       break ;
     default:
@@ -89,23 +90,23 @@ void zmw_anchor_vertical(int *x)
       if ( zmw.event->key.keyval == GDK_Right )
 	{
 	  (*x)++ ;
-	  zmw.activated = Zmw_True ;
+	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
       if ( zmw.event->key.keyval == GDK_Left )
 	{
 	  (*x)-- ;
-	  zmw.activated = Zmw_True ;
+	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
     }
 
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
-      zmw.changed = Zmw_True ;
+      ZMW_SIZE_CHANGED = Zmw_True ;
       *x = zmw.x - zMw[-1].u.size.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
     }
 
   // I do not know why it is necessary here, it bugs with cache
-  //  if ( zmw.activated || zmw.changed )
+  //  if ( ZMW_SIZE_ACTIVATED || zmw.changed )
   //  zmw_event_remove() ;
 }
 
@@ -119,18 +120,18 @@ void zmw_anchor_vertical_float(float *x)
       if ( zmw.event->key.keyval == GDK_Right )
 	{
 	  *x += .01 ;
-	  zmw.activated = Zmw_True ;
+	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
       if ( zmw.event->key.keyval == GDK_Left )
 	{
 	  *x -= .01 ;
-	  zmw.activated = Zmw_True ;
+	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
     }
 
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
-      zmw.activated = Zmw_True ;
+      ZMW_SIZE_ACTIVATED = Zmw_True ;
       *x = (zmw.x - zMw[-1].u.size.allocated.x)
 	/ (float)zMw[-1].u.size.allocated.width ;
     }
@@ -158,6 +159,8 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 {
   int i, xx, yy, nx, ny ;
   static int corner = -1 ;
+
+  zmw_focusable() ;
 
   switch( ZMW_SUBACTION )
     {
@@ -205,7 +208,6 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
       break ;
     case Zmw_Input_Event:
 
-      zmw_focusable() ;
       zmw_activable() ;
       
       if ( zmw_button_pressed() )
@@ -227,7 +229,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused())
 	{
 	  corner = -1 ;
-	  zmw.activated = Zmw_True ;
+	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
@@ -374,7 +376,7 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused() )
 	{
 	  	  corner = -1 ;
-	  	  zmw.activated = Zmw_True ;
+	  	  ZMW_SIZE_ACTIVATED = Zmw_True ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{

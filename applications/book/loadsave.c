@@ -73,6 +73,7 @@ Library* library_load(const char *filename)
   file = fopen(filename , "r" ) ;
   if ( file == NULL )
     {
+      fprintf(stderr, "Library load\n") ;
       perror(filename) ;
       exit(1) ;
     }
@@ -133,6 +134,7 @@ void library_save(Library* lib, const char *filename)
   file = fopen(filename , "w" ) ;
   if ( file == NULL )
     {
+      fprintf(stderr, "Library save\n") ;
       perror(filename) ;
       exit(1) ;
     }

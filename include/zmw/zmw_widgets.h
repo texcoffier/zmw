@@ -29,39 +29,34 @@
 /*
  * zmw_window.c
  */
+/*
 typedef enum zmw_detached
 	 {
 	 		 Zmw_Detached_Here
 	 		 , Zmw_Detached_Next
 	 		 , Zmw_Detached_Up
 	 } Zmw_Detached ;
- 
-Zmw_Boolean zmw_window_detached(const int *detached, Zmw_Detached where) ;
-Zmw_Name *zmw_window_detached_containing(const char *name) ;
-int zmw_window_contains_detached() ;
-void zmw_window_detached_toggle(int *detached, Zmw_Detached where) ;
+*/
+
+Zmw_Boolean zmw_window_is_detached() ;
+void zmw_window_detached_toggle() ;
 
 void zmw_gc_pop() ;
 void zmw_gc_push() ;
 
 void zmw_window_with_id(GdkWindow **w, const char *title);
 void zmw_window(const char *title);
-void zmw_window_popup_right_with_id_and_detached(GdkWindow **w, const int *detached);
-void zmw_window_popup_right_with_id(GdkWindow **w) ;
-void zmw_window_popup_right_with_detached(const int *detached);
-void zmw_window_popup_right(void);
+
+void zmw_window_popup_right_with_id_and_title(GdkWindow **, const char *title);
 void zmw_window_popup_right_with_title(const char *title);
-void zmw_window_popup_bottom_with_id_and_detached(GdkWindow **w, const int *detached);
-void zmw_window_popup_bottom_with_detached(const int *detached);
-void zmw_window_popup_bottom(void);
+void zmw_window_popup_right_with_id(GdkWindow **w) ;
+void zmw_window_popup_right(void);
+
+void zmw_window_popup_bottom_with_id_and_title(GdkWindow **,const char *title);
 void zmw_window_popup_bottom_with_title(const char *title);
-void zmw_window_popup_right_with_id_and_detached_and_title(GdkWindow **w, const int *detached
-					      , const char *title);
-void zmw_window_popup_right_with_detached_and_title(const int *detached, const char *title);
-void zmw_window_popup_bottom_with_id_and_detached_and_title(GdkWindow **w
-						, const int *detached
-					      , const char *title);
-void zmw_window_popup_bottom_with_detached_and_title(const int *detached, const char *title);
+void zmw_window_popup_bottom_with_id(GdkWindow **w) ;
+void zmw_window_popup_bottom(void);
+
 void zmw_window_drag_with_id(GdkWindow **w);
 void zmw_window_drag(void);
 
@@ -86,9 +81,7 @@ void zmw_button_with_hidden_accelerator(const char *text
 				 , GdkModifierType state, int character
 				 ) ;
 void zmw_accelerator_init() ;
-void zmw_accelerators_window(const char *filter) ;
-void zmw_tearoff_with_detached_and_id(int *detached, GdkWindow **w) ;
-void zmw_tearoff_with_detached(int *detached) ;
+void zmw_accelerators_window(GdkModifierType filter) ;
 void zmw_tearoff(void) ;
 void zmw_int_editable(int *i) ;
 void zmw_int(int i) ;
@@ -103,7 +96,7 @@ int zmw_toggle_with_label(int value, const char *label) ;
 void zmw_toggle_int_with_label(int *value, const char *label) ;
 void zmw_toggle_char_with_label(char *value, const char *label) ;
 
-int zmw_toggle_bits(int value, int bits) ;
+int zmw_toggle_bits(int value, int bits, int options) ;
 void zmw_toggle_bits_int(int *value, int bits) ;
 void zmw_toggle_bits_char(char *value, int bits) ;
 
@@ -200,7 +193,11 @@ void zmw_message_char(char *visible,const char *title,const char *button_name);
 /*
  * zmw_void.c
  */
-void zmw_void() ;
+void zmw_void(void) ;
+void zmw_if(Zmw_Boolean value) ;
+void zmw_tip(void) ;
+void zmw_popup(void) ;
+void zmw_popup_with_detached(int *detached) ;
 /*
  * zmw_decorator.c
  */

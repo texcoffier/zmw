@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,10 +35,13 @@ static struct cached_data {
 
 static int global_cache_size = 0 ; 
 
+#define ZMW_PRINTF if (0) zmw_printf
+
 void zmw_cache_init(int size)
 {
   int i ;
 
+  ZMW_PRINTF("Cache init : %d\n", size) ;
   if ( size != global_cache_size )
     {
       ZMW_REALLOC(global_cache_table, size) ;
@@ -70,9 +73,15 @@ void zmw_cache_free()
     }
 }
 
+/*
+ * Returns 0 if the size is in the cache
+ */
+
 int zmw_cache_get_size_real(Zmw_Size *r)
 {
   struct cached_data *cd ;
+
+  ZMW_PRINTF("get size from cache of : %s\n", zmw_name_full) ;
 
   if ( global_cache_size )
     {
@@ -83,16 +92,18 @@ int zmw_cache_get_size_real(Zmw_Size *r)
 	{
 	  *r = cd->r ;
 	  if ( zmw.debug & Zmw_Debug_Cache_Fast )
-	    if ( cd->name && strcmp(cd->name, zmw_name_full) )
+	    if ( !zmw.event_removed && cd->name && strcmp(cd->name, zmw_name_full) )
 	      {
 		zmw_printf("real name = %s\n", zmw_name_full) ;
 		zmw_printf("index = %d\n", ZMW_INDEX) ;
 		zmw_printf("stored name = %s\n", cd->name) ;
 	      }
+	  ZMW_PRINTF("Size in cache : %s\n", zmw_size_string(r)) ;
 	  return(0) ;
 	}
      global_cache_miss++ ;
     }
+  ZMW_PRINTF("Size NOT in cache\n") ;
   return(1) ;
 }
 
@@ -134,6 +145,10 @@ static void zmw_cache_check(const Zmw_Size *s)
     zmw_cache_set_size_real(s) ;
   else
     {
+      /*
+      if ( !s->used_to_compute_parent_size )
+	return ;
+      */
       p = NULL ;
       if ( s->index != ss.index )
 	p = "index" ;
@@ -145,11 +160,24 @@ static void zmw_cache_check(const Zmw_Size *s)
 	p = "required size" ;
       if ( p )
 	{
+	  if ( zmw.event_removed )
+	    {
+	      static int hide = 0 ;
+
+	      if ( !hide )
+		{
+		  zmw_printf("Warning: size change while dispatching an event\n") ;
+		  hide = 1 ;
+		}
+	      return ;
+	    }
 	  zmw_printf("%s\n", zmw_name_full) ;
 	  zmw_printf("%s\n", ZMW_TYPE) ;
 	  zmw_printf("[%d] Problems in cache_check : %s\n", ZMW_INDEX, p) ;
 	  zmw_printf("Stored = %s !\n",zmw_size_string(&ss)) ;
 	  zmw_printf("Comput = %s !\n",zmw_size_string(s)) ;
+	  if ( !s->used_to_compute_parent_size )
+	    zmw_printf("Not used to compute size !\n") ;
 	  exit(1) ;
 	}
     }		
@@ -157,6 +185,8 @@ static void zmw_cache_check(const Zmw_Size *s)
 
 void zmw_cache_set_size(const Zmw_Size *r)
 {
+  ZMW_PRINTF("set size of %s to %s\n", zmw_name_full, zmw_size_string(r)) ;
+
   if ( zmw.debug & Zmw_Debug_Cache_Slow )
     zmw_cache_check(r) ;
   else

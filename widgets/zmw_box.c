@@ -206,6 +206,11 @@ void zmw_box_horizontal_children_allocated_size()
 
 void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
 {
+  if ( activable )
+    {
+      zmw_focusable() ;
+    }
+
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
@@ -223,11 +228,10 @@ void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
     case Zmw_Input_Event:
       if ( activable )
 	{
-	  zmw_focusable() ;
 	  zmw_activable() ;
 	  if ( zmw_key_string() )
 	    {
-	      zmw.activated = 1 ;
+	      ZMW_SIZE_ACTIVATED = Zmw_True ;
 	    }
 	}
     default:
