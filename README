@@ -1,0 +1,20 @@
+To compile and execute you need :
+	- GTK 1.2.10
+	- gdk-pixbuf 0.17.0
+
+You type "make run_circuit" to compile and launch a small logic circuit editor.
+
+You type "make run_tests" to compile and launch the widget testing program
+
+
+
+These sources are here to show that zero memory widget are a reality.
+
+They are :
+	- not clean
+	- not documented
+	- not optimized
+	- bugged
+	- full of misnamed variables and functions
+
+They should not be used as a basis for a real widget library.
