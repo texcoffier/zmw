@@ -49,7 +49,9 @@ static Zmw_Name **global_registered = NULL ;
 static int global_nb_registered = 0 ;
 static int global_nb_name = 0 ;
 
-
+/*
+ * Initialize or enlarge the hash table
+ */
 static void zmw_name_init()
 {
   int i, j, old_nb ;
@@ -139,7 +141,7 @@ static Zmw_Name** zmw_name_find(const char *name, const char *why)
 }
 
 /*
- * After the remove, n points on the next
+ * After the remove, "n" points on the next
  */
 static void zmw_name_remove(Zmw_Name **n)
 {
@@ -219,7 +221,7 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
 }
 
 /*
- *
+ * Used for http or in window debugging
  */
 
 const char* zmw_name_type(Zmw_Name_Type nt)
@@ -312,7 +314,10 @@ void zmw_name_debug_window()
   zmw_border_embossed_in_draw() ;
 }
 
-
+/*
+ * Free all the ressources registered.
+ * It is usefull in order to find leaks
+ */
 void zmw_name_free()
 {
   int i ;

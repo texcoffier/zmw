@@ -151,6 +151,15 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       ZMW_SIZE_MIN.width = 0 ;
       ZMW_SIZE_MIN.height = 0 ;
       ZMW_SIZE_REQUIRED = ZMW_SIZE_MIN ;
+
+      /* Really not nice */
+      ZMW_SIZE_ALLOCATED.x = 0 ;
+      ZMW_SIZE_ALLOCATED.y = 0 ;
+      gdk_window_get_size(*ZMW_WINDOW
+			  , &ZMW_SIZE_ALLOCATED.width
+			  , &ZMW_SIZE_ALLOCATED.height
+			  ) ;
+
       break ;
 
     case Zmw_Compute_Required_Size:
@@ -335,7 +344,7 @@ void zmw_window_popup_bottom_with_title(const char *title)
 {
   zmw_window_popup_bottom_with_id_and_title(NULL, title) ;
 }
-void zmw_window_popup_nottom_with_id(GdkWindow **w)
+void zmw_window_popup_bottom_with_id(GdkWindow **w)
 {
   zmw_window_popup_bottom_with_id_and_title(w, NULL) ;
 }

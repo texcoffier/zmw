@@ -165,6 +165,24 @@ static char *get_pointer(int i)
   return global_buf ;
 }
 
+static char *get_pointer_pointer(int i)
+{
+  void **n ;
+
+  n = GET(i, void**) ;
+  sprintf(global_buf, "%p", *n) ;
+  return global_buf ;
+}
+
+static char *get_focus(int i)
+{
+  Zmw_Name *n ;
+
+  n = GET(i, Zmw_Name*) ;
+  sprintf(global_buf, "%s: %s(%d)", n->why, n->name, (int)n->value) ;
+  return global_buf ;
+}
+
 static char *get_menu_state(int i)
 {
   int *n ;
@@ -361,7 +379,7 @@ static struct options global_options[] =
     { 1, OPTION(i.debug                              , int                 ) },
     { 0, OPTION(i.border_width                       , int                 ) },
     { 0, OPTION(i.focus_width                        , int                 ) },
-    { 0, OPTION(i.focus                              , pointer             ) },
+    { 0, OPTION(i.focus                              , focus             ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Normal], color               ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Pushed], color               ) },
     { 0, OPTION(i.colors[Zmw_Color_Background_Poped] , color               ) },
@@ -371,11 +389,9 @@ static struct options global_options[] =
     { 0, OPTION(i.auto_resize                        , boolean             ) },
     { 0, OPTION(i.sensible                           , boolean             ) },
     { 1, OPTION(i.font                               , pointer             ) },
-    { 0, OPTION(u.parent_to_child.window             , pointer             ) },
+    { 0, OPTION(u.parent_to_child.window             , pointer_pointer     ) },
     { 0, OPTION(u.parent_to_child.gc                 , pointer             ) },
     { 0, OPTION(u.parent_to_child.clipping           , rectangle           ) },
-    { 0, OPTION(i.event_in_masked                    , boolean             ) },
-    { 0, OPTION(i.event_in_focus                     , boolean             ) },
     //    { 0, OPTION(i.event_in                           , boolean             ) },
     { 0, "subaction",(char*(*)(int))zmw_action_name, OFFSET(u.subaction)     },
     { 0, "zmw_http_debug",zmw_http_debug, OFFSET(u.subaction)                },
@@ -521,7 +537,6 @@ int http_node()
       return( zmw_action_first_pass() ) ;
 
     case 1:
-      zmw_action_second_pass() ;
       ZMW_SUBACTION = Zmw_Nothing ;
 
       if ( strcmp(global_name, zmw_name_full) == 0 )
@@ -647,7 +662,6 @@ int http_tree()
     case 1:
       ZMW_SUBACTION = Zmw_Nothing ;
       ZMW_SUBACTION = Zmw_Debug_Message ;
-      zmw_action_second_pass() ;
       http_printf("<LI> <A HREF=\"%s\">%s</A> %s:%d %s"
 		  , http_encode_url(zmw_name_full)
 		  , ZMW_NAME
@@ -678,7 +692,6 @@ int http_table()
       return(zmw_action_first_pass()) ;
 
     case 1:
-      zmw_action_second_pass() ;
       ZMW_SUBACTION = Zmw_Input_Event ;
       zmw_state_push() ;
       return(1) ;
@@ -710,8 +723,6 @@ int http_debug()
       return(zmw_action_first_pass()) ;
 
     case 1:
-
-      zmw_action_second_pass() ;
       zmw_state_push() ;
       return(1) ;
     }
@@ -899,10 +910,6 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
       ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_True ;
       ZMW_WINDOW = NULL ;
 
-      
-
-
-
       http_printf("<H1>Widget table</H1>") ;
       http_printf("<p>The displayed table is from the event:\n") ;
       http_printf("<form name='f' action='javascript: window.location=\"?table%s//\" + document.f.x.value + \"/\" + document.f.y.value + \"/\" +  document.f.w.value + \"/\" +  document.f.e.value;'>", http_table_options(-1)) ;
@@ -979,7 +986,6 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
 
       if ( global_event == 2 )
 	zmw_event_button_release() ;
-
     }
   else
     {

@@ -81,6 +81,12 @@ typedef enum zmw_subaction
 #define Zmw_Debug_Cache_Slow         512
 #define Zmw_Debug_Name              1024
 
+#define ZMW_LEFT -1
+#define ZMW_CENTER 0
+#define ZMW_RIGHT 1
+#define ZMW_TOP -1
+#define ZMW_BOTTOM 1
+
 typedef char Zmw_Boolean ;
 enum zmw_boolean { Zmw_False, Zmw_True } ;
 
@@ -156,13 +162,6 @@ typedef struct zmw_stackable_inheritable
   GdkFont *font ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
-  /*
-   * These values should not be inherited
-   * But If it is not the case the "focus" is broken
-   * Seems there is some bugs
-   */
-  Zmw_Boolean event_in_masked ;
-  Zmw_Boolean event_in_focus ;
 } Zmw_Stackable_Inheritable ;
 
 typedef struct zmw_stackable_uninheritable
@@ -171,6 +170,7 @@ typedef struct zmw_stackable_uninheritable
   int nb_of_children, nb_of_children_max ;
   Zmw_Size *children ;
   Zmw_Boolean font_copy_on_write ;
+  Zmw_Boolean do_not_execute_pop ;
   Zmw_Rectangle asked ;		// Size asked by the user
   char *name ;			/* Pointer on the last part of full_name */
   char *name_index ;		/* Pointer on the '.#' part of name */
@@ -179,7 +179,6 @@ typedef struct zmw_stackable_uninheritable
   const char *file ;		/* File where ZMW was declared */
   int line ;			/* Line where ZMW was declared */
   enum { Zmw_External_No, Zmw_External_Stop, Zmw_External_Continue } external_state ;
-  Zmw_Boolean do_not_execute_pop ;
   Zmw_Subaction subaction ;	/* The action to process in the widget */
   int *menu_state ;		/* For zmw_window_is_popped_with_detached */
   int child_number ;            /* 0 if the first child, 1 the second, ... */
@@ -258,6 +257,7 @@ typedef struct zmw
    * Theses values are set while traversing the widgets tree
    */
   Zmw_Name found ;		/* Widget found by "Zmw_Search"*/
+  Zmw_Name *focus ;             /* Focus group with the cursor (Zmw_Search) */
   Zmw_Name tip_displayed ;	/* Name of the widget with a tip displayed */
   Zmw_Name widget_to_trace ;
 #if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
@@ -280,11 +280,9 @@ extern Zmw zmw ;
 #define ZMW_AUTO_RESIZE               	(zMw->i.auto_resize                  )
 #define ZMW_SENSIBLE                  	(zMw->i.sensible                     )
 #define ZMW_FOCUS                     	(zMw->i.focus                        )
-#define ZMW_EVENT_IN_FOCUS            	(zMw->i.event_in_focus               )
 #define ZMW_EVENT                     	(zMw->i.event                        )
 #define ZMW_FONT                      	(zMw->i.font                         )
 #define ZMW_COLORS                    	(zMw->i.colors                       )
-#define ZMW_EVENT_IN_MASKED           	(zMw->i.event_in_masked              )
 
 									     
 #define ZMW_CALL_NUMBER               	(zMw->u.call_number                  )
@@ -369,7 +367,6 @@ void zmw_font_free(void) ;
 #define          zmw_auto_resize(B) ZMW_AUTO_RESIZE           = B
 #define             zmw_sensible(B) ZMW_SENSIBLE              = B
 
-#define   zmw_focus(X) ZMW1(ZMW_FOCUS = X; /* ZMW_EVENT_IN_FOCUS = zMw[-1].u.size.event_in_rectangle; */)
 #define  zmw_focused() ZMW_SIZE_FOCUSED
 
 #define zmw_name_full (zmw.full_name)
@@ -504,6 +501,7 @@ void zmw_action_second_pass(void) ;
 void zmw_debug_trace(void) ;
 void zmw_stack_print(void) ;
 int zmw_event_in(void) ;
+void zmw_focus(Zmw_Name *focus) ;
 
 
 static inline int zmw_debug_in_zmw_loop(int i)
@@ -576,6 +574,7 @@ void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y) ;
 
 void zmw_draw_clip_push_inside(const Zmw_Rectangle *r) ;
 void zmw_draw_clip_pop() ;
+#define zmw_foreground(R,G,B) zmw_color(Zmw_Color_Foreground, zmw_rgb_to_int(R,G,B))
 /*
  * zmw_graphic.c
  */
@@ -617,8 +616,9 @@ Zmw_Boolean zmw_button_pressed(void) ;
 Zmw_Boolean zmw_button_released(void) ;
 Zmw_Boolean zmw_button_released_anywhere(void) ;
 Zmw_Boolean zmw_focus_in(void) ;
+Zmw_Boolean zmw_key_pressed_unsensitive(void) ;
 Zmw_Boolean zmw_key_pressed(void) ;
-Zmw_Boolean zmw_key_string(void) ;
+Zmw_Boolean zmw_key_string_unsensitive(void) ;
 Zmw_Boolean zmw_selected(void) ;
 Zmw_Boolean zmw_selected_by_its_parents(void) ;
 Zmw_Boolean zmw_accelerator(GdkModifierType state, int character) ;

@@ -198,7 +198,7 @@ void many()
 	}
       printf("\n") ;
       fflush(stdout) ;
-      zmw_exit(0) ;
+      exit(0) ; // Faster than zmw_exit(0) ;
     }
 
 }

@@ -47,7 +47,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.9)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.10)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -2323,6 +2323,9 @@
 	  The children are in a vertical box or table,
 	  if it is a table with columns, the number
 	  of columns should be indicated.
+	  The children must be named with <function>zmw_name</function>
+	  if they use some ressources,
+	  for example if they are an editable text or a menu.
 	</para>
 
       <variablelist>

@@ -293,11 +293,9 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
        * Insert some key
        */
       if ( 0 )
-	zmw_printf("key pressed = %d removed=%d EIF=%d EIM=%d insode=%d sensible=%d\n"
+	zmw_printf("key pressed = %d removed=%d insode=%d sensible=%d\n"
 		   , zmw_key_pressed()
 		   , zmw.event_removed
-		   , ZMW_EVENT_IN_FOCUS
-		   , ZMW_EVENT_IN_MASKED
 		   , zmw_name_is_inside(ZMW_FOCUS)
 		   , ZMW_SENSIBLE
 		   ) ;

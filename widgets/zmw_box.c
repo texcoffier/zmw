@@ -192,7 +192,7 @@ void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
       if ( activable )
 	{
 	  zmw_activable() ;
-	  if ( zmw_key_string() )
+	  if ( zmw_key_string_unsensitive() )
 	    {
 	      ZMW_SIZE_ACTIVATED = Zmw_True ;
 	    }

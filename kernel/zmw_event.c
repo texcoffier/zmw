@@ -36,8 +36,6 @@ void zmw_event_dump()
 	zmw_printf("zmw.x = %d %d\n", zmw.x, zmw.y) ;
 	zmw_printf("ZMW_SIZE_EVENT_IN_RECTANGLE = %d\n", ZMW_SIZE_EVENT_IN_RECTANGLE) ;
 	zmw_printf("ZMW_SIZE_EVENT_IN_CHILDREN = %d\n", ZMW_SIZE_EVENT_IN_CHILDREN) ;
-	zmw_printf("ZMW_EVENT_IN_MASKED = %d\n", ZMW_EVENT_IN_MASKED) ;
-	zmw_printf("ZMW_EVENT_IN_FOCUS = %d\n", ZMW_EVENT_IN_FOCUS) ;
 	zmw_printf("ZMW_SIZE_SENSIBLE = %d\n", ZMW_SIZE_SENSIBLE) ;
 	zmw_printf("zmw_focus_in() = %d\n", zmw_focus_in()) ;
 	zmw_printf("zmw_key_pressed() = %d\n", zmw_key_pressed()) ;
@@ -62,8 +60,7 @@ void zmw_event_dump()
 Zmw_Boolean zmw_cursor_in()
 {
   ZMW_FUNCTION_CALLED_OUTSIDE_ZMW_PARAMETER ;
-  return( ZMW_SIZE_EVENT_IN_RECTANGLE && !ZMW_EVENT_IN_MASKED ) ;
-  /* zmw.event->type != GDK_NOTHING */
+  return( ZMW_SIZE_EVENT_IN_RECTANGLE ) ;
 }
 
 /*
@@ -75,7 +72,6 @@ Zmw_Boolean zmw_event_to_process()
 	  && !zmw.event_removed
 	  && ZMW_CALL_NUMBER > 0
 	  && ZMW_SIZE_EVENT_IN_RECTANGLE
-	  && !ZMW_EVENT_IN_MASKED
 	  && ZMW_SIZE_SENSIBLE
 	  && ZMW_SENSIBLE
 	  ) ;
@@ -94,19 +90,16 @@ Zmw_Boolean zmw_state_change_allowed()
 Zmw_Boolean zmw_focus_in()
 {
   return(
-	 ZMW_EVENT_IN_FOCUS
-	 && !ZMW_EVENT_IN_MASKED
-	 // && *ZMW_WINDOW == zmw.event->any.window // No cross-window focus
-	 && ZMW_SENSIBLE
+	 ZMW_SENSIBLE
+	 && ZMW_FOCUS->value
 	 && zmw_name_is(ZMW_FOCUS)
 	 ) ;
 }
 Zmw_Boolean zmw_focus_in_by_its_parents()
 {
   return(
-	 ZMW_EVENT_IN_FOCUS
-	 && !ZMW_EVENT_IN_MASKED
 	 // && *ZMW_WINDOW == zmw.event->any.window // No cross-window focus
+	 ZMW_FOCUS->value
 	 && zmw_name_is_inside(ZMW_FOCUS)
 	 && ZMW_SENSIBLE
 	 ) ;
@@ -150,31 +143,30 @@ void zmw_widget_previous_is_tested()
 }
 
 /*
- * True if the key is pressed in the zmw
- * Or if the zmw has the focus.
+ * True if the key is pressed in the widget
+ * Or if the widget has the focus.
  */
+Zmw_Boolean zmw_key_pressed_unsensitive()
+{
+  return !zmw.event_removed
+    && zmw_focus_in_by_its_parents()
+    && zmw.event->type == GDK_KEY_PRESS
+    ;
+}
 Zmw_Boolean zmw_key_pressed()
 {
   zmw_widget_is_tested() ;
-  return( !zmw.event_removed
-	  && zmw_focus_in_by_its_parents()
-	  && zmw.event->type == GDK_KEY_PRESS
-	  ) ;
+  return zmw_key_pressed_unsensitive() ;
 }
 /*
- * True if the NON NUL key is pressed in the zmw
- * Or if the zmw has the focus.
+ * Same as zmw_key_pressed() but the key should not be a dead one.
  */
-Zmw_Boolean zmw_key_string()
+Zmw_Boolean zmw_key_string_unsensitive()
 {
-  return(  !zmw.event_removed
-	  && zmw_focus_in()
-	  && zmw.event->type == GDK_KEY_PRESS
-	  && zmw.event->key.string[0]
-	  ) ;
+  return zmw_key_pressed_unsensitive() && zmw.event->key.string[0] ;
 }
 /*
- * True if the cursor is pressed in the zmw
+ * True if the cursor is pressed in the widget
  */
 Zmw_Boolean zmw_button_pressed()
 {
@@ -185,7 +177,7 @@ Zmw_Boolean zmw_button_pressed()
 }
 
 /*
- * True if the cursor is released in the zmw
+ * True if the cursor is released in the widget
  */
 Zmw_Boolean zmw_button_released()
 {
@@ -208,12 +200,15 @@ Zmw_Boolean zmw_activated()
 {
   zmw_widget_is_tested() ;
 
-  if( ZMW_SIZE_ACTIVATED
-      && ( ZMW_ACTION == zmw_action_dispatch_event
-	   || ZMW_ACTION == zmw_action_dispatch_accelerator) )
+  if( ZMW_SIZE_ACTIVATED )
     {
-      zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
-      return Zmw_True ;
+      if ( ZMW_ACTION == zmw_action_dispatch_event )
+	return Zmw_True ;
+      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+	{
+	zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
+	return Zmw_True ;
+	}
     }
 
   if ( ZMW_SIZE_PASS_THROUGH )
@@ -282,12 +277,11 @@ static Zmw_Name global_zmw_cursor = ZMW_NAME_UNREGISTERED("Cursor") ;
 Zmw_Boolean zmw_cursor_leave()
 {
   if ( 0 )
-    zmw_printf("cursor_in %s %d %d %d %d %s/%d\n"
+    zmw_printf("cursor_in %s %d %d %d %s/%d\n"
 	       , global_zmw_cursor.name
 	       , ZMW_SUBACTION == Zmw_Input_Event
 	       , zmw_name_contains(&global_zmw_cursor)
 	       , !ZMW_SIZE_EVENT_IN_RECTANGLE
-	       , !ZMW_EVENT_IN_MASKED
 	       , zmw_action_name_fct()+11
 	       , ZMW_CALL_NUMBER
 	       ) ;
@@ -295,7 +289,6 @@ Zmw_Boolean zmw_cursor_leave()
   if( ZMW_SUBACTION == Zmw_Input_Event
       && zmw_name_contains(&global_zmw_cursor)
       && !ZMW_SIZE_EVENT_IN_RECTANGLE
-      && !ZMW_EVENT_IN_MASKED
       )
   	 {
 	   if ( 0 )
@@ -315,7 +308,6 @@ Zmw_Boolean zmw_cursor_enter()
   
   if( ZMW_SUBACTION == Zmw_Input_Event
       && ZMW_SIZE_EVENT_IN_RECTANGLE
-      && !ZMW_EVENT_IN_MASKED
       && !zmw_name_contains(&global_zmw_cursor)
       )
     {
@@ -424,7 +416,7 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
     }
 
 
-  if ( ZMW_SUBACTION == Zmw_Input_Event && !ZMW_EVENT_IN_MASKED )
+  if ( ZMW_SUBACTION == Zmw_Input_Event )
     {
       /*
        * It is here AFTER the event dispatch on children
@@ -662,10 +654,9 @@ void zmw_activable()
   {
     
     if( 0 && ZMW_SUBACTION == Zmw_Input_Event &&zmw.event->type == GDK_BUTTON_RELEASE )
-      zmw_printf("%s\n%s\n event_in_masked=%d sp=%d s=%d event_in=%d name_is_inside (%d) %s\n"
+      zmw_printf("%s\n%s\n sp=%d s=%d event_in=%d name_is_inside (%d) %s\n"
 		 , zmw_name_full
 		 , global_zmw_selected.name?global_zmw_selected.name:"???"
-		 , ZMW_EVENT_IN_MASKED
 		 , zmw_selected_by_its_parents()
 		 , zmw_selected()
 		 , ZMW_SIZE_EVENT_IN_RECTANGLE
@@ -675,7 +666,6 @@ void zmw_activable()
     if ( 
 	 ZMW_SUBACTION == Zmw_Input_Event
 	 && !zmw.event_removed
-	 && !ZMW_EVENT_IN_MASKED
 	 && zmw.event
 	 && zmw.event->type == GDK_BUTTON_RELEASE
 	 && ( zmw_name_is_inside(&global_inner_visible_menu)

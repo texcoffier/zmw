@@ -2,11 +2,15 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WHAT I AM GOING TO PROGRAM NOW:
+	* Remove the core-dump on exit
+	* Regression test on accelerator reception by multiple widgets
+	* Check why there is "zmw.debug" and "inherited.debug" ?
 	* Make the regression test in menu3.c (recursive menu)
 	* Append menu3.c example in the documentation
-	* Remove "zmw_pass_through" function (should be used everywhere)
-	* event_in_(masked/focus) put in the correct place.
-	* Run gprof to see were the time is spend
+	* zmw_swap_x_y can use a third of CPU time.
+	  So I will modify data structure to use a table.
+	  zMw->size[0].alignement zMw->size[0].required for X axis ...
+	  and [1] for Y axis (and [2] if we work in three D).
 
 
 WIDGETS:
@@ -25,13 +29,17 @@ LIBRARY CORE:
 	  So in the most current case, there only one 'int' to push
 	  to push all the attributes (see at the end of this text).
 	  Define the attributes in current state dynamicly
-	- zMw->size[0].alignement zMw->size[0].required for X axis ...
-	  and [1] for Y axis.
 	- Use OpenGL
 	- zmw_name must not be called with the same name for sibling.
 	* Cursor shape change when it enters in a widget
 	- animation: Specify the next frame time
 	- Create zmw_font_name zmw_font_size zmw_font_weight ...
+	* Remove "zmw_pass_through" function (should be used everywhere)
+	* event_in_(masked/focus) put in the correct place.
+	* Create an implicit top level widget containing all the other
+	  windows because if there is several top level widget
+	  then some algorithm fail (focus for example)
+	* Use bit record to store booleans in the structures,
 
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
@@ -100,6 +108,7 @@ NOT TO DO THINGS :
  *
  * This allows to not push everything in the stack each time.
  * But is it necessary to speed up this push/pop ?
+ * push: 13% cpu time, pop: 0.9% cpu time
 *****************************************************************************
  */
 

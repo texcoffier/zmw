@@ -30,6 +30,12 @@
 #       - Make some cleaning
 #       - Creates "regtest.pass"
 
+if [ ! -f ../xxx.replace ]
+then
+  echo >../xxx.replace
+fi
+
+
 export REPLACE=`cat ../xxx.replace`
 export NAME=`basename $(pwd)`
 export ZMW_EXECUTION_ARGS="--mstimout=10 --debug=2046"

@@ -150,7 +150,7 @@ night:
 ##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.8" ; NEW="0.0.9" ; \
+	OLD="0.0.10" ; NEW="0.1.0" ; \
 	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 

@@ -211,7 +211,7 @@ void zmw_decorator(int options, ...)
 	  zmw_activable() ;
 	}
       if ( options & Zmw_Decorator_Activable_By_Key )
-	if ( zmw_key_string() && zmw.event->key.string[0] )
+	if ( zmw_key_string_unsensitive() )
 	  {
 	    ZMW_SIZE_ACTIVATED = Zmw_True ;
 	  }

@@ -49,9 +49,9 @@ int zmw_printf(const char *format, ...)
     return(i) ;
 }
 
-#define ZMW_AC(X) if ( ZMW_ACTION == X ) return( #X )
+#define ZMW_AC(X) if ( action == X ) return( #X )
 
-const char *zmw_action_name_fct()
+const char *zmw_action_name_fct_(int (*action)(void))
 {
   ZMW_AC(zmw_action_compute_required_size) ;
   ZMW_AC(zmw_action_draw) ;
@@ -59,6 +59,11 @@ const char *zmw_action_name_fct()
   ZMW_AC(zmw_action_dispatch_accelerator) ;
   ZMW_AC(zmw_action_search) ;
   return("zmw_action_???") ;
+}
+
+const char *zmw_action_name_fct()
+{
+  return zmw_action_name_fct_(ZMW_ACTION) ;
 }
 
 const char *zmw_action_name_(Zmw_Subaction sa)
@@ -145,12 +150,24 @@ int zmw_event_in()
     ( 
       zmw.x >= ZMW_SIZE_ALLOCATED.x - ZMW_SIZE_PADDING_WIDTH
       && zmw.x
-      < ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_SIZE_PADDING_WIDTH
+       < ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_SIZE_PADDING_WIDTH
       && zmw.y >= ZMW_SIZE_ALLOCATED.y - ZMW_SIZE_PADDING_WIDTH
       && zmw.y
       < ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height + ZMW_SIZE_PADDING_WIDTH
      ) ;
 }
+
+/*
+ * The parent manage the focus of its children
+ */
+
+void zmw_focus(Zmw_Name *focus)
+{
+  ZMW_FOCUS = focus ;
+  ZMW_FOCUS->value = (void*) ( ZMW_FOCUS == zmw.focus ) ;
+}
+
+
 
 /*
  * Initialise a state after its allocation
@@ -162,8 +179,9 @@ void zmw_state_init(Zmw_State *s)
   s->u.children = NULL ;
   s->u.parent_to_child.window = NULL ;
   s->u.parent_to_child.gc = NULL ;
-  zmw_rectangle_void(&s->u.parent_to_child.clipping) ;
   s->u.menu_state = NULL ;
+  // Because zmw_swap_xy swap unitialized values and it bother valgrin
+  zmw_rectangle_void(&s->u.parent_to_child.clipping) ;
 }
 
 void zmw_state_push()
@@ -490,10 +508,12 @@ int zmw_action_compute_required_size()
       if ( zmw.event )
 	{
 	  /*
-	   * True if it is the window with the cursor
+	   * True if it is the window with the cursor.
+	   * Not yes its content.
+	   * It will be added in zmw_second_pass
 	   */
-	  ZMW_SIZE_EVENT_IN_CHILDREN = (*ZMW_WINDOW == zmw.window
-			       && zMw[-1].u.parent_to_child.window != ZMW_WINDOW
+	  ZMW_SIZE_EVENT_IN_CHILDREN |= (*ZMW_WINDOW == zmw.window
+			      && zMw[-1].u.parent_to_child.window != ZMW_WINDOW
 			       ) ;
 	  /*
 	   * Also true if one of the child contains the window with the cursor
@@ -533,10 +553,9 @@ int zmw_action_compute_required_size()
 }
 
 /*
- * The type must do :
- *   0 : Init
- *   1 : Compute allocated size for children and pre-drawing
- *   2 : Drawing
+ * This function is called when the allocated
+ * size for the current widget is known.
+ * It compute the required size for the children.
  */
 
 int zmw_action_first_pass()
@@ -559,25 +578,12 @@ int zmw_action_first_pass()
 	}
     }
   
+  ZMW_SIZE_EVENT_IN_RECTANGLE = zmw_event_in() ;
+  ZMW_SIZE_EVENT_IN_CHILDREN = ZMW_SIZE_EVENT_IN_RECTANGLE ;
+
   zmw_state_push() ;
   ZMW_ACTION = zmw_action_compute_required_size ;
   return(1) ;
-}
-
-void zmw_action_second_pass_()
-{
-  if ( zMw[-1].u.nb_of_children )
-    zMw[-1].u.children[ZMW_CHILD_NUMBER].event_in_rectangle
-      = ZMW_SIZE_EVENT_IN_RECTANGLE ;
-
-}
-	
-
-void zmw_action_second_pass()
-{
-  ZMW_SIZE_EVENT_IN_RECTANGLE = zmw_event_in() ;
-
-  zmw_action_second_pass_() ;  
 }
 
 static void zmw_debug_children(Zmw_State *z)
@@ -634,7 +640,6 @@ int zmw_action_draw()
       return(zmw_action_first_pass()) ;
 
     case 1:
-      zmw_action_second_pass() ;
       ZMW_SUBACTION = Zmw_Post_Drawing ;
 
       if ( (zmw.debug & Zmw_Debug_Draw_Cross)
@@ -685,104 +690,44 @@ int zmw_action_dispatch_accelerator()
 int zmw_action_dispatch_event()
 {
   ZMW_EXTERNAL_HANDLING ;
-
-  /* Commented 19/05/2004 but it was not a good idea.
-   * Decommented the 28/6/2004.
-   * The tree traversal must be stop on event handling.
-   * If it does not stop the data structures are not up to date.
+  /*
+   * Update child_activated of its parent
+   */
+  if ( !ZMW_WIDGET_TOP && (ZMW_SIZE_CHILD_ACTIVATED || ZMW_SIZE_ACTIVATED) )
+    {
+      ZMW_PARENT_SIZE.child_activated = Zmw_True;
+    }
+  /*
+   * Stop widget tree traversal if a widget has been activated.
+   * If it is not done, size in cache are no more valid.
+   * I think the tree traversal should be stoped, it has
+   * no more any meaning because size are incorrect.
    */
   if ( ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED )
     {
       zmw_event_remove() ;  
-    }  
-  /*
-   * Stop widget tree traversal if a widget has been activated.
-   * If it is not done, size in cache are no more valid
-   * I think the tree traversal should be stoped, it has
-   * no more any meaning because size are incorrect.
-   */
-  
+    }
   if ( zmw.event_removed )
     {
       ZMW_CALL_NUMBER++ ;
-
-      if ( !ZMW_WIDGET_TOP && ZMW_SIZE_ACTIVATED && zMw[-1].u.nb_of_children )
-	{
-	  ZMW_PARENT_SIZE.child_activated = Zmw_True;
-	}
-      return(0) ;
+      return 0 ;
     }
   
-
   switch ( ZMW_CALL_NUMBER++ )
     {
     case 0:
       ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
-      return(zmw_action_first_pass()) ;
+      return zmw_action_first_pass() ;
     case 1:
-      zmw_action_second_pass() ;
-
       ZMW_SUBACTION = Zmw_Input_Event ;
-      /*
-       * Event are computed for the window with the cursor : first
-       * Or the widget containing the window with the cursor : first
-       */
-      if ( !ZMW_WIDGET_TOP &&
-	   (ZMW_PARENT_SIZE.event_in_children
-           ? ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_CHILDREN )
-                || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_CHILDREN )
-                )
-           : ( ZMW_PARENT_SIZE.event_in_rectangle
-               && ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN_RECTANGLE )
-                    || ( zMw[-1].u.call_number == 3 && ZMW_SIZE_EVENT_IN_RECTANGLE )
-                    )
-               )
-           )
-	   )
-	{
-	  if ( ZMW_DEBUG )
-	    zmw_printf("Event in masked\n") ;
-	  ZMW_EVENT_IN_MASKED = Zmw_True ;
-	}
-      else
-	{
-	  if ( ZMW_DEBUG )
-	    zmw_printf("Event in not masked\n") ;
-	  ZMW_EVENT_IN_MASKED = Zmw_False ;
-	  zmw_state_push() ;
-	  return(1) ;
-	}
-      break ;
-
-    case 2:
-      if ( ZMW_SIZE_EVENT_IN_RECTANGLE && !ZMW_SIZE_ACTIVATED && !ZMW_SIZE_CHILD_ACTIVATED && !zmw.event_removed && !ZMW_SIZE_CHANGED )
-	{
-	  ZMW_SUBACTION = Zmw_Input_Event ;
-	  zmw_state_push() ;
-	  return(1) ;
-	}
-      break ;
+      zmw_state_push() ;
+      return 1 ;
     }
   /*
-   * So the event dispatching for ourself is terminated.
-   * We update the father with local information
-   */
-  if ( ZMW_SIZE_ACTIVATED )
-    {
-      zMw[-1].u.children[ZMW_CHILD_NUMBER].activated = Zmw_True;
-      ZMW_SIZE_CHILD_ACTIVATED = Zmw_True ;
-    }
-  
-  if ( !ZMW_WIDGET_TOP && ZMW_SIZE_CHILD_ACTIVATED && zMw[-1].u.nb_of_children )
-    {
-      ZMW_PARENT_SIZE.child_activated = Zmw_True;
-    }
-
-  /*
-   *
+   * Start widget debugging on Ctrl-F2 press
    */
   if ( zmw.event->type == GDK_KEY_PRESS
-       && ( zmw.event->key.state & 4 )
+       && ( zmw.event->key.state & GDK_CONTROL_MASK )
        &&  zmw.event->key.keyval == GDK_F2
        && ZMW_SIZE_EVENT_IN_RECTANGLE
        )
@@ -791,7 +736,7 @@ int zmw_action_dispatch_event()
       zmw_event_remove() ;
     }
 
-  return(0) ;
+  return 0 ;
 }
 
 
@@ -811,13 +756,13 @@ int zmw_action_search()
       return(zmw_action_first_pass()) ;
     case 1:
       ZMW_SUBACTION = Zmw_Nothing ;
-      zmw_action_second_pass() ;
       zmw_state_push() ;
       return(1) ;
     case 2:
       if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
 	{
 	  zmw_name_register(&zmw.found) ;
+	  zmw.focus = ZMW_FOCUS ;
 	}
       break ;
     }
@@ -842,7 +787,6 @@ int zmw_action_clean()
       return(zmw_action_first_pass()) ;
     case 1:
       ZMW_SUBACTION = Zmw_Clean ;
-      zmw_action_second_pass() ;
       zmw_state_push() ;
       return(1) ;
     }

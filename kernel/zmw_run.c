@@ -308,6 +308,17 @@ static void zmw_search(void (*fct)())
   zmw_call_widget(fct, zmw_action_search) ;
 }
 
+/*
+ * The search is needed before dispatching and event:
+ *    - Enter/Leave widgets
+ *    - Find the focu group
+ */
+static void zmw_dispatch_event(void (*fct)())
+{
+  zmw_search(fct) ;
+  zmw_call_widget(fct, zmw_action_dispatch_event) ;
+}
+
 static gboolean timeout(gpointer data)
 {
   gint x, y ;
@@ -512,10 +523,7 @@ void event_handler(GdkEvent *e, gpointer o)
       if ( ee && ee->type == GDK_MOTION_NOTIFY )
 	return ;
 
-      /* Needed by "cursor_leave" */
-      zmw_search(fct) ;
-
-      zmw_call_widget(fct, zmw_action_dispatch_event) ;
+      zmw_dispatch_event(fct) ;
 
       if ( e->motion.state != 0 )
 	zmw_need_repaint() ; /* for drag */
@@ -565,10 +573,7 @@ void event_handler(GdkEvent *e, gpointer o)
 		   ) ;
       zmw_unpop(e) ;
 
-      /* Needed by "cursor_leave" */
-      zmw_search(fct) ;
-
-      zmw_call_widget(fct, zmw_action_dispatch_event) ;
+      zmw_dispatch_event(fct) ;
       /* You always make repaint because a button release
        * may also change the display state : button press on
        * menu button and release on a menu item.
@@ -687,8 +692,8 @@ void zmw_run(void (*fct)())
   ZMW_CALL_NUMBER = 0 ;
   zmw_border_width(2) ;
   zmw_focus_width(2) ;
-  zmw_focus(&top_level_focus) ;
-  ZMW_EVENT_IN_FOCUS = 1 ;
+  ZMW_FOCUS = &top_level_focus ;
+  top_level_focus.value = (void*)Zmw_True ; // Always cursor in
   zmw_debug( !!(zmw.debug & Zmw_Debug_Widget) ) ;
   zmw_auto_resize(0) ;
   zmw_sensible(1) ;

@@ -142,7 +142,6 @@ Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
  if ( global_zmw_drag_drop
       && ZMW_SUBACTION == Zmw_Input_Event
       && zmw_name_is(&global_zmw_drag_from)
-      && !ZMW_EVENT_IN_MASKED
       )
     {
       /*
@@ -232,7 +231,6 @@ Zmw_Drag_To zmw_drag_to_state_compute()
 
   if ( ZMW_SUBACTION != Zmw_Input_Event
        || !zmw_name_registered(&global_zmw_drag_from)
-       || ZMW_EVENT_IN_MASKED
        )
     {
       zmw_drag_printf("zmw_drag_to_state_compute : Zmw_Drag_To_No_Change\n") ;

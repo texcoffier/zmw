@@ -309,10 +309,10 @@ void zmw_table_with_widths_and_selection(int nb_cols, int *col_width
 
       zmw_activable() ;
 
-
       if ( dragged >= 0 && zmw_button_released_anywhere() )
 	{
 	  dragged = -1 ;
+	  zmw_event_remove() ;
 	  break ;
 	}
 
