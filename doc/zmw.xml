@@ -47,7 +47,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.8)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.9)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -72,10 +72,16 @@
       the library from the C language there is no pointer.
     </para>
     <para>
+      A bad side effect is that the window drawing complexity
+      is $O(n log(n))$ in CPU time where $n$ is the number
+      of widgets.
+    </para>
+    <para>
       This library implementation is an usable prototype
       because the code is well tested. But,
-      <emphasis>future version of the library will not be compatible
-      with the current one</emphasis>.
+      future version of the library will not be compatible
+      with the current one because some functions will
+      be renamed.
     </para>
     <para>
       All the examples in this document are real running examples,
@@ -1474,7 +1480,9 @@
       <title>Menu</title>
 
       <para>
-	There is no menu widget as you can see in the previous example.
+	  There is no menu widget as you can see in the previous example.
+	  The functions returning a boolean should be used
+	  as a parameter of the <function>zmw_if</function> widget.
       </para>
 
       <variablelist>
@@ -1505,7 +1513,7 @@
 	  <term>
 	    <type>Zmw_Boolean</type>
 	    <function>zmw_window_is_popped</function>
-	    () ;
+	    (<type>void</type>) ;
 	  </term>
 	  <listitem>
 	    <para>
@@ -1521,7 +1529,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_window_popped_with_detached</function>
+	    <function>zmw_popped_with_detached</function>
 	    (<type>const int *</type><parameter>detached</parameter>) ;
 	  </term>
 	  <listitem>
@@ -1534,6 +1542,20 @@
 		<function>zmw_tearoff_with_detached</function>.
 		The window and tearoff widgets must use the same
 		<parameter>detached</parameter> value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_popped</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		As <function>zmw_popped_with_detached</function>
+		but the library take care of the detached value.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -2178,7 +2200,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_if</function>
+	    <function>zmw_if_with_accelerators</function>
 	    (<type>Zmw_Boolean</type> <parameter>visible</parameter>) ;
 	  </term>
 	  <listitem>
@@ -2188,6 +2210,26 @@
 	      The parameter can not change of value at any time.
 	      Only if <function>zmw_state_change_allowed()</function>
 	      is true.
+	      <emphasis>If <parameter>visible</parameter> is false
+		the children will be executed once in order
+		to find the accelerators</emphasis>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_if</function>
+	    (<type>Zmw_Boolean</type> <parameter>visible</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_if_with_accelerators</function>
+	      but the content is
+	      not executed if <parameter>visible</parameter> is false.
+	      It should be used when the content does not
+	      contains accelerators.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3067,7 +3109,8 @@
 	      It can use <function>zmw_drag_accept_get</function>(<type>void</type>) in order to know if the current widget under accept the drag or no.
 
 	      Beware, this function should only be used
-	      after a <function>zmw_drag_from_started</function>.
+	      after a <function>zmw_drag_from_started</function> or
+	      a <function>zmw_drag_from_stopped</function>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -4223,6 +4266,10 @@
 		Beware, if the trace is enabled, it displays
 		many lines of textual information that freeze X11.
 		So the output must be directed in a file.
+	      </para>
+	      <para>
+		The default value for the debug flag is not 0,
+		some running time checking are done.
 	      </para>
 	    </listitem>
 	  </varlistentry>

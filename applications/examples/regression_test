@@ -57,11 +57,14 @@ fi
 
 . ../utilities
 
-
-if [ ! -f ../xvfb.pid ]
+if [ ! -f ../xxx.xvfb.pid ]
 then
   echo "Xvfb must be running, so I start it"
-  ( cd .. ; make start_xvfb )
+  ( cd .. ; start_xvfb )
+  trap "pwd ; cd .. ; stop_xvfb" 0 1 2 # Stop X on exit
+  sleep 1
+else
+  trap "cd .. ; stop_xvfb" 1 # Stop X on ^C
 fi
 
 if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$NAME.c" >/dev/null
@@ -195,7 +198,7 @@ compare_all_images() {
 
 echo -n "$NAME"
 
-RETRIES="1 2 3 4 5 6 7"
+RETRIES="1 2 3 4 5 6 7 8 9 10"
 # RETRIES="1 2"
 
 
@@ -210,8 +213,7 @@ do
   then
     break
   else
-    stop_xvfb
-    start_xvfb
+    (cd .. ; stop_xvfb ; start_xvfb)
   fi
 done
 
@@ -221,15 +223,14 @@ then
   do
     ALL_RESULTS="ok"
     echo -n " {$N}"
-    make_dumps "" 2>xxx.logs
+    make_dumps ""
     echo -n "/"
     compare_all_images
     if [ "$ALL_RESULTS" = "ok" ]
     then
       break
     else
-      stop_xvfb
-      start_xvfb
+      (cd .. ; stop_xvfb ; start_xvfb)
     fi
   done
 fi
@@ -241,7 +242,6 @@ then
   echo "pass" >regteststatus
 else
   echo "fail" >regteststatus
-  ( cd .. ; make stop_xvfb start_xvfb )
 fi
 
 

@@ -157,167 +157,161 @@ void zmw_filechooser(Zmw_Boolean *visible
 	}
     }
 
-  if ( ! *visible )
-    return ;
-  /*
-   * Create current dir file name if NULL filename
-   */
-  if ( *filename == NULL )
+  if ( *visible )
     {
-      getcwd(buf, sizeof(buf)-2) ;
-      strcat(buf, "/") ;
-      *filename = strdup(buf) ;
-    }
-  /*
-   * If  current dir file name is relative, make it absolute
-   */
-  /*
-    if ( (*filename)[0] != '/' )
-    {
-    getcwd(buf, sizeof(buf)) ;
-    strcat(buf, "/") ;
-    strcat(buf, *filename) ;
-    *filename = strdup(buf) ;
-    }
-  */
-  /*
-   * Read directory content
-   */  
-  end_of_dir = -1 ;
-  for(i=0; (*filename)[i]; i++)
-    if ( (*filename)[i] == '/' )
-      end_of_dir = i ;
-
-  switch( end_of_dir )
-    {
-    case 0:
-      nb = scandir("/", &d, NULL, alphasort) ;
-      break ;
-    case -1:
-      nb = scandir(".", &d, NULL, alphasort) ;
-      break ;
-    default:
-      (*filename)[end_of_dir] = '\0' ;
-      nb = scandir(*filename, &d, NULL, alphasort) ;
-      (*filename)[end_of_dir] = '/' ;
-    }
-
-  err = errno ;
-  activated = Zmw_False ;
-
-  width = ZMW_ASKED.width ;
-  height = ZMW_ASKED.height ;
-
-  ZMW(zmw_window(title))
-    {
-      if ( height == ZMW_VALUE_UNDEFINED )
-	zmw_height(200) ;
-      else
-	zmw_height(height) ;
-      
-      if ( width == ZMW_VALUE_UNDEFINED )
-	zmw_width(200) ;
-      else
-	zmw_width(width) ;
-
-      ZMW(zmw_box_vertical())
+      /*
+       * Create current dir file name if NULL filename
+       */
+      if ( *filename == NULL )
 	{
-	  zmw_vertical_expand(Zmw_True) ;
-	  zmw_horizontal_expand(Zmw_True) ;
-	  ZMW(zmw_viewport_with_scrollbar(&x, &y))
+	  getcwd(buf, sizeof(buf)-2) ;
+	  strcat(buf, "/") ;
+	  *filename = strdup(buf) ;
+	}
+      /*
+       * Read directory content
+       */  
+      end_of_dir = -1 ;
+      for(i=0; (*filename)[i]; i++)
+	if ( (*filename)[i] == '/' )
+	  end_of_dir = i ;
+      
+      switch( end_of_dir )
+	{
+	case 0:
+	  nb = scandir("/", &d, NULL, alphasort) ;
+	  break ;
+	case -1:
+	  nb = scandir(".", &d, NULL, alphasort) ;
+	  break ;
+	default:
+	  (*filename)[end_of_dir] = '\0' ;
+	  nb = scandir(*filename, &d, NULL, alphasort) ;
+	  (*filename)[end_of_dir] = '/' ;
+	}
+      
+      err = errno ;
+      activated = Zmw_False ;
+      
+      width = ZMW_ASKED.width ;
+      height = ZMW_ASKED.height ;
+    }
+
+  ZMW( zmw_if( *visible ) )
+    {      
+      ZMW(zmw_window(title))
+	{
+	  if ( height == ZMW_VALUE_UNDEFINED )
+	    zmw_height(200) ;
+	  else
+	    zmw_height(height) ;
+	  
+	  if ( width == ZMW_VALUE_UNDEFINED )
+	    zmw_width(200) ;
+	  else
+	    zmw_width(width) ;
+	  
+	  ZMW(zmw_box_vertical())
 	    {
-	      ZMW(zmw_table(3))
+	      zmw_vertical_expand(Zmw_True) ;
+	      zmw_horizontal_expand(Zmw_True) ;
+	      ZMW(zmw_viewport_with_scrollbar(&x, &y))
 		{
-		  zmw_text("Type") ;
-		  zmw_text("Name") ;
-		  zmw_text("Size") ;
-		  for(i=0; i<nb; i++)
+		  ZMW(zmw_table(3))
 		    {
-		      if ( zmw_name_filtered(&(*filename)[end_of_dir+1],
-		      			     d[i]->d_name ) )
-			continue ;
-		      strncpy(buf, *filename, end_of_dir + 1) ;
-		      strcpy(buf + end_of_dir + 1, d[i]->d_name) ;
-		      zmw_file_info(buf, &type, &size) ;
-
-		      buf[0] = type ;
-		      buf[1] = '\0' ;
-		      zmw_text(buf) ;
-
-		      zmw_text(d[i]->d_name) ;
-		      if ( zmw_button_pressed() )
+		      zmw_text("Type") ;
+		      zmw_text("Name") ;
+		      zmw_text("Size") ;
+		      for(i=0; i<nb; i++)
 			{
-			  zmw_select_file(filename, d[i]->d_name, end_of_dir) ;
-			  zmw_event_remove() ;
-			  x = y = 0 ;
-			}
-		      if ( size >= 0 && type == 'f' )
-		    	{
-			  sprintf(buf, "%d", size) ;
+			  if ( zmw_name_filtered(&(*filename)[end_of_dir+1],
+						 d[i]->d_name ) )
+			    continue ;
+			  strncpy(buf, *filename, end_of_dir + 1) ;
+			  strcpy(buf + end_of_dir + 1, d[i]->d_name) ;
+			  zmw_file_info(buf, &type, &size) ;
+			  
+			  buf[0] = type ;
+			  buf[1] = '\0' ;
 			  zmw_text(buf) ;
-		    	}
-		      else
-		    	zmw_text("") ;
-			     
+			  
+			  zmw_text(d[i]->d_name) ;
+			  if ( zmw_button_pressed() )
+			    {
+			      zmw_select_file(filename, d[i]->d_name, end_of_dir) ;
+			      zmw_event_remove() ;
+			      x = y = 0 ;
+			    }
+			  if ( size >= 0 && type == 'f' )
+			    {
+			      sprintf(buf, "%d", size) ;
+			      zmw_text(buf) ;
+			    }
+			  else
+			    zmw_text("") ;
+			  
+			}
+		    }
+		}
+	      zmw_vertical_expand(0) ;
+	      zmw_text_editable(filename) ;
+	      if ( take_focus )
+		{
+		  zmw_name_register(ZMW_FOCUS) ;
+		  take_focus = Zmw_False ;
+		}
+	      /* XXX Not nice, but effective.
+	       * I don't know yet how to get keys
+	       * on not focused items.
+	       * (but not accelerators)
+	       */
+	      switch( (*filename)[strlen(*filename)-1] )
+		{
+		case '\n':
+		case '\r':
+		  activated = Zmw_True ;
+		case '\e':
+		  *visible = Zmw_False ;
+		  (*filename)[strlen(*filename)-1] = '\0' ;
+		  break ;
+		}
+	      
+	      if ( zmw_activated() )
+		{
+		  zmw_filename_normalize(filename) ;
+		  x = y = 0 ;
+		}
+	      
+	      if ( nb < 0 )
+		{
+		  zmw_text("Problem with the directory:") ;
+		  zmw_text( strerror(err) ) ;
+		}
+	      zmw_horizontal_alignment(0) ;
+	      ZMW(zmw_box_horizontal())
+		{	      
+		  zmw_button("Cancel") ;
+		  if ( zmw_activated() )
+		    *visible = Zmw_False ;
+		  zmw_button(message) ;
+		  if ( zmw_activated() )
+		    {
+		      activated = Zmw_True ;
+		      *visible = Zmw_False ;
 		    }
 		}
 	    }
-	  zmw_vertical_expand(0) ;
-	  zmw_text_editable(filename) ;
-	  if ( take_focus )
-	    {
-	      zmw_name_register(ZMW_FOCUS) ;
-	      take_focus = Zmw_False ;
-	    }
-	  /* XXX Not nice, but effective.
-	   * I don't know yet how to get keys
-	   * on not focused items.
-	   * (but not accelerators)
-	   */
-	  switch( (*filename)[strlen(*filename)-1] )
-	    {
-	    case '\n':
-	    case '\r':
-	      activated = Zmw_True ;
-	    case '\e':
-	      *visible = Zmw_False ;
-	      (*filename)[strlen(*filename)-1] = '\0' ;
-	      break ;
-	    }
-  
-	  if ( zmw_activated() )
-	    {
-	      zmw_filename_normalize(filename) ;
-	      x = y = 0 ;
-	    }
-
-	  if ( nb < 0 )
-	    {
-	      zmw_text("Problem with the directory:") ;
-	      zmw_text( strerror(err) ) ;
-	    }
-	  zmw_horizontal_alignment(0) ;
-	  ZMW(zmw_box_horizontal())
-	    {	      
-	      zmw_button("Cancel") ;
-	      if ( zmw_activated() )
-		*visible = Zmw_False ;
-	      zmw_button(message) ;
-	      if ( zmw_activated() )
-		{
-		  activated = Zmw_True ;
-		  *visible = Zmw_False ;
-		}
-	    }
 	}
+      if ( activated )
+	ZMW_SIZE_ACTIVATED = Zmw_True ;
     }
-  for(i=0; i<nb; i++)
-    free(d[i]) ;
-  if ( nb >= 0 )
-    free(d) ;
-
-  if ( activated )
-    ZMW_SIZE_ACTIVATED = Zmw_True ;
+  if ( *visible )
+    {
+      for(i=0; i<nb; i++)
+	free(d[i]) ;
+      if ( nb >= 0 )
+	free(d) ;
+    }
 }
 
 

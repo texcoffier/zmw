@@ -195,8 +195,10 @@ void zmw_message_char(char *visible,const char *title,const char *button_name);
  */
 void zmw_void(void) ;
 void zmw_if(Zmw_Boolean value) ;
+void zmw_if_with_accelerators(Zmw_Boolean visible) ;
 void zmw_tip(void) ;
 void zmw_popup(void) ;
+void zmw_popup_without_accelerators(void) ;
 void zmw_popup_with_detached(int *detached) ;
 /*
  * zmw_decorator.c

@@ -211,7 +211,10 @@ Zmw_Boolean zmw_activated()
   if( ZMW_SIZE_ACTIVATED
       && ( ZMW_ACTION == zmw_action_dispatch_event
 	   || ZMW_ACTION == zmw_action_dispatch_accelerator) )
-    return Zmw_True ;
+    {
+      zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
+      return Zmw_True ;
+    }
 
   if ( ZMW_SIZE_PASS_THROUGH )
     return zmw_activated_previous() ;
@@ -278,14 +281,27 @@ static Zmw_Name global_zmw_cursor = ZMW_NAME_UNREGISTERED("Cursor") ;
 
 Zmw_Boolean zmw_cursor_leave()
 {
+  if ( 0 )
+    zmw_printf("cursor_in %s %d %d %d %d %s/%d\n"
+	       , global_zmw_cursor.name
+	       , ZMW_SUBACTION == Zmw_Input_Event
+	       , zmw_name_contains(&global_zmw_cursor)
+	       , !ZMW_SIZE_EVENT_IN_RECTANGLE
+	       , !ZMW_EVENT_IN_MASKED
+	       , zmw_action_name_fct()+11
+	       , ZMW_CALL_NUMBER
+	       ) ;
+
   if( ZMW_SUBACTION == Zmw_Input_Event
-   	&& zmw_name_contains(&global_zmw_cursor)
-  	 && !ZMW_SIZE_EVENT_IN_RECTANGLE
-	&& !ZMW_EVENT_IN_MASKED  	 )
+      && zmw_name_contains(&global_zmw_cursor)
+      && !ZMW_SIZE_EVENT_IN_RECTANGLE
+      && !ZMW_EVENT_IN_MASKED
+      )
   	 {
-	   //	zmw_printf("leave %s\n", global_zmw_cursor.name) ;
-		//	zmw.need_dispatch = Zmw_True ;
-   	 	return( Zmw_True ) ;
+	   if ( 0 )
+	     zmw_printf("LEAVE!\n") ;
+	   //	zmw.need_dispatch = Zmw_True ;
+	   return( Zmw_True ) ;
   	 }
 
    return( Zmw_False ) ;
@@ -294,24 +310,32 @@ Zmw_Boolean zmw_cursor_leave()
  
 Zmw_Boolean zmw_cursor_enter()
 {
+  if ( 0 )
+    zmw_printf("cursor_in %s\n", global_zmw_cursor.name) ;
+  
   if( ZMW_SUBACTION == Zmw_Input_Event
-  	&& ZMW_SIZE_EVENT_IN_RECTANGLE
-	&& !ZMW_EVENT_IN_MASKED
-  	 && !zmw_name_contains(&global_zmw_cursor)
-  	 )
-  	 {
-	   //	zmw_printf("enter %s\n", zmw_name_full) ;
-  	 	return( Zmw_True ) ;
-  	 }
+      && ZMW_SIZE_EVENT_IN_RECTANGLE
+      && !ZMW_EVENT_IN_MASKED
+      && !zmw_name_contains(&global_zmw_cursor)
+      )
+    {
+      if ( 0 )
+	zmw_printf("ENTER!\n") ;
+      return( Zmw_True ) ;
+    }
 
    return( Zmw_False ) ;
 }
 
 void zmw_cursor_set(char *name)
 {
-  //	ZMW_HERE;
-		//	zmw_printf("name=%s\n", name) ;
-	zmw_name_register_with_name(&global_zmw_cursor, name) ;
+  if ( (name == NULL && global_zmw_cursor.name != NULL)
+       || (name != NULL && global_zmw_cursor.name == NULL)
+       || (name && global_zmw_cursor.name && strcmp(name, global_zmw_cursor.name))
+       )
+       zmw_need_repaint() ;
+
+  zmw_name_register_with_name(&global_zmw_cursor, name) ;
 }
 
 /*
@@ -324,20 +348,27 @@ void zmw_cursor_set(char *name)
  * If the user asks to see F, then E/F is visible
  */
 
+
+#define ZMW_PRINTF if (0) printf("%25s %25s/%d ", zmw_name_full, zmw_action_name_fct()+11, ZMW_CALL_NUMBER), printf
+
 void zmw_window_update_uppers(int action)
 {
   Zmw_State *s ;
+
+  action *= Zmw_Menu_State_New ;
   
   for(s=zMw-1; s >= zmw.zmw_table; s--)
     if ( s->u.menu_state )
       {
+	*s->u.menu_state |= action ;
+
 	/* If an upper menu is detached, no need to go upper
 	 * because it is yet done
 	 */
-	if ( *s->u.menu_state &  Zmw_Menu_Is_Detached )
+	if ( *s->u.menu_state & Zmw_Menu_Is_Detached )
 	  break ;
 	
-	*s->u.menu_state |= action ;
+	ZMW_PRINTF("Update %d\n", zMw - s) ;
       }
 }
 /*
@@ -346,9 +377,6 @@ void zmw_window_update_uppers(int action)
  */
 
 static Zmw_Name global_inner_visible_menu = ZMW_NAME_UNREGISTERED("Menu") ;
-static Zmw_Boolean global_do_not_make_the_unpop = Zmw_False ;
-
-#define ZMW_PRINTF if (0) zmw_printf
 
 Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
 {
@@ -366,6 +394,9 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
    * If a menu is called, a ressource is automaticaly created.
    * ZMW_MENU_STATE is never NULL after a call to this function.
    * This function is the only one to initialize ZMW_MENU_STATE
+   *
+   * Could be a better idea to store the state in ZMW_SIZE_MENU_STATE
+   * to not use resource system so much.
    */
   if ( ZMW_MENU_STATE == NULL )
     {
@@ -373,107 +404,121 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
 	ZMW_MENU_STATE= detached ;
       else
 	ZMW_MENU_STATE= zmw_name_get_pointer_on_int_resource("WindowDetached");
-
     }
-  /*
-   * The new state computation is only done when an event is received.
-   * If a new state is yet being computed, nothing is done.
-   * The only information copied from the old state to the
-   * new one is the detached state.
-   */
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
-    {
-      if ( ! (*ZMW_MENU_STATE & Zmw_Menu_State_Update) )
-	{
-	  *ZMW_MENU_STATE 
-	    &= Zmw_Menu_Is_Detached
-	    | Zmw_Menu_Is_Poped
-	    | Zmw_Menu_Contains_A_Detached ;
-	  *ZMW_MENU_STATE |= Zmw_Menu_State_Update ;
-	  if ( *ZMW_MENU_STATE & Zmw_Menu_Is_Detached )
-	    *ZMW_MENU_STATE |= Zmw_Menu_State_New * Zmw_Menu_Is_Detached ;
-
-	  global_do_not_make_the_unpop = Zmw_False ;
-	}
-    }
-  /*
-   * The new state replace the old one when not dispatching event
-   */
-  if ( ZMW_SUBACTION != Zmw_Input_Event )
-    {
-      if ( *ZMW_MENU_STATE & Zmw_Menu_State_Update )
-	{
-	  *ZMW_MENU_STATE /= Zmw_Menu_State_New ;
-	}
-    }
-  /*
-   * If the menu button was activated we do not
-   * want the unpop.
-   */
-  if ( zmw_activated_previous() )
-    {
-      ZMW_PRINTF("Registered by Activation %s\n", zmw_name_full) ;
-      zmw_name_register(&global_inner_visible_menu) ;
-      global_do_not_make_the_unpop = Zmw_True ;
-    }
-  /*
-   * This part modifies "inner_visible_menu" in order to make menu visible
-   * when the cursor is pressed in the previous widget (the button).
-   */
   zmw_widget_previous_is_tested() ;
 
-  if ( ZMW_ACTION == zmw_action_dispatch_event )
+  /*
+   * In some case, the event never come here because
+   * the widget tree traversal stopped (button press elsewhere)
+   * So you must unpop window if necessary in the very first
+   * stage of event dispatching : when computing sizes.
+   */
+  if ( ZMW_ACTION == zmw_action_compute_required_size
+       && ZMW_CALL_NUMBER == 1
+       && !zmw_name_contains(&global_inner_visible_menu)
+       && ! (*ZMW_MENU_STATE & (Zmw_Menu_Contains_A_Detached|Zmw_Menu_Is_Detached))
+       )
+    {
+      ZMW_PRINTF("Unpop before\n") ;
+      *ZMW_MENU_STATE &= ~Zmw_Menu_Is_Poped ;
+    }
+
+
+  if ( ZMW_SUBACTION == Zmw_Input_Event && !ZMW_EVENT_IN_MASKED )
     {
       /*
+       * It is here AFTER the event dispatch on children
+       */
+      action = 0 ;
+      /*
+       * Update state
+       */
+      ZMW_PRINTF("COMPUTE STATE current=%d\n", *ZMW_MENU_STATE) ;
+      *ZMW_MENU_STATE = *ZMW_MENU_STATE/Zmw_Menu_State_New
+	| (*ZMW_MENU_STATE & Zmw_Menu_Is_Detached);
+      ZMW_PRINTF("COMPUTE STATE new=%d\n", *ZMW_MENU_STATE) ;
+      /*
+       * Need to be made only once for all widget.
+       * This should not be here.
+       */
+      if ( zmw.button_pressed
+	   && zmw_name_registered(&global_inner_visible_menu))
+	{
+	  zmw_use_window_from_button_press(Zmw_False) ;
+	}
+      /*
+       *
+       */
+      if ( *ZMW_MENU_STATE & Zmw_Menu_Is_Detached )
+	{
+	  ZMW_PRINTF("I am detached\n") ;
+	  action = Zmw_Menu_Contains_A_Detached ;
+	  zmw_window_update_uppers(action) ;
+	}
+      /*
+       *
+       */
+      if ( zmw_name_is(&global_inner_visible_menu) )
+	{
+	  ZMW_PRINTF("poped\n") ;
+	  action = Zmw_Menu_Is_Poped ;
+	}
+      /*
+       *
+       */
+      if ( action )
+	{
+	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
+	  zmw_window_update_uppers(action) ;
+	}
+      else
+	if ( !zmw_name_contains(&global_inner_visible_menu))
+	  {
+	    *ZMW_MENU_STATE &= ~Zmw_Menu_Is_Poped ;
+	  }
+    }
+
+  if ( ZMW_ACTION == zmw_action_dispatch_event && ZMW_SUBACTION == Zmw_Init)
+    {
+      /*
+       * It is here BEFORE the event dispatch on children
+       */
+      /*
+       *
+       */
+      if ( *ZMW_MENU_STATE & Zmw_Menu_Is_Detached )
+	{
+	  ZMW_PRINTF("I am detached\n") ;
+	  action = Zmw_Menu_Contains_A_Detached ;
+	  zmw_window_update_uppers(action) ;
+	}
+      /*
+       * If the menu button was activated we do not
+       * want the unpop.
+       */
+      if ( zmw_activated_previous() )
+	{
+	  ZMW_PRINTF("Registered by Activation\n") ;
+	  zmw_name_register(&global_inner_visible_menu) ;
+	  action = Zmw_Menu_Is_Poped ;
+	  zmw_window_update_uppers(action) ;
+	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
+	}
+      /*
        * The inner visible menu is modified when the cursor
-       * is on a button making it appear.
+       * is over a button making it appear.
        */
       if ( zmw_event_in_rectangle_previous() && zmw.button_pressed )
-	{	    
-	  ZMW_PRINTF("Register %s\n", zmw_name_full) ;
+	{
+	  ZMW_PRINTF("Register\n") ;
 	  zmw_name_register(&global_inner_visible_menu) ;
-	  return 0 ; // No dispatch event on content
+	  action = Zmw_Menu_Is_Poped ;
+	  zmw_window_update_uppers(action) ;
+	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
 	}
     }
-  if ( zmw.button_pressed && zmw_name_registered(&global_inner_visible_menu))
-    zmw_use_window_from_button_press(Zmw_False) ;
 
-  
-
-
-  if ( !zmw_name_registered(&global_inner_visible_menu) )
-    {
-      if ( *ZMW_MENU_STATE & ((1+Zmw_Menu_State_New) * Zmw_Menu_Is_Poped) )
-	ZMW_PRINTF("Unpop here : %s\n", zmw_name_full) ;
-
-      *ZMW_MENU_STATE &= ~((1+Zmw_Menu_State_New) * Zmw_Menu_Is_Poped) ;
-    }
-  else
-    if ( zmw_name_is(&global_inner_visible_menu) )
-      {
-	*ZMW_MENU_STATE |= (1+Zmw_Menu_State_New) * Zmw_Menu_Is_Poped ;
-      }
-
-  /*
-   * If the current menu will be visible, it says to upper
-   * menu that fact. So they will continue recursion next time.
-   * If current menu is poped the upper also should.
-   */
-  if ( /* ZMW_SUBACTION == Zmw_Input_Event && */
-      ((*ZMW_MENU_STATE)
-	& (1+Zmw_Menu_State_New)*( Zmw_Menu_Is_Poped | Zmw_Menu_Is_Detached ))
-       /*   && zmw.zmw_table[1].i.action == zmw_action_dispatch_event */ )
-    {
-      /* Upper menus are popped only if the current is not detached */
-      if ( (*ZMW_MENU_STATE / Zmw_Menu_State_New) & Zmw_Menu_Is_Poped )
-	action = Zmw_Menu_Is_Poped * (1+Zmw_Menu_State_New) ;
-      else
-	action = Zmw_Menu_Contains_A_Detached * (1+Zmw_Menu_State_New) ;
-
-      zmw_window_update_uppers(action) ;
-    }
-
-  visible =  *ZMW_MENU_STATE & ( Zmw_Menu_Is_Poped | Zmw_Menu_Is_Detached ) ;
+  visible = *ZMW_MENU_STATE & ( Zmw_Menu_Is_Poped | Zmw_Menu_Is_Detached ) ;
 
   continue_recursion = visible
     || ZMW_SIZE_EVENT_IN_CHILDREN
@@ -484,7 +529,10 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
       ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_True ;
     }
 
-  // zmw_use_window_from_button_press(Zmw_False) ;
+  ZMW_PRINTF("v=%d c=%d p=%d %s\n"
+	     , visible, continue_recursion,zmw_event_in_rectangle_previous()
+	     , zmw_name_is(&global_inner_visible_menu) ? "***" : ""
+	     ) ;
 
   return continue_recursion ;
 }
@@ -496,15 +544,11 @@ Zmw_Boolean zmw_window_is_popped()
 
 void zmw_window_unpop_all()
 {
-  ZMW_PRINTF("try unpop %s\n", global_inner_visible_menu.name) ;
-  if ( global_do_not_make_the_unpop )
-    {
-      global_do_not_make_the_unpop = Zmw_False ;
-      return ;
-    }
-  ZMW_PRINTF("Unpop %s\n", global_inner_visible_menu.name) ;
+  ZMW_PRINTF("Unpop all\n") ;
+
   if ( zmw_name_registered(&global_inner_visible_menu) )
     {
+      ZMW_PRINTF("Unpop all YES %s\n", global_inner_visible_menu.name) ;
       zmw_name_unregister(&global_inner_visible_menu) ;
       zmw_need_repaint() ;
     }
@@ -545,11 +589,10 @@ void zmw_focus_remove()
  */
 void zmw_event_remove()
 {	
-   if ( zmw.debug & Zmw_Debug_Event )
-	   zmw_printf("**** EVENT **** REMOVE of %s\n", zmw_name_full) ;
-	
-     zmw.remove_event = Zmw_True ;
-  // zmw.event->type = GDK_NOTHING ;
+  if ( zmw.debug & Zmw_Debug_Event )
+    zmw_printf("**** EVENT **** REMOVE of %s\n", zmw_name_full) ;
+  
+  zmw.event_removed = Zmw_True ;
 }
 /*
  * If your zmw can have the focus, call this function
@@ -670,11 +713,15 @@ Zmw_Boolean zmw_accelerator(GdkModifierType state, int character)
 
 
 /*
+ * This function should be used as a ZMW() parameter.
+ * "tip_displayed" is the name of the "zmw_if(zmw_tip_visible())"
  *
+ * If there is two tips on the same widget the second one
+ * must search what the first one has done.
  */
 Zmw_Boolean zmw_tip_visible()
 {
-  int v ;
+  int v, i ;
 
   v = 0 ;
 
@@ -686,7 +733,7 @@ Zmw_Boolean zmw_tip_visible()
   
    if ( zmw.zmw_table[1].i.action == zmw_action_search )
     {
-    	/* Set tip on the inner most widget containing "found" */
+    	/* Set tip on the first inner most widget containing "found" */
       if ( ! zmw_name_registered(&zmw.tip_displayed) )
 	{
 	  if ( zmw_event_in_rectangle_previous() )
@@ -699,7 +746,23 @@ Zmw_Boolean zmw_tip_visible()
     {
       if ( zmw.tips_yet_displayed && zmw_name_registered(&zmw.tip_displayed) )
 	{
-	  v = zmw_name_pass_through_is(&zmw.tip_displayed) ;
+	  if ( zmw_name_is(&zmw.tip_displayed) )
+	    {
+	      v = ZMW_SIZE_TIP_VISIBLE = Zmw_True ;
+	    }
+	  else
+	    {
+	      /* Search another tip before */
+	      for(i = ZMW_CHILD_NUMBER - 1 ;
+		  i>0 && zMw[-1].u.children[i].pass_through ; i--)
+		{
+		  if ( zMw[-1].u.children[i].tip_visible )
+		    {
+		      v = Zmw_True ;
+		      break ;
+		    }
+		}
+	    }
 	}
     }
 
@@ -717,8 +780,11 @@ Zmw_Boolean zmw_tip_visible()
 void zmw_event_debug_window()
 {
   static int display_zmw = 0 ;
+  char *found ;
   char buf[9999] ;
   
+  found = zmw_name_registered(&zmw.found) ;
+
   ZMW(zmw_box_vertical())
     {
       zmw_toggle_int_with_label(&display_zmw, "zmw") ;
@@ -771,16 +837,10 @@ void zmw_event_debug_window()
 	  sprintf(buf, "zmw.still_yet_displayed = %d",zmw.still_yet_displayed);
 	  zmw_text(buf) ;
 
-	  if ( zmw_name_registered(&global_zmw_selected) )
-	    {
-	      sprintf(buf, "SELECTED=%s", zmw_name_registered(&global_zmw_selected)) ;
-	      zmw_text(buf) ;
-	    }
-	  if ( zmw_name_registered(&zmw.found) )
-	    {
-	      sprintf(buf, "FOUND=%s", zmw_name_registered(&zmw.found)) ;
-	      zmw_text(buf) ;
-	    }
+	  sprintf(buf,"SELECTED=%s",zmw_name_registered(&global_zmw_selected));
+	  zmw_text(buf) ;
+	  sprintf(buf, "FOUND=%s", found) ;
+	  zmw_text(buf) ;
 	}
     }
   zmw_border_embossed_in_draw() ;

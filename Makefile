@@ -1,5 +1,5 @@
 
-default:verify_config TAGS dep lib # run_tests
+default:verify_config TAGS dep lib exe # run_tests
 
 test::lib
 
@@ -95,12 +95,17 @@ nightly_release:regteststatus makefile_clean clean
 	     "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
 	then \
 	echo "Create a nightly release" ; \
-	F=`date '+WIDGET_%Y_%m_%d'` ; $(CREATE_TGZ) $$F >../$$F.tar.gz ; \
+	F=`date '+WIDGET-%Y-%m-%d'` ; $(CREATE_TGZ) $$F >../$$F.tar.gz ; \
 	rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
 	cp ../$$F.tar.gz /home/exco/public_html/ZMW ; \
 	sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
 	fi
 
+##############################################################################
+# Run benchmark
+##############################################################################
+benchmarks:
+	cd applications/benchmarks ; $(MAKE)
 ##############################################################################
 # Create a new release
 ##############################################################################
@@ -118,13 +123,23 @@ new_release:makefile_clean clean
 
 ##############################################################################
 # Goals to execute each night
+# Dependencies are not used because "clean" is called twice
 ##############################################################################
 
-nightjob:clean default test nightly_release default doc
+nightjob:
+	date ; echo "Fresh compile"
+	$(MAKE) clean default
+	date ; echo "Make testing and creates a tar file if there is no error"
+	$(MAKE) nightly_release
+	date ; echo "Run benchmarks (recompile without debug options)"
+	$(MAKE) benchmarks
+	date ; echo "Fresh compile and process documentation"
+	$(MAKE) clean default doc
+	date ; echo "End of night job"
 
 # Remove ``normal'' messages from log
 nightfilter:
-	(date ; make nightjob 2>&1 ; date) | \
+	(make nightjob 2>&1) | \
 	      grep -v -e 'Dump' -e 'Clean' -e 'Using ' -e '[a-z0-9]* [[]1].*[0-9]$$' -e 'Compiling' -e 'Link' -e '^Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0' -e '^WIDGET_200'
 
 night:
@@ -135,7 +150,7 @@ night:
 ##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.7" ; NEW="0.0.8" ; \
+	OLD="0.0.8" ; NEW="0.0.9" ; \
 	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
@@ -160,7 +175,7 @@ diff:
 		--exclude="xxx*" \
 		--exclude="regteststatus" \
 		--exclude="#*" \
-		../zmw-0.0.7 .
+		../zmw-0.0.8 .
 ##############################################################################
 # Search unused functions
 ##############################################################################

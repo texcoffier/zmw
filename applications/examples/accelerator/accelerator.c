@@ -92,7 +92,6 @@ zmw_dump_screen 13
 zmw_key_release $KEY_META
 zmw_key_release $KEY_CONTROL
 
-
 zmw_small_restore
 
 REGRESSION TEST */

@@ -148,8 +148,12 @@ void table_header(Library_GUI *gui)
 	    }
 	  zmw_drag_swap((int*)&gui->prefs.cols[i].order, &current) ;
 	  ZMW( zmw_if( zmw_drag_from_running() ) )
-	    ZMW(zmw_window_drag())
-	    zmw_text(_(gui->prefs.cols[current ? *current : 0].id)) ;
+	    {
+	      ZMW(zmw_window_drag())
+		{
+		  zmw_text(_(gui->prefs.cols[current ? *current : 0].id)) ;
+		}
+	    }
 	}
     }
 

@@ -25,28 +25,28 @@ void zmw_alert(char **message)
 {
   int ar ;
 
-  if ( !*message )
-    return ;
-
-  ar = ZMW_AUTO_RESIZE ;
-  zmw_auto_resize(1) ;
-  ZMW(zmw_window("Alert"))
+  ZMW( zmw_if( *message != NULL) )
     {
-      ZMW(zmw_box_vertical())
+      ar = ZMW_AUTO_RESIZE ;
+      zmw_auto_resize(1) ;
+      ZMW(zmw_window("Alert"))
 	{
-	  zmw_text("Error message of the application") ;
-	  ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
+	  ZMW(zmw_box_vertical())
 	    {
-	      zmw_text(*message) ;
+	      zmw_text("Error message of the application") ;
+	      ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
+		{
+		  zmw_text(*message) ;
+		}
+	      zmw_horizontal_alignment(0) ;
+	      zmw_horizontal_expand(0) ;
+	      zmw_button("OK") ;
+	      if ( zmw_activated() )
+		*message = NULL ;
 	    }
-	  zmw_horizontal_alignment(0) ;
-	  zmw_horizontal_expand(0) ;
-	  zmw_button("OK") ;
-	  if ( zmw_activated() )
-	    *message = NULL ;
 	}
+      ZMW_AUTO_RESIZE = ar ;
     }
-  ZMW_AUTO_RESIZE = ar ;
 }
 
 

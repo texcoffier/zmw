@@ -26,19 +26,6 @@
 typedef enum { Zmw_Popup_None, Zmw_Popup_Right, Zmw_Popup_Bottom } Zmw_Popup ;
 
 /*
- * This function is called from "zmw.c/zmw_action_do_no_enter"
- * This could be considered as a current state from parent to child
- * but not between siblings.
- */
-
-void zmw_window_restore()
-{
-  ZMW_WINDOW = zMw[-1].i.window ; /* Restore window */
-  ZMW_GC = zMw[-1].i.gc ; /* Restore GC */
-  ZMW_CLIPPING = zMw[-1].i.clipping ;
-}
-
-/*
  * This function is not called on the first pass.
  * A window contains only ONE zmw.
  * So we can use zMw[1] without problems.
@@ -150,8 +137,12 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
 
       /* If the cursor is in a popped window, the window shouldstay popped */
-      if ( pop && !zmw_window_is_detached() && zmw.event && *ZMW_WINDOW == zmw.event->any.window )
-	zmw_window_update_uppers(Zmw_Menu_Is_Poped * (1+Zmw_Menu_State_New)) ;
+      if ( pop
+	   && !zmw_window_is_detached()
+	   && zmw.event
+	   && *ZMW_WINDOW == zmw.event->any.window
+	   )
+	zmw_window_update_uppers(Zmw_Menu_Is_Poped) ;
 
 
       /* Here because top level widgets are called only once */
@@ -192,11 +183,11 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       zmw_draw_rectangle(Zmw_Color_Background_Normal, Zmw_True,
 			 0,0,9999,9999) ;
       
-      if ( pop && zMw[-1].i.window
+      if ( pop && zMw[-1].u.parent_to_child.window
 	   && gdk_window_get_type(*ZMW_WINDOW) == GDK_WINDOW_TEMP
 	   && !follow_mouse )
 	{
-	  gdk_window_get_origin(*zMw[-1].i.window, &x, &y) ;
+	  gdk_window_get_origin(*zMw[-1].u.parent_to_child.window, &x, &y) ;
 	  s = zmw_widget_previous_size() ;
 	  gdk_window_move(*ZMW_WINDOW
 			  , x
@@ -261,7 +252,7 @@ Zmw_Boolean zmw_window_is_detached()
   /*
    * Search a state up
    */
-  for(s=zMw; s >= zmw.zmw_table; s--)
+  for(s=zMw-1; s >= zmw.zmw_table; s--)
     {
       if ( s->u.menu_state )
 	{
@@ -282,8 +273,23 @@ void zmw_window_detached_toggle()
   for(s=zMw; s >= zmw.zmw_table; s--)
       if ( s->u.menu_state )
 	{
-	  *s->u.menu_state ^= Zmw_Menu_Is_Detached * Zmw_Menu_State_New ;
 	  *s->u.menu_state ^= Zmw_Menu_Is_Detached ;
+
+	  if ( *s->u.menu_state & Zmw_Menu_Is_Detached )
+	    {
+	      // Just detached : unpop all
+	      zmw_window_unpop_all() ;
+
+	      while( --s >= zmw.zmw_table )
+		if ( s->u.menu_state )
+		  *s->u.menu_state &= ~(Zmw_Menu_Is_Poped*(1+Zmw_Menu_State_New)) ;
+	    }
+	  else
+	    {
+	      // Just attached : 
+	      if ( *s->u.menu_state & Zmw_Menu_Contains_A_Detached )
+		zmw_window_update_uppers(Zmw_Menu_Contains_A_Detached) ;
+	    }
 	  break ;
 	}
 }

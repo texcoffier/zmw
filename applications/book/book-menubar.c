@@ -271,9 +271,6 @@ void semantic_len(Library_GUI *gui)
   zmw_button("SL") ;
   ZMW( zmw_if(stop == 0 && zmw_window_is_popped()) )
     {
-      if ( stop )
-	continue ;
-
       stop = 1 ;
 
       set_language("C") ;

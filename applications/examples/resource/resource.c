@@ -4,10 +4,18 @@
 void text_with_width(char *text, int *width)
 {
   // Set width to a correct value if it is a NULL pointer
-  // It is also possible to use "zmw_resource_pointer_get"
-  zmw_resource_int_get(&width, "TextWidth", 100 /* Default */) ;
 
-  ZMW(zmw_box_horizontal())
+  // If the call to "zmw_resource_int_get" is made before ZMW.
+  // The resource is taken from the previous widget if there is one
+  // or from  "parent_name/." if it is the first.
+  // The code (more readable, but not intuitive) is :
+  //
+  // zmw_resource_int_get(&width, "TextWidth", 100 /* Default */) ;
+  // ZMW(zmw_box_horizontal())
+  //    {
+  //
+  ZMW((zmw_resource_int_get(&width, "TextWidth", 100 /* Default */),
+       zmw_box_horizontal()))
     {
       zmw_horizontal_expand(Zmw_False) ;
 

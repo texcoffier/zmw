@@ -86,6 +86,8 @@ enum zmw_boolean { Zmw_False, Zmw_True } ;
 
 typedef float Zmw_Float_0_1 ; /* float number between 0 and 1 included */
 
+typedef unsigned int Zmw_Hash ;
+
 typedef struct zmw_rectangle
 {
   int x, y, width, height ;
@@ -95,10 +97,11 @@ typedef struct zmw_rectangle
 typedef struct zmw_name
 {
   char *name ;
-  int index ;
   const char *why ;
   void *value ;
+  Zmw_Hash hash ;
   Zmw_Name_Type type ;
+  struct zmw_name *next ;	// Collision in the hash table
 } Zmw_Name ;
 
 typedef struct zmw_size
@@ -106,7 +109,7 @@ typedef struct zmw_size
   Zmw_Rectangle min ;		// Size needed for correct display
   Zmw_Rectangle required ;	// It is : needed overrided by asked
   Zmw_Rectangle allocated ;   // Size usable (_padded less padding)
-  int index ;
+  Zmw_Hash hash ;
   Zmw_Boolean used_to_compute_parent_size ;
   Zmw_Boolean event_in_rectangle ;
   Zmw_Boolean event_in_children ;
@@ -117,6 +120,7 @@ typedef struct zmw_size
   Zmw_Boolean activated ;
   Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean changed ;	        /* True if the widget has changed */
+  Zmw_Boolean tip_visible ;	/* True if it is a displayed tip */
   Zmw_Boolean horizontal_expand ;
   Zmw_Boolean vertical_expand ;
   /*
@@ -150,12 +154,8 @@ typedef struct zmw_stackable_inheritable
   Zmw_Name *focus ;
   int colors[Zmw_Color_Last] ;
   GdkFont *font ;
-  GdkWindow **window ;
-  GdkGC *gc ;
-  Zmw_Rectangle clipping ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
-  int index ;
   /*
    * These values should not be inherited
    * But If it is not the case the "focus" is broken
@@ -183,6 +183,19 @@ typedef struct zmw_stackable_uninheritable
   Zmw_Subaction subaction ;	/* The action to process in the widget */
   int *menu_state ;		/* For zmw_window_is_popped_with_detached */
   int child_number ;            /* 0 if the first child, 1 the second, ... */
+  Zmw_Size *size ;		/* Fast access to size (-10% lib size) */
+  /*
+   * These values are inherited from parent to child.
+   * But each time a widget is initialised, the value
+   * is retrieved from the parent.
+   * So there is no propagation of value change between siblings 
+   */
+  struct
+  {
+    GdkWindow **window ;
+    GdkGC *gc ;
+    Zmw_Rectangle clipping ;
+  } parent_to_child ;
 } Zmw_Stackable_Uninheritable ;
 
 typedef struct zmw_state
@@ -211,7 +224,8 @@ typedef struct zmw
    * It is a pointer in zmw_table.
    */
   Zmw_State *ptr ;
-  Zmw_State zmw_table[ZMW_MAX_DEPTH] ;
+  int zmw_table_depth ;
+  Zmw_State *zmw_table ;
 
   /*
    * These values apply to the widget in which we are
@@ -221,12 +235,10 @@ typedef struct zmw
    * These values apply to the next widget and the other after that
    */
   int debug ;			        // Library Debug flags Zmw_Debug_...
-  int index_last ;		/* Last value used as widget index */
   /*
    * These values apply only once and are reseted
    */
   Zmw_Boolean external_do_not_make_init ; // For EXTERNAL
-  Zmw_Boolean remove_event ;    /* Remove event before entering next widget */
   /*
    * These values apply to the last widget (can't be used before first kid)
    */
@@ -261,8 +273,6 @@ extern Zmw zmw ;
 
 #define zMw zmw.ptr
 
-#define ZMW_INDEX                     	(zMw->i.index                        )
-#define ZMW_WINDOW                    	(zMw->i.window                       )
 #define ZMW_ACTION                    	(zMw->i.action                       )
 #define ZMW_DEBUG                     	(zMw->i.debug                        )
 #define ZMW_BORDER_WIDTH              	(zMw->i.border_width                 )
@@ -274,9 +284,8 @@ extern Zmw zmw ;
 #define ZMW_EVENT                     	(zMw->i.event                        )
 #define ZMW_FONT                      	(zMw->i.font                         )
 #define ZMW_COLORS                    	(zMw->i.colors                       )
-#define ZMW_GC                        	(zMw->i.gc                           )
-#define ZMW_CLIPPING                  	(zMw->i.clipping                     )
 #define ZMW_EVENT_IN_MASKED           	(zMw->i.event_in_masked              )
+
 									     
 #define ZMW_CALL_NUMBER               	(zMw->u.call_number                  )
 #define ZMW_NAME                      	(zMw->u.name                         )
@@ -294,8 +303,12 @@ extern Zmw zmw ;
 #define ZMW_SUBACTION                 	(zMw->u.subaction                    )
 #define ZMW_MENU_STATE                	(zMw->u.menu_state                   )
 #define ZMW_CHILD_NUMBER              	(zMw->u.child_number                 )
+#define ZMW_WINDOW                    	(zMw->u.parent_to_child.window       )
+#define ZMW_GC                        	(zMw->u.parent_to_child.gc           )
+#define ZMW_CLIPPING                  	(zMw->u.parent_to_child.clipping     )
 
-#define ZMW_SIZE                      	(zMw[-1].u.children[ZMW_CHILD_NUMBER])
+#define ZMW_SIZE_OF(Z)  ((Z)[-1].u.children[(Z)->u.child_number])
+#define ZMW_SIZE                      	(*zMw->u.size)
 #define ZMW_SIZE_CS                   	(ZMW_SIZE.current_state              )
 
 #define ZMW_SIZE_INVISIBLE            	(ZMW_SIZE.invisible                  )
@@ -310,7 +323,8 @@ extern Zmw zmw ;
 #define ZMW_SIZE_ACTIVATED            	(ZMW_SIZE.activated                  )
 #define ZMW_SIZE_CHILD_ACTIVATED      	(ZMW_SIZE.child_activated            )
 #define ZMW_SIZE_CHANGED              	(ZMW_SIZE.changed                    )
-#define ZMW_SIZE_INDEX                	(ZMW_SIZE.index                      )
+#define ZMW_SIZE_TIP_VISIBLE           	(ZMW_SIZE.tip_visible                )
+#define ZMW_SIZE_HASH                	(ZMW_SIZE.hash                       )
 #define ZMW_SIZE_DO_NOT_MAP_WINDOW    	(ZMW_SIZE.do_not_map_window          )
 #define ZMW_USED_TO_COMPUTE_PARENT_SIZE (ZMW_SIZE.used_to_compute_parent_size)
 #define ZMW_SIZE_HORIZONTAL_EXPAND    	(ZMW_SIZE.horizontal_expand          )
@@ -328,7 +342,6 @@ extern Zmw zmw ;
 #define ZMW_CHILD_REQUIRED_PADDED_TOP(I) (ZMW_CHILDREN[I].required.y + ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].current_state.padding_width)
 
 
-#define ZMW_SIZE_OF(Z)  ((Z)[-1].u.children[(Z)->u.child_number])
 #define ZMW_PARENT_SIZE  ZMW_SIZE_OF(zMw-1)
 #define ZMW_WIDGET_TOP (zMw <= &zmw.zmw_table[1])
 
@@ -382,8 +395,8 @@ void zmw_font_free(void) ;
 #define ZMW_STORE_WIDGET_TYPE(TYPE)
 #endif
 
-#define ZMW(TYPE) for(ZMW_STORE_WIDGET_TYPE(TYPE) zmw_init_widget(); \
-                      ZMW_GO_INSIDE zmw_debug_in_zmw_loop(),(TYPE),ZMW_GO_OUTSIDE (*ZMW_ACTION)() ; \
+#define ZMW(TYPE) for(ZMW_STORE_WIDGET_TYPE(TYPE) zmw_init_widget(),zmw_debug_in_zmw_loop(-1); \
+                      ZMW_GO_INSIDE zmw_debug_in_zmw_loop(0),(TYPE),zmw_debug_in_zmw_loop(1),ZMW_GO_OUTSIDE (*ZMW_ACTION)() ; \
                       zmw_state_pop())
 
 /*
@@ -472,7 +485,9 @@ int zmw_printf(const char *format, ...) ;
 const char *zmw_action_name(void) ;
 const char *zmw_action_name_fct(void) ;
 void zmw_name(const char *s) ;
+void zmw_state_init(Zmw_State *s) ; /* Used only by zmw_run.c */
 void zmw_state_pop(void) ;
+Zmw_Hash zmw_hash(Zmw_Hash, const char*) ;
 Zmw_Size* zmw_widget_previous_size(void) ;
 void zmw_state_push(void) ;
 void zmw_init_widget(void) ;
@@ -486,24 +501,15 @@ int zmw_action_dispatch_accelerator(void) ;
 int zmw_action_first_pass(void) ;
 int zmw_action_clean(void) ;
 void zmw_action_second_pass(void) ;
-void zmw_action_do_not_enter(void) ;
 void zmw_debug_trace(void) ;
 void zmw_stack_print(void) ;
-void zmw_index_print(void) ;
-void zmw_restore_previous_widget_state() ;
-void zmw_restore_current_widget_state() ;
 int zmw_event_in(void) ;
 
 
-static inline int zmw_debug_in_zmw_loop()
+static inline int zmw_debug_in_zmw_loop(int i)
 {
-  if ( zmw.debug & Zmw_Debug_Trace )
+  if ( i==0 && (zmw.debug & Zmw_Debug_Trace) )
     zmw_debug_trace() ;
-  if ( 0 )
-    {
-      zmw_stack_print() ;
-      exit(1) ;
-    }
   return 0 ;
 }
 
@@ -512,9 +518,7 @@ static inline int zmw_debug_in_zmw_loop()
 /*
  * zmw_name.c
  */
-void zmw_name_init(void) ;
 void zmw_name_free(void) ;
-void zmw_name_update(void) ;
 void zmw_name_debug_window(void) ;
 void zmw_name_register(Zmw_Name *n) ;
 void zmw_name_register_with_name(Zmw_Name *n, const char *name) ;
@@ -534,7 +538,6 @@ void zmw_name_set_value_pointer_with_name(const char *name, const char *why, voi
 void zmw_name_set_value_int_with_name(const char *name, const char *why, int value) ;
 void zmw_name_dump(FILE *f) ;
 Zmw_Boolean zmw_name_is(const Zmw_Name *n) ;
-Zmw_Boolean zmw_name_pass_through_is(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_contains(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_is_inside(const Zmw_Name *n) ;
 
@@ -548,13 +551,14 @@ void zmw_resource_pointer_get(void **pointer_value, const char *resource
 
 #define zmw_name_registered(N) ( (N)->name )
 
-#define ZMW_NAME_UNREGISTERED(N) {NULL, 0, N}
+#define ZMW_NAME_UNREGISTERED(N) {NULL, N}
 
 /*
  * zmw_size.c
  */
 /* void zmw_compute_box_size(int allocated) ; */
 Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
+void zmw_rectangle_void(Zmw_Rectangle *a) ;
 void zmw_swap_x_y(void) ;
 void zmw_padding_add(Zmw_Rectangle *r, int padding) ;
 void zmw_padding_remove(Zmw_Rectangle *r, int padding) ;
@@ -604,8 +608,7 @@ void zmw_rgb(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 #define Zmw_Menu_Is_Detached         1        
 #define Zmw_Menu_Is_Poped            2           
 #define Zmw_Menu_Contains_A_Detached 4
-#define Zmw_Menu_State_Update        8       
-#define Zmw_Menu_State_New          16         
+#define Zmw_Menu_State_New           8        
 
 Zmw_Boolean zmw_activated(void) ;
 Zmw_Boolean zmw_activated_previous(void) ;
@@ -679,6 +682,7 @@ void zmw_cache_init(int size) ;
 void zmw_cache_free(void) ;
 int zmw_cache_get_size(Zmw_Size *r) ;
 void zmw_cache_set_size(const Zmw_Size *r) ;
+int zmw_cache_size() ;
 
 
 #include "zmw/zmw_widgets.h"

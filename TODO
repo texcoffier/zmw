@@ -2,15 +2,12 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WHAT I AM GOING TO PROGRAM NOW:
-	* Remove the do_not_enter() and zmw_window_restore()
-	* Remove name comparaison optimization (ZMW_INDEX, ...)
-	  because they are too complex, don't allow infinite menu,
-	  slow down many thing because other optimisation are not possible.
-	  And does not accelerate the work (95% cache miss)
 	* Make the regression test in menu3.c (recursive menu)
 	* Append menu3.c example in the documentation
 	* Remove "zmw_pass_through" function (should be used everywhere)
 	* event_in_(masked/focus) put in the correct place.
+	* Run gprof to see were the time is spend
+
 
 WIDGETS:
 	- Alignement left/right in an horizontal widget
@@ -20,10 +17,6 @@ WIDGETS:
 	- zmw_table : border are too small to be draggable
 	* zmw_window_drag(): Choose the window position relative to cursor
 	* Semantic Lens (move the code from book example to the library)
-	- ``infinite'' depth menu are impossible because
-	  Dispatch_Accelerator needs to follow all the menu.
-	  So a widget "zmw_no_accelerator" must be created
-	  to stop the recursion. 
 
 
 LIBRARY CORE:
@@ -50,11 +43,14 @@ BUGS:
 	- zmw_image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
-	- if ZMW(zmw_popup()) contains a window, it must be its direct child
-
+	- Tips do not appears if valgrind is used.
+	  It can be a problem of speed of execution
+	  and must be corrected.
+	- A menu can't be inside a not popped (a normal) window.
 
 LIMITATIONS:
 	- Only one button mouse is used.
+	- if ZMW(zmw_popup()) contains a window, it must be its direct child
 
 QUESTIONS:
 	- Does the tips should appear if the mouse button is pressed?
@@ -78,16 +74,15 @@ NOT TO DO THINGS :
 	  Very bad idea, some functions may need a full traversal.
 	  It does not speed hugely things so it is not interesting.
 
-	- Stop dispatching event when one is received by a widget.
-          Because other widget may test the receiver widget.
-	  (see the filechooser for example)
-
 	- Code optimization done by computing an INDEX affected
 	  to each widget is a bad idea.
 		- The code is very complex
 		- Other optimisations are not possible
 		- 
 
+	- The event dispatching must be immediatly stopped
+	  when the user knows about a state change.
+	  Because it can change the widget tree.
 /*
 *****************************************************************************
  * Idea about current state

@@ -61,22 +61,22 @@ zmw_button_click
 zmw_dump_screen 1
 
 popupmenu
-zmw_move_cursor_to 20 87 # Toggle
+zmw_move_cursor_to 20 87 # Toggle with label : on toggle
 zmw_button_click
 zmw_dump_screen 2
 
 popupmenu
-zmw_move_cursor_to 71 87 # Toggle
+zmw_move_cursor_to 71 87 # Toggle with label : on button
 zmw_button_click
 zmw_dump_screen 3
 
 popupmenu
-zmw_move_cursor_to 46 108 # Toggle
+zmw_move_cursor_to 46 108 # Big Toggle
 zmw_button_click
 zmw_dump_screen 4
 
 popupmenu
-zmw_move_cursor_to 58 125 # Toggle
+zmw_move_cursor_to 58 125 # Scrollbar
 zmw_button_click
 zmw_dump_screen 5
 

@@ -79,15 +79,13 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 	    / (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
 	  new_y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
 	    / (float)(ZMW_SIZE_ALLOCATED.height - 2*border) - y_size/2 ;
-
-	  zmw_event_remove() ;
+	  ZMW_SIZE_CHANGED = Zmw_True ;
 	}
       else
 	{
 	  new_x = *x ;
 	  new_y = *y ;
 	}
-
       if ( zmw_key_pressed() )
 	{	    
 	  if ( zmw.event->key.keyval == GDK_Right )

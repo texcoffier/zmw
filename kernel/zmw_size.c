@@ -48,6 +48,11 @@ Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b)
   return(c) ;
 }
 
+void zmw_rectangle_void(Zmw_Rectangle *a)
+{
+  memset(a, 0, sizeof(*a)) ;
+}
+
 /*
  *
  */
@@ -74,9 +79,10 @@ void zmw_swap_x_y()
   int i ;
 
   for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    size_swap_x_y(&ZMW_CHILDREN[i]) ;
+    {
+      size_swap_x_y(&ZMW_CHILDREN[i]) ;
+    }
   size_swap_x_y(&ZMW_SIZE) ;
-  /*  size_swap_x_y(&zMw[1].u.size) ; ???????? */
 }
 
 void zmw_padding_add(Zmw_Rectangle *r, int padding)

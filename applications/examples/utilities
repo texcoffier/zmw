@@ -45,7 +45,7 @@ start_xvfb() {
   else
     Xnest :$ZMW_XVFBN -ac -noreset &
   fi
-  echo $! >xvfb.pid
+  echo $! >xxx.xvfb.pid
   sleep 1
   xsetroot -display $ZMW_XVFB -solid white
   # Clear the keyboard
@@ -82,8 +82,11 @@ start_xvfb() {
 }
 
 stop_xvfb() {
-  kill `cat xvfb.pid`
-  rm xvfb.pid || true
+  if [ -f xxx.xvfb.pid ]
+  then
+    kill `cat xxx.xvfb.pid`
+    rm xxx.xvfb.pid || true
+  fi
 }
 
 

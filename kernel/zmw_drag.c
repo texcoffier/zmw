@@ -56,12 +56,17 @@ void zmw_drag_printf(char *format, ...)
 
   if ( zmw.debug & Zmw_Debug_Drag )
     {
-      fprintf(stderr,"%15s => %15s acpt=%d dd=%d "
-		 , global_zmw_drag_from.name
-		 , global_zmw_drag_to.name
-		 , global_zmw_drag_accepted
-		 , global_zmw_drag_drop
-		 ) ;
+      fprintf(stderr,"%10s->%-10s %10s acpt=%d dd=%d data=%p cn=%s/%d uw=%d\t"
+	      , global_zmw_drag_from.name
+	      , global_zmw_drag_to.name
+	      , zmw_name_full
+	      , global_zmw_drag_accepted
+	      , global_zmw_drag_drop
+	      , global_zmw_drag_data
+	      , zmw_action_name_fct()+11
+	      , ZMW_CALL_NUMBER
+	      , zmw_use_window_from_button_press_get()
+	      ) ;
       // zmw_debug_trace() ;
       
       va_start(ap, format);
@@ -84,8 +89,7 @@ void zmw_drag_debug(FILE *f)
 void zmw_drag_cancel()
 {
   zmw_drag_printf("drag_cancel\n") ;
-  if ( zmw_name_registered(&global_zmw_drag_from)
-       && global_zmw_drag_drop == Zmw_False )
+  if ( zmw_name_registered(&global_zmw_drag_from) )
     {
       zmw_drag_printf("drag_cancel in\n") ;
       zmw_name_unregister(&global_zmw_drag_from) ;
@@ -96,9 +100,12 @@ void zmw_drag_cancel()
       if ( global_zmw_drag_data )
 	free(global_zmw_drag_data) ;
       global_zmw_drag_data = NULL ;
+
+      global_zmw_drag_drop = Zmw_False ;
+      global_zmw_drag_accepted = Zmw_False ;
       
-      zmw_need_repaint() ;
-      zmw_need_dispatch() ;
+      //      zmw_need_repaint() ;
+      //      zmw_need_dispatch() ;
     }
 }
 
@@ -114,28 +121,36 @@ void zmw_drag_cancel()
 
 Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
 {
-  static int index = -1 ;
+  /*
+   * We want to make the test always outside the ZMW parameter.
+   * So we memorize the result in a static variable.
+   * Attention: drag_from_started/drag_from_stopped mus be called
+   * before drag_from_running.
+   */
+  static Zmw_Name last = ZMW_NAME_UNREGISTERED("private: drag_from") ;
   static Zmw_Drag_From computed ;
+  static int last_call_number = -1 ;
 
-  if ( in_zmw_parameter || index == ZMW_INDEX )
+  if ( in_zmw_parameter 
+       || (zmw_name_is(&last) && ZMW_CALL_NUMBER == last_call_number )
+       )
     return computed ;
-
+  
+  zmw_name_register(&last) ;
+  last_call_number = ZMW_CALL_NUMBER ;
+  
  if ( global_zmw_drag_drop
-	    && ( ZMW_ACTION == zmw_action_dispatch_event
-		 || ZMW_ACTION == zmw_action_dispatch_accelerator )
-	    && zmw_name_is(&global_zmw_drag_from)
-	    //	    && !in_zmw_parameter
-	    )
+      && ZMW_SUBACTION == Zmw_Input_Event
+      && zmw_name_is(&global_zmw_drag_from)
+      && !ZMW_EVENT_IN_MASKED
+      )
     {
       /*
        * End of a drag
        */
       zmw_drag_printf("end of drag IN\n") ;
-      global_zmw_drag_drop = Zmw_False ;
-      zmw_drag_cancel() ;
       zmw_event_remove() ;
       computed = Zmw_Drag_From_End ;
-      index = ZMW_INDEX ;
       zmw_drag_printf("end of drag OUT\n") ;
     }
  else
@@ -147,7 +162,6 @@ Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
        zmw_drag_printf("start of drag IN\n") ;
        ZMW_ASSERT( global_zmw_drag_drop == Zmw_False ) ;
        zmw_name_register(&global_zmw_drag_from) ;
-       global_zmw_drag_accepted = Zmw_False ;
        zmw_event_remove() ;
        zmw_need_dispatch() ;
        zmw_need_repaint() ;
@@ -212,79 +226,93 @@ void zmw_drag_data_set(const char *data)
 
 Zmw_Drag_To zmw_drag_to_state_compute()
 {
-  static int index = -1 ;
+  static Zmw_Name last = ZMW_NAME_UNREGISTERED("private: drag_to") ;
   static Zmw_Drag_To computed ;
+  static int last_call_number = -1 ;
 
-  if ( index == ZMW_INDEX )
-    return computed ;
+  if ( ZMW_SUBACTION != Zmw_Input_Event
+       || !zmw_name_registered(&global_zmw_drag_from)
+       || ZMW_EVENT_IN_MASKED
+       )
+    {
+      zmw_drag_printf("zmw_drag_to_state_compute : Zmw_Drag_To_No_Change\n") ;
+      last_call_number = -1 ;
+      return Zmw_Drag_To_No_Change ;
+    }
+
+  if ( zmw_name_is(&last) && last_call_number == ZMW_CALL_NUMBER )
+    {
+      zmw_drag_printf("zmw_drag_to_state_compute : return cached %d\n",
+		      computed) ;
+      return computed ;
+    }
+
+  last_call_number = ZMW_CALL_NUMBER ;
+  zmw_name_register(&last) ;
 
   zmw_widget_is_tested() ;
   /*
    *
    */
-  if ( !zmw_name_registered(&global_zmw_drag_from)
-       || ZMW_SUBACTION != Zmw_Input_Event
-       || zmw.event->type == GDK_NOTHING
-   )
-    {
-      computed = Zmw_Drag_To_No_Change ;
-    }
-  else if ( zmw_button_released() )
+  if ( !global_zmw_drag_drop && zmw_button_released() )
     {
       // zmw_name_unregister(&global_zmw_drag_to) ; not yet
-       zmw_drag_printf("drag to release IN\n") ;
+      zmw_drag_printf("drag to release IN\n") ;
       global_zmw_drag_drop = Zmw_True ;
       zmw_event_remove() ;
       zmw_need_dispatch() ;
       zmw_drag_printf("drag to release OUT\n") ;
       computed = Zmw_Drag_To_End ;
-      index = ZMW_INDEX ;
-    }
-  else if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
-    {
-      /*
-       * ZMW_SIZE_EVENT_IN_RECTANGLE value is incorrect on dispatch_event/3
-       * The bug bug should diseapear in the future
-       * when zMw->u.size will be removed.
-       * It is this bug that give randomness to regression test draganddrop
-       */
-      /* The drag area contains the cursor */
-      if ( zmw_name_is(&global_zmw_drag_to) )
-	return Zmw_Drag_To_No_Change ;
-      else
-	{
-	  if ( zmw_name_contains(&global_zmw_drag_to) )
-	    computed = Zmw_Drag_To_No_Change ;
-	  else if ( zmw_name_registered(&global_zmw_drag_to) )
-	    computed = Zmw_Drag_To_No_Change ;
-	  else
-	    {
-	      zmw_drag_printf("drag to enter IN\n") ;
-	      zmw_event_remove() ;
-	      zmw_name_register(&global_zmw_drag_to) ;
-	      zmw_need_dispatch() ;
-	      zmw_drag_printf("drag to enter OUT\n") ;
-	      computed = Zmw_Drag_To_Enter ;
-	      index = ZMW_INDEX ;
-	    }
-	}
     }
   else
     {
-      /* The drag area do not contains cursor */
-      if ( zmw_name_is(&global_zmw_drag_to) )
+      zmw_drag_printf("%s eir=%d\n", zmw_name_full,ZMW_SIZE_EVENT_IN_RECTANGLE) ;
+
+      if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
 	{
-	  zmw_drag_printf("drag to leave IN\n") ;
-	  zmw_event_remove() ;
-	  zmw_name_unregister(&global_zmw_drag_to) ;
-	  global_zmw_drag_accepted = Zmw_False ;
-	  zmw_need_dispatch() ;
-	  zmw_drag_printf("drag to leave OUT\n") ;
-	  computed = Zmw_Drag_To_Leave ;
-	  index = ZMW_INDEX ;
+	  /*
+	   * ZMW_SIZE_EVENT_IN_RECTANGLE value is incorrect on dispatch_event/3
+	   * The bug bug should diseapear in the future
+	   * when zMw->u.size will be removed.
+	   * It is this bug that give randomness to regression test draganddrop
+	   */
+	  /* The drag area contains the cursor */
+	  if ( zmw_name_is(&global_zmw_drag_to) )
+	    computed = Zmw_Drag_To_No_Change ;
+	  else
+	    {
+	      if ( zmw_name_contains(&global_zmw_drag_to) )
+		computed = Zmw_Drag_To_No_Change ;
+	      else if ( zmw_name_registered(&global_zmw_drag_to) )
+		computed = Zmw_Drag_To_No_Change ;
+	      else
+		{
+		  zmw_drag_printf("drag to enter IN\n") ;
+		  zmw_event_remove() ;
+		  zmw_name_register(&global_zmw_drag_to) ;
+		  zmw_need_dispatch() ;
+		  zmw_drag_printf("drag to enter OUT\n") ;
+		  computed = Zmw_Drag_To_Enter ;
+		}
+	    }
 	}
       else
-	computed = Zmw_Drag_To_No_Change ;
+	{
+	  
+	  /* The drag area does not contains cursor */
+	  if ( zmw_name_is(&global_zmw_drag_to) )
+	    {
+	      zmw_drag_printf("drag to leave IN\n") ;
+	      zmw_event_remove() ;
+	      zmw_name_unregister(&global_zmw_drag_to) ;
+	      global_zmw_drag_accepted = Zmw_False ;
+	      zmw_need_dispatch() ;
+	      zmw_drag_printf("drag to leave OUT\n") ;
+	      computed = Zmw_Drag_To_Leave ;
+	    }
+	  else
+	    computed = Zmw_Drag_To_No_Change ;
+	}
     }
   return computed ;
 }
@@ -398,11 +426,8 @@ void zmw_drag_debug_window()
 	  zmw_text(buf) ;
 	  sprintf(buf, "dragdrop=%d", global_zmw_drag_drop) ;
 	  zmw_text(buf) ;
-	  if ( global_zmw_drag_data )
-	    {
-	      sprintf(buf, "DATA=%20s", global_zmw_drag_data) ;
-	      zmw_text(buf) ;
-	    }
+	  sprintf(buf, "DATA=%20s", global_zmw_drag_data) ;
+	  zmw_text(buf) ;
 	}
     }
   zmw_border_embossed_in_draw() ;

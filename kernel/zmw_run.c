@@ -79,7 +79,7 @@ void zmw_debug_flags()
   ZMW(zmw_box_vertical())
     {
       zmw_toggle_int_with_label(&display_zmw, "Debug flags") ;
-      if ( display_zmw )
+      ZMW( zmw_if(display_zmw) )
 	{
 	  zmw_toggle_bits_int_with_label(&zmw.debug
 				     , Zmw_Debug_Draw_Cross
@@ -141,10 +141,13 @@ static void debug_window()
 
 	  sprintf(tmp, "%f Real Frames per Second", zmw.run->frame_per_sec) ;
 	  zmw_text(tmp) ;
-	  sprintf(tmp, "%f CPU Frames per Second", zmw.run->frame_per_sec_cpu) ;
+	  sprintf(tmp, "%f CPU Frames per Second"
+		  , zmw.run->frame_per_sec_cpu) ;
 	  zmw_text(tmp) ;
-	  sprintf(tmp, "use_window_from_button_press=%d", zmw.run->use_window_from_button_press) ;
-	  sprintf(tmp, "event->window=%p", zmw.event ? zmw.event->any.window : NULL) ;
+	  sprintf(tmp, "use_window_from_button_press=%d"
+		  , zmw.run->use_window_from_button_press) ;
+	  sprintf(tmp, "event->window=%p"
+		  , zmw.event ? zmw.event->any.window : NULL) ;
 	  zmw_text(tmp) ;
 	}
     }
@@ -170,6 +173,8 @@ void zmw_display_accelerator_window()
 
 void zmw_call_widget(void (*fct)(), int (*action)())
 {
+  static Zmw_Boolean in_redispatch = 0 ;
+
   zmw.external_do_not_make_init = Zmw_False ;
   zmw.event_removed = Zmw_False ;
   zmw.run->need_dispatch = Zmw_False ;
@@ -177,10 +182,14 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   ZMW_CHILD_NUMBER = -1 ;
 
   if ( zmw.debug & Zmw_Debug_Event )
-    zmw_printf("CALL %s index=%d\n", zmw_action_name_fct(), zmw.index_last) ;
+    {
+      zmw_printf("CALL %s\n", zmw_action_name_fct()) ;
+      if ( ZMW_ACTION == zmw_action_dispatch_event )
+	zmw_printf("w=%p x=%d y=%d r=%d\n"
+		   , zmw.event->any.window, zmw.x ,zmw.y, in_redispatch) ;
+    }
 
   zmw_cache_init(zmw.run->cache_size) ;
-  zmw_name_init() ;
   if ( zmw.debug & Zmw_Debug_Window )
     {
       zmw_name("DebugWindow") ;
@@ -191,62 +200,49 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   zmw_display_accelerator_window() ;
   
   if ( zmw.debug & Zmw_Debug_Event )
-    zmw_printf("ENDCALL size_index=%d last_index=%d last_child=%d lcn=%d\n"
-	       ,ZMW_SIZE_INDEX
-	       ,zmw.index_last
-	       ,zMw->u.children[zMw->u.nb_of_children-1].index
-	       ,zMw->u.nb_of_children
-	       ) ;
+    zmw_printf("ENDCALL nb_childn=%d\n", zMw->u.nb_of_children) ;
 
-  ZMW_SIZE_INDEX = zmw.index_last + 1 ;
-
-  if ( action != zmw_action_dispatch_accelerator
-       && zMw->u.children[zMw->u.nb_of_children-1].index > zmw.index_last )
-    zmw.index_last = zMw->u.children[zMw->u.nb_of_children-1].index ;
-
-  zmw.remove_event = Zmw_False ;
-
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
+  if ( ZMW_ACTION == zmw_action_dispatch_event )
     {
-      ZMW_SIZE_SENSIBLE = Zmw_True ;
-      ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_True ;
-
-      if ( 0 )
-	{
-	  fprintf(stderr,"button released = %d\n", zmw_button_released()) ;
-	  fprintf(stderr,"CN = %d\n", ZMW_CALL_NUMBER) ;
-	  fprintf(stderr,"EIR = %d\n", ZMW_SIZE_EVENT_IN_RECTANGLE) ;
-	  fprintf(stderr,"EIM = %d\n", ZMW_EVENT_IN_MASKED) ;
-	  fprintf(stderr,"SS = %d\n", ZMW_SIZE_SENSIBLE) ;
-	}
-      /* Commented the 08/10/2003, because it doesn't allow
-       * drag and drop between windows
-       */
       /*
-      // Do a drag to enter in a widget that does not exists
-      if ( zmw_drag_to_state() == Zmw_Drag_To_Enter )
-	zmw_drag_accept_set(Zmw_False) ;
-      */
-
-      if ( !zmw_name_registered(&zmw.found) ) // (:1:)
-	zmw_drag_to_nothing() ;
-      
+       * for zmw_cursor_leave/enter
+       */
       zmw_cursor_set(zmw.found.name) ;
-	
+      /*
+       * The redispatch is here only for the drag and drop.
+       * Two passes are needed because two event are received.
+       */	
       if ( zmw.run->need_dispatch && zmw.event->any.type != GDK_MOTION_NOTIFY )
       	{
-         zmw.event->any.type = GDK_MOTION_NOTIFY ;
-	 zmw_call_widget(fct, zmw_action_search) ;  // Needed by (:1:)  
-         zmw_call_widget(fct, action) ;
-         // zmw_need_repaint() ;
+	  if ( in_redispatch )
+	    {
+	      zmw_printf("Bug: recursif redispatch\n") ;
+	    }
+	  else
+	    {
+	      if ( zmw.debug & Zmw_Debug_Event )
+		zmw_printf("BEGIN redispatch\n") ;
+	      zmw.event->any.type = GDK_MOTION_NOTIFY ;
+	      in_redispatch = Zmw_True ;
+	      zmw_call_widget(fct, action) ;
+	      in_redispatch = Zmw_False ;
+	      if ( zmw.debug & Zmw_Debug_Event )
+		zmw_printf("END redispatch\n") ;
+	      // zmw_need_repaint() ;
+	    }
       	}
     }
     
     if ( zmw.debug & Zmw_Debug_Event )
+      {
     	zmw_printf("ENDCALL REAL\n") ;
+	if ( ZMW_ACTION == zmw_action_dispatch_event )
+	  zmw_printf("w=%p x=%d y=%d r=%d OUT\n"
+		     , zmw.event->any.window, zmw.x ,zmw.y, in_redispatch) ;
+      }
 }
 
-static int time_from(struct timeval *tv)
+static int zmw_time_from(struct timeval *tv)
 {
   struct timeval now ;
 
@@ -254,6 +250,7 @@ static int time_from(struct timeval *tv)
 
   return(  now.tv_usec - tv->tv_usec + (now.tv_sec - tv->tv_sec)*1000000) ;
 }
+
 
 
 void zmw_draw(void (*fct)())
@@ -273,8 +270,10 @@ void zmw_draw(void (*fct)())
   times(&begin_tms) ;
   zmw_call_widget(fct, zmw_action_draw) ;
   times(&end_tms) ;
-  zmw.run->frame_per_sec = 1000000. / time_from(&begin_time) ;
+  zmw.run->frame_per_sec = 1000000. / zmw_time_from(&begin_time) ;
   zmw.run->frame_per_sec_cpu = 1/((end_tms.tms_utime-begin_tms.tms_utime)/(float)clk) ;
+  zmw.run->need_repaint = 0 ;
+
 
   for( tlw = gdk_window_get_toplevels() ; tlw ; tlw = g_list_next(tlw) )
     {
@@ -303,6 +302,12 @@ void zmw_draw(void (*fct)())
     }
 }
 
+static void zmw_search(void (*fct)())
+{
+  zmw_name_unregister(&zmw.found) ;
+  zmw_call_widget(fct, zmw_action_search) ;
+}
+
 static gboolean timeout(gpointer data)
 {
   gint x, y ;
@@ -327,30 +332,26 @@ static gboolean timeout(gpointer data)
     e.any.window = gdk_window_at_pointer(&x, &y) ;
   else
     e.any.window = NULL ;
+
+
+  if ( (lx != x || ly != y) && e.any.window  )
+    {
+      /* Needed by "tip" */
+      zmw_search(fct) ;
+    }
   /*
    *
    */
-  zmw.run->idle_time = time_from(&zmw.run->last_user_action) ;
-  zmw.run->still_time = time_from(&zmw.run->last_cursor_move) ;
-
-  /*
-   * Drag and Drop
-   */
-  if ( (lx != x || ly != y) && e.any.window  )
+  zmw.run->idle_time = zmw_time_from(&zmw.run->last_user_action) ;
+  zmw.run->still_time = zmw_time_from(&zmw.run->last_cursor_move) ;
+  if ( 0 & zmw.debug & Zmw_Debug_Event )
     {
-      zmw.event = &e ;
-      zmw.x = x ;
-      zmw.y = y ;
-      zmw.event->any.type = GDK_MOTION_NOTIFY ;
-      zmw.run->idle_time = 0 ;
-      
-      if ( zmw.tips_yet_displayed || zmw.still_yet_displayed )
-      	zmw_need_repaint() ;
-      zmw.tips_yet_displayed = Zmw_False ;
-      zmw.still_yet_displayed = Zmw_False ;
-
-      zmw_call_widget(fct, zmw_action_search) ;      
-      zmw_call_widget(fct, zmw_action_dispatch_event) ; // Drag and Drop
+      zmw_printf("idle_time=%d still_time %d tips_yet_displayed %d still_yet_displayed=%d\n"
+		 , zmw.run->idle_time
+		 , zmw.run->still_time
+		 , zmw.tips_yet_displayed
+		 , zmw.still_yet_displayed
+		 ) ;
     }
   /*
    * If the cursor is still, set idle time
@@ -372,7 +373,6 @@ static gboolean timeout(gpointer data)
 
   if ( zmw.run->need_repaint )
     {
-      zmw.run->need_repaint = 0 ;
       zmw_draw(fct) ;
     }
 
@@ -384,7 +384,6 @@ static gboolean timeout(gpointer data)
 
 void user_action()
 {
-  zmw_name_unregister(&zmw.found) ;
   gettimeofday(&zmw.run->last_user_action,NULL) ;
   
   if ( zmw_name_registered(&zmw.tip_displayed) )
@@ -392,6 +391,8 @@ void user_action()
       zmw_name_unregister(&zmw.tip_displayed) ;
       zmw_need_repaint() ;
     }
+  zmw.tips_yet_displayed = Zmw_False ;
+  zmw.still_yet_displayed = Zmw_False ;   
 }
 
 void zmw_unpop(GdkEvent *e)
@@ -424,7 +425,9 @@ void event_handler(GdkEvent *e, gpointer o)
    */
   if ( ! zmw.run->use_window_from_button_press )
     {
-      if ( e->type == GDK_BUTTON_RELEASE )
+      if ( e->type == GDK_BUTTON_RELEASE
+	   || e->type == GDK_MOTION_NOTIFY
+	   )
 	{
 	  int x, y, origin_x, origin_y ;
 	  x = e->button.x_root ;
@@ -439,9 +442,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	    }
 	}
     }
-
   zmw.event = e ;
-  zmw.remove_event = Zmw_False ;
   
   if ( zmw_handle_selection(e) )
   {
@@ -500,7 +501,6 @@ void event_handler(GdkEvent *e, gpointer o)
       break ;
     }
 
-
   switch( e->type )
     {
     case GDK_MOTION_NOTIFY:
@@ -512,13 +512,15 @@ void event_handler(GdkEvent *e, gpointer o)
       if ( ee && ee->type == GDK_MOTION_NOTIFY )
 	return ;
 
+      /* Needed by "cursor_leave" */
+      zmw_search(fct) ;
+
       zmw_call_widget(fct, zmw_action_dispatch_event) ;
 
       if ( e->motion.state != 0 )
 	zmw_need_repaint() ; /* for drag */
 
       user_action() ;
-      zmw.run->last_user_action = zmw.run->last_cursor_move ;
       break ;
     case GDK_EXPOSE:
       if ( zmw.debug & Zmw_Debug_Event )
@@ -563,6 +565,9 @@ void event_handler(GdkEvent *e, gpointer o)
 		   ) ;
       zmw_unpop(e) ;
 
+      /* Needed by "cursor_leave" */
+      zmw_search(fct) ;
+
       zmw_call_widget(fct, zmw_action_dispatch_event) ;
       /* You always make repaint because a button release
        * may also change the display state : button press on
@@ -577,7 +582,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	  zmw_event_button_release() ;
 	}
 
-      if ( e->type == GDK_BUTTON_RELEASE )
+      if ( saved.type == GDK_BUTTON_RELEASE )
 	zmw_drag_cancel() ; // In order to stop drag when nobody accept it
       break ;
     case GDK_ENTER_NOTIFY:
@@ -588,6 +593,11 @@ void event_handler(GdkEvent *e, gpointer o)
     case GDK_LEAVE_NOTIFY:
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** LEAVE!\n") ;
+      /* Needed by "cursor_leave" */
+      zmw_name_unregister(&zmw.found) ;
+      zmw.event->any.type = GDK_MOTION_NOTIFY ;
+      zmw_call_widget(fct, zmw_action_dispatch_event) ;
+      *e = saved ;
       return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
       break ;
     default:
@@ -655,6 +665,10 @@ void zmw_run(void (*fct)())
   zmw.run->need_repaint = Zmw_False ;
   zmw_use_window_from_button_press(Zmw_True) ;
 
+  zmw.zmw_table_depth = 2 ;
+  ZMW_REALLOC(zmw.zmw_table, zmw.zmw_table_depth) ;
+  zmw_state_init(zmw.zmw_table) ;
+  zmw_state_init(zmw.zmw_table + 1) ;
   zMw = zmw.zmw_table ;
   // ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
   /*
@@ -679,9 +693,9 @@ void zmw_run(void (*fct)())
   zmw_auto_resize(0) ;
   zmw_sensible(1) ;
   zmw_rgb(0.75, 0.75, 0.75) ;
-
   ZMW_NB_OF_CHILDREN = zMw->u.nb_of_children_max = 1 ;
   ZMW_MALLOC(ZMW_CHILDREN, zMw->u.nb_of_children_max) ;
+  memset(ZMW_CHILDREN, 0, sizeof(*ZMW_CHILDREN)) ;
 
   zmw_state_push() ;
 
@@ -691,7 +705,6 @@ void zmw_run(void (*fct)())
   zmw_vertical_alignment(0) ;
   zmw_horizontal_alignment(0) ;
   zmw_padding_width(2) ;
-
 
   zmw_draw(fct) ;
 
@@ -724,8 +737,6 @@ void zmw_run(void (*fct)())
 void zmw_exit(int r)
 {
   int i ;
-
-  zmw.index_last = 2000000000 ; /* FIXME */
 
   zmw_call_widget(zmw.run->fct, zmw_action_clean) ;
 
@@ -782,19 +793,4 @@ void zmw_stack_dump()
 		, zmw_size_string(&zmw.zmw_table[i].u.children[j])) ;
       fprintf(stderr, "-------------------- HERITABLE\n") ;
     }
-}
-
-void zmw_index_print()
-{
-  int i, j ;
-
-  fprintf(stderr, "\nINDEX DUMP\n") ;
-  for(i=0; &zmw.zmw_table[i] <= zMw; i++)
-    {
-      fprintf(stderr, "%30s [%6d]", zmw.zmw_table[i].u.type, zmw.zmw_table[i].i.index) ;
-      for(j=0; j<zmw.zmw_table[i].u.nb_of_children; j++)
-	fprintf(stderr, " %d", zmw.zmw_table[i].u.children[j].index) ;
-      fprintf(stderr, "\n") ;
-    }
-  fprintf(stderr, "\n") ;
 }

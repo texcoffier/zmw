@@ -1,3 +1,24 @@
+2006-07-07 (0.0.9)
+	New directory: "applications/benchmarks" with speed test
+	Create substructure "parent_to_child", move it to unherited
+	Remove functions "zmw_restore_window" and "zmw_action_do_not_enter"
+	When ZMW_WINDOW is used, it is now the previous widget-window
+	Nightly tar files should be smaller
+	Replace indexes by hash: many cleanups and simplifications
+	"zmw_cache.c" and "zmw_name.c" has been rewrotted nice/fast/small
+	ZMW_INDEX&Co have been removed, it is a huge step
+	zmw_filechooser/zmw_alert : use "zmw_if" in place of "if"
+	zmw_if no more traverses children if the parameter is false
+	Complete rewrite of menu system: much nicer and understandable
+	Event reception stops widget tree traversal, it is more cautious
+	Remove problems with multiple sibling detached in menus
+	Remove many many bugs from drag and drop
+	Some cleanups in zmw_event.c
+	Remove "remove_event" flag, "event_removed" is set to 1 immediatly
+	Remove "zmw_name_pass_through_is" add "tip_visible" in ZMW_SIZE
+	The widget stack is now dynamically allocated
+	Add "zmw_if_with_accelerators", "zmw_popup_without_accelerators"
+
 2004-06-15 (0.0.8)
 	Remove data duplication: ZMW_SIZE is now zMw[-1].u.children[Child.]
 	Many bugs corrected thanks to "valgrind"

@@ -64,9 +64,15 @@ void zmw_void()
 	{
 	  ZMW_CHILDREN[0].allocated = ZMW_SIZE_ALLOCATED ;
 	}
+      else
+	{
+	  /* Make valgrind happy ? */
+	  ZMW_CHILDREN[0].allocated = ZMW_SIZE_ALLOCATED ;
+	}
       break ;
 
     default:
+      break ;
     }
 }
 
@@ -74,25 +80,30 @@ void zmw_void()
  * As zmw_void but do not display the children if not visible
  */
 
-
-void zmw_if(Zmw_Boolean visible)
+void zmw_if_(Zmw_Boolean visible, Zmw_Boolean recurse_on_init)
 {
   if ( ! visible )
     {
-      if ( ZMW_CALL_NUMBER > 0 )
+      if ( !recurse_on_init || ZMW_CALL_NUMBER > 0)	
 	ZMW_CALL_NUMBER = 100 ;
-      if (  ZMW_SUBACTION == Zmw_Compute_Required_Size )
-	{
-	  ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
-	  /* To make cache checking happy */
-	  /* Must be the same values than in the former function */
-	  ZMW_SIZE_MIN.width = 0 ;
-	  ZMW_SIZE_MIN.height = 0 ;
-	}
+
+      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
+      /* To make valgrind happy */
+      zmw_rectangle_void(&ZMW_SIZE_MIN) ;
+      zmw_rectangle_void(&ZMW_SIZE_ALLOCATED) ;
       return ;
     }
-
   zmw_void() ;
+}
+
+void zmw_if(Zmw_Boolean visible)
+{
+  zmw_if_(visible, Zmw_False) ;
+}
+
+void zmw_if_with_accelerators(Zmw_Boolean visible)
+{
+  zmw_if_(visible, Zmw_True) ;
 }
 
 /*
@@ -106,6 +117,11 @@ void zmw_tip()
 }
 
 void zmw_popup()
+{
+  zmw_if_with_accelerators(zmw_window_is_popped()) ;
+}
+
+void zmw_popup_without_accelerators()
 {
   zmw_if(zmw_window_is_popped()) ;
 }

@@ -117,7 +117,7 @@ void zmw_draw_clip_push(const Zmw_Rectangle *r)
 
 void zmw_draw_clip_pop()
 {
-  zmw_draw_clip_push(&zMw[-1].i.clipping) ; // also restore ZMW_CLIPPING
+  zmw_draw_clip_push(&zMw[-1].u.parent_to_child.clipping) ; // also restore ZMW_CLIPPING
 }
 
 

@@ -19,6 +19,7 @@ void toggle_and_its_name(int *value)
  * "hide_label" variable is used because
  * if "label_visible" is modified, the widget hierarchy change.
  * So the state change must be done outside widget hierarchy.
+ *
  */
 
 void naming(void)
@@ -36,10 +37,14 @@ void naming(void)
 	    zmw_text("Click on first toggle and go outside") ;
 	  toggle_and_its_name(&t1) ;
 	  if ( zmw_cursor_leave() )
-	    hide_label = 1 ;
+	    {
+	      zmw_printf("HIDE\n") ;
+	      hide_label = 1 ;
+	    }
 	  toggle_and_its_name(&t2) ;
 	}
     }
+  zmw_printf("hide label = %d\n", hide_label) ;
   if ( hide_label )
     label_visible = 0 ;
 }

@@ -279,8 +279,6 @@ static char *get_zmw(int i)
   global_buf[0] = '\0' ;
   if ( zmw.external_do_not_make_init )
     strcat(global_buf, " external_do_not_make_init") ;
-  if ( zmw.remove_event )
-    strcat(global_buf, " remove_event") ;
   if ( zmw.event )
     {
       sprintf(global_buf+strlen(global_buf), " event:%p", zmw.event) ;
@@ -341,7 +339,7 @@ static struct options global_options[] =
     { 0, OPTION_SIZE(required                      , rectangle           ) },
     { 0, OPTION_SIZE(allocated                , rectangle           ) },
     { 0, OPTION_SIZE(used_to_compute_parent_size   , boolean             ) },
-    { 0, OPTION_SIZE(index                         , int                 ) },
+    { 0, OPTION_SIZE(hash                          , int                 ) },
     { 0, OPTION_SIZE(current_state.horizontal_expand   , boolean            )},
     { 0, OPTION_SIZE(current_state.vertical_expand     , boolean            )},
     { 0, OPTION_SIZE(current_state.horizontal_alignment,horizontal_alignment)},
@@ -356,6 +354,7 @@ static struct options global_options[] =
     { 0, OPTION_SIZE(activated                     , boolean             ) },
     { 0, OPTION_SIZE(child_activated               , boolean             ) },
     { 0, OPTION_SIZE(changed                       , boolean             ) },
+    { 0, OPTION_SIZE(tip_visible                   , boolean             ) },
     { 0, OPTION_SIZE(do_not_map_window             , boolean             ) },
     { 0, OPTION_SIZE(pass_through                  , boolean             ) },
     { 0, OPTION_SIZE(current_state.padding_width   , int                 ) },
@@ -372,10 +371,9 @@ static struct options global_options[] =
     { 0, OPTION(i.auto_resize                        , boolean             ) },
     { 0, OPTION(i.sensible                           , boolean             ) },
     { 1, OPTION(i.font                               , pointer             ) },
-    { 0, OPTION(i.window                             , pointer             ) },
-    { 0, OPTION(i.gc                                 , pointer             ) },
-    { 0, OPTION(i.clipping                           , rectangle           ) },
-    { 0, OPTION(i.index                              , int                 ) },
+    { 0, OPTION(u.parent_to_child.window             , pointer             ) },
+    { 0, OPTION(u.parent_to_child.gc                 , pointer             ) },
+    { 0, OPTION(u.parent_to_child.clipping           , rectangle           ) },
     { 0, OPTION(i.event_in_masked                    , boolean             ) },
     { 0, OPTION(i.event_in_focus                     , boolean             ) },
     //    { 0, OPTION(i.event_in                           , boolean             ) },
@@ -509,7 +507,6 @@ static void http_size_display(Zmw_Size *ws)
 	  , ZMW_VERTICAL_EXPAND ? "Vertical" : ""
 	  , ZMW_USED_TO_COMPUTE_PARENT_SIZE ? "" :"NotUsedToComputeParentSize"
 	  ) ;
-  http_printf("<TD>%d</TD>\n", ws->index) ;
   http_printf("<TD>%s</TD>\n", ZMW_SIZE_SENSIBLE ? "Sensible" : "") ;
 }
 
@@ -633,15 +630,12 @@ int http_node()
       if ( strcmp(global_name, zmw_name_full) == 0 )
 	http_printf("</TABLE>") ;
     }
-  zmw_action_do_not_enter() ;
   return(0) ;
 }
 
 
 int http_tree()
 {
-  static int index_last = 0 ;
-	
   ZMW_EXTERNAL_HANDLING ;
   
   switch ( ZMW_CALL_NUMBER++ )
@@ -654,24 +648,13 @@ int http_tree()
       ZMW_SUBACTION = Zmw_Nothing ;
       ZMW_SUBACTION = Zmw_Debug_Message ;
       zmw_action_second_pass() ;
-      http_printf("<LI> [%d-%d-%d] <A HREF=\"%s\">%s</A> %s:%d %s"
-		  , ZMW_INDEX
-		  , ZMW_SIZE_INDEX
-		  , zmw.index_last
+      http_printf("<LI> <A HREF=\"%s\">%s</A> %s:%d %s"
 		  , http_encode_url(zmw_name_full)
 		  , ZMW_NAME
 		  , ZMW_FILE
 		  , ZMW_LINE
 		  , ZMW_TYPE
 	      ) ;
-      if ( ZMW_SIZE_INDEX )
-      	{
-      if ( ZMW_SIZE_INDEX != zmw.index_last + 1 )
-      	  http_printf("<BR>\n<EM>ZMW_SIZE_INDEX != zmw.index_last + 1</EM>") ;
-      if ( ZMW_INDEX != index_last + 1 )
-      	  http_printf("<BR>\n<EM>ZMW_INDEX != index_last + 1</EM>") ;
-      	}
-      index_last = ZMW_INDEX ;
       http_printf("\n<UL>") ;
       zmw_state_push() ;
       return(1) ;
@@ -679,7 +662,6 @@ int http_tree()
       http_printf("</UL></LI>\n") ;
       
     }
-  zmw_action_do_not_enter() ;
   return(0) ;
 }
 
@@ -713,7 +695,6 @@ int http_table()
       http_printf("</TR>\n") ;
       break ;
     }
-  zmw_action_do_not_enter() ;
   return(0) ;
 }
 
@@ -734,7 +715,6 @@ int http_debug()
       zmw_state_push() ;
       return(1) ;
     }
-  zmw_action_do_not_enter() ;
   return(0) ;
 }
 
@@ -915,7 +895,6 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
       zmw.x = zmw.event->motion.x ;
       zmw.y = zmw.event->motion.y ;
       ZMW_SIZE_SENSIBLE = Zmw_True ;
-      zmw.remove_event = Zmw_False ;
       ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_True ;
       ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_True ;
       ZMW_WINDOW = NULL ;

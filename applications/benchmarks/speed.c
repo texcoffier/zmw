@@ -1,0 +1,253 @@
+#include <sys/times.h>
+#include <unistd.h>
+#include <math.h>
+
+#ifdef ZMW_DEBUG_NAME
+#include "zmw/zmw.h"
+#else
+#include "kernel/zmw.h"
+#endif
+
+void vertical(int depth) ;
+
+static int *global_nb ;
+static int global_depth ;
+static int global_children ;
+static int global_focus ;
+
+ 
+void leaf()
+{
+  zmw_width(1) ;
+  zmw_height(1) ;
+  if ( global_focus )
+    ZMW(zmw_decorator(Zmw_Decorator_Focusable))
+    {
+    }
+  else
+    ZMW(zmw_box())
+    {
+    }
+  (*global_nb)++ ;
+}
+
+
+void horizontal(int depth)
+{
+  int i ;
+
+  if ( depth == 0 )
+    {
+      leaf() ;
+    }
+  else
+    ZMW(zmw_box_horizontal())
+    {
+      for(i=0; i<global_children; i++)
+	vertical(depth-1) ;
+    }
+}
+
+void vertical(int depth)
+{
+  int i ;
+
+  if ( depth == 0 )
+    {
+      leaf() ;
+    }
+  else
+    ZMW(zmw_box_vertical())
+    {
+      for(i=0; i<global_children; i++)
+	vertical(depth-1) ;
+    }
+}
+
+void get_value(char *buf, char *key)
+{
+  if ( strncmp(buf, key, strlen(key)) == 0)
+    {
+      printf("%s=%d\n", key, atoi( strchr(buf, ':')+1 )) ;
+    }
+}
+
+void get_mem_usage()
+{
+  FILE *f ;
+  char buf[999] ;
+
+
+  f = fopen("/proc/self/status", "r") ;
+  for(;;)
+    {
+      if ( fgets(buf, sizeof(buf), f) == NULL )
+	break ;
+      
+      get_value(buf, "VmExe") ;
+      get_value(buf, "VmStk") ;
+      get_value(buf, "VmLib") ;
+      get_value(buf, "VmData") ;
+    }
+  fclose(f) ;
+}
+
+
+
+#define ACTION(A) { A, #A }
+
+
+void many()
+{
+  static struct
+  {
+    int (*action)(void) ;	/* Action timed */
+    char *action_name ;
+    int time ;			/* In number of click */
+    int nb ;			/* Number of call */
+    int nb_text_eval ;
+  } actions[7] = {
+    ACTION(zmw_action_compute_required_size),
+    ACTION(zmw_action_draw),
+    ACTION(zmw_action_dispatch_event),
+    ACTION(zmw_action_search),
+    ACTION(zmw_action_dispatch_accelerator),
+    ACTION(zmw_action_clean),
+    {NULL},
+  } ;
+  static int clk = 0 ;		/* Number of click per second */
+  static int exiting = 0 ;
+
+  int i, j, nb_text ;
+  struct tms begin_tms, end_tms ;
+  char tmp[999] ;
+
+  if ( global_focus && clk == 0 )
+    {
+      for(i=0; i<200; i++)
+	{
+	  strcpy(tmp, "") ;
+	  for(j=0; j<10; j++)
+	    sprintf(tmp+strlen(tmp), "/.%d", rand()%10) ;
+	  zmw_name_set_value_int_with_name(tmp, "?", 0) ;
+	}
+      zmw_name_register_with_name(ZMW_FOCUS, "/.0/.0/.0/.0") ;
+    }
+
+  if ( clk == 0 )
+    clk = sysconf(_SC_CLK_TCK);
+
+  i=0 ;
+  while ( actions[i].action != ZMW_ACTION )
+    i++ ;
+  global_nb = &actions[i].nb_text_eval ;
+
+  times(&begin_tms) ;
+
+  zmw_padding_width(0) ;
+  zmw_focus_width(0) ;
+  ZMW(zmw_window("Title"))
+    vertical(global_depth) ;
+
+  times(&end_tms) ;
+
+  actions[i].time += end_tms.tms_utime - begin_tms.tms_utime ;
+  actions[i].nb++ ;
+
+
+
+  
+  if ( ZMW_ACTION == zmw_action_draw  || end_tms.tms_utime > 1 * clk ) // some seconds
+    {
+      if ( exiting )
+	return ;
+      exiting = 1 ;
+
+      nb_text = rint(pow(global_children, global_depth)) ;
+
+      printf("cache size=%d\n", zmw_cache_size()) ;
+
+#ifdef ZMW_DEBUG_INSIDE_ZMW_PARAMETER
+      printf("ZMW_DEBUG_INSIDE_ZMW_PARAMETER=%d\n", ZMW_DEBUG_INSIDE_ZMW_PARAMETER) ;
+#endif
+#ifdef ZMW_DEBUG_NAME
+      printf("ZMW_DEBUG_NAME=%d\n", ZMW_DEBUG_NAME) ;
+      printf("ZMW_DEBUG_ASSERT=%d\n", ZMW_DEBUG_ASSERT) ;
+      printf("ZMW_DEBUG_STORE_WIDGET_TYPE=%d\n", ZMW_DEBUG_STORE_WIDGET_TYPE) ;
+#endif
+      printf("#children=%d\n", global_children) ;
+      printf("#leaf_widget=%d\n", nb_text) ;
+      get_mem_usage() ;
+      for(i=0; actions[i].action; i++)
+	{
+	  if ( actions[i].nb )
+	    {
+	      printf("%s.#leaf_eval=%d\n"
+		     , actions[i].action_name
+		     , actions[i].nb_text_eval/actions[i].nb/nb_text
+		     ) ;
+	      printf("%s.#nb_samples=%d\n"
+		     , actions[i].action_name
+		     , actions[i].nb
+		     ) ;
+	      printf("%s.#time=%.2f\n"
+		     , actions[i].action_name
+		     , actions[i].time/(float)clk/actions[i].nb
+		   ) ;
+	    }
+	}
+      printf("\n") ;
+      fflush(stdout) ;
+      zmw_exit(0) ;
+    }
+
+}
+
+int main(int argc, char *argv[])
+{
+  int n ;
+  double depth, epsilon ;
+
+  zmw_init(&argc, &argv) ;
+
+  global_children = 2 ;
+
+  if ( argc > 1 )
+    global_depth = atoi(argv[1]) ;
+  else
+    {
+      fprintf(stderr, "Needs widget tree depth\n") ;
+      exit(1) ;
+    }
+
+  if ( argc > 2 )
+    global_children = atoi(argv[2]) ;
+  else
+    {
+      fprintf(stderr, "Needs number of children per node\n") ;
+      exit(1) ;
+    }
+  
+  if ( argc > 3 )
+    global_focus = atoi(argv[3]) ;
+  else
+    global_focus = 0 ;
+
+  n = 1 << global_depth ;
+  depth = global_depth / ( log(global_children) / log(2) ) ;
+  epsilon = rint(depth) - depth ;
+  if ( epsilon < -0.0001 || epsilon > 0.0001 )
+    {
+      fprintf(stderr, "Epsilon = %g\n", epsilon) ; 
+      return 0 ;
+    }
+
+  global_depth = rint(depth) ;
+     
+
+
+  zmw_run(many) ;
+  return 0 ;
+}
+
+

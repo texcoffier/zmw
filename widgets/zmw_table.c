@@ -217,7 +217,10 @@ int zmw_search_column(int nb_cols, int *col_width)
     {
       x += col_width[i] + ZMW_TABLE_VERTICAL_WIDTH ;
       if ( ZMW_ABS(x - zmw.x) < 5 )
-	return(i) ;
+	{
+	  zmw_printf("x=%d zmw.x=%d i=%d\n", x, zmw.x, i) ;
+	  return(i) ;	  
+	}
     }
   return(-1) ;
 }
@@ -305,6 +308,14 @@ void zmw_table_with_widths_and_selection(int nb_cols, int *col_width
     case Zmw_Input_Event:
 
       zmw_activable() ;
+
+
+      if ( dragged >= 0 && zmw_button_released_anywhere() )
+	{
+	  dragged = -1 ;
+	  break ;
+	}
+
       if ( zmw_activated() )
 	{
 	  if ( dragged == -1 && selection )
@@ -351,8 +362,6 @@ void zmw_table_with_widths_and_selection(int nb_cols, int *col_width
 		  zmw_event_remove() ;
 		}
 	    }
-	  if ( zmw_button_released_anywhere() )
-	    dragged = -1 ;
  	}
       break ;
     default:
