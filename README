@@ -2,19 +2,47 @@ To compile and execute you need :
 	- GTK 1.2.10
 	- gdk-pixbuf 0.17.0
 
-You type "make run_circuit" to compile and launch a small logic circuit editor.
+To compile the library : "make"
 
-You type "make run_tests" to compile and launch the widget testing program
+Top level goals just for take a look :
+	- run_circuit   to compile and launch a small logic circuit editor.
+	- run_book      to compile and launch a library administrator (ALPHA).
+	- run_tests     to compile and launch the widget testing program.
 
+
+Makefile goals (at all levels) are :
+	- lib      The library
+	- exe      All the executables
+	- test     Regression test (you need Xvfb, Xnee, eeyes)
+	- doc      Create documentation (needs docbook utilities)
+	- clean    Remove constructed files and backup
+	- dep      Compute dependencies
+
+Other usefull top level goals
+	- TAGS	   Compute tags
+	- retest   Remake all the tests
+There is no install goal, it is intented.
+
+
+If you can not compile the documentation, it is browsable from :
+	http://www710.univ-lyon1.fr/~exco/ZMW/zmw-0.0.1/zmw.html
+The documentation examples are in "examples" directory.
+
+
+To configure the compilation process, see "Makefile.config".
+The default option is to compile a slow library in order
+to have assertions and debug messages.
+
+
+To compile your own application, add a subdirectory in "applications"
+and copy/edit the "circuit/Makefile" for example.
 
 
 These sources are here to show that zero memory widget are a reality.
-
 They are :
+	- not commented
 	- not clean
-	- not documented
 	- not optimized
-	- bugged
+	- certainly bugged
 	- full of misnamed variables and functions
-
 They should not be used as a basis for a real widget library.

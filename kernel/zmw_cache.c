@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,18 +19,19 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
-#ifndef zmw_cache_init
 
-#define ZMW_DEBUG_CACHE 0
+static int global_cache_test = 0 ;
+static int global_cache_miss = 0 ;
+
 
 static struct cached_data {
   int nb ;
   int index ;
   Zmw_Size r ;
 #if ZMW_DEBUG_CACHE
-  Zmw_Name name ;
+  char *name ;
 #endif
 } *global_cache_table = NULL ;
 
@@ -44,7 +45,24 @@ void zmw_cache_init(int size)
       global_cache_size = size ;
     }
 }
-    
+
+void zmw_cache_free()
+{
+	if ( global_cache_size )
+	{
+	fprintf(stderr, "Size cache miss=%g%%\n"
+		, 100*(global_cache_miss/(float)global_cache_test)
+		) ;
+#if ZMW_DEBUG_CACHE
+{
+	int i ;
+	for(i=0; i<global_cache_size; i++)
+		ZMW_FREE(global_cache_table[i].name) ;
+}
+#endif
+	free(global_cache_table) ;
+	}
+}
 
 
 int zmw_cache_get_size(Zmw_Size *r)
@@ -53,21 +71,23 @@ int zmw_cache_get_size(Zmw_Size *r)
 
   if ( global_cache_size )
     {
+      global_cache_test++ ;
       cd = &global_cache_table[ZMW_INDEX%global_cache_size] ;
 
       if ( cd->index == ZMW_INDEX )
 	{
 	  *r = cd->r ;
 #if ZMW_DEBUG_CACHE
-	  if ( !zmw_name_is(cd->name) )
+	  if ( strcmp(cd->name, zmw_name_full) )
 	    {
-	      zmw_printf("real name = %s\n", zmw_name_full(zMw)) ;
+	      zmw_printf("real name = %s\n", zmw_name_full) ;
 	      zmw_printf("index = %d\n", ZMW_INDEX) ;
 	      zmw_printf("stored name = %s\n", cd->name) ;
 	    }
 #endif
 	  return(0) ;
 	}
+     global_cache_miss++ ;
     }
   return(1) ;
 }
@@ -83,9 +103,8 @@ void zmw_cache_set_size(const Zmw_Size *r)
       cd->r = *r ;
       cd->index = ZMW_INDEX ;
 #if ZMW_DEBUG_CACHE
-      cd->name = zmw_name_copy() ;
+      cd->name = strdup(zmw_name_full) ;
 #endif
     }
 }
 
-#endif

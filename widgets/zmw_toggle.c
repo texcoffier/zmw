@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,48 +19,24 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
-
-
-void zmw_toggle_(int *value, int bits)
-{
-  switch( ZMW_SUBACTION )
-    {
-    case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = 16 ;
-      ZMW_SIZE_MIN.height = 16 ;
-      break ;
-
-    case Zmw_Post_Drawing:
-      zmw_border_draw(Zmw_Border_Relief
-			 | (zmw_focused() ? Zmw_Border_Draw_Focus : 0)
-			 | Zmw_Border_Focusable
-			 | Zmw_Border_Background
-			 | ((((*value&bits)==bits) ^ zmw_selected()) ? Zmw_Border_In : 0)
-			 ) ;
-      if ( !ZMW_SIZE_SENSIBLE )
-	zmw_cross_draw() ;
-      break ;
-    case Zmw_Input_Event:
-
-      zmw_focusable() ;
-      zmw_activable() ;
-
-      if ( zmw_key_string() )
-	{
-	  zmw.activated = 1 ;
-	  zmw_event_remove() ;
-	}
-  
-      break ;
-    default:
-      break ;
-    }
-}
+#include "zmw/zmw.h"
 
 void zmw_toggle_bits(int *value, int bits)
 {
-  ZMW( zmw_toggle_(value, bits) ) { }
+  ZMW(zmw_decorator(Zmw_Decorator_Interior
+		    | Zmw_Decorator_Border_Relief
+		    | Zmw_Decorator_Focusable
+		    | Zmw_Decorator_Pushable
+		    | Zmw_Decorator_Activable
+		    | Zmw_Decorator_Activable_By_Key
+		    | Zmw_Decorator_Unpop_On_Activate
+		    | ( (*value & bits) ? Zmw_Decorator_Border_In : 0 ) 
+		    )
+      )
+    {
+    }
+  if ( !ZMW_SENSIBLE && zmw_drawing() )
+    zmw_cross_draw() ;
   if ( zmw_activated() )
     {
       *value ^= bits ;
@@ -74,19 +50,25 @@ void zmw_toggle(int *value)
 
 void zmw_toggle_bits_with_label(int *value, int bits, const char *label)
 {
-  ZMW( zmw_box_horizontal() )
+  Zmw_Boolean a ;
+
+  ZMW( zmw_box_horizontal_activable() )
     {
       zmw_horizontal_expand(0) ;
       zmw_vertical_expand(0) ;
 
       zmw_toggle_bits(value, bits) ;
+      a = zmw_activated() ;
 
-      zmw_text_activable(label) ;
-      if ( zmw_activated() )
-	{
-	  *value ^= bits ;
-	}
+      zmw_text(label) ;
     }
+  if ( zmw_activated() )
+    {
+      *value ^= bits ;
+    }
+  if ( a )
+    zmw.activated = Zmw_True ;
+
 }
 
 void zmw_toggle_with_label(int *value, const char *label)
@@ -107,19 +89,16 @@ void zmw_radio(int *value, int number)
 
 void zmw_radio_with_label(int *value, int number, const char *label)
 {
-  ZMW( zmw_box_horizontal() )
+  ZMW( zmw_box_horizontal_activable() )
     {
       zmw_horizontal_expand(0) ;
       zmw_vertical_expand(0) ;
 
       zmw_radio(value, number) ;
-
-      zmw_text_activable(label) ;
-      if ( zmw_activated() )
-	{
-	  *value = number ;
-	}
+      zmw_text(label) ;
+    }
+  if ( zmw_activated() )
+    {
+      *value = number ;
     }
 }
-
-

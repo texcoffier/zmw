@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
 /*
  *
@@ -28,123 +28,113 @@
 static Zmw_Name global_zmw_drag_from = ZMW_NAME_UNREGISTERED("Drag From") ;
 static Zmw_Name global_zmw_drag_to = ZMW_NAME_UNREGISTERED("Drag To") ;
 static char * global_zmw_drag_data = NULL ;
-static enum Zmw_Drag global_zmw_drag_accepted ;
+static Zmw_Boolean global_zmw_drag_accepted = Zmw_False;
+static Zmw_Boolean global_zmw_drag_drop = Zmw_False ;
 
-static char *global_wd[] =
-{   "Zmw_Drag_No"
-  , "Zmw_Drag_Begin"
-  , "Zmw_Drag_Accepted"
-  , "Zmw_Drag_Refused"
-  , "Zmw_Drag_Running"
-  , "Zmw_Drag_Ending"
-} ;
+void zmw_drag_printf(char *format, ...)
+{
+  va_list ap;
+
+  if ( zmw.debug & Zmw_Debug_Drag )
+    {
+      zmw_printf("drag_to=%s drag_from=%s redispatch=%d accept=%d"
+		 , global_zmw_drag_to.name
+		 , global_zmw_drag_from.name
+		 , zmw.need_dispatch 
+		 , global_zmw_drag_accepted
+		 ) ;
+      zmw_debug_trace() ;
+      
+      va_start(ap, format);
+      vfprintf(stderr, format, ap );
+      va_end(ap);
+    }
+}
+
+#define ZMW_DRAG_RETURN(V,M) ZMW1(zmw_drag_printf("Returns %s :", #V, M) ; return V ; )
 
 void zmw_drag_debug(FILE *f)
 {
   fprintf(f, "action  : %p\n", ZMW_ACTION) ;
   fprintf(f, "from    : %s\n", zmw_name_registered(&global_zmw_drag_from)) ;
   fprintf(f, "to      : %s\n", zmw_name_registered(&global_zmw_drag_to)) ;
-  fprintf(f, "accepted: %s\n", global_wd[global_zmw_drag_accepted]) ;
+  fprintf(f, "accepted: %d\n", global_zmw_drag_accepted) ;
   fprintf(f, "data    : %s\n", global_zmw_drag_data) ;
-}
-
-void zmw_drag_full_cancel()
-{
-  global_zmw_drag_accepted = Zmw_Drag_Refused ;
-
-  zmw_name_unregister(&global_zmw_drag_from) ;
-  zmw_name_unregister(&global_zmw_drag_to) ;
-
-  if ( global_zmw_drag_data )
-       free(global_zmw_drag_data) ;
-  global_zmw_drag_data = NULL ;
 }
 
 void zmw_drag_cancel()
 {
-  if ( global_zmw_drag_accepted == Zmw_Drag_No )
+  if ( zmw_name_registered(&global_zmw_drag_from)
+       && global_zmw_drag_drop == Zmw_False )
     {
-      global_zmw_drag_accepted = Zmw_Drag_Refused ;
-      zmw_drag_debug(stderr) ;
+      zmw_name_unregister(&global_zmw_drag_from) ;
+      zmw_name_unregister(&global_zmw_drag_to) ;
+      
+      if ( global_zmw_drag_data )
+	free(global_zmw_drag_data) ;
+      global_zmw_drag_data = NULL ;
+      
+      zmw_need_repaint() ;
+      zmw.need_dispatch = Zmw_True ;
     }
 }
 
-void zmw_drag_clear_to_widget()
-{
-  zmw_name_unregister(&global_zmw_drag_to) ;
-}
-
-
 /*
- * Return information to the dragged zmw about the drag
- *
- * Zmw_Drag_No :    The zmw is not dragged
- * Zmw_Drag_Begin :
- *                     Must call "zmw_drag_from_data_set" to set
- *                     the data to be dragged is duplicated
- * Zmw_Drag_Running :
- *                     You MUST display the drag window
- * Zmw_Drag_Accepted:
- *                     You do what you want
- * Zmw_Drag_Refused:
- *                     You do what you want
+ * Return Information to the dragged zmw about the drag
  */
-enum Zmw_Drag zmw_drag_from_state()
+Zmw_Drag_From zmw_drag_from_state()
 {
-  enum Zmw_Drag ret ;
-
   zmw_widget_is_tested() ;
-
-  zmw_increment_index() ;
-
-  ret = Zmw_Drag_No ;
-
-  if ( ZMW_ACTION == zmw_action_dispatch_event
-       && global_zmw_drag_accepted != Zmw_Drag_No
+  
+  zmw_next_widget_could_be_transient() ;
+  
+  /*
+   * Start of a drag
+   */
+  if ( zmw_button_pressed() )
+    {
+      ZMW_ASSERT( global_zmw_drag_drop == Zmw_False ) ;
+      zmw_name_register(&global_zmw_drag_from) ;
+      global_zmw_drag_accepted = Zmw_False ;
+      zmw_event_remove() ;
+      zmw.need_dispatch = Zmw_True ;
+      zmw_need_repaint() ;
+      ZMW_DRAG_RETURN(Zmw_Drag_From_Begin, "Button pressed") ;
+    }
+  /*
+   * End of a drag
+   */
+  
+  zmw_drag_printf("global_zmw_drag_drop=%d %s name_is = %d\n",
+	 global_zmw_drag_drop, zmw_action_name_fct()
+	 , zmw_name_is(&global_zmw_drag_from)) ;
+  if ( global_zmw_drag_drop
+       && ( ZMW_ACTION == zmw_action_dispatch_event
+	    || ZMW_ACTION == zmw_action_dispatch_accelerator )
        && zmw_name_is(&global_zmw_drag_from)
        )
     {
-      ret = global_zmw_drag_accepted ;
-      zmw_drag_full_cancel() ;
+      global_zmw_drag_drop = Zmw_False ;
+      zmw_drag_cancel() ;
+      zmw_event_remove() ;
+      ZMW_DRAG_RETURN(Zmw_Drag_From_End, "drag_drop for me") ;
     }
-  else
+  /*
+   * Running drag
+   */
+  if ( zmw_name_is(&global_zmw_drag_from) )
     {
-      /*
-      if( ZMW_ACTION == zmw_action_dispatch_event )
-	  zmw_printf("CN=%d EI=%d EIM=%d SS=%d\n"
-		     ,ZMW_CALL_NUMBER 
-		     ,ZMW_EVENT_IN
-		     ,ZMW_EVENT_IN_MASKED
-		     ,ZMW_SIZE_SENSIBLE
-		     ) ;
-      */
-      if ( zmw_event_to_process() )
-	{
-	  if ( !zmw_name_registered(&global_zmw_drag_from) && zmw_button_pressed() )
-	    {
-	      zmw_name_register(&global_zmw_drag_from) ;
-	      ret = Zmw_Drag_Begin ;
-	      global_zmw_drag_accepted = Zmw_Drag_No ;
-	      zmw_event_remove() ;
-	    }
-	}
-      else
-	{
-	  if ( zmw_name_is(&global_zmw_drag_from) )
-	    {
-	      zmw_decrement_index() ;
-	      ret = Zmw_Drag_Running ;
-	    }
-	}
+      zmw.next_is_transient = Zmw_True ;
+      ZMW_DRAG_RETURN(Zmw_Drag_From_Running, "Its me" ) ;
     }
-
-  return( ret ) ;  
+  
+  ZMW_DRAG_RETURN(Zmw_Drag_From_No, "Not me") ;  
 }
 
 /*
  * If the drag begin, the dragged zmw must set this information
  */
-void zmw_drag_from_data_set(const char *data)
+void zmw_drag_data_set(const char *data)
 {
   if ( global_zmw_drag_data )
     abort() ;
@@ -153,59 +143,96 @@ void zmw_drag_from_data_set(const char *data)
 
 /*
  * Call this function if you can accept drop.
- * Return :
- *     Zmw_Drag_No:
- *              No drag for you
- *     Zmw_Drag_Running:
- *              The function "zmw_drag_to_accept" must be called
- *     Zmw_Drag_Ending:
- *              The data was released on you
- *              The function "zmw_drag_to_accept" must be called
+ *
+ * Do not use cursor_enter/leave because I wanted it to be state change safe.
  */
 
-enum Zmw_Drag zmw_drag_to_state()
+Zmw_Drag_To zmw_drag_to_state()
 {
-  enum Zmw_Drag ret ;
-
   zmw_widget_is_tested() ;
-
-  ret = Zmw_Drag_No ;
-
-  if ( global_zmw_drag_accepted == Zmw_Drag_No )
+  /*
+   *
+   */
+  if ( !zmw_name_registered(&global_zmw_drag_from)
+       || ZMW_SUBACTION != Zmw_Input_Event
+       || zmw.event->type == GDK_NOTHING
+   )
+    ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "no drag") ;
+  /*
+   * 
+   */   
+  if ( zmw_button_released() )
     {
-      if ( zmw_event_to_process() )
-	{
-	  if ( zmw_name_registered(&global_zmw_drag_from) )
+      // zmw_name_unregister(&global_zmw_drag_to) ; not yet
+      global_zmw_drag_drop = Zmw_True ;
+      zmw_event_remove() ;
+      zmw.need_dispatch = Zmw_True ;
+      ZMW_DRAG_RETURN(Zmw_Drag_To_End, "Button released") ;
+    }
+  /*
+   * 
+   */
+  zmw_drag_printf("name_contains %s === %d\ncursor in === %d\n",
+  	zmw.found.name, zmw_name_contains(&zmw.found), zmw_cursor_in()) ;
+
+  if ( ZMW_EVENT_IN )
+  	{
+	  /* The drag area contains the cursor */
+	  if ( zmw_name_is(&global_zmw_drag_to) )
+	    ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "cursor stay in") ;
+	  else
 	    {
+	      if ( zmw_name_contains(&global_zmw_drag_to) )
+		ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "into inner widget") ;
+	      if ( zmw_name_registered(&global_zmw_drag_to) )
+		ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "not yet?") ;
+	      zmw_event_remove() ;
 	      zmw_name_register(&global_zmw_drag_to) ;
-	      
-	      if ( zmw_button_released() )
-		{
-		  ret = Zmw_Drag_Ending ;
-		  zmw_event_remove() ;
-		}
-	      else
-		ret = Zmw_Drag_Running ;
+	      zmw.need_dispatch = Zmw_True ;
+	      ZMW_DRAG_RETURN(Zmw_Drag_To_Enter, "Cursor enter on widget") ;
 	    }
+  	}
+  else
+    {
+      /* The drag area do not contains cursor */
+      if ( zmw_name_is(&global_zmw_drag_to) )
+	{
+	  zmw_event_remove() ;
+	  zmw_name_unregister(&global_zmw_drag_to) ;
+	  global_zmw_drag_accepted = Zmw_False ;
+	  zmw.need_dispatch = Zmw_True ;
+	  ZMW_DRAG_RETURN(Zmw_Drag_To_Leave, "Cursor go out") ;
 	}
       else
-	{
-	  if ( zmw_name_is(&global_zmw_drag_to) )
-		  ret = Zmw_Drag_Running ;
-	}
+	ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "Cursor stay out") ;
     }
-  return(ret) ;
+  
 }
 
-void zmw_drag_to_accept(int bool)
+void zmw_drag_to_nothing()
 {
-  if ( bool )
-    global_zmw_drag_accepted = Zmw_Drag_Accepted ;
-  else
-    global_zmw_drag_accepted = Zmw_Drag_Refused ;
+  if ( zmw_name_registered(&global_zmw_drag_to) )
+    {
+      zmw_name_unregister(&global_zmw_drag_to) ;
+      // global_zmw_drag_accepted = Zmw_False ;
+      zmw.need_dispatch = Zmw_True ;
+    }
 }
 
-char *zmw_drag_to_data_get()
+void zmw_drag_accept_set(Zmw_Boolean bool)
+{
+  zmw_drag_printf("drag_to_accept = %d\n", bool) ;
+  global_zmw_drag_accepted = bool;
+  zmw_need_repaint() ;
+}
+
+Zmw_Boolean zmw_drag_accept_get()
+{
+   zmw_drag_printf("is accepted return %d\n", global_zmw_drag_accepted) ;
+   return( global_zmw_drag_accepted ) ;
+}
+
+char *zmw_drag_data_get()
 {
   return(global_zmw_drag_data) ;
 }
@@ -226,15 +253,13 @@ void zmw_drag_debug_window()
 	  zmw_text(buf) ;
 	  sprintf(buf, "TO=%s", zmw_name_registered(&global_zmw_drag_to)) ;
 	  zmw_text(buf) ;
+	  sprintf(buf, "accepted=%d", global_zmw_drag_accepted) ;
+	  zmw_text(buf) ;
+	  sprintf(buf, "dragdrop=%d", global_zmw_drag_drop) ;
+	  zmw_text(buf) ;
 	  if ( global_zmw_drag_data )
 	    {
 	      sprintf(buf, "DATA=%20s", global_zmw_drag_data) ;
-	      zmw_text(buf) ;
-	    }
-	  if ( zmw_name_registered(&global_zmw_drag_from)
-	       && zmw_name_registered(&global_zmw_drag_to) )
-	    {
-	      sprintf(buf,"ACCEPT=%s",global_wd[global_zmw_drag_accepted]) ;
 	      zmw_text(buf) ;
 	    }
 	}

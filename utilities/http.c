@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 */
 
 #include <ctype.h>
-#include "zmw.h"
-#include "socket.h"
+#include "zmw/zmw.h"
+#include "zmw/socket.h"
 
 static FILE *global_http ;
 static char *global_url[ZMW_MAX_DEPTH] ;
@@ -86,45 +86,56 @@ char *http_encode_url(const char *url)
   return(encoded) ;
 }
 
+int http_printf(const char *format, ...)
+{
+    va_list ap;
+    int i ;
+
+    va_start(ap, format);
+    i = vfprintf(global_http, format, ap );
+    va_end(ap);
+    return(i) ;
+}
+
 static void http_rectangle_display(Zmw_Rectangle *ws)
 {
   if ( ws->x != ZMW_VALUE_UNDEFINED )
-    fprintf(global_http, "%d,", ws->x) ;
+    http_printf("%d,", ws->x) ;
   else
-    fprintf(global_http, "?,") ;
+    http_printf("?,") ;
 
   if ( ws->y != ZMW_VALUE_UNDEFINED )
-    fprintf(global_http, "%d", ws->y) ;
+    http_printf("%d", ws->y) ;
   else
-    fprintf(global_http, "?") ;
+    http_printf("?") ;
 
   if ( ws->width != ZMW_VALUE_UNDEFINED )
-    fprintf(global_http, "&nbsp;%d", ws->width) ;
+    http_printf("&nbsp;%d", ws->width) ;
   else
-    fprintf(global_http, "&nbsp;?") ;
+    http_printf("&nbsp;?") ;
 
   if ( ws->height != ZMW_VALUE_UNDEFINED )
-    fprintf(global_http, "x%d", ws->height) ;
+    http_printf("x%d", ws->height) ;
   else
-    fprintf(global_http, "x?") ;
+    http_printf("x?") ;
 }
 
 static void http_size_display(Zmw_Size *ws)
 {
-  fprintf(global_http, "<TD>\n") ;
+  http_printf("<TD>\n") ;
   http_rectangle_display(&ws->asked) ;
-  fprintf(global_http, "</TD>\n") ;
-  fprintf(global_http, "<TD>\n") ;
+  http_printf("</TD>\n") ;
+  http_printf("<TD>\n") ;
   http_rectangle_display(&ws->required) ;
-  fprintf(global_http, "</TD>\n") ;
-  fprintf(global_http, "<TD>\n") ;
+  http_printf("</TD>\n") ;
+  http_printf("<TD>\n") ;
   http_rectangle_display(&ws->min) ;
-  fprintf(global_http, "</TD>\n") ;
-  fprintf(global_http, "<TD>\n") ;
+  http_printf("</TD>\n") ;
+  http_printf("<TD>\n") ;
   http_rectangle_display(&ws->allocated) ;
-  fprintf(global_http, "</TD>\n") ;
+  http_printf("</TD>\n") ;
 
-  fprintf(global_http,
+  http_printf(
 	  "<TD>%s</TD><TD>%s</TD><TD>%s %s %s</TD>"
 	  , ZMW_HORIZONTAL_ALIGNMENT < 0
 	  ? "Left" : (ZMW_HORIZONTAL_ALIGNMENT > 0 ? "Right" : "Center")
@@ -134,7 +145,8 @@ static void http_size_display(Zmw_Size *ws)
 	  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : ""
 	  , ZMW_USED_TO_COMPUTE_PARENT_SIZE ? "" :"NotUsedToComputeParentSize"
 	  ) ;
-  fprintf(global_http, "<TD>%d</TD>\n", ws->index) ;
+  http_printf("<TD>%d</TD>\n", ws->index) ;
+  http_printf("<TD>%s</TD>\n", ZMW_SIZE_SENSIBLE ? "Sensible" : "") ;
 }
 
 int http_node()
@@ -155,22 +167,22 @@ int http_node()
 
       if ( strcmp(global_name, zmw_name_full) == 0 )
 	{
-	  fprintf(global_http, "<TABLE BORDER>\n") ;
-	  fprintf(global_http, "<TR><TH>Type</TH><TD>%s</TD></TR>", ZMW_TYPE) ;
-	  fprintf(global_http, "<TR><TH>Asked Size</TH><TD>") ;
+	  http_printf("<TABLE BORDER>\n") ;
+	  http_printf("<TR><TH>Type</TH><TD>%s</TD></TR>", ZMW_TYPE) ;
+	  http_printf("<TR><TH>Asked Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_ASKED) ;
-	  fprintf(global_http, "</TD></TR>") ;
-	  fprintf(global_http, "<TR><TH>Required Size</TH><TD>") ;
+	  http_printf("</TD></TR>") ;
+	  http_printf("<TR><TH>Required Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_REQUIRED) ;
-	  fprintf(global_http, "</TD></TR>") ;
-	  fprintf(global_http, "<TR><TH>Min Size</TH><TD>") ;
+	  http_printf("</TD></TR>") ;
+	  http_printf("<TR><TH>Min Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_MIN) ;
-	  fprintf(global_http, "</TD></TR>") ;
-	  fprintf(global_http, "<TR><TH>Allocated Size</TH><TD>") ;
+	  http_printf("</TD></TR>") ;
+	  http_printf("<TR><TH>Allocated Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_ALLOCATED) ;
-	  fprintf(global_http, "</TD></TR>") ;
+	  http_printf("</TD></TR>") ;
 
-	  fprintf(global_http,
+	  http_printf(
 		  "<TR>"
 		  "<TH>Expand</TH>"
 		  "<TD>%s%s</TD>"
@@ -179,55 +191,55 @@ int http_node()
 		  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : "&nbsp;"
 	  ) ;
 
-	  fprintf(global_http, "<TR><TH>Debug</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Debug</TH><TD>%d</TD></TR>\n"
 		  , ZMW_DEBUG) ;
-	  fprintf(global_http, "<TR><TH>Padding Width</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Padding Width</TH><TD>%d</TD></TR>\n"
 		  , ZMW_PADDING_WIDTH) ;
-	  fprintf(global_http, "<TR><TH>Border Width</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Border Width</TH><TD>%d</TD></TR>\n"
 		  , ZMW_BORDER_WIDTH) ;
-	  fprintf(global_http, "<TR><TH>Focus Width</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Focus Width</TH><TD>%d</TD></TR>\n"
 		  , ZMW_FOCUS_WIDTH) ;
-	  fprintf(global_http, "<TR><TH>Focus</TH><TD>%s</TD></TR>\n"
+	  http_printf("<TR><TH>Focus</TH><TD>%s</TD></TR>\n"
 		  , ZMW_FOCUS
 		  ? ( zmw_name_registered(ZMW_FOCUS)
 		      ? zmw_name_registered(ZMW_FOCUS) : "*focus=NULL" ) :
 		  "focus = NULL"
 		  ) ;
-	  fprintf(global_http, "<TR><TH>Font</TH><TD>%p%s</TD></TR>\n"
+	  http_printf("<TR><TH>Font</TH><TD>%p%s</TD></TR>\n"
 		  , ZMW_FONT
 		  , ZMW_FONT_COPY_ON_WRITE ? "" : "Modified") ;
-	  fprintf(global_http, "<TR><TH>Window</TH><TD>%p</TD></TR>\n"
+	  http_printf("<TR><TH>Window</TH><TD>%p</TD></TR>\n"
 		  , ZMW_WINDOW) ;
-	  fprintf(global_http, "<TR><TH>GC</TH><TD>") ;
+	  http_printf("<TR><TH>GC</TH><TD>") ;
 	  for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC); i++)
-	    fprintf(global_http, " %p%s", ZMW_GC[i]
+	    http_printf(" %p%s", ZMW_GC[i]
 		    , ZMW_GC_COPY_ON_WRITE[i] ? "" : "(Modified)"
 		    ) ;
-	  fprintf(global_http, "</TD></TR>") ;
+	  http_printf("</TD></TR>") ;
 
-	  fprintf(global_http, "<TR><TH>Auto resize</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Auto resize</TH><TD>%d</TD></TR>\n"
 		  , ZMW_AUTO_RESIZE) ;
-	  fprintf(global_http, "<TR><TH>Sensible</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH>Sensible</TH><TD>%d</TD></TR>\n"
 		  , ZMW_SENSIBLE) ;
 	  
-	  fprintf(global_http, "<TR><TH>Alignment</TH><TD>%s%s</TD></TR>\n"
+	  http_printf("<TR><TH>Alignment</TH><TD>%s%s</TD></TR>\n"
 		  , ZMW_SIZE_HORIZONTAL_ALIGNMENT<0 ? "Left" :
 		  ( ZMW_SIZE_HORIZONTAL_ALIGNMENT>0 ? "Right" : "Centered" )
 		  , ZMW_SIZE_VERTICAL_ALIGNMENT<0 ? "Top" :
 		  ( ZMW_SIZE_VERTICAL_ALIGNMENT>0 ? "Down" : "Centered" )
 		  ) ;
-	  fprintf(global_http, "<TR><TH>Expension</TH><TD>%s %s</TD></TR>\n"
+	  http_printf("<TR><TH>Expension</TH><TD>%s %s</TD></TR>\n"
 		  , ZMW_SIZE_HORIZONTAL_EXPAND ? "Horizontal" : ""
 		  , ZMW_SIZE_VERTICAL_EXPAND ? "Vertical" : ""
 		  ) ;
 	  
-	  fprintf(global_http, "<TR><TH># of children</TH><TD>%d</TD></TR>\n"
+	  http_printf("<TR><TH># of children</TH><TD>%d</TD></TR>\n"
 		  , ZMW_NB_OF_CHILDREN) ;
 
-	  fprintf(global_http, "</TABLE>\n") ;
+	  http_printf("</TABLE>\n") ;
 
 
-	  fprintf(global_http,
+	  http_printf(
 		  "<TABLE BORDER><TR>"
 		  "<TH>Name</TH><TH>Asked size</TH>"
 		  "<TH>Required Size</TH>"
@@ -237,14 +249,14 @@ int http_node()
 		  "<TH>Vertical<BR>Alignment</TH>\n"
 		  "<TH>Expand</TH>\n"
 		  ) ;
-	  fprintf(global_http, "<TH>Index</TH>\n") ;
-	  fprintf(global_http, "</TR>\n") ;
+	  http_printf("<TH>Index</TH>\n") ;
+	  http_printf("</TR>\n") ;
 	}
       else
 	if ( strncmp(global_name, zmw_name_full, strlen(global_name)) == 0
 	     && strchr(zmw_name_full+strlen(global_name)+2, '/') == NULL)
 	  {
-	    fprintf(global_http, "<TR><TH><A HREF=\"%s/\">%s</A></TH>\n"
+	    http_printf("<TR><TH><A HREF=\"%s/\">%s</A></TH>\n"
 		    , http_encode_url(zmw_name_full)
 		    , ZMW_NAME
 		    ) ;
@@ -257,7 +269,7 @@ int http_node()
       return(1) ;
     case 2:
       if ( strcmp(global_name, zmw_name_full) == 0 )
-	fprintf(global_http, "</TABLE>") ;
+	http_printf("</TABLE>") ;
     }
   zmw_action_do_not_enter() ;
   return(0) ;
@@ -266,6 +278,8 @@ int http_node()
 
 int http_tree()
 {
+  static int index_last = 0 ;
+	
   ZMW_EXTERNAL_HANDLING ;
   
   switch ( ZMW_CALL_NUMBER++ )
@@ -276,23 +290,56 @@ int http_tree()
 
     case 1:
       ZMW_SUBACTION = Zmw_Nothing ;
+      ZMW_SUBACTION = Zmw_Debug_Message ;
       zmw_action_second_pass() ;
-      fprintf(global_http, "<LI> [%d] <A HREF=\"%s\">%s</A> %s\n<UL>"
+      http_printf("<LI> [%d-%d-%d] <A HREF=\"%s\">%s</A> %s"
 	      , ZMW_INDEX
+	      , ZMW_SIZE_INDEX
+	      , zmw.index_last
 	      , zmw_name_full
 	      , ZMW_NAME
 	      , ZMW_TYPE
 	      ) ;
+      if ( ZMW_SIZE_INDEX )
+      	{
+      if ( ZMW_SIZE_INDEX != zmw.index_last + 1 )
+      	  http_printf("<BR>\n<EM>ZMW_SIZE_INDEX != zmw.index_last + 1</EM>") ;
+      if ( ZMW_INDEX != index_last + 1 )
+      	  http_printf("<BR>\n<EM>ZMW_INDEX != index_last + 1</EM>") ;
+      	}
+      index_last = ZMW_INDEX ;
+      http_printf("\n<UL>") ;
       zmw_state_push() ;
       return(1) ;
     case 2:
-      fprintf(global_http, "</UL>\n") ;
+      http_printf("</UL></LI>\n") ;
       
     }
   zmw_action_do_not_enter() ;
   return(0) ;
 }
 
+
+int http_debug()
+{
+  ZMW_EXTERNAL_HANDLING ;
+  
+
+  switch ( ZMW_CALL_NUMBER++ )
+    {
+    case 0:
+      ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
+      return(zmw_action_first_pass()) ;
+
+    case 1:
+
+      zmw_action_second_pass() ;
+      zmw_state_push() ;
+      return(1) ;
+    }
+  zmw_action_do_not_enter() ;
+  return(0) ;
+}
 
 
 void http_connection(gpointer o, int socket, GdkInputCondition condition)
@@ -372,13 +419,18 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
   if ( global_http == NULL )
     perror("fdopen") ;
 
-  fprintf(global_http,
+  http_printf(
           "HTTP/1.0 200 Document follows\n"
           "MIME-Version: 1.0\n"
-          "Server: zmw_run.c\n"
+          "Server: ZMW\n"
           "Pragma-Type: no-cache\n"
 	  "Content-Type: text/html\n"
 	  "\n"
+	  "<HEAD>\n"
+	  "<STYLE>\n"
+	  "em { color: red ; }\n"
+	  "</STYLE>\n"
+	  "</HEAD>\n"
 	  "<HTML>\n"
 	  "<BODY>\n"
 	  ) ;
@@ -386,31 +438,36 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
 
    if ( strcmp(buf, "?tree") == 0 )
     {
-      fprintf(global_http, "<H1>Zmw Tree</H1>\n") ;
+      http_printf("<H1>Zmw Tree</H1>\n") ;
 
       zmw_call_widget(fct, http_tree) ;
+    }
+   else if ( strcmp(buf, "?names") == 0 )
+    {
+      http_printf("<H1>Zmw Names registration</H1>\n") ;
+
       zmw_name_dump(global_http) ;
     }
   else if ( strcmp(buf, "?drag") == 0 )
     {
-      fprintf(global_http, "<H1>Drag State</H1><PRE>") ;
+      http_printf("<H1>Drag State</H1><PRE>") ;
       zmw_drag_debug(global_http) ;
-      fprintf(global_http, "</PRE>\n") ;      
+      http_printf("</PRE>\n") ;      
     }
   else
     {
-      fprintf(global_http, "<H1>") ;
-      fprintf(global_http, "<A HREF=\"/\">(root)</A>") ;
+      http_printf("<H1>") ;
+      http_printf("<A HREF=\"/\">(root)</A>") ;
       strcpy(buf2, "/") ;
       for(i=0;global_url[i];i++)
 	{
 	  sprintf( buf2+strlen(buf2), "%s/", global_url[i]) ;
-	  fprintf(global_http, "/<A HREF=\"%s\">%s</A>"
+	  http_printf("/<A HREF=\"%s\">%s</A>"
 		  , http_encode_url(buf2)
 		  , global_url[i]
 		  ) ;
 	}
-      fprintf(global_http, "</H1>\n") ;
+      http_printf("</H1>\n") ;
       
       
       zmw_name("?") ;
@@ -421,10 +478,11 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
       
     }
 
-  fprintf(global_http,
+  http_printf(
 	  "<HR>"
 	  "<A HREF=\"/\">Root</A> * "
 	  "<A HREF=\"/?tree\">Zmw Tree</A> * "
+	  "<A HREF=\"/?names\">Zmw Names</A> * "
 	  "<A HREF=\"/?drag\">Drag State</A>"
 	  "</BODY>\n"
 	  "</HTML>\n"

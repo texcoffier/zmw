@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
-static void rectangle_draw(Zmw_Rectangle *r, int i, GdkGC *ul, GdkGC *rd)
+static void rectangle_draw(const Zmw_Rectangle *r, int i, GdkGC *ul, GdkGC *rd)
 {
   gdk_draw_line(ZMW_WINDOW, ul
 		, r->x+i
@@ -51,41 +51,33 @@ static void rectangle_draw(Zmw_Rectangle *r, int i, GdkGC *ul, GdkGC *rd)
 }
 
 
-void zmw_border_draw(int options)
+void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
 {
-  Zmw_Rectangle r ;
   GdkGC *ul, *rd, *b ;
   int i ;
 
   if ( ZMW_ACTION != zmw_action_draw )
     return ;
 
-  r = ZMW_SIZE_ALLOCATED ;
-
-  r.x -= ZMW_PADDING_WIDTH ;
-  r.y -= ZMW_PADDING_WIDTH ;
-  r.width += 2 * ZMW_PADDING_WIDTH ;
-  r.height += 2 * ZMW_PADDING_WIDTH ;
-
   if ( options & Zmw_Border_Draw_Focus )
     {
       for(i=0; i<ZMW_FOCUS_WIDTH; i++)
 	{
 	  gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND], 0
-			     , r.x + i
-			     , r.y + i
-			     , r.width - 1 - 2*i
-			     , r.height - 1 - 2*i
+			     , r->x + i
+			     , r->y + i
+			     , r->width - 1 - 2*i
+			     , r->height - 1 - 2*i
 			     ) ;
 	}
     }
   
   if ( options & Zmw_Border_Focusable )
     {
-      r.x += ZMW_FOCUS_WIDTH ;
-      r.y += ZMW_FOCUS_WIDTH ;
-      r.width -= 2 * ZMW_FOCUS_WIDTH ;
-      r.height -= 2 * ZMW_FOCUS_WIDTH ;
+      r->x += ZMW_FOCUS_WIDTH ;
+      r->y += ZMW_FOCUS_WIDTH ;
+      r->width -= 2 * ZMW_FOCUS_WIDTH ;
+      r->height -= 2 * ZMW_FOCUS_WIDTH ;
     }
 
   if ( options & Zmw_Border_In )
@@ -104,24 +96,24 @@ void zmw_border_draw(int options)
       for(i=0; i<ZMW_BORDER_WIDTH; i++)
 	{
 	  gdk_draw_rectangle(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND], 0
-			     , r.x + i
-			     , r.y + i
-			     , r.width - 1 - 2*i
-			     , r.height - 1 - 2*i
+			     , r->x + i
+			     , r->y + i
+			     , r->width - 1 - 2*i
+			     , r->height - 1 - 2*i
 			     ) ;
 	}
     }
   else if ( options & Zmw_Border_Relief )
     {
       for(i=0; i<ZMW_BORDER_WIDTH; i++)
-	rectangle_draw(&r, i, ul, rd) ;
+	rectangle_draw(r, i, ul, rd) ;
     }
   else if ( options & Zmw_Border_Embossed )
     {
       for(i=0; i<ZMW_BORDER_WIDTH/2; i++)
-	rectangle_draw(&r, i, ul, rd) ;
+	rectangle_draw(r, i, ul, rd) ;
       for(; i<ZMW_BORDER_WIDTH; i++)
-	rectangle_draw(&r, i, rd, ul) ;
+	rectangle_draw(r, i, rd, ul) ;
     }
 
   if ( options & Zmw_Border_Background )
@@ -132,12 +124,28 @@ void zmw_border_draw(int options)
 	b = ZMW_GC[ZMW_BACKGROUND_POPED] ;
 
       gdk_draw_rectangle(ZMW_WINDOW, b, 1
-			 , r.x+ZMW_BORDER_WIDTH
-			 , r.y+ZMW_BORDER_WIDTH
-			 , r.width-2*ZMW_BORDER_WIDTH
-			 , r.height-2*ZMW_BORDER_WIDTH
+			 , r->x+ZMW_BORDER_WIDTH
+			 , r->y+ZMW_BORDER_WIDTH
+			 , r->width-2*ZMW_BORDER_WIDTH
+			 , r->height-2*ZMW_BORDER_WIDTH
 			 ) ;
     }
+}
+void zmw_border_draw(int options)
+{
+  Zmw_Rectangle r ;
+
+  if ( ZMW_ACTION != zmw_action_draw )
+    return ;
+
+  r = ZMW_SIZE_ALLOCATED ;
+  /*
+  r.x -= ZMW_PADDING_WIDTH ;
+  r.y -= ZMW_PADDING_WIDTH ;
+  r.width += 2 * ZMW_PADDING_WIDTH ;
+  r.height += 2 * ZMW_PADDING_WIDTH ;
+  */
+  zmw_border_draw_with_rectangle(options, &r) ;
 }
 
 void zmw_border_solid_draw()

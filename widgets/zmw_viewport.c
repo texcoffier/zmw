@@ -1,87 +1,151 @@
 /*
-    ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+  ZMW: A Zero Memory Widget Library
+  Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-    Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
+  Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
 
-#define P 10
+#define P 18
 
-void zmw_viewport(int x, int y)
+int zmw_scrollbar_2_viewport(Zmw_Float_0_1 sb_pos, int sb_size, int vp_size)
+{
+  return ( sb_pos * vp_size ) ;
+}
+
+Zmw_Float_0_1 zmw_scrollbar_size(int sb_size, int vp_size)
+{
+  Zmw_Float_0_1 size ;
+
+  sb_size -= 2 * ZMW_BORDER_WIDTH ;	
+  size = sb_size / (float)vp_size ;
+  if ( size > 1 )
+    size = 1 ;
+  return( size ) ;
+}
+
+/* Not really useful, it returns always 0, 1 and 2 */
+
+void zmw_viewport_get_children(int *v_sb, int *h_sb, int *vp)
 {
   int i ;
-  GdkRectangle r ;
-  static GdkGC *save[P][ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE)] ;
-  static GdkRectangle rect[P] ;
-  static int p = 0 ;
+  
+  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
+    if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+      {
+	*v_sb = i++ ;
+	for(; i<ZMW_NB_OF_CHILDREN; i++)
+	  if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+	    {
+	      *h_sb = i++ ;
+	      for(; i<ZMW_NB_OF_CHILDREN; i++)
+		if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+		  {
+		    *vp = i++ ;
+		    return ;
+		  }
+	    }
+      }
+  ZMW_ABORT ;
+}
+
+void zmw_scrollbar_needed(Zmw_Boolean *x, Zmw_Boolean *y,
+		int v_sb, int h_sb, int vp)
+{
+  *x = ZMW_SIZE_ALLOCATED.width
+    < ZMW_CHILDREN[vp].required.width + P ;
+  *y = ZMW_SIZE_ALLOCATED.height
+    < ZMW_CHILDREN[vp].required.height + P ;
+
+  if ( ! *x )
+    ZMW_CHILDREN[h_sb].invisible = Zmw_True ;
+  if ( ! *y )
+    ZMW_CHILDREN[v_sb].invisible = Zmw_True ;	
+}	
+ 
+
+void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_Float_0_1 *y_size, Zmw_Rectangle *r)
+{
+  Zmw_Boolean x_sb, y_sb ;
+  int v_sb, h_sb, vp ; // Indexes in CHILDREN list
+
+  if ( ZMW_NB_OF_CHILDREN == 3 )
+    zmw_viewport_get_children(&v_sb, &h_sb, &vp) ;
+
 
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = 100 ;
-      ZMW_SIZE_MIN.height = 100 ;
+      ZMW_SIZE_MIN.width = 4*P ;
+      ZMW_SIZE_MIN.height = 4*P ;
       break ;
-
-    case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-      r.x = ZMW_SIZE_ALLOCATED.x + ZMW_BORDER_WIDTH ;
-      r.y = ZMW_SIZE_ALLOCATED.y + ZMW_BORDER_WIDTH ;
-      r.width = ZMW_SIZE_ALLOCATED.width - 2*ZMW_BORDER_WIDTH ;
-      r.height = ZMW_SIZE_ALLOCATED.height - 2*ZMW_BORDER_WIDTH ;
-
-      if ( p )
-	{
-	  r.x = ZMW_MAX(r.x, rect[p-1].x) ;
-	  r.y = ZMW_MAX(r.y, rect[p-1].y) ;
-	  r.width = ZMW_MIN(r.x+r.width,rect[p-1].x+rect[p-1].width) - r.x ;
-	  r.height = ZMW_MIN(r.y+r.height,rect[p-1].y+rect[p-1].height) - r.y ;
-	}
-      rect[p] = r ;
-
-      for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-	{
-	  save[p][i] = ZMW_GC[i] ;
-	  ZMW_GC[i] = gdk_gc_new(ZMW_WINDOW) ;
-	  gdk_gc_copy(ZMW_GC[i], save[p][i]) ;
-	  gdk_gc_set_clip_rectangle(ZMW_GC[i], &r) ;
-	}
-      p++ ;
 
     case Zmw_Compute_Children_Allocated_Size:
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-	{
-	  if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
-	    continue ;
-	  
-	  ZMW_CHILDREN[i].allocated = ZMW_CHILDREN[i].required ;
-	  ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x - x ;
-	  ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y - y ;
-	}
-      break ;
-    case Zmw_Post_Drawing:
-      p-- ;
-      for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
-	{
-	  gdk_gc_destroy(ZMW_GC[i]) ;
-	  ZMW_GC[i] = save[p][i] ;
-	}
+    case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
 
+      zmw_scrollbar_needed(&x_sb, &y_sb, v_sb, h_sb, vp) ;
+
+      if ( ZMW_NB_OF_CHILDREN != 3 )
+	ZMW_ABORT ;
+	
+
+      ZMW_CHILDREN[v_sb].allocated.x = ZMW_SIZE_ALLOCATED.x
+	+ ZMW_SIZE_ALLOCATED.width
+	- P ;
+      ZMW_CHILDREN[v_sb].allocated.y = ZMW_SIZE_ALLOCATED.y ;
+      ZMW_CHILDREN[v_sb].allocated.width = P ;
+      ZMW_CHILDREN[v_sb].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb ;
+      
+      ZMW_CHILDREN[h_sb].allocated.y = ZMW_SIZE_ALLOCATED.y
+	+ ZMW_SIZE_ALLOCATED.height
+	- P ;
+      ZMW_CHILDREN[h_sb].allocated.x = ZMW_SIZE_ALLOCATED.x ;
+      ZMW_CHILDREN[h_sb].allocated.height = P ;
+      ZMW_CHILDREN[h_sb].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb ;
+
+           
+
+      ZMW_CHILDREN[vp].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb ;
+      ZMW_CHILDREN[vp].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb ;
+      ZMW_CHILDREN[vp].allocated.x = ZMW_SIZE_ALLOCATED.x ;
+      ZMW_CHILDREN[vp].allocated.y = ZMW_SIZE_ALLOCATED.y ;
+
+      *x_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.width - P*y_sb
+				   , ZMW_CHILDREN[vp].required.width) ;
+      *y_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.height - P*x_sb
+				   , ZMW_CHILDREN[vp].required.height) ;
+      
+      r->x =
+	- zmw_scrollbar_2_viewport(x
+				   ,ZMW_CHILDREN[h_sb].required.width
+				   ,ZMW_CHILDREN[vp].required.width) ;
+      
+      r->y =
+	- zmw_scrollbar_2_viewport(y
+				   ,ZMW_CHILDREN[v_sb].required.height
+				   ,ZMW_CHILDREN[vp].required.height) ;
+      break ;
+    case Zmw_Input_Event:
+      zmw_scrollbar_needed(&x_sb, &y_sb, v_sb, h_sb, vp) ;
+      break ;
+	
+    case Zmw_Post_Drawing:    
       zmw_border_draw(Zmw_Border_Relief) ;
       break ;
     default:
@@ -92,56 +156,29 @@ void zmw_viewport(int x, int y)
 /*
  * Should save the state value for expand
  */
-void zmw_viewport_with_scrollbar_general(float *x, float *y
-					 , Zmw_Boolean *needed)
+void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 {
-  int width, height, new_needed ;
-
-  width = height = 0 ; /* To avoid a compiler warning */
+  static Zmw_Float_0_1 x_size[9], y_size[9] ; /* XXX FIXME */
+  static Zmw_Rectangle r[9] ; /* XXX FIXME */
+  static int depth = 0 ;
 
   ZMW_EXTERNAL_RESTART ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_viewport(*x, *y, &x_size[depth], &y_size[depth], &r[depth]))
     {
-      if ( needed == NULL || *needed )
+      zmw_name("ZMW_VP_SBV") ;
+      zmw_scrollbar_vertical(y, y_size[depth]) ;
+      zmw_name("ZMW_VP_SBH") ;
+      zmw_scrollbar_horizontal(x, x_size[depth]) ;
+
+      zmw_name("ZMW_VP_EX") ;
+      ZMW(zmw_decorator(Zmw_Decorator_Clip|Zmw_Decorator_Translate, r[depth].x, r[depth].y))
 	{
-	  zmw_horizontal_expand(1) ;
-	  zmw_vertical_expand(0) ;
-	  zmw_text("Horizontal scroll bar") ;
-	  zmw_scrollbar_horizontal(x) ;
-	  zmw_text("Vertical scroll bar") ;
-	  zmw_scrollbar_horizontal(y) ;
-	}
-      zmw_name("viewport") ;
-      zmw_vertical_expand(1) ;
-      ZMW(zmw_viewport(*x*(width-ZMW_SIZE_ALLOCATED.width)
-		       ,*y*(height-ZMW_SIZE_ALLOCATED.height)))
-	{
+	  depth++ ;
 	  ZMW_EXTERNAL ;
-	  width = ZMW_SIZE_REQUIRED.width ;
-	  height = ZMW_SIZE_REQUIRED.height ;
+	  depth-- ;
 	}
-      if ( needed && zmw_drawing() )
-	{
-	  new_needed = ( width >= ZMW_SIZE_ALLOCATED.width
-			 || height >= ZMW_SIZE_ALLOCATED.height ) ;
-	  if ( new_needed != *needed )
-	    zmw_need_repaint() ;
-	  *needed = new_needed ;
-	}
-    }
-
+    }   
   ZMW_EXTERNAL_STOP ;
-}
-
-void zmw_viewport_with_scrollbar(float *x, float *y)
-{
-  zmw_viewport_with_scrollbar_general(x, y, NULL) ;
-}
-
-void zmw_viewport_with_scrollbar_if_needed(float *x, float *y
-					   , Zmw_Boolean *needed)
-{
-  zmw_viewport_with_scrollbar_general(x, y, needed) ;
 }
 

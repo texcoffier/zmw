@@ -1,0 +1,92 @@
+#!/bin/sh
+
+case `hostname` in
+big) # Pentium 150 MHz
+    SMALL1=0.1
+    SMALL2=0.3
+    ;;
+ligimpc37) # Pentium 1.5 GHz
+    SMALL1=0.1
+    SMALL2=0.3
+    ;;
+ligimpc22) # Pentium 1 GHz
+    SMALL1=0.1
+    SMALL2=0.3
+    ;;
+*)
+    echo "Please edit .../examples/utilities to set good times"
+    echo "With big times, you are safe but the test is sloooow."
+    SMALL1=0.5
+    SMALL2=2
+    ;;
+esac
+
+
+
+
+zmw_send() {
+    echo "$1,0,1001
+0,6,$X,$Y,0,0,0,1002" | xnee --replay  2>/dev/null >/dev/null
+}
+
+zmw_move_cursor_to() {
+        X="$1"
+        Y="$2"
+        zmw_send "0,6,$1,$2,0,0"
+	zmw_sleep $SMALL1
+        zmw_send "0,6,`expr $1 + 1`,$2,0,0"
+	zmw_sleep $SMALL1
+}
+
+zmw_button_press() {
+	zmw_send "0,4,0,0,1,0"
+}
+
+zmw_button_release() {
+	zmw_send "0,5,0,0,1,0"
+}
+
+zmw_button_click() {
+	zmw_button_press
+	zmw_button_release
+}
+
+zmw_button2_press() {
+	zmw_send "0,4,0,0,2,0"
+}
+
+zmw_button2_release() {
+	zmw_send "0,5,0,0,2,0"
+}
+
+zmw_button2_click() {
+	zmw_button2_press
+	zmw_button2_release
+}
+zmw_key_press() {
+	zmw_send "0,2,0,0,0,$1"
+}
+
+zmw_key_release() {
+	zmw_send "0,3,0,0,0,$1"
+}
+
+zmw_key() {
+    zmw_key_press "$1"
+    zmw_key_release "$1"
+}
+
+zmw_sleep() {
+	sleep $1 || sleep 1
+}
+
+
+zmw_dump_screen() {
+        NAME="$PROG_NAME.$1.ppm"
+	echo -n "$1"
+	zmw_sleep $SMALL2
+	xwd -root -screen |
+	    xwdtopnm 2>/dev/null |
+	    pnmcrop -white 2>/dev/null >$NAME
+}
+

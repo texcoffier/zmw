@@ -1,14 +1,12 @@
-
 Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WIDGETS:
 	- Alignement left/right in an horizontal widget
-	- Text Cursor
-	- Text selection, cut, copy, paste
-	- Focus navigation
-	- Framing (border + name)
-	- Table
+	- Text formatting
+	- Semantic Lens
+	- Focus navigation with keyboard
+	- Framing (border + name) : decorator enhancement
 
 LIBRARY CORE:
 	- Make a pile by attribute with a bit vector to indicate
@@ -16,41 +14,46 @@ LIBRARY CORE:
 	  So in the most current case, there only one 'int' to push
 	  to push all the attributes.
 	  Define the attributes in current state dynamicly
-	- Double buffering
+	- Double buffering (easy with OpenGL)
 	- zMw->size[0].alignement zMw->size[0].required for X axis ...
 	  and [1] for Y axis.
-	- Rename bad name of function or structure
 	- Use OpenGL
-
-LIBRARY CORE naming function (zmw_name.c)
 	- zmw_name must not be called with the same name for sibling.
+	- Create an zmw_action_assert to verify widget tree
+	- Having children "not_used_to_compute_parent_size" in CHILDREN
+	  complexify the size computation.
+	  Should be CHILDREN_VISIBLE be created ?
+	- Add a zmw_modified() to zmw_activated() for text or scrollbar
+	  modification.
+	- Should zmw_action_dispatch_event be separated into
+	  zmw_dispatch_button_press, zwm_dispatch_key_press, ...
+	  It will simplify the drag and drop operation,
+	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
+	- Cursor shape change
 
 BUGS:
+	* "notebook" regression test does not pass with GDK 2
+	   But "image" does, so it is a pixbuf creation problem
+	* "window" regression test does not pass with GDK 2
+	  The event reception is not the same.
+	  Problem: Key press on menu popup, release on toggle does not toggle.
+	* "draganddrop" regression test does not pass with GDK 2
 	* X window is locked (grab?) when debugging info is printed
-	* The zmw_window change GC before they were pushed
-	  (the tip changes the color of the next widget)
 	- Key pressed have not the current coordinates, but the last
 	  one received.
 	- A detached menu is invisible if its father is not visible
 	  (can be corrected without problems)
 	- A window in an invisible notebook page is not visible
+	- In many widget, cursor draging must not go outside window
+	  (scrollbar, table, ...) (it is due to bad x,y conversion because
+	  the cursor change of window.)
+	- filechooser at top level does not appear in a framed window
+	  
+NOT TO DO THINGS :
+	- Test "nb_draw" instead of wait a small time in the tests.
+	  This value is unpredictable (because there is event
+	  and a timer, the two things are not synchronized...)
 
-PROBLEMS:
-	- Some function call must be followed by exactly one widget
-		zmw_window_is_popped
-		zmw_tip_visible
-		zmw_drag_from_state
-	  If the returned value change the number of following widget change.
-	  If the user doesn't use "widget_name" the name of the widget change.
-	  Actualy these functions modify the widget name in order
-	  to trick ZMW to think the number of widget et widget name
-	  have not changed.
-	  This scheme doesn't work in all the case, see the test of tips.
-	  So we must turn around this problem in some other way:
-		- Create a widget type "transient"
-		- or create a state : next widget is transient
-		- or enhance the naming scheme with transient name (/Transient)
-		- ...
-	  The good way to solve this problem is not clear,
-	  So the small bug stay. Its correction must
-	  not imply a user program modification.
+	- Create a shortcut to stop tree traversal (complex).
+	  Very bad idea, some functions may need a full traversal.
+	  It does not speed hugely things so it is not interesting.

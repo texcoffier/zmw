@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,51 +19,34 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
-void zmw_image_general(GdkPixbuf *pb, int option)
+#define PRINTF if(0) zmw_printf
+
+static void zmw_image_general(GdkPixbuf *pb)
 {
-  int border, activable, focusable ;
-
-  border = !!(option & Zmw_Option_Border) ;
-  focusable = !!(option & Zmw_Option_Focusable) ;
-  activable = !!(option & Zmw_Option_Activable) ;
-
+  PRINTF("Image general pb=%p\n", pb) ;
   switch( ZMW_SUBACTION )
     {
     case Zmw_Compute_Required_Size:
       ZMW_SIZE_MIN.width = gdk_pixbuf_get_width(pb) ;
       ZMW_SIZE_MIN.height = gdk_pixbuf_get_height(pb) ;
-
-      ZMW_SIZE_MIN.width  += 2*(ZMW_BORDER_WIDTH+focusable*ZMW_FOCUS_WIDTH) ;
-      ZMW_SIZE_MIN.height += 2*(ZMW_BORDER_WIDTH+focusable*ZMW_FOCUS_WIDTH) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-      zmw_border_draw
-	((border                            ? Zmw_Border_Relief : 0)
-	 | (focusable                       ? Zmw_Border_Focusable : 0)
-	 | (zmw_focused()                   ? Zmw_Border_Draw_Focus : 0)
-	 | (border                          ? Zmw_Border_Background : 0)
-	 | ((activable && zmw_selected()) ? Zmw_Border_In : 0)
-	 ) ;
+      PRINTF("win %p gc %p %d %d %dx%d\n"
+	     , ZMW_WINDOW, ZMW_GC[0]
+	     , ZMW_SIZE_ALLOCATED.x, ZMW_SIZE_ALLOCATED.y
+	     , gdk_pixbuf_get_width(pb), gdk_pixbuf_get_height(pb)) ;
 
       gdk_pixbuf_render_to_drawable(pb, ZMW_WINDOW, ZMW_GC[0], 0, 0
 				    , ZMW_SIZE_ALLOCATED.x
-				    + border * ZMW_BORDER_WIDTH
-				    + focusable * ZMW_FOCUS_WIDTH
 				    , ZMW_SIZE_ALLOCATED.y
-				    + border * ZMW_BORDER_WIDTH
-				    + focusable * ZMW_FOCUS_WIDTH
 				    , gdk_pixbuf_get_width(pb)
 				    , gdk_pixbuf_get_height(pb)
 				    , GDK_RGB_DITHER_NORMAL, 0, 0) ;
       break ;
 
-    case Zmw_Input_Event:
-      if ( option )
-	zmw_text_general(NULL, option) ;
-      break ;
     default:
       break ;
     }
@@ -71,47 +54,127 @@ void zmw_image_general(GdkPixbuf *pb, int option)
 
 void zmw_image(GdkPixbuf *pb)
 {
-  ZMW( zmw_image_general(pb, 0) )
+  ZMW( zmw_image_general(pb) )
     {
     }
 }
 void zmw_image_activable(GdkPixbuf *pb)
 {
-  ZMW( zmw_image_general(pb, Zmw_Option_Focusable|Zmw_Option_Activable|Zmw_Option_Border) )
+  ZMW(zmw_decorator(  Zmw_Decorator_Interior
+		    | Zmw_Decorator_Focusable
+		    | Zmw_Decorator_Activable
+		    )
+      )
+    ZMW( zmw_image_general(pb) )
     {
     }
 }
 
-void zmw_image_from_file(const char *filename, GdkPixbuf **pb)
+GdkPixbuf* zmw_pixbuf_get(GdkPixbuf **pb)
 {
-  if ( *pb == NULL )
-    *pb = gdk_pixbuf_new_from_file(filename) ;
-  zmw_image(*pb) ;
+  GdkPixbuf *pixbuf ;	
+	
+  if ( pb == NULL )
+    {
+      pixbuf = NULL ;
+      zmw_name_get_value_pointer("Pixbuf", (void*)&pixbuf) ;
+    }
+  else
+    {
+      pixbuf = *pb ;
+    }
+  PRINTF("zmw_pixbuf_get pb=%p pixbuf=%p\n", pb, pixbuf) ;
+  return( pixbuf ) ;
 }
 
-void zmw_image_from_file_activable(const char *filename, GdkPixbuf **pb)
+void zmw_pixbuf_set(GdkPixbuf **pb, GdkPixbuf *pixbuf)
 {
-  if ( *pb == NULL )
-    *pb = gdk_pixbuf_new_from_file(filename) ;
-  zmw_image_activable(*pb) ;
+  PRINTF("zmw_pixbuf_set pb=%p pixbuf=%p\n", pb, pixbuf) ;
+  if ( pb )
+    *pb = pixbuf ;
+  else
+    zmw_name_set_value_pointer("Pixbuf", pixbuf) ; 
+}
+
+void zmw_pixbuf_load_and_set(GdkPixbuf **pb, GdkPixbuf **pixbuf, const char *filename)
+{
+  PRINTF("zmw_pixbuf_load_and_set pb=%p *pixbuf=%p filename=%s\n"
+	 , pb, *pixbuf, filename) ;
+ if ( *pixbuf == NULL )
+   {
+#if GLIB_MAJOR_VERSION == 1
+     *pixbuf = gdk_pixbuf_new_from_file(filename) ;
+#else
+     {
+       GError *error = NULL ;
+       PRINTF("before gdk_pixbuf_new_from_file\n") ;
+       *pixbuf = gdk_pixbuf_new_from_file(filename, &error) ;
+       PRINTF("error=%s\n", error) ;
+     }
+#endif
+     zmw_pixbuf_set(pb, *pixbuf) ;
+   }
+}
+
+void zmw_image_from_file_with_pixbuf(const char *filename, GdkPixbuf **pb)
+{
+  GdkPixbuf *pixbuf ;	
+	
+  PRINTF("Image from file with pixbuf pb=%p\n", pb) ;
+  pixbuf = zmw_pixbuf_get(pb) ;	
+  PRINTF("Image from file with pixbuf pixbuf=%p\n", pixbuf) ;
+  zmw_pixbuf_load_and_set(pb, &pixbuf, filename) ;
+  zmw_image(pixbuf) ;
+}
+
+void zmw_image_from_file(const char *filename)
+{
+  PRINTF("Image from file\n") ;
+  zmw_image_from_file_with_pixbuf(filename, NULL) ;
 }
 
 
-void zmw_image_dynamic_from_file(const char *filename, GdkPixbuf **pb, char **old_name)
+void zmw_image_from_file_activable_with_pixbuf(const char *filename, GdkPixbuf **pb)
 {
-  if ( *old_name )
+  GdkPixbuf *pixbuf ;
+	
+  pixbuf = zmw_pixbuf_get(pb) ;
+  zmw_pixbuf_load_and_set(pb, &pixbuf, filename) ;
+  zmw_image_activable(pixbuf) ;
+}
+
+void zmw_image_from_file_activable(const char *filename)
+{
+  zmw_image_from_file_activable_with_pixbuf(filename, NULL) ;
+}
+
+
+void zmw_image_dynamic_from_file_with_pixbuf(const char *filename
+				, GdkPixbuf **pb, char **old_name)
+{
+   GdkPixbuf *pixbuf ;
+	
+   if ( *old_name )
     {
       if ( strcmp(filename, *old_name) != 0 )
 	{
 	  free(*old_name) ;
 	  *old_name = strdup(filename) ;
-	  gdk_pixbuf_finalize(*pb) ;
-	  *pb = NULL ;
+	  pixbuf = zmw_pixbuf_get(pb) ;
+#if GLIB_MAJOR_VERSION == 1
+	  gdk_pixbuf_finalize(pixbuf) ;
+#else
+#endif
+	  zmw_pixbuf_set(pb, NULL) ;
 	}
     }
   else
     *old_name = strdup(filename) ;
 
-  zmw_image_from_file(filename, pb) ;
+  zmw_image_from_file_with_pixbuf(filename, pb) ;
 }
 
+void zmw_image_dynamic_from_file(const char *filename, char **old_name)
+{
+   zmw_image_dynamic_from_file_with_pixbuf(filename, NULL, old_name) ;
+}

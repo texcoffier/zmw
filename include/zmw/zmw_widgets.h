@@ -1,0 +1,201 @@
+/*
+    ZMW: A Zero Memory Widget Library
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
+*/
+
+/*
+ * Cr?? le Thu Jun 13 21:33:28 2002 par Thierry EXCOFFIER
+ */
+
+#ifndef _HOME_EXCO_HOME_WIDGET_WIDGETS_ZMW_WIDGETS_H
+#define _HOME_EXCO_HOME_WIDGET_WIDGETS_ZMW_WIDGETS_H
+
+/*
+ * zmw_window.c
+ */
+typedef enum zmw_detached
+	 {
+	 		 Zmw_Detached_Here
+	 		 , Zmw_Detached_Next
+	 		 , Zmw_Detached_Up
+	 } Zmw_Detached ;
+ 
+Zmw_Boolean zmw_window_detached(const int *detached, Zmw_Detached where) ;
+void zmw_window_detached_toggle(int *detached, Zmw_Detached where) ;
+
+void zmw_gc_pop() ;
+void zmw_gc_push() ;
+
+void zmw_window_with_id(GdkWindow **w, const char *title);
+void zmw_window(const char *title);
+void zmw_window_popup_right_with_id_and_detached(GdkWindow **w, const int *detached);
+void zmw_window_popup_right_with_id(GdkWindow **w) ;
+void zmw_window_popup_right_with_detached(const int *detached);
+void zmw_window_popup_right(void);
+void zmw_window_popup_right_with_title(const char *title);
+void zmw_window_popup_bottom_with_id_and_detached(GdkWindow **w, const int *detached);
+void zmw_window_popup_bottom_with_detached(const int *detached);
+void zmw_window_popup_bottom(void);
+void zmw_window_popup_bottom_with_title(const char *title);
+void zmw_window_popup_right_with_id_and_detached_and_title(GdkWindow **w, const int *detached
+					      , const char *title);
+void zmw_window_popup_right_with_detached_and_title(const int *detached, const char *title);
+void zmw_window_popup_bottom_with_id_and_detached_and_title(GdkWindow **w
+						, const int *detached
+					      , const char *title);
+void zmw_window_popup_bottom_with_detached_and_title(const int *detached, const char *title);
+void zmw_window_drag_with_id(GdkWindow **w);
+void zmw_window_drag(void);
+
+char* zmw_window_name(void) ;
+
+/*
+ * zmw_text.c
+ */
+void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
+		     , int *cursor_pos, int *start_pos) ;
+void zmw_text(const char *) ;
+void zmw_text_editable(char **text) ;
+void zmw_text_editable_with_cursor(char **text, int *cursor_pos) ;
+void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
+			, int *start_pos) ;
+void zmw_button(const char *text) ;
+void zmw_button_with_accelerator(const char *text
+				 , GdkModifierType state, int character
+				 ) ;
+void zmw_button_with_hidden_accelerator(const char *text
+				 , GdkModifierType state, int character
+				 ) ;
+void zmw_accelerator_init() ;
+void zmw_accelerators_window(const char *filter) ;
+void zmw_tearoff_with_detached_and_id(int *detached, GdkWindow **w) ;
+void zmw_tearoff_with_detached(int *detached) ;
+void zmw_tearoff(void) ;
+void zmw_int_editable(int *i) ;
+void zmw_int(int i) ;
+/*
+ * zmw_toggle.c
+ */
+void zmw_toggle(int *value) ;
+void zmw_toggle_with_label(int *value, const char *label) ;
+void zmw_toggle_bits(int *value, int bits) ;
+void zmw_toggle_bits_with_label(int *value, int bits, const char *label) ;
+void zmw_radio(int *value, int number) ;
+void zmw_radio_with_label(int *value, int number, const char *label) ;
+/*
+ * zmw_anchor.c
+ */
+void zmw_anchor_vertical(int *x) ;
+void zmw_anchor_vertical_float(float *x) ;
+void zmw_anchor_box(int *x, int *y, int *width, int *height) ;
+void zmw_anchor_box_with_init_values(int *x, int *y, int *width, int *height
+				     , int *ix, int *iy, int *iw, int *ih) ;
+void zmw_anchor_move(int *x, int *y) ;
+void zmw_anchor_move_not(int x, int y) ;
+void zmw_anchor_move_with_init_values(int *x, int *y, int *ix, int *iy) ;
+/*
+ * zmw_notebook.c
+ */
+void zmw_notebook(int *page) ;
+void zmw_compute_notebook_size(int allocated) ;
+/*
+ * zmw_box.c
+ */
+void zmw_box_horizontal(void) ;
+void zmw_box_vertical(void) ;
+void zmw_box_horizontal_required_size(void) ;
+void zmw_box_horizontal_children_allocated_size(void) ;
+void zmw_box(void) ;
+void zmw_box_horizontal_activable() ;
+void zmw_box_vertical_activable() ;
+/*
+ * zmw_scrollbar.c
+ */
+void zmw_scrollbar2(float *x, float x_size, float *y, float y_size) ; 
+void zmw_scrollbar_horizontal(float *x, float x_size) ;
+void zmw_scrollbar_vertical(float *y, float y_size) ;
+/*
+ * zmw_viewport.c
+ */
+void zmw_viewport_with_scrollbar(float *x, float *y) ;
+/*
+ * zmw_scrolled_view.c
+ */
+void zmw_scrolled_view(int *start, int *nb, int max) ;
+void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols);
+/*
+ * zmw_filechooser.c
+ */
+Zmw_Boolean zmw_is_dir(const char *name) ;
+void zmw_filename_normalize(char **name) ;
+void zmw_filechooser(Zmw_Boolean *visible, char **filename, const char *title
+		     , const char *message) ;
+/*
+ * zmw_alert.c
+ */
+void zmw_alert(char **message) ;
+/*
+ * zmw_table.c
+ */
+void zmw_table(int nb_cols) ;
+void zmw_table_with_widths(int nb_cols, int *widths) ;
+void zmw_table_with_widths_and_selection(int nb_cols, int *widths
+			, Zmw_Boolean *selection, Zmw_Boolean unique) ;
+/*
+ * zmw_image.c
+ */
+void zmw_image(GdkPixbuf *pb) ;
+void zmw_image_from_file_with_pixbuf(const char *filename, GdkPixbuf **pb);
+void zmw_image_from_file_activable_with_pixbuf(const char *filename, GdkPixbuf **pb);
+void zmw_image_dynamic_from_file_with_pixbuf(const char *filename, GdkPixbuf **pb,char **old_name);
+void zmw_image_from_file(const char *filename);
+void zmw_image_from_file_activable(const char *filename);
+void zmw_image_dynamic_from_file(const char *filename,char **old_name);
+/*
+ * zmw_message.c
+ */
+void zmw_message(Zmw_Boolean *visible
+		 , const char *title, const char *button_name) ;
+/*
+ * zmw_decorator.c
+ */
+#define Zmw_Decorator_Focusable           1
+#define Zmw_Decorator_Activable           2
+#define Zmw_Decorator_Border_Relief       4
+#define Zmw_Decorator_Border_Solid        8
+#define Zmw_Decorator_Border_Embossed    16
+#define Zmw_Decorator_Border_In          32
+#define Zmw_Decorator_Border_Focus       64
+#define Zmw_Decorator_Interior          128
+#define Zmw_Decorator_Pushable          256
+#define Zmw_Decorator_Unpop_On_Activate 512
+#define Zmw_Decorator_Activable_By_Key  1024
+#define Zmw_Decorator_Clip              2048
+#define Zmw_Decorator_Translate         4096
+
+#define Zmw_Decorator_Border_Any (Zmw_Decorator_Border_Relief|Zmw_Decorator_Border_Solid|Zmw_Decorator_Border_Embossed|Zmw_Decorator_Pushable)
+#define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)
+
+void zmw_decorator(int options, ...) ;
+void zmw_alignement_horizontal_make(Zmw_Size *s, int border_width) ;
+void zmw_alignement_vertical_make(Zmw_Size *s, int border_width) ;
+
+
+
+#endif

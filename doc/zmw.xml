@@ -1,0 +1,3860 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2CR1//EN"
+ "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+<!ENTITY % paper-type "A4">
+<!ENTITY zmw "<emphasis>Zero Memory Widget</emphasis>">
+<!ENTITY ZMW "<acronym>ZMW</acronym>">
+<!ENTITY GDK "<acronym>GDK</acronym>">
+<!ENTITY OpenGL "<acronym>OpenGL</acronym>">
+
+<!ENTITY examplequit SYSTEM "examples/quit/quit.sgml">
+<!ENTITY examplequitsimple SYSTEM "examples/quit_simple/quit_simple.sgml">
+<!ENTITY exampletext SYSTEM "examples/text/text.sgml">
+<!ENTITY examplebutton SYSTEM "examples/button/button.sgml">
+<!ENTITY exampletoggle SYSTEM "examples/toggle/toggle.sgml">
+<!ENTITY exampleanchor SYSTEM "examples/anchor/anchor.sgml">
+<!ENTITY exampleimage SYSTEM "examples/image/image.sgml">
+<!ENTITY examplewindow SYSTEM "examples/window/window.sgml">
+<!ENTITY examplemenu SYSTEM "examples/menu/menu.sgml">
+<!ENTITY examplebox SYSTEM "examples/box/box.sgml">
+<!ENTITY examplebox2 SYSTEM "examples/box2/box2.sgml">
+<!ENTITY exampletable SYSTEM "examples/table/table.sgml">
+<!ENTITY exampledecorator SYSTEM "examples/decorator/decorator.sgml">
+<!ENTITY examplenotebook SYSTEM "examples/notebook/notebook.sgml">
+<!ENTITY exampleviewport SYSTEM "examples/viewport/viewport.sgml">
+<!ENTITY examplescrolledview SYSTEM "examples/scrolledview/scrolledview.sgml">
+<!ENTITY examplefilechooser SYSTEM "examples/filechooser/filechooser.sgml">
+<!ENTITY examplealert SYSTEM "examples/alert/alert.sgml">
+<!ENTITY examplemessage SYSTEM "examples/message/message.sgml">
+<!ENTITY examplegeometry SYSTEM "examples/geometry/geometry.sgml">
+<!ENTITY exampleappearance SYSTEM "examples/appearance/appearance.sgml">
+<!ENTITY examplebehaviour SYSTEM "examples/behaviour/behaviour.sgml">
+<!ENTITY exampledraganddrop SYSTEM "examples/draganddrop/draganddrop.sgml">
+<!ENTITY exampleexternal SYSTEM "examples/external/external.sgml">
+<!ENTITY exampleminimal SYSTEM "examples/minimal/minimal.sgml">
+<!ENTITY exampleresource SYSTEM "examples/resource/resource.sgml">
+<!ENTITY exampleregistration SYSTEM "examples/registration/registration.sgml">
+<!ENTITY examplemultiple SYSTEM "examples/multiple/multiple.sgml">
+<!ENTITY examplenaming SYSTEM "examples/naming/naming.sgml">
+<!ENTITY examplenaming2 SYSTEM "examples/naming2/naming2.sgml">
+<!ENTITY examplehidden SYSTEM "examples/hidden/hidden.sgml">
+<!ENTITY scale "50">
+]>
+
+<book>
+  <bookinfo>
+    <title>Using the &zmw; library (&ZMW;)</title>
+    <author>
+      <firstname>Thierry</firstname>
+      <surname>Excoffier</surname>
+    </author>
+    <copyright>
+      <year>2003</year>
+      <holder>Universit&#233; Claude Bernard,
+	LIRIS, Thierry Excoffier</holder>
+    </copyright>
+  </bookinfo>
+
+  <preface>
+    <title>Foreword</title>
+    <para>
+      The goal of the &ZMW; library is to prove that it is possible
+      to create a widget library that does not use a single
+      bit of memory per widget.
+    </para>
+    <para>
+      A side effect of this goal is that the library usage is
+      simplified because there is no widget reference, so if you use
+      the library from the C language there is no pointer.
+    </para>
+    <para>
+      This library implementation is an usable prototype
+      because the code is well tested. But,
+      <emphasis>future version of the library will not be compatible
+      with the current one</emphasis>.
+    </para>
+    <para>
+      All the examples in this document are real running examples,
+      they really automatically generated the pictures associated.
+      And these pictures are part of the regression tests.
+      So you should obtain exactly the sames results,
+      except if the fonts used here are unknown on your computer.
+      </para>
+    <para>
+      The idea of &ZMW; was born in 2001 because classic widget
+      library took too much time to create/destroy widgets.
+      The first working prototype was from the begin of 2002.
+      An research report was made in march 2003:
+      http://www710.univ-lyon1.fr/~exco/ZMW/rr_2003_03_11.pdf
+      it was published with the version 0.0.0 of the library.
+      The version 0.0.1 was released the 27 october 2003.
+    </para>
+    <para>
+      Sorry for the poor English, it is not my native language.</para>
+  </preface>
+
+
+  <chapter>
+    <title>Introduction</title>
+
+
+    <para>
+      There is a small example using the &ZMW; library.
+      It displays a text and a <guibutton>Quit</guibutton> button.
+      An usage tip appears if the cursor
+      stay still over the button.
+      The example is followed by detailed explanations.
+      If you have compiled the &ZMW; library, this example executable
+      is named <filename>examples/quit/quit.exe</filename>.
+    </para>
+    <example>
+      <title>Hello world</title>
+      <informaltable frame="none" pgwide="1">
+	<tgroup cols="2">
+	  <tbody>
+	    <row>
+	      <entry><programlisting>&examplequit;</programlisting></entry>
+	      <entry align="right"><mediaobject>
+		<imageobject>
+		  <imagedata fileref="examples/quit/quit.0.eps" format="EPS" scale="&scale;" />
+	      </imageobject>
+		  <imageobject>
+		    <imagedata fileref="examples/quit/quit.0.png" format="PNG" />
+	      </imageobject>
+	      </mediaobject></entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </informaltable>
+    </example>
+    <variablelist>
+      <varlistentry>
+	<term>#include "zmw.h"</term>
+	<listitem>
+	  <para>
+	    Required to use the library.
+	  </para>
+	</listitem>
+      </varlistentry>
+      <varlistentry>
+	<term>void hello_world(void)</term>
+	<listitem>
+	  <para>
+	    The user interface is defined by this function.
+	    This function is called to display the windows and
+	    their content, to dispatch events and so on.
+	    This function must <emphasis>never modify the program
+	      state</emphasis>, it must always compute
+	    exactly the same things from one call to another.
+	    A program state change is allowed only on user interaction.	    
+	  </para>
+	  <para>
+	    For example, there is a label widget defined in this function.
+	    To display this label, the function is called once
+	    to compute the label size and then a second time
+	    to display it.
+	    If the label text has changed between the two calls
+	    it will be incorrectly displayed.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>static GdkWindow *w = NULL, *tip = NULL ;</term>
+	<listitem>
+	  <para>
+	    This first example use really 0 byte of memory per widget,
+	    so window pointer can not be stored in the widget, so
+	    it is stored in the user function.
+	    It is stored as <type>static</type> because
+	    its the value must be remembered from one call to another,
+	    it could be stored in the application data structures.
+	    The type is <type>GdkWindow*</type> because
+	    the library uses &GDK; as ``graphic'' library.
+	    The &ZMW; library allows to store these values in the
+	    resources system, the programs are shorter but
+	    they use more memory and processor time to manage
+	    the resource.	    
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>ZMW(zmw_window_with_id(&amp;id_window, "My Window"))</term>
+	<listitem>
+	  <para>
+	    <function>ZMW</function> define a widget.
+	    The parameter is the widget type, in this case
+	    it is window, the first parameter is the window pointer
+	    and the second the window title.
+	    The window content is defined in the following block.
+	  </para>
+	  <para>
+	    To simplify the program we could replace this line
+	    by:
+	    <markup>ZMW(zmw_window("My Window"))</markup>
+	    The window pointer is no more stored in a static
+	    user variable but in the resource system.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>ZMW(zmw_box_vertical())</term>
+	<listitem>
+	  <para>
+	    The window contains a vertical stack of widget.
+	    The widget are defined top to bottom in
+	    the next block.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>zmw_text("Hello World!")</term>
+	<listitem>
+	  <para>
+	    The top most widget is a label.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>zmw_button("Quit")</term>
+	<listitem>
+	  <para>
+	    The second widget is a button.
+	    To activate the button, the user must click
+	    and release the mouse button with the cursor in the button.
+	    While the button is pressed, it is displayed
+	    with a darker colour.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>if ( zmw_activated() ) zmw_exit(0) ;</term>
+	<listitem>
+	  <para>
+	    The program call <markup>zmw_exit(0)</markup>
+	    if the previous widget is activated.
+	    In the example, the program exit is
+	    the button quit is clicked.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>if ( zmw_tip_visible() )</term>
+	<listitem>
+	  <para>
+	    <markup>zmw_tip_visible()</markup> returns true
+	    if the cursor stay still over the previous widget
+	    for some time.
+	    In our case, the function is used to trigger
+	    the display of a tip message on the quit button.
+	    The tip content is defined in the next block.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>zmw_border_width(2)</term>
+	<listitem>
+	  <para>
+	    As there is no memory to store widget attributes,
+	    the attributes are defined using a current state
+	    as in &OpenGL;.
+	    The new border width are applied to
+	    all the next widgets children of the widget
+	    being defined.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+	<term>ZMW(zmw_window_popup_right_with_id(&amp;id_tip))</term>
+	<listitem>
+	  <para>
+	    We choose to display the tip in a popup window
+	    at the right of the previous widget (the quit button).
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))</term>
+	<listitem>
+	  <para>
+	    This widget draw a border around its child.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>zmw_text("Click here to close the application") ;</term>
+	<listitem>
+	  <para>
+	    The tip window contains a simple text.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+
+      <varlistentry>
+	<term>zmw_init(&amp;argc, &amp;argv)</term>
+	<listitem>
+	  <para>
+	    Initialise the library.
+	    The parameters recognised by the library are removed
+	    from the program argument list.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>zmw_run(hello_world)</term>
+	<listitem>
+	  <para>
+	    This function call launch the user interface defined
+	    by the function <function>hello_world</function>,
+	    it never returns.	    
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+    </variablelist>
+
+
+    <!--
+  <para>
+    The next example, is a simplified version without the
+  <function>main</function> and the tip and the static
+    window pointer.
+    The pointer is now stored in the resource system.
+    The screen shot shows the button in pressed state.
+  </para>
+
+  <example>
+  <title>Reducing program code using the resource system</title>
+  <informaltable frame="none" pgwide="1">
+  <tgroup cols="2">
+  <tbody>
+  <row>
+  <entry><programlisting>&examplequitsimple;</programlisting></entry>
+  <entry><mediaobject>
+  <imageobject>
+  <imagedata fileref="examples/quit_simple/quit_simple.1.png" format="PNG"/>
+  </imageobject>
+  <imageobject>
+  <imagedata fileref="examples/quit_simple/quit_simple.1.eps" format="EPS" scale="&scale;" />
+  </imageobject>
+  </mediaobject></entry>
+  </row>
+  </tbody>
+  </tgroup>
+  </informaltable>
+  </example>
+    -->
+
+  </chapter>
+
+  <chapter>
+    <title>Simple widgets</title>
+    <para>
+      Simple widget do not contains other widgets,
+      they are the base of the widget interface.
+      
+    </para>
+
+    <sect1>
+      <title>Text widget</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_text</function>
+	    (<type>const char *</type><parameter>text</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This widget displays <parameter>text</parameter>
+	      as a non modifiable label.
+	      The text can be computed, but its value can only
+	      change when an event is processed.	      
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_text_editable_with_cursor_and_start</function>
+	    (<type>char **</type><parameter>text</parameter>,
+	    <type>int *</type><parameter>cursor_pos</parameter>,
+	    <type>int *</type><parameter>start_pos</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This widget display an editable text.
+	      The text pointer should be <constant>NULL</constant>
+	      are allocated with <function>malloc</function>.
+	      Copy/paste are allowed in the area.
+	      This text is focusable, so once focused the cursor does not
+	      need to be in the widget.
+	      This text is activated each time it is modified.
+	      <parameter>cursor_pos</parameter> is the current
+	      cursor position, <literal>0</literal> is the position
+	      before the first character.
+	      <parameter>start_pos</parameter> is the selection
+	      position or <literal>-1</literal> if there is no selection.
+	    </para>
+	    <para>
+	      If <function>zmw_activated</function> is called
+	      after an editable text it will return true if
+	      the text is modified.
+	      In this case, the program state can be changed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_text_editable_with_cursor</function>
+	    (<type>char **</type><parameter>text</parameter>,
+	    <type>int *</type><parameter>cursor_pos</parameter>,
+	    ) ;</term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_text_editable_with_cursor_and_start</function>
+	      but the <parameter>start_pos</parameter> is stored as a resource.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_text_editable</function>
+	    (<type>char **</type><parameter>text</parameter>) ;</term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_text_editable_with_cursor</function>
+	      but the <parameter>cursor_pos</parameter> is stored as a resource.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+      <example>
+	<title>Text widgets</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampletext;</programlisting></entry>
+		<entry align="right"><para>Activate the first text:</para>
+		  <mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/text/text.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/text/text.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+		  <para>Select a fragment and type a letter:</para>
+		  <mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/text/text.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/text/text.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	In this example, the value of the label <varname>cursor_pos</varname>
+	change on user intervention, so it is allowed.
+      </para>
+    </sect1>
+
+
+    <sect1>
+      <title>Special text values: integer</title>
+
+      <para>
+	These text values are based upon normal texts.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_int_editable</function>
+	    (<type>int *</type><parameter>integer</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Display an editable integer, beware each time you
+	      it a key the string is converted to integer and
+	      back to string. So, if you type a <keysym>a</keysym>
+	      in front of an integer, it will be set to <constant>0</constant>.
+	      If there is an integer overflow strange things will happen.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_int</function>
+	    (<type>int</type><parameter>integer</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Display an integer.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </sect1>
+
+
+    <sect1>
+      <title>Text Buttons</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_button</function>
+	    (<type>const char *</type><parameter>text</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Display a button with the specified text.
+	      As for editable texts, <function>zmw_activated</function>
+	      can be used to test if the button is clicked.
+	      If the button is not tested, then it is displayed greyed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_button_with_accelerator</function>
+	    (<type>const char *</type><parameter>text</parameter>,
+	    <type>GdkModifierType</type> <parameter>state</parameter>,
+	    <type>int</type> <parameter>character</parameter>
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para id="modifier">
+	      As <function>zmw_button</function> but with an accelerator.
+	      The accelerators are processed before any other
+	      widget event, so if <keysym>'a'</keysym> is an accelerator
+	      it can not be inserted in a editable text widget
+	      The state can be a or between
+	      <constant>GDK_SHIFT_MASK</constant>,
+	      <constant>GDK_LOCK_MASK</constant>,
+	      <constant>GDK_CONTROL_MASK</constant>,
+	      <constant>GDK_MOD1_MASK</constant>,
+	      <constant>GDK_MOD2_MASK</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_button_with_hidden_accelerator</function>
+	    (<type>const char *</type><parameter>text</parameter>,
+	    <type>GdkModifierType</type> <parameter>state</parameter>,
+	    <type>int</type> <parameter>character</parameter>
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Same as <function>zmw_button_with_hidden_accelerator</function>
+	      but the accelerator is not automatically displayed
+	      in the button label.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+      <example>
+	<title>Some buttons</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplebutton;</programlisting></entry>
+		<entry align="right"><para>After press/release of <guibutton>Button 1</guibutton></para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/button/button.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/button/button.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+<!--
+		  <para>The user press <userinput>Control A</userinput></para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/button/button.3.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/button/button.3.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+-->
+		  <para>The user press <userinput>Control</userinput> and wait</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/button/button.5.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/button/button.5.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+
+    </sect1>
+
+
+
+
+
+
+    <sect1>
+      <title>Toggle</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_toggle</function>
+	    (<type>int *</type><parameter>value</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Display a boolean toggle, the toggle state is changed
+	      when clicked.
+	      We can use <function>zmw_activated</function> to know
+	      is the toggle state is modified.
+	      If the toggle has the focus, a key press change
+	      the toggle value.
+	      It is allowed to have several toggles modifying
+	      the same value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+      <varlistentry>
+	<term>
+	  <type>void</type>
+	  <function>zmw_toggle_with_label</function>
+	  (<type>int *</type><parameter>value</parameter>,
+	  <type>const char *</type><parameter>label</parameter>
+	  ) ;
+	</term>
+	<listitem>
+	  <para>
+	    As above but display a label next to the toggle.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>
+	  <type>void</type>
+	  <function>zmw_toggle_bits</function>
+	  (<type>int *</type><parameter>value</parameter>,
+	  <type>int</type> <parameter>bits</parameter>
+	  ) ;
+	</term>
+	<listitem>
+	  <para>
+	    As <function>zmw_toggle</function> but the
+	    new value is an exclusive or between the old one and
+	    <varname>bits</varname>.
+	  </para>
+	</listitem>
+      </varlistentry>
+      
+      <varlistentry>
+	<term>
+	  <type>void</type>
+	  <function>zmw_toggle_bits_with_label</function>
+	  (<type>int *</type><parameter>value</parameter>,
+	  <type>int</type> <parameter>bits</parameter>,
+	  <type>const char *</type><parameter>label</parameter>
+	  ) ;
+	</term>
+	<listitem>
+	  <para>
+	    As <function>zmw_toggle_bits</function> but with a label.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>
+	  <type>void</type>
+	  <function>zmw_radio</function>
+	  (<type>int *</type><parameter>value</parameter>,
+	  <type>int</type> <parameter>number</parameter>
+	  ) ;
+	</term>
+	<listitem>
+	  <para>
+	    When activated, the number is stored in the value.
+	    The other toggles of the radio group use the same value
+	    but the numbers must but not be equal.
+	    There is not limitation on number values, so it can
+	    be pointers.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>
+	  <type>void</type>
+	  <function>zmw_radio_with_label</function>
+	  (<type>int *</type><parameter>value</parameter>,
+	  <type>int</type> <parameter>number</parameter>,
+	  <type>const char *</type><parameter>label</parameter>
+	  ) ;
+	</term>
+	<listitem>
+	  <para>
+	    As  <function>zmw_radio</function> but with a label.
+	  </para>
+	</listitem>
+      </varlistentry>
+
+
+
+    </variablelist>
+
+
+
+
+
+      <example>
+	<title>Some toggles</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampletoggle;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/toggle/toggle.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/toggle/toggle.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+		  <para>After some interactions</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/toggle/toggle.5.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/toggle/toggle.5.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+    </sect1>
+
+
+
+
+
+
+
+    <sect1>
+      <title>Anchor and scrollbar</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_anchor_vertical</function>
+	    (<type>int *</type><parameter>x</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This widget is low level, it displays a focusable vertical line
+	      in the current box, <varname>x</varname> is the
+	      widget position in the current box in pixel.
+	      The  <varname>x</varname> value is modified when
+	      the anchor is dragged.
+	      There is no visual feedback, so if the value is
+	      not used to change the anchor position, it is useless.
+	      On value modification, the widget is activated.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_anchor_vertical_float</function>
+	    (<type>float *</type><parameter>x</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As above but the value is between <constant>0</constant>
+	      and <constant>1</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar2</function>
+	    (<type>int *</type><parameter>x</parameter>,
+	    <type>int </type><parameter>x_size</parameter>,
+	    <type>int *</type><parameter>y</parameter>,
+	    <type>int </type><parameter>y_size</parameter>
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      It is a 2d scrollbar, (<varname>x</varname> <varname>y</varname>)
+	      is the scrollbar position and
+	      (<varname>x_size</varname> <varname>y_size</varname>)
+	      define its width and height.
+	      The scrollbar is draggable.
+	      Cursor keys move it if it is focused.
+	      On position change, the widget is activated.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar_horizontal</function>
+	    (<type>int *</type><parameter>x</parameter>,
+	    <type>int </type><parameter>x_size</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The classical horizontal scrollbar.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar_vertical</function>
+	    (<type>int *</type><parameter>y</parameter>,
+	    <type>int </type><parameter>y_size</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The classical vertical scrollbar.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+
+
+
+      <example>
+	<title>Anchors and scrollbars</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleanchor;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/anchor/anchor.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/anchor/anchor.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+		  <para>After some interactions</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/anchor/anchor.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/anchor/anchor.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	In this example the vertical anchor can be moved with
+	the mouse or by editing the integer value.
+	The two scrollbar are synchronised.
+	The scrollbars width is defined by the first anchor position.
+      </para>
+
+
+
+
+
+
+
+
+
+    </sect1>
+
+
+
+
+    <sect1>
+      <title>Images</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image</function>
+	    (<type>GdkPixbuf *</type><parameter>pixbuf</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The image defined is displayed.
+	      The image size must only change on user action.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_from_file_with_pixbuf</function>
+	    (<type>const char *</type><parameter>filename</parameter>
+	    <type>GdkPixbuf **</type><parameter>pixbuf</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The image in the file is loaded in the pixbuf
+	      is it is <constant>NULL</constant>.
+	      The <varname>pixbuf</varname> must be a static variable,
+	      in order to not reload the file at each display.
+	      If the file name change, the image will not be reloaded.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_from_file</function>
+	    (<type>const char *</type><parameter>filename</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_image_from_file_with_pixbuf</function>
+	      but the pixmap is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_from_file_activable_with_pixbuf</function>
+	    (<type>const char *</type><parameter>filename</parameter>,
+	    <type>GdkPixbuf **</type><parameter>pixbuf</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	       As <function>zmw_image_from_file_with_pixbuf</function>
+	      but the image is activable and focusable as a button.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_from_file_activable</function>
+	    (<type>const char *</type><parameter>filename</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_image_from_file_activable_with_pixbuf</function>
+	      but the pixmap is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_dynamic_from_file_with_pixbuf</function>
+	    (<type>const char *</type><parameter>filename</parameter>,
+	    <type>GdkPixbuf **</type><parameter>pixbuf</parameter>,
+	    <type>char **</type><parameter>old_name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_image_from_file_with_pixbuf</function>
+	      but, if the filename change
+	      the image is reloaded.
+	      The old file name is updated, its initial value
+	      must be <constant>NULL</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_image_dynamic_from_file</function>
+	    (<type>const char *</type><parameter>filename</parameter>,
+	    <type>char **</type><parameter>old_name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_image_dynamic_from_file_with_pixbuf</function>
+	      but the pixbuf is stored in resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+
+
+
+
+
+      <example>
+	<title>Images</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleimage;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/image/image.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/image/image.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+		  <para>Scrollbar move</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/image/image.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/image/image.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	The example contains, an image button stored in a file,
+	a decorative image and a computed image.
+	The scroll bar allows to change the disk radius
+	and the <guibutton>big disk</guibutton> image button
+	set the radius to <constant>50</constant>.
+      </para>
+
+
+
+    </sect1>
+
+
+<!--
+
+	  <term>
+	    <type>void</type>
+	    <function>zmw_anchor_box</function>
+	    (<type>int *</type><parameter>x</parameter>,
+	    <type>int *</type><parameter>y</parameter>,
+	    <type>int *</type><parameter>width</parameter>,
+	    <type>int *</type><parameter>height</parameter>
+	    ) ;
+	  </term>
+
+-->
+
+
+
+
+
+    <sect1>
+      <title>Tearoff</title>
+
+      <para>
+	These widgets are only useful as a menu item.
+      </para>
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_tearoff_with_detached_and_id</function>
+	    (<type>int *</type><parameter>detached</parameter>,
+	    <type>GdkWindow **</type><parameter>window</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      When the tearoff is clicked, the window is
+	      destroyed, the window pointer become <constant>NULL</constant>,
+	      the value of <varname>detached</varname>
+	      is updated.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_tearoff_with_detached</function>
+	    (<type>int *</type><parameter>detached</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_tearoff_with_detached_and_id</function>
+	      but the destroyed window is the window containing
+	      the tearoff.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_tearoff</function> (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_tearoff_with_detached</function>
+	      but the detached state is stored as the window resource.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+    </sect1>
+
+
+
+
+  </chapter>
+
+  <chapter>
+    <title>Container widgets</title>
+
+    <para>
+      Container widget are widgets that can contains other widgets.
+      It is the container that choose how to place its children.
+    </para>
+
+    <sect1>
+      <title>Windows</title>
+
+      <para>
+	The windows can contain only one child.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_with_id</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>,
+	    <type>const char *</type><parameter>title</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      A standard window with a window manager frame.
+	      The <parameter>id</parameter> must be a <type>static</type>
+	      variable.
+	      It must be initialised to <constant>NULL</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window</function>
+	    (<type>const char *</type><parameter>title</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_window_with_id</function> but the
+	      <parameter>id</parameter> is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_right_with_id_and_detached</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>,
+	    <type>const int *</type><parameter>detached</parameter>
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      It is a popup window, so it has no frame around.
+	      It appears on the right of the last widget defined
+	      because it is usually a button used to popup a menu.
+	      The <parameter>detached</parameter> parameter
+	      is usually the same one used in the <function>zmw_tearoff_with_detached</function> widget defined inside the menu.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_right_with_id</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      As <function>zmw_window_popup_right_with_id_and_detached</function>
+	      but the detached state is stored in the resource system
+	      if it is used.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_right_with_detached</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      As <function>zmw_window_popup_right_with_id_and_detached</function>
+	      but the id is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_right</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      As <function>zmw_window_popup_right_with_id</function>
+	      but the id is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_bottom_...</function>
+	    (...) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      All the <function>popup_right</function> functions exist
+	      as  <function>popup_bottom</function> 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_popup_..._title</function>
+	    (...) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      All the <function>popup</function> functions exist
+	      with a title. This title is used if the
+	      popup is detached.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry id="dragwindow">
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_drag_with_id</function>
+	    (<type>GdkWindow **</type><parameter>id</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      It is a window without a window manager frame that
+	      follow the mouse.
+	      It is used by the drag and drop.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_drag</function>
+	    (void) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      As <function>zmw_window_drag_with_id</function> but the id
+	      is stored in the resource system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+
+
+
+
+      <example>
+	<title>Windows</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplewindow;</programlisting></entry>
+		<entry align="right"><para>button/menu/submenu</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/window/window.3.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/window/window.3.png" format="PNG" />
+		</imageobject>
+		</mediaobject>
+		  <para>Detached menu</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/window/window.5.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/window/window.5.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	This example use menu function because most windows
+	are used to display menu or popup.
+      </para>
+
+
+
+
+
+
+
+    <sect2>
+      <title>Menu</title>
+
+      <para>
+	There is no menu widget as you can see in the previous example.
+	This section is not about widget but about the event
+	allowing to create a menu.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_is_popped_with_detached</function>
+	    (<type>const int *</type><parameter>detached</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      This function return true if the button is pressed
+	      or if the user navigate in the menu or if the
+	      menu is detached.
+	      This function must be called after a button.
+	      If this function return true, it must be followed
+	      by a window widget.
+	      The window widget must contain a
+	      <function>zmw_tearoff_with_detached</function>.
+	      The window and tearoff widgets must use the same
+	      <parameter>detached</parameter> value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_window_is_popped</function>
+	    () ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_window_is_popped_with_detached</function>
+	      but the detached value is stored in the resource system.
+	      The window and the tearoff widgets
+	      must not have a <parameter>detached</parameter>
+	      parameter.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+
+      <example>
+	<title>A menu with explicit detached variable</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplemenu;</programlisting></entry>
+		<entry align="right"><para>Detached</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/menu/menu.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/menu/menu.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+      <para>
+	With the detached value in user space,
+	the menu can be automatically detached when the program start,
+	the program know that the menu is detached,
+	the program is faster and it uses
+	less memory because there is one less resource,
+      </para>
+	
+
+    </sect2>
+
+
+
+
+
+
+
+    <sect2>
+      <title>Alert</title>
+
+      <para>
+	  Utility to create an alert window.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_alert</function>
+	    (<type>const char *</type><parameter>message</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      If <parameter>*message</parameter> is not <constant>NULL</constant>
+		a window is displayed with the message and a
+		<guibutton>close</guibutton> button.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+
+      <example>
+	<title>An error message window</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplealert;</programlisting></entry>
+		<entry align="right"><para>Detached</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/alert/alert.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/alert/alert.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+	
+
+    </sect2>
+
+
+    </sect1>
+
+
+    <sect1>
+      <title>Box</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_box_horizontal</function>
+	    () ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The widget are packed left to right.
+	      when computing the widget position, it uses
+	      the widget attributes
+	      <function>zmw_horizontal_expand</function> and
+	      <function>zmw_vertical_alignment</function>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_box_vertical</function>
+	    () ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The widget are packed top to bottom.
+	      when computing the widget position, it uses
+	      the widget attributes
+	      <function>zmw_vertical_expand</function> and
+	      <function>zmw_horizontal_alignment</function>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_box_(vertical/horizontal)_activable</function>
+	    () ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As the 2 previous functions but the box is activable
+	      and focusable.
+	      It is useful to create a button by composition.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_box</function>
+	    () ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This box does not manage its content.
+	      The children stay where they choose to.
+	      By default they are all at the box bottom left.
+	      The box size is computed in order to not clip children.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+
+      <example>
+	<title>Horizontal and vertical boxes</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplebox;</programlisting></entry>
+		<entry align="right"><para>Strange case for i=1</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/box/box.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/box/box.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	In the case i=1 the alignment does not work.
+	It is because we choose that alignment are only done by containers.
+	In the case i=1 the decorator is expanded, the text it contains
+	is also expanded, the decorator can not make an alignment
+	because the text take all the space.
+	The text is expanded but does not align itself because
+	it is not a container.
+      </para>
+
+      <example>
+	<title>Interactive positioning of widget in a box</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplebox2;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/box2/box2.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/box2/box2.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>Move text to the left</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/box2/box2.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/box2/box2.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	The scrollbars are used to modify the widgets positions	in the box.
+	As you see, the box does not clip its content.
+      </para>
+
+    </sect1>
+
+
+
+    <sect1>
+      <title>Table</title>
+
+      <para>
+	The tables are simple, each cell contains exactly one widget.
+	The columns and line size are computed to minimise space.
+	The tables uses horizontal/vertical alignment/expand attributes
+	to set their children positions.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_table</function>
+	    (<type>int</type> <parameter>nb_cols</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The widgets in the table are given in the reading order.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_table_with_widths</function>
+	    (<type>int</type> <parameter>nb_cols</parameter>,
+	    <type>int *</type><parameter>widths</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      The columns width are given by the application,
+	      the user can interactively change them.
+	      The table is ``activated'' on width change.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_table_with_widths_and_selection</function>
+	    (<type>int</type> <parameter>nb_cols</parameter>,
+	    <type>int *</type><parameter>widths</parameter>,
+	    <type>Zmw_Boolean *</type><parameter>selection</parameter>,
+	    <type>Zmw_Boolean</type> <parameter>unique</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_table_with_widths</function>.
+	      If <parameter>unique</parameter> is true, then
+	      the user can select only one line in the table.
+	      If not, the user can select of subset of table lines.
+	      The <parameter>selection</parameter> table must
+	      be able to store a number of item equal to
+	      the number of lines.	      
+	      The table is ``activated'' on width selection.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+      <example>
+	<title>Tables</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampletable;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/table/table.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/table/table.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some interactions</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/table/table.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/table/table.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	It is possible to use the same width table for two tables.
+	The tables are not yet displayed nicely.
+      </para>
+    </sect1>
+
+
+    <sect1>
+      <title>Decorator</title>
+
+      <para>
+	The decorator allows to add a border and a background to a widget.
+	And also to add interactivity to an insensitive widget.
+      </para>
+
+
+      <variablelist>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_decorator</function>
+	    (<type>int</type> <parameter>options</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      <parameter>options</parameter> is a binary or between
+	      possible flags.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+    <para>
+      Here is the flag list:
+    </para>
+
+      <variablelist>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Focusable</constant></term>
+	  <listitem>
+	    <para>The widget can take the focus,
+	      It is possible to call <function>zmw_focused()</function>
+	      in order to known its state.
+	      The decorator allocates the space to draw the focus
+	      and draws it is necessary.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Activable</constant></term>
+	  <listitem>
+	    <para>The widget can be activable, to be activated
+	      the user must press and release the button in the widget.	      
+	      It is possible to call <function>zmw_activated()</function>
+	      in order to detect the activation.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Border_In</constant></term>
+	  <listitem>
+	    <para>If set the widget is pushed, else it is normal.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Border_Relief</constant></term>
+	  <listitem>
+	    <para>Draw a 3d frame. The state pushed or poped
+	      is defined by <constant>Zmw_Decorator_Border_In</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Border_Embossed</constant></term>
+	  <listitem>
+	    <para>Draw a 3d ridge. The state pushed or poped
+	      is defined by <constant>Zmw_Decorator_Border_In</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Border_Focus</constant></term>
+	  <listitem>
+	    <para>Draw the focus without testing if it is needed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+ 	<varlistentry>
+	  <term><constant>Zmw_Decorator_Border_Solid</constant></term>
+	  <listitem>
+	    <para>Draw a border of uniform colour.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Interior</constant></term>
+	  <listitem>
+	    <para>Draw the background.
+	      The colour depends on <constant>Zmw_Decorator_Border_In</constant>
+	      value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Pushable</constant></term>
+	  <listitem>
+	    <para>Add the option
+	      <constant>Zmw_Decorator_Border_In</constant>
+	      if the widget is selected.
+	      This option does not add decoration, so it
+	      is not possible to see if the button is pushed or not.
+	      A border or interior option is needed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Unpop_On_Activate</constant></term>
+	  <listitem>
+	    <para>All the popup windows are closed is
+	      the widget is activated.
+	      It is useful for the menus.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Clip</constant></term>
+	  <listitem>
+	    <para>The child is clipped.
+	      It is only useful if the decorator size is
+	      smaller than its child.
+	      for example if its size is given by
+	      <function>zmw_width</function>
+	      or if a window is downsized.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Translate</constant></term>
+	  <listitem>
+	    <para>The child is translated when its size is
+	      allocated. The translation is defined
+	      after the options with two more parameters.
+	      It is currently only used by the viewport widget.
+	    </para>
+	  </listitem>
+	</varlistentry>
+       </variablelist>
+
+      <example>
+	<title>Decorators</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampledecorator;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/decorator/decorator.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/decorator/decorator.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some clicks</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/decorator/decorator.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/decorator/decorator.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+      <para>
+	In fact, the button is implemented as a decorator
+	around a text. The option of this decorator is
+	<constant>
+	Zmw_Decorator_Interior
+	| Zmw_Decorator_Border_Relief
+	| Zmw_Decorator_Focusable
+	| Zmw_Decorator_Activable
+	| Zmw_Decorator_Pushable
+	| Zmw_Decorator_Unpop_On_Activate
+	</constant>
+      </para>
+
+    </sect1>
+
+
+    <sect1>
+      <title>Notebook</title>
+
+      <para>
+	The children of the notebook are the label of the page
+	and the content of the page.
+	So the number of children is even.
+	The children can be of any widget kind.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_notebook</function>
+	    (<type>int *</type><parameter>page</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      <parameter>page</parameter> is the number of the visible page.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+      <example>
+	<title>Notebooks</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplenotebook;</programlisting></entry>
+		<entry align="right"><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/notebook/notebook.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/notebook/notebook.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/notebook/notebook.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/notebook/notebook.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/notebook/notebook.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/notebook/notebook.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+    </sect1>
+
+
+    <sect1>
+    <title>Composed widgets</title>
+    <para>
+	Composed widgets are containers that
+	insert its child inside a frame composed of widgets.
+      </para>
+
+
+    <sect2>
+      <title>Viewport</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_viewport_with_scrollbar</function>
+	    (<type>int *</type><parameter>x</parameter>,
+	    <type>int *</type><parameter>y</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		When the user move the scrollbars the child
+		widget is scrolled and clipped.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+      <example>
+	<title>Viewports</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleviewport;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/viewport/viewport.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/viewport/viewport.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some clicks</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/viewport/viewport.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/viewport/viewport.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+    </sect2>
+
+    <sect2>
+      <title>Scrolled view</title>
+	<para>Viewport are unusable when they contain thousands
+	  of widgets, for example a database table with many rows.
+	  The scrolled view allows to only works with a subset
+	  of the widgets.
+	  With this widget it is possible to have
+	  millions of widgets without any memory or speed problems.
+	  This widget contains only one child  but this child has
+	  a variable number of children.
+	  The children are in a vertical box or table,
+	  if it is a table with columns, the number
+	  of columns should be indicated.
+	</para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrolled_view_with_columns</function>
+	    (<type>int *</type><parameter>start</parameter>,
+	    <type>int *</type><parameter>visible</parameter>
+	    <type>int</type><parameter>max</parameter>
+	     <type>int</type><parameter>nb_columns</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		<parameter>start</parameter> is the index of
+		the first row.
+		<parameter>visible</parameter> is the initial number of rows
+		to display, if the widget is resized this number
+		will be updated.
+		<parameter>max</parameter> is the total number
+		of rows displayable.
+		<parameter>nb_columns</parameter> indicate
+		the number of columns if the child is a table.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrolled_view</function>
+	    (<type>int *</type><parameter>start</parameter>,
+	    <type>int *</type><parameter>visible</parameter>
+	    <type>int</type><parameter>max</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+		As <function>zmw_scrolled_view_with_columns</function>
+		but with <parameter>nb_columns</parameter>
+		set to <constant>1</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+      <example>
+	<title>Scrolled view</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplescrolledview;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/scrolledview/scrolledview.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/scrolledview/scrolledview.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some clicks</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/scrolledview/scrolledview.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/scrolledview/scrolledview.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+    </sect2>
+
+
+
+    <sect2>
+      <title>Filechooser</title>
+	<para>
+	  Experimental and unusable because there is no cache.
+	  So the directory is read each time it is displayed.
+	</para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_filechooser</function>
+	    (<type>Zmw_Boolean *</type><parameter>visible</parameter>,
+	      <type>char **</type><parameter>filename</parameter>,
+	      <type>const char *</type><parameter>title</parameter>,
+	      <type>const char *</type><parameter>message</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+      <example>
+	<title>Filechooser</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplefilechooser;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/filechooser/filechooser.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/filechooser/filechooser.0.png" format="PNG" />
+		</imageobject>
+		    </mediaobject><para>After opening and typing a <keysym>/</keysym></para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/filechooser/filechooser.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/filechooser/filechooser.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+    </sect2>
+
+    <sect2>
+      <title>Message window</title>
+
+      <para>
+	  A message window is a generic alert window that encapsulate
+	  the widget you require.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_message</function>
+	    (<type>Zmw_Boolean *</type><parameter>visible</parameter>,
+	      <type>const char *</type><parameter>window_title</parameter>,
+	      <type>const char *</type><parameter>button_name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      If <parameter>visible</parameter> is not <constant>NULL</constant>
+		a window is displayed with the widget inside this one
+		with a <guibutton>close</guibutton> button labelled
+		<parameter>button_name</parameter>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+
+
+      <example>
+	<title>A message window</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplemessage;</programlisting></entry>
+		<entry align="right"><para>After the button activation</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/message/message.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/message/message.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+
+
+    </sect2>
+
+
+    </sect1>
+
+
+  </chapter>
+
+
+
+  <chapter>
+    <title>Current state</title>
+
+    <para>
+      The modifications of the current state are inherited by the children
+      and the following widgets.
+      The modification never go up into the parent widget.
+      </para>
+
+
+    <para>color, focus, ...</para>
+
+    <sect1>
+      <title>Widget geometry</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_width</function>
+	    (<type>int</type> <parameter>width</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para> 
+	      Set the width in pixel of the following widgets.
+	      <emphasis>This attribute does not apply to the children</emphasis>.
+	      If you want to let the widget compute its own size,
+	      you can use <constant>ZMW_VALUE_UNDEFINED</constant>
+	      as a pixel size.
+	      The attribute does not apply to the windows widget,
+	      it must be applied to the window content.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_height</function>
+	    (<type>int</type> <parameter>height</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>As the width, but for the height.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_x</function>
+	    (<type>int</type> <parameter>x</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>Set the position on the x axis of the next widgets.
+	      <emphasis>This attribute does not apply to the children</emphasis>.
+	      If you want to let the widget compute its own size,
+	      you can use <constant>ZMW_VALUE_UNDEFINED</constant>
+	      as a pixel size.
+	      The value must be between <constant>0</constant>
+	      and the width of the parent widget.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_y</function>
+	    (<type>int</type> <parameter>y</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>As <function>zmw_x</function>, but for the y axis.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_focus_width</function>
+	    (<type>int</type> <parameter>nb_pixels</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Set the width of the focus rectangle.
+	      This value is used only for focusable widget.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_border_width</function>
+	    (<type>int</type> <parameter>nb_pixels</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The border is drawn inside the focus if there is one.
+	      Set the width of the border rectangle.
+	      This value is used only for widget with a border.
+	      If it is an embossed border, take an even value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_padding_width</function>
+	    (<type>int</type> <parameter>nb_pixels</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Set the amount of unused space between the widget border
+	      and the widget content.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_horizontal_expand</function>
+	    (<type>Zmw_Boolean</type> <parameter>expandable</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If true the widget can be stretched horizontally
+	      in order to fill the parent width.
+	      If there is more than one expandable widget,
+	      they stretch proportionally to their minimum size.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_vertical_expand</function>
+	    (<type>Zmw_Boolean</type> <parameter>expandable</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_horizontal_expand</function> but
+	      vertically.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_horizontal_alignment</function>
+	    (<type>int</type> <parameter>position</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If <parameter>position</parameter> is
+	      <constant>0</constant> the following widgets
+	      are centred, if it is <constant>-1</constant> 
+	      they are left flushed and with <constant>1</constant>
+	      they are right flushed.
+	      Beware, if the widget is expanded the alignment
+	      is without purpose.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_vertical_alignment</function>
+	    (<type>int</type> <parameter>position</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_horizontal_alignment</function> but
+	      vertically.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_auto_resize</function>
+	    (<type>Zmw_Boolean</type> <parameter>auto</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If <parameter>auto</parameter> is true, the windows
+	      adjust automatically to their minimum size.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      <example>
+	<title>Changing widget geometry</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplegeometry;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/geometry/geometry.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/geometry/geometry.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After the button activation</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/geometry/geometry.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/geometry/geometry.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+
+    </sect1>
+    <sect1>
+      <title>Widget appearance</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_font</function>
+	    (<type>const char *</type><parameter>fontname</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The <parameter>fontname</parameter> is a typical
+	      X11 font name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_foreground</function>
+	    (<type>int</type> <parameter>type</parameter>,
+	    <type>int</type> <parameter>colour</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The <parameter>type</parameter> indicate the widget part
+	      to be modified. It can be:
+	      <constant>ZMW_BACKGROUND_NORMAL</constant>
+	      <constant>ZMW_BACKGROUND_PUSHED</constant>
+	      <constant>ZMW_BACKGROUND_POPED</constant>
+	      <constant>ZMW_BORDER_LIGHT</constant>
+	      <constant>ZMW_BORDER_DARK</constant>
+	      <constant>ZMW_FOREGROUND</constant>.
+	      The <parameter>colour</parameter> is an integer
+	      coded as 256*(256*R+V)+B where RVB are between 0 and 255.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      <example>
+	<title>Widget appearance</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleappearance;</programlisting></entry>
+		<entry align="right"><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/appearance/appearance.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/appearance/appearance.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+    </sect1>
+    <sect1>
+      <title>Widget behaviour</title>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_sensible</function>
+	    (<type>Zmw_Boolean</type> <parameter>sensible</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If <parameter>sensible</parameter> is true the activable
+	      buttons are sensible (not greyed) if their activation
+	      is tested.
+	      If it is false, all the next widgets are insensitive.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_focus</function>
+	    (<type>Zmw_Name*</type> <parameter>focus</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>  
+	      By default only one widget has the focus.
+	      With this function it is possible to have
+	      a focused widget by window or even by container.
+	      The parameter allows to name the focus environment
+	      and to known the focused widget name.
+	       <parameter>focus</parameter> could be a pointer
+	      on a local static variable initialised to
+	      <command>ZMW_NAME_UNREGISTERED("a comment")</command>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_name</function>
+	    (<type>char *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      By default, all the widgets are name <literal>'?'</literal>.
+	      A call to this function change the current name.
+	      This change is not inherited by the children.
+	      This function is only useful for debugging,
+	      for affecting resource and in some case
+	      where the widget tree is highly dynamic.	      
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      <example>
+	<title>Widget behaviour</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplebehaviour;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/behaviour/behaviour.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/behaviour/behaviour.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some clicks</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/behaviour/behaviour.4.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/behaviour/behaviour.4.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+      <para>
+	In this example, there is two columns. The right one
+	may be sensitive or not.
+	Each of the two columns may have one focused widget.
+	If the cursor is in the left column, the left focused widget receive
+	key event, same thing for the right column.
+      </para>
+    </sect1>
+
+  </chapter>
+
+
+
+  <chapter>
+    <title>Event handling</title>
+    <para>
+      Event testing can be done inside a widget definition or
+      after a widget instance.
+      Some events are not really events but state testing.
+    </para>
+
+    <sect1>
+      <title>High level event handling</title>
+
+      <para>
+	These functions are intended to be used after the widget
+	receiving the event.
+      </para>
+
+      <variablelist>
+	
+	
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_activated</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    Return true if the widget is activated.
+	    The event can be a click or a key press.
+	    If true is returned, the program is allowed to
+	    change its state.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_accelerator</function>
+	    (<type>GdkModifierType</type> <parameter>state</parameter>,
+	  <type>int</type> <parameter>character</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    The function returns true if the accelerator
+	    is typed anywhere in the application.
+	    If true is returned, the program is allowed to
+	    change its state.
+	    The parameters have the same usage than in the
+	    <link linkend="modifier"><function>zmw_button_with_accelerator</function> function</link>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Drag_From</type>
+	    <function>zmw_drag_from_state</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    This function is to be called after the widget that can be dragged.
+	    It can return one of the following values:
+	    <variablelist>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_From_No</constant></term>
+		<listitem>
+		  <para>The widget is not being dragged</para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_From_Begin</constant></term>
+		<listitem>
+		  <para>The widget starts to being dragged.
+		  The program may change its state.
+		  It can use the function
+		    <function>zmw_drag_data_set</function>(<type>char*</type>)
+		    in order to allow the receptor widget to get the data.
+		    The data is a string, it is duplicated by the function.
+		  </para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_From_Running</constant></term>
+		<listitem>
+		  <para>The widget is being dragged.
+		    The program is required to display a window
+		    to give a user feedback.
+		    It can be a <link linkend="dragwindow">cursor following window</link>.
+		    The program must not change its state.
+		    It can use <function>zmw_drag_accept_get</function>(<type>void</type>) in order to know if the current widget under accept the drag or no.
+		  </para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_From_End</constant></term>
+		<listitem>
+		  <para>The drag is terminated.
+		    The program can change its state.
+		    It can use <function>zmw_drag_accept_get</function>(<type>void</type>)
+		    in order to know if the drag was accepted.
+		  </para>
+		</listitem>
+	      </varlistentry>
+	    </variablelist>
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Drag_to</type>
+	    <function>zmw_drag_to_state</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    This function is to be called after a widget that can accept a drag.
+	    It can return one of the following values:
+	    <variablelist>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_To_Enter</constant></term>
+		<listitem>
+		  <para>A dragged widget enter into the receptor area.
+		  The program may change its state.
+		  The program can call <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
+		  The program must call <function>zmw_drag_accept_set</function>(<type>Zmw_Boolean</type>)
+		  to indicate if it accepts the drag or no.</para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_To_Leave</constant></term>
+		<listitem>
+		  <para>A dragged widget leave the receptor area.
+		  The program may change its state.</para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_To_No_Change</constant></term>
+		<listitem>
+		  <para>Nothing change.
+		    The program must not change its state.
+		  </para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term><constant>Zmw_Drag_To_End</constant></term>
+		<listitem>
+		  <para>
+		    The dragged widget had been dropped on the previous widget,
+		    even if the drag was not accepted.
+		    The program may change its state.
+		    It can use  <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
+		  </para>
+		</listitem>
+	      </varlistentry>	    
+	    </variablelist>
+	  </para>
+	</listitem>
+      </varlistentry>	    
+
+    </variablelist>
+      <example>
+	<title>Widget Drag and Drop</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampledraganddrop;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/draganddrop/draganddrop.4.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/draganddrop/draganddrop.4.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>Value 1 is dragged over box 3</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/draganddrop/draganddrop.3.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/draganddrop/draganddrop.3.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After some drag and drop</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/draganddrop/draganddrop.14.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/draganddrop/draganddrop.14.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+    <para>
+      This example allow to drag and drop integers into box.
+      The 2 multiple box and 3 multiple box do not allow any
+      kind of integer, they can refuse the drop.
+      The example is a little long because it shows that
+      the receptor give a user feedback (refuse or accept)
+      and the dragged value can also give this feedback
+      to indicate if it was accepted or refused.
+    </para>
+    </sect1>
+
+    <sect1>
+      <title>Low level event handling</title>
+
+      <para>
+	These functions are intended to be used inside
+	a <link linkend="inputevent">widget definition input event dispatch</link>,
+	but they may be used after.
+	In all the cases, <function>zmw_event_remove</function> must be
+	called if the program state change and so the widget hierarchy change.
+      </para>
+      <variablelist>
+	
+	
+	<varlistentry>
+	  <term>
+	    <function>zmw_button_released_anywhere()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      The mouse button was released somewhere.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <function>zmw_button_pressed()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      The mouse button was pressed.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <function>zmw_button_released()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      The mouse button was released.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <function>zmw_cursor_enter()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+		      The cursor enter in the widget.
+	      As the cursor may enter a few widget at
+	      the same time, the event is not removed.
+	      So the program state change should not modify
+	      the hierarchy.
+	      It is not possible to call <function>zmw_event_remove</function>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <function>zmw_cursor_leave()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      The cursor leave the widget.
+	      Same remarks as above.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <function>zmw_key_pressed()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      True if a key is pressed.
+	      In this case you can access the GDK key value
+	      in <varname>zmw.event->key.key value</varname>
+	      and the string generated in
+	      <varname>zmw.event->key.string</varname>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	
+      </variablelist>
+    </sect1>
+
+    <sect1>
+      <title>State event handling</title>
+
+      <para>
+	These functions are intended to be used after widget instance.
+      </para>
+      <variablelist>
+	
+	
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type> <function>zmw_debug_message()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      Return true if you can display a debug message
+	      in the web browser.
+	      See the widget creation to know how to
+	      <link linkend="debugmessage">display a debug message</link>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type> <function>zmw_drawing()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      Return true if you can draw graphics with
+	      <acronym>GDK</acronym> on the window
+	      <varname>ZMW_WINDOW</varname>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type> <function>zmw_state_change_allowed()</function>
+	  </term>
+	  <listitem>
+	    <para>  
+	      Return true if the application can change its state.
+	      If the application change its window hierarchy,
+	      <function>zmw_event_remove()</function>
+	      should be called to stop the processing.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </sect1>
+
+
+
+
+  </chapter>
+
+
+  <chapter>
+    <title>Creating widgets</title>
+
+    <para>They are several ways to create new widgets.</para>
+
+    <sect1>
+      <title>Creation of a composed widget</title>
+
+      <para>The composed widget is the easiest to create.
+	It is only a matter of putting together existing widgets
+	around a user provided (external) widget.
+      </para>
+      <para>
+	The function must begin by <function>ZMW_EXTERNAL_RESTART ;</function>
+	and terminate by <function>ZMW_EXTERNAL_STOP ;</function>.
+	To include the user child widget (only once), it uses
+	<function>ZMW_EXTERNAL ;</function>.
+	<emphasis>Beware, <function>ZMW_EXTERNAL ;</function> contains
+	  a <function>return</function>, so all the local
+	  variables are lost. You should save them in a stack
+	  because your widget can include itself.
+	</emphasis>
+      </para>
+      
+ 
+     <example>
+	<title>Composed widget creation</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleexternal;</programlisting></entry>
+		<entry align="right"><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/external/external.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/external/external.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+    </sect1>
+    <sect1>
+      <title>Widget creation  from scratch</title>
+      <para>
+	Creating a widget from scratch is easy.
+	A widget is defined by an unique function.
+	The canvas is the following for a nearly minimal widget,
+	it is a painted rectangle of pixels.
+	It can be used as a ruler.
+      </para>
+     <example>
+	<title>A minimal widget and its use</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleminimal;</programlisting></entry>
+		<entry align="right"><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/minimal/minimal.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/minimal/minimal.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+      <variablelist>
+
+	<varlistentry>
+	  <term><constant>Zmw_Compute_Required_Size</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Code computing the size needed to display the widget</emphasis>.
+	      This code set <varname>ZMW_SIZE_MIN.width</varname>
+	      and <varname>ZMW_SIZE_MIN.height</varname>.
+	      It can use the size of its children defined in
+	      <varname>ZMW_NB_OF_CHILDREN</varname>,
+	      <varname>ZMW_CHILDREN[i].required.width</varname>,
+	      <varname>ZMW_CHILDREN[i].required.height</varname>,
+	      <varname>ZMW_CHILDREN[i].required.x</varname>,
+	      <varname>ZMW_CHILDREN[i].required.y</varname>.
+	      For most of the children the <varname>x</varname>
+	      and <varname>y</varname> value are equals
+	      to <constant>ZMW_VALUE_UNDEFINED</constant>
+	      because children let their parent place them.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><constant>Zmw_Compute_Children_Allocated_Size</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Code computing the children sizes</emphasis>.
+	      The widget use its allocated size defined
+	      in <varname>ZMW_SIZE_ALLOCATED.x</varname>,
+	      <varname>ZMW_SIZE_ALLOCATED.y</varname>,
+	      <varname>ZMW_SIZE_ALLOCATED.width</varname>,
+	      <varname>ZMW_SIZE_ALLOCATED.height</varname>,
+	      to allocate the space to its children in
+	      <varname>ZMW_CHILDREN[i].allocated</varname>.
+	      The <varname>x</varname>
+	      and <varname>y</varname> values are all absolute
+	      and must be computed for the children.
+	      The widget has access to
+	      <varname>ZMW_CHILDREN[i].required</varname>
+	      in order to compute the allocated size from
+	      the required size.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term><constant>Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Same as <constant>Zmw_Compute_Children_Allocated_Size</constant> but do some pre-drawing</emphasis>.
+	      The drawing here is done before the drawing
+	      done by the children.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term><constant>Zmw_Post_Drawing</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Code drawing to be done after the children drawing</emphasis>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry id="inputevent">
+	  <term><constant>Zmw_Input_Event</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Event handling code</emphasis>.
+	      If this code change the program state,
+	      it is required to call
+	      <function>zmw_event_remove()</function>
+	      to stop the event dispatch and
+	      <function>zmw_need_repaint()</function>
+	      to redraw the screen.
+	      If focusable and activable functionalities
+	      are needed, use a <function>zmw_decorator</function>.
+	      Testable event have been defined in
+	      event handling section.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><constant>Zmw_Clean</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>The library is exiting, free the resources</emphasis>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+
+	<varlistentry>
+	  <term><constant>Zmw_Nothing</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>You are required to do nothing</emphasis>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry id="debugmessage">
+	  <term><constant>Zmw_Debug_Message</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Insert a debug message in the web interface</emphasis>.
+	      You should use the <function>printf</function>
+	      compatible function <function>http_printf</function>
+	      to output <acronym>HTML</acronym> code to
+	      the browser.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+	<varlistentry>
+	  <term><constant>Zmw_Init</constant></term>
+	  <listitem>
+	    <para>
+	      <emphasis>Code to be executed before any code execution
+		in the children</emphasis>.
+	      Currently the case is only used in the
+	      <function>zmw_window</function> widget
+	      because the window need to be created in order
+	      to compute children size.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+
+      </variablelist>
+
+    </sect1>
+
+    <sect1>
+      <title>Resource system</title>
+      <para>In some cases value not useful to the user
+	can be stored in the resource system.
+	The resource system contains quadruplet:
+	widget name, attribute name, attribute type, attribute value.
+	Sometimes the user want to store the resource in the application
+	and other time in the resource system.
+	The <acronym>API</acronym> is defined in this point of view.
+	The example use an high level subset of the <acronym>API</acronym>.
+      </para>
+
+     <example>
+	<title>Using the resource system</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleresource;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/resource/resource.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/resource/resource.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After a click on the first button</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/resource/resource.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/resource/resource.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After a click on the second button</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/resource/resource.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/resource/resource.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+    </sect1>
+    <sect1>
+      <title>Registration system</title>
+      <para>
+	The registration system allows to quickly compare
+	a widget name to a registered one.
+      </para>
+
+      <variablelist>
+
+	<varlistentry>
+	  <term>ZMW_NAME_UNREGISTERED("A comment")</term>
+	  <listitem>
+	    <para>  
+	    Any <type>Zmw_Name</type> variable must
+	    be initialised with this value.
+	    The comment is used for debugging.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_register</function>
+	    (<type>Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    Store the name of the current widget in the
+	    variable <parameter>name</parameter>.
+	    If another widget was yet registered in the
+	    <parameter>name</parameter> it is unregistered.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_unregister</function>
+	    (<type>Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para> 
+	    Unregister the registered <parameter>name</parameter>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>const char*</type>
+	    <function>zmw_name_registered</function>
+	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>Return <constant>NULL</constant> if the parameter
+	      is not registered.
+	      If not <constant>NULL</constant> it is the widget name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_name_is</function>
+	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    True if the current widget name is the one stored
+	    in <parameter>name</parameter>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_name_is_inside</function>
+	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    True if the current widget is inside or equal
+	    to the widget stored in <parameter>name</parameter>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_name_contains</function>
+	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    True if the current widget contains or is equal
+	    to the widget stored in <parameter>name</parameter>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_name_next_contains</function>
+	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	    True if the next widget contains or is equal
+	    to the widget stored in <parameter>name</parameter>.
+	    This is only useful for the menu system.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+     <example>
+	<title>Using the registration system</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&exampleregistration;</programlisting></entry>
+		<entry align="right"><para>Initial state</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/registration/registration.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/registration/registration.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After a click on the first button</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/registration/registration.1.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/registration/registration.1.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After a click on the second button</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/registration/registration.2.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/registration/registration.2.png" format="PNG" />
+		</imageobject>
+		</mediaobject><para>After a click on the third button</para><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/registration/registration.3.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/registration/registration.3.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+    </sect1>
+
+  </chapter>
+
+
+
+
+
+  <chapter>
+    <title>Problems</title>
+    <para>
+      Some explanation on the frequent problems
+      and hows to solve them.
+    </para>
+
+    <sect1>
+      <title>Programming traps</title>
+      <para>Some problems are raised by the fact the program
+	works without widget instances in memory.</para>
+      
+      <sect2>
+	<title>Multiple code execution</title>
+	<para>
+	  As the system does not use memory to store results.
+	  It computes the values needed each time it is necessary.
+	  So the line of codes are executed a few times even
+	  if there is no apparent loop.
+	  In fact <function>ZMW</function> hides a loop.
+	</para>
+	<para>
+	  The following example shows that incrementation should be
+	  done in the same widget than initialisations.
+	  The standard <function>for</function> loop is safe.
+	</para>
+	<example>
+	  <title>Multiple code executation</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&examplemultiple;</programlisting></entry>
+		  <entry align="right"><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/multiple/multiple.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/multiple/multiple.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+	
+	
+	
+      </sect2>
+      <sect2>
+	<title>Problems computing widget size</title>
+	<para>
+	  When a widget compute its size, it must use only
+	  use the children that are real and not the popup widget
+	  as windows or tips.
+	  To do so, it must discard children
+	  where
+	  <varname>ZMW_CHILDREN[i].used_to_compute_parent_size</varname>
+	  is false.
+	</para>
+      </sect2>
+      
+      <sect2>
+	<title>Widget naming</title>
+	<para>
+	  In some cases the &ZMW; library needs to store
+	  widget references.
+	  For example to remember the focused widgets or
+	  the button pushed.
+	  The library use the widget name which is a string
+	  to store the widget reference.
+	  The default widget name for the third child of the
+	  first widget of the hierarchy is:
+	  <constant>/?.0/?.2</constant>
+	</para>
+	<para>
+	  But with this naming scheme, if the widget hierarchy
+	  change, the widget names change.
+	  In this example, the focus go from the first toggle
+	  to the second because a widget vanished.
+	</para>
+     <example>
+	  <title>Naming problem</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&examplenaming;</programlisting></entry>
+		  <entry align="right"><para>Initial state</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Activate first toggle</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.1.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.1.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Move the cursor to remove the label</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.2.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming/naming.2.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+
+	<para>To solve this problem the widget should be named
+	  by the application, with the function
+	  <function>zmw_name</function>(<type>char *</type><parameter>name</parameter>).
+	  The name is not inherited by children but it is by
+	  the sibling.
+	  To differentiate siblings with the same name, they are numbered.
+	  The corrected example is:
+	  </para>
+
+     <example>
+	  <title>Naming widget</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&examplenaming2;</programlisting></entry>
+		  <entry align="right"><para>Initial state</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Activate first toggle</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.1.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.1.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Move the cursor to remove the label</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.2.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/naming2/naming2.2.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+
+
+
+      </sect2>
+
+
+
+      <sect2>
+	<title>Widget hidden by their parent</title>
+	<para>
+	  When a parent widget is not visible, the windows it contains
+	  are not visible.
+	  This fact cause problems with detached menu,
+	  windows defined inside a hidden note book page
+	  and windows defined inside menus.
+	</para>
+	<para>
+	  There how to solve this problem with popup windows
+	  defined inside menu.
+	  In this case a file browser popped from
+	  the menu <guibutton>File</guibutton>/<guibutton>Load</guibutton>
+	</para>
+
+     <example>
+	  <title>Hidden widgets : Load window popup</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&examplehidden;</programlisting></entry>
+		  <entry align="right"><para>Initial state</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Menu popup</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.1.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.1.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><para>Click on load</para><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.2.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/hidden/hidden.2.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+
+      </sect2>
+
+    </sect1>
+    
+    <sect1>
+      <title>Debugging</title>
+      <para>They are several ways to find bugs in the library
+      code or in the application code.</para>
+
+      <sect2>
+	<title>Interactive debugging</title>
+	<para>
+	  When the application is running, type
+	  <userinput>Control-F1</userinput> on any widget.
+	  A window with debugging information will appear.
+	  These information are mostly for the widget developer.
+	</para>
+
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="examples/f1/f1.0.eps" format="EPS" scale="&scale;" />
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="examples/f1/f1.0.png" format="PNG" />
+	  </imageobject>
+	</mediaobject>
+
+      </sect2>
+
+
+      <sect2>
+	<title>Command line options</title>
+	<para>
+	  The command line option are retrieved from
+	  the argument list y <function>zmw_init</function>.
+	</para>
+	<variablelist>
+
+	  <varlistentry>
+	    <term><parameter>--cache_size=X</parameter></term>
+	    <listitem>
+	      <para>
+		Define the number of widget size to be cached in order
+		to speed up display.
+		<emphasis>If debugging was enabled when the library was
+		compiled this option will slow down execution</emphasis>
+		but more debugging tips will be given.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><parameter>--mstimeout=X</parameter></term>
+	    <listitem>
+	      <para>
+		Set the number of milliseconds before screen draw.
+		The default is 10000 for a 1/10 seconds screen update rate.
+		If there is no need, the screen will not be redrawn.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><parameter>--debug=X</parameter></term>
+	    <listitem>
+	      <para>
+		Set the debugs options.
+		It is an addition of flags.
+		See the <filename>zmw.h</filename> for the list.
+		There is <constant>Zmw_Debug_Window</constant>,
+		<constant>Zmw_Debug_Draw_Cross</constant>, ...
+	      </para>
+	      <para>
+		Beware, if the trace is enabled, it displays
+		many lines of textual information that freeze X11.
+		So the output must be directed in a file.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+      <sect2>
+	<title>Web debugging</title>
+	<para>
+	  When your application is launched, it display a socket number.
+	  The library runs a <acronym>HTTP</acronym> on this socket.
+	  If your application is the first, its <acronym>URL</acronym>
+	  will be <literal>http://localhost:10000/</literal>
+	</para>
+	<para>
+	  It is possible to interactively browse the widget tree,
+	  the resources, the drag state and to
+	  inspect widget attributes.
+	  It is useful to verify the size allocation algorithms.
+	</para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Bugs, Todo</title>
+      <para>This section certainly contains out of date informations.
+	For an up to date list, see the <filename>TODO</filename>
+	list in the &ZMW; sources.
+      </para>
+
+      <sect2>
+	<title>X11 freeze</title>
+	<para>If many text are displayed by the application
+	  in an <command>xterm</command> or <command>xemacs</command>
+	  <acronym>X11</acronym> freeze.
+	  Hopefully <userinput>Control-Alt-F1</userinput> works.
+	  The application should be killed in order
+	  to release <acronym>X11</acronym>.
+	  I see no answer to this problem.
+	</para>
+      </sect2>
+
+      <sect2>
+	<title>Drag and drop works only inside the application</title>
+	<para>
+	  I did not find a documentation on how to use
+	  the interprocess drag and drop from <acronym>GDK</acronym>.
+	</para>
+      </sect2>
+
+
+      <sect2>
+	<title>Scrollbar positioning</title>
+	<para>If the cursor moving a scrollbar go over another
+	  &ZMW; window the position is bad.
+	  This should be easily corrected.
+	</para>
+      </sect2>
+
+      <sect2>
+	<title>Detached menu not displayed</title>
+	<para>If a parent menu of a detached menu is not displayed
+	  the detached menu is not displayed.
+	  This should be easily corrected.
+	</para>
+      </sect2>
+
+      <sect2>
+	<title>Display flickering</title>
+	<para>Should be easily corrected.
+	</para>
+      </sect2>
+
+    </sect1>
+
+
+  </chapter>
+
+</book>

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 #include <gdk/gdkkeysyms.h>
 
 /*
@@ -56,9 +56,9 @@ const char *zmw_action_name_fct()
   return("zmw_action_???") ;
 }
 
-const char *zmw_action_name()
+const char *zmw_action_name_(Zmw_Subaction sa)
 {
-  switch( ZMW_SUBACTION )
+  switch( sa )
     {
     case Zmw_Init :
       return("Init") ;
@@ -72,24 +72,26 @@ const char *zmw_action_name()
       return("Post_Drawing") ;
     case Zmw_Input_Event :
       return("Input_Event") ;
-    case Zmw_Search :
-      return("Search") ;
-    case Zmw_Accelerator :
-      return("Accelerator") ;
     case Zmw_Nothing :
       return("Nothing") ;
     case Zmw_Clean :
       return("Clean") ;
+    case Zmw_Debug_Message :
+      return("Message") ;
     }
   ZMW_ABORT ;
+}
+const char *zmw_action_name()
+{
+  return zmw_action_name_( ZMW_SUBACTION ) ;
 }
 
 const char* zmw_size_string(Zmw_Size *s)
 {
-  static char buf[100] ;
+  static char buf[200] ;
 
   sprintf(buf
-	  ,"Ask %dx%d %d,%d Req %dx%d %d %d All %dx%d %d %d%s%s%s"
+	  ,"Ask %3dx%-3d %3d,%-3d Min %3dx%-3d %3d,%-3d Req%3dx%-3d %3d,%-3d All%3dx%-3d %3d,%-3d INDEX=%6d %s%s%s%s%s%s%s%s"
 	  ,s->asked.width
 	  ,s->asked.height
 	  ,s->asked.x
@@ -98,24 +100,33 @@ const char* zmw_size_string(Zmw_Size *s)
 	  ,s->min.height
 	  ,s->min.x
 	  ,s->min.y
+	  ,s->required.width
+	  ,s->required.height
+	  ,s->required.x
+	  ,s->required.y
 	  ,s->allocated.width
 	  ,s->allocated.height
 	  ,s->allocated.x
 	  ,s->allocated.y
-	  ,s->used_to_compute_parent_size ? "" : " NotUsed"
-	  ,s->event_in ? " Event" : ""
+	  ,s->index
+	  ,s->horizontal_expand ? " HE" : ""
+	  ,s->vertical_expand ? " VE" : ""
+	  ,s->horizontal_alignment ? "HA" : ""
+	  ,s->vertical_alignment ? "VA" : ""
+	  ,s->used_to_compute_parent_size ? " Used" : ""
+	  ,s->event_in ? " EIn" : ""
 	  ,s->invisible ? " Inv" : ""
+	  ,s->sensible ? " Sens" : ""
 	  ) ;
   return(buf) ;
 }
-
-
 
 int zmw_event_in()
 {
   /* Because of viewport, the event must be in the upper window */
   if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].i.event_in )
     return(0) ;
+
 
   return
     ( zmw.event
@@ -127,6 +138,20 @@ int zmw_event_in()
       && zmw.y
       < ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height + ZMW_PADDING_WIDTH
      ) ;
+}
+
+/*
+ * Change of widget.
+ * Modify variables to indicate that the current widget change
+ */
+ 
+void zmw_widget_change()
+{
+  if ( zmw.remove_event )
+  	{
+  		zmw.remove_event = Zmw_False ;
+		zmw.event->type = GDK_NOTHING ;
+  	}
 }
 
 
@@ -141,18 +166,24 @@ void zmw_state_push()
   /*
    *
    */
+  // zmw_printf("state push before GC[3] = %p\n", ZMW_GC[3]) ;
   zMw++ ;
 
   zmw_x(ZMW_VALUE_UNDEFINED) ;
   zmw_y(ZMW_VALUE_UNDEFINED) ;
   zmw_width(ZMW_VALUE_UNDEFINED) ;
   zmw_height(ZMW_VALUE_UNDEFINED) ;
+#if ZMW_DEBUG_STORE_WIDGET_TYPE == 0
+  ZMW_TYPE = "not compiled with ZMW_DEBUG_STORE_WIDGET_TYPE=1" ;
+#endif
+
 
   for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
     {
       ZMW_GC_COPY_ON_WRITE[i] = Zmw_True ;
     }
   ZMW_FONT_COPY_ON_WRITE = Zmw_True ;
+  //  zmw_printf("state push after GC[3] = %p\n", ZMW_GC[3]) ;
 
   ZMW_NAME_SEPARATOR = -1 ;
   ZMW_NAME = zMw[-1].u.name + strlen(zMw[-1].u.name) + 1 ;
@@ -162,6 +193,12 @@ void zmw_state_push()
   ZMW_INVISIBLE = Zmw_False ;
   ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
   ZMW_SIZE_MIN.y = ZMW_VALUE_UNDEFINED ;
+
+
+  zmw.index_last = ZMW_INDEX ;
+
+// What about the next line....
+//  zmw_widget_change() ;
 
   /* no need to initialize ZMW_EXTERNAL_STATE */
 }
@@ -211,6 +248,7 @@ void zmw_font_free()
   ZMW_FREE(global_fonts_name) ;
 }
 
+	 
 /*
  *
  */
@@ -219,14 +257,19 @@ void zmw_state_pop()
 {
   int i ;
 
+  zmw_widget_change() ;
+
   if ( ZMW_DO_NOT_EXECUTE_POP )
     {
       return ;
     }
-
+ 
   for(i=0; i<ZMW_TABLE_SIZE(ZMW_GC_COPY_ON_WRITE); i++)
     if ( ZMW_GC_COPY_ON_WRITE[i] == Zmw_False )
-      gdk_gc_destroy(ZMW_GC[i]) ;
+      {
+	//	zmw_printf("Destroy [%d] = %p\n", i, ZMW_GC[i]) ;
+	gdk_gc_destroy(ZMW_GC[i]) ;
+      }
   ZMW_NAME[-1] = '\0' ;
   zMw-- ;
 }
@@ -239,46 +282,122 @@ static void zmw_debug_set()
       zmw_debug(1) ;
       zmw_printf("%s\n", zmw_action_name()) ;
     }
+  /*
   else
     zmw_debug(0) ;
+  */
 }
 
 
 void zmw_name(const char *s)
 {
+  if ( zmw.next_is_transient )
+  {
+  	zmw_printf("zmw_name(\"%s\" should not be used on a transient\n",
+  			s) ;
+  	return ;
+  }
   strcpy(ZMW_NAME, s) ;
   ZMW_NAME_INDEX = ZMW_NAME + strlen(ZMW_NAME) ;
   ZMW_NAME_SEPARATOR = -1 ;
 }
 
-void zmw_increment_index()
+void zmw_name_full_compute()
 {
-  ZMW_INDEX++ ;
-  ZMW_NAME_SEPARATOR++ ;
-  if ( ZMW_NAME_SEPARATOR > 0)
+  if ( 1 || ZMW_NAME_SEPARATOR > 0)
     sprintf(ZMW_NAME_INDEX, ".%d",  ZMW_NAME_SEPARATOR) ;
+ else
+    ZMW_NAME_INDEX[0] = '\0' ;
+    
+  if ( zmw.next_is_transient )
+  	{
+    	sprintf(ZMW_NAME_INDEX + strlen(ZMW_NAME_INDEX), ",%d",  ZMW_TRANSIENT_SEPARATOR) ;
+    	zmw.next_is_transient = Zmw_False ;
+  	}
 }
 
+void zmw_next_widget_could_be_transient()
+{
+	ZMW_TRANSIENT_SEPARATOR++ ;
+}
+
+static void zmw_increment_index()
+{
+  ZMW_INDEX = zmw.index_last + 1 ;
+  zmw.index_last++ ;
+  if ( !zmw.next_is_transient )
+  	{
+	  ZMW_NAME_SEPARATOR++ ;
+	  ZMW_TRANSIENT_SEPARATOR = 0 ;
+  	}
+  zmw_name_full_compute() ;
+}
+/*
 void zmw_decrement_index()
 {
   ZMW_INDEX-- ;
   ZMW_NAME_SEPARATOR-- ;
-  if ( ZMW_NAME_SEPARATOR > 0 )
-    sprintf(ZMW_NAME_INDEX, ".%d",  ZMW_NAME_SEPARATOR) ;
-  else
-    ZMW_NAME_INDEX[0] = '\0' ;
+  zmw_name_full_compute() ;
+}
+*/
+void zmw_name_of_the_transient_begin()
+{
+	// ZMW_TRANSIENT_SEPARATOR++ ;
+	zmw.next_is_transient = Zmw_True ;
+	zmw_name_full_compute() ;
+}
+
+void zmw_name_of_the_transient_end()
+{
+	// ZMW_TRANSIENT_SEPARATOR-- ;
+	zmw_name_full_compute() ;
 }
 
 void zmw_init_widget()
 {
+  ZMW_SIZE_INDEX = -1000 ; // XXX to debug
   ZMW_CALL_NUMBER = 0 ;
   zmw_increment_index() ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
   ZMW_SIZE_SENSIBLE = Zmw_False ;
   ZMW_SUBACTION = Zmw_Init ;
-  zmw.activated = Zmw_False ;
+  zmw.activated = Zmw_False ; // Why should this be done ?
+  zmw.child_activated = Zmw_False;
   zmw.dragged = Zmw_False ;
   zmw_debug_set() ;
+}
+
+Zmw_Size* zmw_widget_previous_size()
+{
+  int i ;
+  Zmw_Size *s ;
+  
+  for(i=2; ; i++)
+    {
+      if ( zMw[-1].u.nb_of_children < i )
+	ZMW_ABORT ;
+      s = &zMw[-1].u.children[zMw[-1].u.nb_of_children - i ] ;
+      if ( s->used_to_compute_parent_size )
+	return(s) ;
+    }
+}
+
+/*
+ * We don't want to test event on a transient but on
+ * the widget BEFORE the transient.
+ * It is useful for tips on popup menu button,
+ * or multiple tips
+ */
+void zmw_remove_transient_name()
+{
+  char *p ;
+  
+  p = strchr(ZMW_NAME_INDEX, ',') ;
+  if ( p )
+  	{
+  	*p = '\0' ;
+  	ZMW_INDEX -= 2 ; /* was 1 the 6/8/2003 */
+  	}
 }
 
 /*
@@ -288,10 +407,13 @@ void zmw_action_do_not_enter()
 {
   ZMW_WINDOW = zMw[-1].i.window ; /* Restore window */
   /*  ZMW_CALL_NUMBER-- ; */
+  /*
   if ( zMw == zmw.zmw_table+1 )
     ZMW_INDEX = zMw[1].i.index ;
   else
     ZMW_INDEX = ZMW_SIZE_INDEX ;
+  */
+  zmw_remove_transient_name() ;
 }
 
 
@@ -305,6 +427,37 @@ static void zmw_padding_remove(Zmw_Rectangle *r)
    r->y += ZMW_PADDING_WIDTH ;
 }
 
+#if ZMW_DEBUG_CACHE_SLOW
+static void zmw_cache_check(Zmw_Size *s)
+{
+	Zmw_Size ss ;
+	char *p ;
+
+	if ( zmw_cache_get_size(&ss) )
+		zmw_cache_set_size(s) ;
+	else
+		{
+			p = NULL ;
+			if ( s->index != ss.index )
+				p = "index" ;
+			if ( memcmp( &s->min, &ss.min, sizeof(s->min) ) )
+				p = "min size" ;
+			if ( memcmp( &s->asked, &ss.asked, sizeof(s->asked) ) )
+				p = "asked size" ;
+			if ( memcmp( &s->required, &ss.required, sizeof(s->required) ) )
+				p = "required size" ;
+			if ( p )
+			{
+			zmw_printf("[%d] Problems in cache_check : %s\n", ZMW_INDEX, p) ;
+			zmw_printf("Stored = %s !\n",zmw_size_string(&ss)) ;
+			zmw_printf("Comput = %s !\n",zmw_size_string(s)) ;
+			exit(1) ;
+			}
+		}		
+}
+#define zmw_cache_get_size(X) 1
+#define zmw_cache_set_size(X) zmw_cache_check(X)
+#endif
 
 
 int zmw_action_compute_required_size()
@@ -323,12 +476,14 @@ int zmw_action_compute_required_size()
 	  return(1) ;
 	}
       /* So ZMW_SIZE is the cached value */
+      zmw.index_last = ZMW_SIZE_INDEX - 1 ; /* -+1 the 3/7/2003 */
     }
   else
     {
       /* The required size of child has been computed */
       /* and so the number of descendants */
-      ZMW_SIZE_INDEX = zMw[1].i.index ;
+      // ZMW_SIZE_INDEX = zMw[1].i.index ;
+      ZMW_SIZE_INDEX = zmw.index_last + 1 ; /* -+1 the 3/7/2003 */
 
       if ( zmw.event )
 	{
@@ -405,10 +560,6 @@ int zmw_action_compute_required_size()
 
 int zmw_action_first_pass()
 {
-  Zmw_Boolean invisible ;
-
-  invisible = Zmw_False ;
-
   if ( zMw[-1].u.nb_of_children_max != 0 )
     {
       /*
@@ -431,6 +582,7 @@ int zmw_action_first_pass()
 
       if ( ZMW_INVISIBLE )
 	{
+          zmw.index_last = ZMW_SIZE_INDEX - 1 ;  /* -+1 the 3/7/2003 */
 	  zmw_action_do_not_enter() ;
 	  return(0) ;
 	}
@@ -447,16 +599,40 @@ void zmw_action_second_pass()
   ZMW_EVENT_IN = zmw_event_in() ;
 }
 
+static void zmw_debug_children(Zmw_State *z)
+{
+  int i ;
+  fprintf(stderr, "nbchild=%d nbchild0=%d"
+	  , z->u.nb_of_children
+	  , z->u.nb_of_children_0
+	  ) ;
+  for(i=0; i<z->u.nb_of_children_0; i++)
+    {
+      if ( i == z->u.nb_of_children )
+	fprintf(stderr, " *") ;
+      fprintf(stderr, " %d", z->u.children[i].index) ;
+    }
+  fprintf(stderr, "\n") ;
+}
+
 void zmw_debug_trace()
 {
-  zmw_printf("[%d] %s %s (%s/%d)%s\n"
+  zmw_printf("[%d] %s %s (%s/%d)%s%s%s\n"
 	     , ZMW_INDEX
 	     , ZMW_NAME
-	     , zmw_action_name(ZMW_SUBACTION)
-	     , zmw_action_name_fct(ZMW_ACTION)+11
+	     , zmw_action_name()
+	     , zmw_action_name_fct()+11
 	     , ZMW_CALL_NUMBER
-	     , ZMW_EVENT_IN ? " EI" : ""
+	     , zmw_event_to_process() ? " EtP" : ""
+	     , ZMW_SUBACTION == Zmw_Input_Event && ZMW_EVENT_IN ? " EI" : ""
+	     , ZMW_SUBACTION == Zmw_Input_Event && ZMW_SIZE_EVENT_IN ? " SEI" : ""
 	     ) ;
+  if ( 0 )
+  	{
+	  zmw_debug_children(zMw) ;
+	  fprintf(stderr, "PARENT CHIDREN :") ;
+	  zmw_debug_children(zMw-1) ;
+  	}
 }
 
 int zmw_action_draw()
@@ -467,7 +643,6 @@ int zmw_action_draw()
     {
     case 0:
       ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing ;
-
       return(zmw_action_first_pass()) ;
 
     case 1:
@@ -498,7 +673,7 @@ int zmw_action_dispatch_accelerator()
 
   if ( ZMW_CALL_NUMBER++ == 0 )
     {
-      ZMW_SUBACTION = Zmw_Accelerator ;
+      ZMW_SUBACTION = Zmw_Nothing ;
       zmw_state_push() ;
       return(1) ;
     }
@@ -513,11 +688,15 @@ int zmw_action_dispatch_accelerator()
 int zmw_action_dispatch_event()
 {
   ZMW_EXTERNAL_HANDLING ;
-
-  if ( zmw.event->type == GDK_NOTHING )
+  
+  if ( zmw.event->type == GDK_NOTHING || zmw.remove_event )
     {
       ZMW_CALL_NUMBER++ ;
       zmw_action_do_not_enter() ;
+      zMw[-1].u.nb_of_children = zMw[-1].u.nb_of_children_0 ;
+
+      if ( zmw.activated )
+  	zmw.child_activated = Zmw_True;
       return(0) ;    
     }
 
@@ -542,8 +721,19 @@ int zmw_action_dispatch_event()
 	}
       */
       /*
+       * Not nice at all.
+       * This is required (test_focus4) because
+       * the top level windows are not in a widget.
+       * So, they are only processed once.
+       */
+      /* But this test break hierarcical menu
+       * So I remove this shortcut
+       */
+      if ( 0 && zMw[-1].i.window == NULL && !ZMW_EVENT_IN )
+	break ; /* Do not dispatch event */
+      /*
        * Event are computed for the window with the cursor : first
-       * Or the zmw containing the window with the cursor : first
+       * Or the widget containing the window with the cursor : first
        */
       if ( zMw[-1].u.size.event_in
 	   ? ( ( zMw[-1].u.call_number == 2 && !ZMW_SIZE_EVENT_IN )
@@ -559,6 +749,7 @@ int zmw_action_dispatch_event()
 	  if ( ZMW_DEBUG )
 	    zmw_printf("Event in masked\n") ;
 	  ZMW_EVENT_IN_MASKED = Zmw_True ;
+          zmw.index_last = ZMW_SIZE_INDEX - 1 ;  /* -+1 the 3/7/2003 */
 	}
       else
 	{
@@ -566,6 +757,7 @@ int zmw_action_dispatch_event()
 	    zmw_printf("Event in not masked\n") ;
 	  ZMW_EVENT_IN_MASKED = Zmw_False ;
 
+          zmw.activated = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}
@@ -575,6 +767,7 @@ int zmw_action_dispatch_event()
       if ( ZMW_EVENT_IN )
 	{
 	  ZMW_SUBACTION = Zmw_Input_Event ;
+          zmw.activated = Zmw_False ;
 	  zmw_state_push() ;
 	  return(1) ;
 	}
@@ -593,9 +786,8 @@ int zmw_action_dispatch_event()
       zmw_event_remove() ;
     }
 
-
-
   zmw_action_do_not_enter() ;
+
   return(0) ;
 }
 
@@ -607,24 +799,27 @@ int zmw_action_dispatch_event()
 int zmw_action_search()
 {
   ZMW_EXTERNAL_HANDLING ;
-
+  
+  if ( ! zmw_name_registered(&zmw.found) )
   switch ( ZMW_CALL_NUMBER++ )
     {
     case 0:
       ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
       return(zmw_action_first_pass()) ;
     case 1:
-      ZMW_SUBACTION = Zmw_Search ;
+      ZMW_SUBACTION = Zmw_Nothing ;
       zmw_action_second_pass() ;
       zmw_state_push() ;
       return(1) ;
     case 2:
-      if ( ZMW_EVENT_IN && !zmw_name_registered(&zmw.found) )
+      if ( ZMW_EVENT_IN )
 	{
 	  zmw_name_register(&zmw.found) ;
 	}
       break ;
     }
+  else
+  	ZMW_CALL_NUMBER++ ;
   zmw_action_do_not_enter() ;
   return(0) ;
 }

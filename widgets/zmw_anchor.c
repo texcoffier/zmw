@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 */
 
 #include <gdk/gdkkeysyms.h>
-#include "zmw.h"
+#include "zmw/zmw.h"
 
 
 static void zmw_anchor_vertical_()
@@ -31,6 +31,7 @@ static void zmw_anchor_vertical_()
       ZMW_SIZE_MIN.width = 2*ZMW_BORDER_WIDTH ;
       ZMW_SIZE_MIN.height = 1 ;
       ZMW_SIZE_SENSIBLE = 1 ;
+      zmw_vertical_expand(Zmw_True) ;
       break ;
 
     case Zmw_Post_Drawing:
@@ -38,17 +39,17 @@ static void zmw_anchor_vertical_()
 			 , ZMW_GC[ZMW_BORDER_DARK]
 			 , 1
 			 , ZMW_SIZE_ALLOCATED.x
-			 , zMw[-1].u.size.allocated.y
+			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_BORDER_WIDTH
-			 , zMw[-1].u.size.allocated.height
+			 , ZMW_SIZE_ALLOCATED.height
 			 ) ;
       gdk_draw_rectangle(ZMW_WINDOW
 			 , ZMW_GC[ZMW_BORDER_LIGHT]
 			 , 1
 			 , ZMW_SIZE_ALLOCATED.x + ZMW_BORDER_WIDTH
-			 , zMw[-1].u.size.allocated.y
+			 , ZMW_SIZE_ALLOCATED.y
 			 , ZMW_BORDER_WIDTH
-			 , zMw[-1].u.size.allocated.height
+			 , ZMW_SIZE_ALLOCATED.height
 			 ) ;
       if ( zmw_focused() )
 	{
@@ -56,8 +57,8 @@ static void zmw_anchor_vertical_()
 			     , ZMW_GC[ZMW_BORDER_DARK]
 			     , 1
 			     , ZMW_SIZE_ALLOCATED.x - (2*ZMW_BORDER_WIDTH)/2
-			     , zMw[-1].u.size.allocated.y
-			     + zMw[-1].u.size.allocated.height/2
+			     , ZMW_SIZE_ALLOCATED.y
+			     + ZMW_SIZE_ALLOCATED.height/2
 			     - (3*ZMW_BORDER_WIDTH)/2
 			     , 3*ZMW_BORDER_WIDTH
 			     , 3*ZMW_BORDER_WIDTH
@@ -66,8 +67,8 @@ static void zmw_anchor_vertical_()
 			     , ZMW_GC[ZMW_BORDER_LIGHT]
 			     , 1
 			     , ZMW_SIZE_ALLOCATED.x - ZMW_BORDER_WIDTH/2
-			     , zMw[-1].u.size.allocated.y
-			     + zMw[-1].u.size.allocated.height/2
+			     , ZMW_SIZE_ALLOCATED.y
+			     + ZMW_SIZE_ALLOCATED.height/2
 			     - (2*ZMW_BORDER_WIDTH)/2
 			     , 2*ZMW_BORDER_WIDTH
 			     , 2*ZMW_BORDER_WIDTH
@@ -105,11 +106,12 @@ void zmw_anchor_vertical(int *x)
 	}
     }
 
-  if ( zmw_selected() && ZMW_ACTION == zmw_action_dispatch_event )
+  if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
       zmw.dragged = Zmw_True ;
       zmw.activated = Zmw_True ;
       *x = zmw.x - zMw[-1].u.size.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
+	  zmw_event_remove() ;
     }
 
 }
@@ -137,12 +139,13 @@ void zmw_anchor_vertical_float(float *x)
 	}
     }
 
-  if ( zmw_selected() && ZMW_ACTION == zmw_action_dispatch_event )
+  if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
       zmw.dragged = Zmw_True ;
       zmw.activated = Zmw_True ;
       *x = (zmw.x - zMw[-1].u.size.allocated.x)
 	/ (float)zMw[-1].u.size.allocated.width ;
+      zmw_event_remove() ;
     }
 }
 
@@ -218,7 +221,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
     case Zmw_Input_Event:
 
       zmw_focusable() ;
-
+      
       if ( zmw_button_pressed() )
 	{
 	  *ix = *x ;
@@ -236,7 +239,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	    }
 	  zmw_event_remove() ;
 	}
-      else if ( corner != -1 && zmw_button_released_anywhere() )
+      else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused())
 	{
 	  corner = -1 ;
 	  zmw.activated = Zmw_True ;
@@ -288,6 +291,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	      *height = ny - *y ;
 	      break ;
 	    }
+	  zmw_event_remove() ;
 	}
       break ;
     default:
@@ -310,9 +314,11 @@ void zmw_anchor_box_with_init_values(int *x, int *y, int *width, int *height
   zmw_anchor_box_(x, y, width, height, ix, iy, iw, ih) ;
 }
 
+/*
+ * (ix, iy) is the position before the drag start
+ */
 
-
-void zmw_anchor_move_(int *x, int *y, int *ix, int *iy)
+void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 {
   int i, xx, yy, nx, ny ;
   static int corner = -1 ;
@@ -359,10 +365,19 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy)
 			     , ZMW_BORDER_WIDTH*2
 			     , ZMW_BORDER_WIDTH*2
 			     ) ;
+	  gdk_draw_rectangle(ZMW_WINDOW
+			     , ZMW_GC[ZMW_BORDER_LIGHT]
+			     , 0
+			     , xx-ZMW_BORDER_WIDTH+1
+			     , yy-ZMW_BORDER_WIDTH+1
+			     , ZMW_BORDER_WIDTH*2-2
+			     , ZMW_BORDER_WIDTH*2-2
+			     ) ;
 	}
       break ;
     case Zmw_Input_Event:
-
+      if ( !movable )
+ 	 break ;
       zmw_focusable() ;
 
       if ( zmw_button_pressed() )
@@ -376,11 +391,11 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy)
 	      zmw_event_remove() ;
 	    }
 	}
-      else if ( corner != -1 && zmw_button_released_anywhere() )
+      else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused() )
 	{
-	  corner = -1 ;
-	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
+	  	  corner = -1 ;
+	  	  zmw.activated = Zmw_True ;
+		  zmw_event_remove() ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
@@ -389,6 +404,7 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy)
 	  zmw.dragged = Zmw_True ;
 	  *x = nx - ZMW_SIZE_ALLOCATED.width/2 ;
 	  *y = ny - ZMW_SIZE_ALLOCATED.height/2 ;
+	  zmw_event_remove() ;
 	}
       break ;
     default:
@@ -398,8 +414,14 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy)
 
 void zmw_anchor_move(int *x, int *y)
 {
-  static int ix, iy ;
-  zmw_anchor_move_(x, y, &ix, &iy) ;
+  int ix, iy ;
+  zmw_anchor_move_(x, y, &ix, &iy, Zmw_True) ;
+}
+
+void zmw_anchor_move_not(int x, int y)
+{
+  int ix, iy ;
+  zmw_anchor_move_(&x, &y, &ix, &iy, Zmw_False) ;
 }
 
 /*
@@ -407,5 +429,5 @@ void zmw_anchor_move(int *x, int *y)
  */
 void zmw_anchor_move_with_init_values(int *x, int *y, int *ix, int *iy)
 {
-  zmw_anchor_move_(x, y, ix, iy) ;
+  zmw_anchor_move_(x, y, ix, iy, Zmw_True) ;
 }

@@ -1,0 +1,17 @@
+
+
+.mediaobject p { margin-top: 0em ; }
+
+.programlisting { font-size: small ; margin-top: 0.1em ; }
+
+.programlisting .emphasis { font-weight: bold ; font-size: 120%; }
+
+div.variablelist dd p { margin-top: 0.1em ; margin-bottom: 0.2em ; }
+
+div.variablelist dt { font-size: small ; font-family: monospace ; margin-top: 1em ; }
+
+.guibutton { background-color: black ; color: white ; }
+
+
+
+

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,27 +19,34 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
-void zmw_alert(GdkWindow **w, const char *message, Zmw_Boolean *visible)
+void zmw_alert(char **message)
 {
-  if ( !*visible )
+  int ar ;
+
+  if ( !*message )
     return ;
 
-  ZMW(zmw_window(w, "Alert"))
+  ar = ZMW_AUTO_RESIZE ;
+  zmw_auto_resize(1) ;
+  ZMW(zmw_window("Alert"))
     {
       ZMW(zmw_box_vertical())
 	{
 	  zmw_text("Error message of the application") ;
-	  zmw_text(message) ;
-	  zmw_border_embossed_in_draw() ;
+	  ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
+	    {
+	      zmw_text(*message) ;
+	    }
 	  zmw_horizontal_alignment(0) ;
 	  zmw_horizontal_expand(0) ;
 	  zmw_button("OK") ;
 	  if ( zmw_activated() )
-	    *visible = Zmw_False ;
+	    *message = NULL ;
 	}
     }
+  ZMW_AUTO_RESIZE = ar ;
 }
 
 

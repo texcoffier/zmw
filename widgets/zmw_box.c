@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
 /*
  *
@@ -150,6 +150,8 @@ void zmw_box_horizontal_children_allocated_size()
 	}
       else
 	{
+	  zmw_alignement_vertical_make(&ZMW_CHILDREN[i], 0) ;
+	  /*
 	  if ( ZMW_CHILDREN[i].vertical_expand )
 	    {
 	      ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y ;
@@ -181,6 +183,7 @@ void zmw_box_horizontal_children_allocated_size()
 		      = ZMW_CHILDREN[i].required.height ;
 		  }
 	    }
+	  */
 	}
 	  
       /*
@@ -201,7 +204,7 @@ void zmw_box_horizontal_children_allocated_size()
     }
 }
 
-void zmw_box_horizontal()
+void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
 {
   switch( ZMW_SUBACTION )
     {
@@ -209,12 +212,32 @@ void zmw_box_horizontal()
       zmw_box_horizontal_required_size() ;
       break ;
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
+      if ( activable )
+	zmw_border_draw( (activable      ? Zmw_Border_Focusable : 0) |
+			 (zmw_focused() ? Zmw_Border_Draw_Focus : 0)
+			 ) ;
+
     case Zmw_Compute_Children_Allocated_Size:
       zmw_box_horizontal_children_allocated_size() ;
       break ;
+    case Zmw_Input_Event:
+      if ( activable )
+	{
+	  zmw_focusable() ;
+	  zmw_activable() ;
+	  if ( zmw_key_string() )
+	    {
+	      zmw.activated = 1 ;
+	    }
+	}
     default:
       break ;
     }
+}
+
+void zmw_box_horizontal()
+{
+  zmw_box_horizontal_with_activable(Zmw_False) ;
 }
 
 void zmw_box_vertical()
@@ -224,10 +247,41 @@ void zmw_box_vertical()
   zmw_swap_x_y() ;
 }
 
+void zmw_box_horizontal_activable()
+{
+  zmw_box_horizontal_with_activable(Zmw_True) ;
+}
+
+void zmw_box_vertical_activable()
+{
+  zmw_swap_x_y() ;
+  zmw_box_horizontal_with_activable(Zmw_True) ;
+  zmw_swap_x_y() ;
+}
+
+
+
+
+
 
 /*
  *
  */
+
+void zmw_box_compute_required_size()
+{
+  Zmw_Rectangle c ;
+  int i ;
+
+  c = ZMW_CHILDREN[0].required ;
+  for(i=1; i<ZMW_NB_OF_CHILDREN; i++)
+      if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+      c = zmw_rectangle_max(&ZMW_CHILDREN[i].required, &c) ;
+
+  ZMW_SIZE_MIN.width = c.width + c.x  ;
+  ZMW_SIZE_MIN.height = c.height + c.y ;
+}
+
 
 void zmw_box()
 {
@@ -238,8 +292,7 @@ void zmw_box()
     case Zmw_Compute_Required_Size:
       if ( ZMW_NB_OF_CHILDREN )
 	{
-	  ZMW_SIZE_MIN.width = ZMW_CHILDREN[0].required.width ;
-	  ZMW_SIZE_MIN.height = ZMW_CHILDREN[0].required.height ;
+	  zmw_box_compute_required_size() ;
 	}
       else
 	{
@@ -259,6 +312,11 @@ void zmw_box()
 	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x ;
 	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y ;
 	}
+      break ;
+
+    case Zmw_Input_Event:
+ //     zmw_focusable() ;
+      zmw_activable() ;
       break ;
 
     default:

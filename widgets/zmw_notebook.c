@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003  Thierry EXCOFFIER, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw.h"
+#include "zmw/zmw.h"
 
 /*
  * For internal use, in all the functions, the children table
@@ -31,12 +31,17 @@
 static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Size *ws)
 {
   int i ;
+  Zmw_Rectangle save, res ;
 
   for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
     ZMW_CHILDREN[i] = ws[i*2] ;
 
+  save = ZMW_SIZE_MIN ;
   zmw_box_horizontal_required_size() ;
-  return( ZMW_SIZE_MIN ) ;
+  res = ZMW_SIZE_MIN ;
+  ZMW_SIZE_MIN = save ;
+
+  return( res ) ;
 }
  
 
@@ -99,6 +104,7 @@ void zmw_notebook_draw(int *page)
 		       , ZMW_CHILDREN[i].allocated.height) ;
 
   if ( *page )
+    // Draw the labels background for the labels left to the current page
     gdk_draw_rectangle(ZMW_WINDOW
 		       , ZMW_GC[ZMW_BACKGROUND_PUSHED]
 		       , 1
@@ -109,6 +115,7 @@ void zmw_notebook_draw(int *page)
 		       , label_height
 		       ) ;
   if ( 2 * *page != ZMW_NB_OF_CHILDREN-2 )
+    // Draw the labels background for the labels right to the current page
     gdk_draw_rectangle(ZMW_WINDOW
 		       , ZMW_GC[ZMW_BACKGROUND_PUSHED]
 		       , 1
@@ -250,6 +257,7 @@ void zmw_notebook(int *page)
 		  )
 		*page = i/2 ;
 	    }
+	  zmw_need_repaint() ;
 	  zmw_event_remove() ;
 	}
       break ;
@@ -260,7 +268,7 @@ void zmw_notebook(int *page)
       break ;
     }
   /*
-   * Invisiblise the children except one
+   * Invisibilise the children except one
    */
   for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
     {

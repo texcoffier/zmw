@@ -1,0 +1,145 @@
+#!/bin/sh
+# -*- ksh -*-
+
+if [ "" = "$1" ]
+then
+  echo "Give the name of the program"
+  exit 1
+fi >&2
+
+read REPLACE <../xxx.replace
+DISPLAY_IMAGE="eeyes"
+convert_ppm_to_png() { pnmtopng -compression 9 <$1 >$2 ; }
+convert_png_to_ppm() { convert $1 ppm:$2 ; }
+convert_pnm_to_ppm() { convert $1 ppm:$2 ; }
+
+
+# $1 is the dumped image (ppm)
+# $2 is the correct image (png)
+compare_images() {
+  if [ ! -f $2 ]
+  then
+    if [ -s $1 ]
+    then
+      convert_ppm_to_png $1 $2
+    else
+      cp $1 $2
+    fi
+    echo "$2 created"
+  else
+    if [ ! -s $1 -a ! -s $2 ]
+    then
+      echo "$1 is OK (empty)"
+    else
+      convert_pnm_to_ppm $1 xxx.1.ppm
+      convert_png_to_ppm $2 xxx.2.ppm
+      if cmp xxx.1.ppm xxx.2.ppm >/dev/null
+      then
+	echo "$1 is OK"
+	rm $1
+      else
+	echo "$1 is not equal to $2"
+	if [ "$REPLACE" = "yes" ]
+	then
+	  convert_ppm_to_png $1 $2
+	else
+	  if [ "$REPLACE" != "no" ]
+	    then
+	      $DISPLAY_IMAGE $1 &
+	      PID1=$!
+	      $DISPLAY_IMAGE $2 &
+	      PID2=$!
+	      pnmarith -subtract xxx.1.ppm xxx.2.ppm | pnmhisteq > xxx_dif.ppm
+	      $DISPLAY_IMAGE xxx_dif.ppm &
+	      PID3=$!
+	      echo "Replace by the new version (yes|yesforall|no|noforall)? :"
+	      read R
+	      case "$R" in
+		"yes")
+		        convert_ppm_to_png $1 $2
+		       ;;
+		"yesforall")
+			     REPLACE="yes"
+			     cp $1 $2
+			     ;;
+		"noforall")
+			    REPLACE="no"
+			    ;;
+	      esac
+	      echo $REPLACE >../xxx.replace
+	      kill $PID1 $PID2 $PID3
+	  fi
+	fi
+      fi
+    fi
+  fi
+}
+
+if tty >/dev/null
+then
+  :
+else
+  REPLACE="no"
+fi
+
+
+if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$1.c" >/dev/null
+then
+  echo "$1 : No regression test on this one"
+  touch $1.regtest
+  exit 0
+fi
+
+
+I="$1"
+J=0
+while [ -f xxx.$I.$J.ppm ]
+do
+  if cmp xxx.$I.$J.ppm xxx_.$I.$J.ppm
+  then
+    rm xxx_.$I.$J.ppm
+  else
+    echo "$1 : Not the same result with or without cache"
+  fi
+  compare_images xxx.$I.$J.ppm $I.$J.png
+  J=`expr $J + 1`
+done | tee xxx.$I.regtest
+
+mv xxx.$I.regtest $I.regtest
+
+exit 0
+
+# Test removed because they always find differences.
+# It is because the GDK timer interact with events (I think)
+
+for J in "" ".cache"
+do
+  if [ -f $I$J.log.gz ]
+  then
+    if zcmp xxx$J.$I.log $I$J.log.gz
+    then
+      echo "xxx$J.$I.log is OK"
+    else
+      if [ "$REPLACE" = "yes" ]
+      then
+	gzip -9 <xxx$J.$I.log >$I$J.log.gz
+      else
+	zdiff -u xxx$J.$I.log $I$J.log.gz
+	echo "Replace by the new version (yes|yesforall|no)? :"
+	read R
+	case "$R" in
+	  "yes")
+		 gzip -9 <xxx$J.$I.log >$I$J.log.gz
+		 ;;
+	  "yesforall")
+		       REPLACE="yes"
+		       gzip -9 <xxx$J.$I.log >$I$J.log.gz
+		       ;;
+	esac
+      fi
+    fi
+  else
+    echo "$I$J.log.gz created"
+    gzip -9 <xxx$J.$I.log >$I$J.log.gz
+  fi
+done
