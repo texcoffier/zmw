@@ -1,3 +1,8 @@
+
+default:lib
+
+include ../Makefile.config
+
 O=\
 	zmw_notebook.o \
 	zmw_box.o \
@@ -18,7 +23,5 @@ O=\
 	zmw_table.o
 
 lib:: $(O)
-
-include ../Makefile.config
 
 # DO NOT DELETE

@@ -1,13 +1,25 @@
+
+ZMW_BOOK_OBJS=book.o book-preferences.o book-menubar.o loadsave.o filter.o sort.o utilities.o strings.o library.o
+
+ZMW_XML_INCLUDE=`pkg-config --cflags libxml`
+ZMW_XML_LIB=`pkg-config --libs libxml`
+
 run:exe
 	book --cache_size=10000
 
-book: book.o book-preferences.o book-menubar.o \
-      loadsave.o filter.o sort.o utilities.o strings.o library.o
-	$(ZMW_LINK) *.o `pkg-config --libs libxml`
+prof:$(ZMW_BOOK_OBJS)
+	if [ "$(ZMW_PROFILING)" == "" ] ; then echo "Needs ZMW_PROFILING to do profiling" >&2 ; exit 1 ; fi
+	$(CC) $(ZMW_PROFILING) ../../*/*.o *.o $(ZMW_LIBS) $(ZMW_XML_LIB)
+	a.out --cache_size=0 --debug=0
+	gprof a.out
+
+
+book: $(ZMW_BOOK_OBJS)
+	$(ZMW_LINK) $(ZMW_BOOK_OBJS) $(ZMW_XML_LIB)
 
 book-preferences.o:book-preferences.c
 	echo "Compile book-preferences.c"
-	$(CC) -c $(CFLAGS) `pkg-config --cflags libxml` $*.c -o $*.o
+	$(CC) -c $(CFLAGS) $(ZMW_XML_INCLUDE) $*.c -o $*.o
 
 exe:: translations book
 

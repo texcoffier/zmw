@@ -73,6 +73,9 @@ void prefs_save(Library_GUI *gui, const char *filename)
   color_save(f, "borrowed", gui->prefs.borrowed_color ) ;
   color_save(f, "menu"    , gui->prefs.menu_color ) ;
 
+
+  fprintf(f, "<language name='%s' />\n", gui->prefs.language) ;
+
   fprintf(f, "</book-preferences>\n") ;
 
   fclose(f) ;
@@ -121,6 +124,10 @@ void prefs_load(Library_GUI *gui, const char *filename)
 	      free( gui->prefs.cols[i].default_value) ;
 	      gui->prefs.cols[i].default_value = strdup(value) ;
 	    }
+	}
+      else if ( strcmp("language", n->name) == 0 )
+	{
+	  gui->prefs.language = strdup(xmlGetProp(n, "name")) ;
 	}
       else if ( strcmp("color", n->name) == 0 )
 	{

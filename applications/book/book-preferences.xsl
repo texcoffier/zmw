@@ -74,6 +74,10 @@
   [<xsl:value-of select="text()"/>]
 </xsl:template>
 
+<xsl:template match="language">
+  User Interface language: <xsl:value-of select="@name"/>
+</xsl:template>
+
 <xsl:template match="*">
   <p>Unknown tag: <xsl:value-of select="local-name()"/></p>
   <xsl:apply-templates/>

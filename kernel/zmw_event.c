@@ -242,25 +242,63 @@ void zmw_cursor_set(char *name)
 }
 
 /*
- * True if the popup menu is activated of visible or contains
- * a visible sub menu
+ * This variable contains the name of the button making the menu popup.
+ * It is not nice because, the detached value is linked to the popup window.
  */
 
 static Zmw_Name global_inner_visible_menu = ZMW_NAME_UNREGISTERED("Inner menu") ;
 
+/*
+ * In a hierarchic menu.
+ *  A -> B -> C -> D -> E -> F
+ * With D detached. D is always visible
+ * If the user asks to see B, then B is visible
+ * If the user asks to see C, then B/C is visible
+ * If the user asks to see E, then E is visible
+ * If the user asks to see F, then E/F is visible
+ */
+
+Zmw_Boolean zmw_window_really_need_display()
+{
+  Zmw_Name *detached ;
+
+  if ( global_inner_visible_menu.name == NULL )
+    return Zmw_False ;
+
+  detached = zmw_window_detached_containing(global_inner_visible_menu.name) ;
+  if ( detached )
+    return !zmw_name_next_contains(detached) ;
+  else
+    return Zmw_True ;
+}
+
+/*
+ * True if the popup menu is activated of visible or contains
+ * a visible sub menu
+ */
+
+
 Zmw_Boolean zmw_window_is_popped_with_detached(const int *detached)
 {
   zmw_next_widget_could_be_transient() ;
-  if ( zmw_cursor_in_and_pressed() || zmw_activated() )
+  if ( (zmw_cursor_in_and_pressed()
+	&& zmw_use_window_from_button_press_get() == Zmw_False
+	)
+       || zmw_button_pressed()
+       || zmw_activated()
+       )
     {
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("Make popup appear\n") ;
 
+      if ( !zmw_activated() )
+	zmw_use_window_from_button_press(Zmw_False) ;
       zmw_name_register(&global_inner_visible_menu) ;
       zmw.next_is_transient = Zmw_True ;
       zmw.activated = Zmw_True ;
       return( Zmw_True ) ;
     }
+
 
   if ( zmw_name_is(&global_inner_visible_menu)
        || zmw_name_next_contains(&global_inner_visible_menu)
@@ -268,12 +306,32 @@ Zmw_Boolean zmw_window_is_popped_with_detached(const int *detached)
        || ZMW_ACTION == zmw_action_dispatch_accelerator
        )
     {
+      if ( ! zmw_window_really_need_display() )
+	{
+	  /*
+	   * Not nice, it is because the inner_visible name is
+	   * not the transient name
+	   */
+	  if ( ! zmw_window_detached(detached, Zmw_Detached_Next) )
+	    goto no_real_display;
+	}
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("Popup is visible\n") ;
 
       zmw.next_is_transient = Zmw_True ;
       return( Zmw_True ) ;
     }
+
+  if ( zmw_window_contains_detached() )
+    {
+    no_real_display:
+      if ( zMw[-1].u.nb_of_children_0 > zMw[-1].u.nb_of_children )
+	zMw[-1].u.children[zMw[-1].u.nb_of_children].do_not_map_window = Zmw_True ;
+      zmw.next_is_transient = Zmw_True ;
+      return( Zmw_True ) ;
+    }
+
+
   if ( zmw.debug & Zmw_Debug_Event )
     zmw_printf("Popup is NOT visible\n") ;
 
@@ -289,6 +347,7 @@ void zmw_window_unpop_all()
   if ( zmw.debug & Zmw_Debug_Event )
     zmw_printf("Unpop all popup window\n") ;
   zmw_name_unregister(&global_inner_visible_menu) ;
+  zmw_use_window_from_button_press(Zmw_True) ;
 }
 /*
  * True if the widget is selected (button pressed in the widget

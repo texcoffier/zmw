@@ -1,0 +1,44 @@
+Welcome to the regression test directory.
+
+The regression tests are done in a virtual X server with a window manager.
+A shell script runs commands to move the mouse, click and so on.
+The script makes some screen dumps, afterward the dumps
+are compared to saved correct dumps.
+If all the images are equals, then the test passes.
+
+By default, the makefile run the tests.
+If you want to test only one example you can do :
+	make start_xvfb  # If it is not running
+	cd the_example
+	../regression_test
+	cd ..
+	make stop_xvfb   # Most of the time you will no stop it
+
+Regressions tests run one without cache option and one with,
+in any cases the result must be the same.
+
+The regression tests fail sometimes, so the test
+ran 7 times in order to be sure they failed.
+
+Each time an image comparaison failed, the program
+asks the user if the new image should replace the old one (yes/no).
+This answer could apply to all the image in this directory (yeshere|nohere).
+Or to all the following images (yesforall|noforall).
+The test displays the old/new image and their subtraction.
+If the old image does not exist, it is created from the new image.
+
+If the test run with a tty, when it is launched with "at" or "cron"
+it will not ask questions.
+
+A classical output may be:
+
+notebook2 [1]0123456/0123456 {1}0123456/0123456
+
+[1]      indicates that it is the first test with cache
+0123456  indicates that 7 image dumps are made
+/0123456 indicates that the 7 images are equals to the good ones
+{1}      indicates that it is the first test without cache
+0123456  indicates that 7 image dumps are made
+/0123456 indicates that the 7 images are equals to the good ones
+
+If a test fails, [2] or {2} will be displayed and so on until 7 retries.

@@ -38,9 +38,9 @@ void anchor(void)
 	  zmw_height(ZMW_VALUE_UNDEFINED) ;
 	  zmw_scrollbar_horizontal(&sb2_x, anchor_x/200.) ;
 	  if ( zmw_activated() )
-	    printf("Scrollbar activated\n") ;
+	    fprintf(stderr, "Scrollbar activated\n") ;
 	  else if ( zmw_changed() )
-	    printf("Scrollbar changed\n") ;
+	    fprintf(stderr, "Scrollbar changed\n") ;
 	}
     }
 }

@@ -1,8 +1,106 @@
 #!/bin/sh
 # -*- ksh -*-
+#
+# This script is launched inside the directory containing the program.
+# This script always make the regression test even if it is not necessary.
+# This script creates "regtext.passed" or "regtest.failed" (execution logs)
+# The REPLACE variable may contains
+#   - ""    	  : Asks the user
+#   - "yes" 	  : Replace good image
+#   - "yesforall" : Replace good images for this one and the others
+#   - "yeshere"   : Replace good images for this application
+#   - "no"  	  : Do not replace good image
+#   - "noforall"  : Do not replace good images for this one and the others
+#   - "nohere"    : Do not replace good images for this application
+# It is stored in "xxx.replace" file.
+#
+# This script :
+#	- Verify if Xvfb is running
+#       - Loop on
+#               - Creates the application dumps (without cache)
+#               - Compare with the good files
+#                 (If the good file does not exists, it is created)
+#                 If there is a difference, asks the user if the good
+#                 file must be replaced.
+#         While they are not equals (if too long creates: regtest.fail)
+#       - Loop on
+#               - Creates the application dumps (with cache)
+#               - Compare with the good files
+#         While they are not equals (if too long creates: regtest.fail)
+#       - Make some cleaning
+#       - Creates "regtest.pass"
 
-read REPLACE <../xxx.replace
-DISPLAY_IMAGE="eeyes"
+export REPLACE=`cat ../xxx.replace`
+export NAME=`basename $(pwd)`
+export ZMW_EXECUTION_ARGS="--mstimout=10"
+export DISPLAY_IMAGE="eeyes"
+
+# Test if the test need to be done
+
+if [ -f "regtest.pass" ]
+then
+  N="regtest.pass"
+else
+  if [ -f "regtest.fail" ]
+  then
+    N="regtest.fail"
+  else
+    N=""
+  fi
+fi
+
+if [ "$N" != "" -a -f "$N" -a "$N" -nt "$NAME.c" -a "$N" -nt "../../../zmw.so" ]
+then
+  exit 0
+fi
+
+
+. ../utilities
+
+
+if [ ! -f ../xvfb.pid ]
+then
+  echo "Xvfb must be running, so I start it"
+  ( cd .. ; make start_xvfb )
+fi
+
+if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$NAME.c" >/dev/null
+then
+  echo "$NAME : No regression test on this one"
+  touch "regtest.pass"
+  exit 0
+fi
+
+if tty >/dev/null
+then
+  :
+else
+  REPLACE="noforall"
+fi
+
+rm -f regtest.pass regtest.fail 2>/dev/null
+
+make -f ../Makefile $NAME.exe || exit
+
+
+make_dumps() {
+  (
+  DISPLAY="$ZMW_XVFB"
+  # Move cursor always in the same place
+  zmw_move_cursor_to 1000 1000
+  # Run the application in background
+  $NAME.exe $1 $ZMW_EXECUTION_ARGS &
+  # Take the pid to kill it after
+  ZMWPID=$!
+  # Wait the application start
+  zmw_sleep 0.1
+  # Make the dumps from the shell script inside the C source file
+  eval "`awk <$NAME.c 'BEGIN{I=0;}/REGRESSION TEST/{I=1-I;next;}I==1{print;}'`"
+  # Kill the application one the dumps are terminated
+  kill $ZMWPID 2>/dev/null
+  )
+}
+
 convert_ppm_to_png() { pnmtopng -compression 9 <$1 >$2 ; }
 convert_png_to_ppm() { convert $1 ppm:$2 ; }
 convert_pnm_to_ppm() { convert $1 ppm:$2 ; }
@@ -10,7 +108,7 @@ convert_pnm_to_ppm() { convert $1 ppm:$2 ; }
 
 # $1 is the dumped image (ppm)
 # $2 is the correct image (png)
-compare_images() {
+compare_two_images() {
   if [ ! -f $2 ]
   then
     if [ -s $1 ]
@@ -19,88 +117,133 @@ compare_images() {
     else
       cp $1 $2
     fi
-    echo "$2 created"
+    echo -n " creates"
+    RESULT="ok"
   else
     if [ ! -s $1 -a ! -s $2 ]
     then
-      echo "$1 is OK (empty)"
+      echo "$1 is OK (empty)" >&2
+      RESULT="ok"
     else
       convert_pnm_to_ppm $1 xxx.1.ppm
       convert_png_to_ppm $2 xxx.2.ppm
       if cmp xxx.1.ppm xxx.2.ppm >/dev/null
       then
-	echo "$1 is OK"
-	rm $1
+	echo "$1 is OK" >&2
+	RESULT="ok"
       else
 	echo "$1 is not equal to $2"
-	touch xxx.regtestfailed
-	if [ "$REPLACE" = "yes" ]
+	if [ "$REPLACE" = "" ]
 	then
-	  convert_ppm_to_png $1 $2
-	else
-	  if [ "$REPLACE" != "no" ]
-	    then
-	      $DISPLAY_IMAGE $1 &
-	      PID1=$!
-	      $DISPLAY_IMAGE $2 &
-	      PID2=$!
-	      pnmarith -subtract xxx.1.ppm xxx.2.ppm | pnmhisteq > xxx_dif.ppm
-	      $DISPLAY_IMAGE xxx_dif.ppm &
-	      PID3=$!
-	      echo "Replace by the new version (yes|yesforall|no|noforall)? :"
-	      read R
-	      case "$R" in
-		"yes")
-		        convert_ppm_to_png $1 $2
-		       ;;
-		"yesforall")
-			     REPLACE="yes"
-			     cp $1 $2
-			     ;;
-		"noforall")
-			    REPLACE="no"
-			    ;;
-	      esac
-	      echo $REPLACE >../xxx.replace
-	      kill $PID1 $PID2 $PID3
-	  fi
+	  echo "Replace (yes|yesforall|yeshere|no|noforall|nohere)? :"
+	  $DISPLAY_IMAGE $1 &
+	  PID1=$!
+	  $DISPLAY_IMAGE $2 &
+	  PID2=$!
+	  pnmarith -subtract xxx.1.ppm xxx.2.ppm | pnmhisteq > xxx_dif.ppm
+	  $DISPLAY_IMAGE xxx_dif.ppm &
+	  PID3=$!
+	  read REPLACE
+	  kill $PID1 $PID2 $PID3
+	fi 2>/dev/null
+	    
+	case "$REPLACE" in
+	  "yesforall"|"yeshere"|"yes")
+				       convert_ppm_to_png $1 $2
+				       RESULT="ok"
+				       ;;
+	  *)
+	     RESULT="fail"
+	     ;;
+	esac
+	# Reset the answer if it applies only to one image
+	if [ "$REPLACE" = "yes" -o "$REPLACE" = "no" ]
+	then
+	  REPLACE=""
 	fi
       fi
+      rm xxx.1.ppm xxx.2.ppm
     fi
   fi
 }
 
-if tty >/dev/null
-then
-  :
-else
-  REPLACE="no"
-fi
+compare_all_images() {
+  J=0
+  while [ -f "xxx.$NAME.$J.ppm" ]
+  do
+    compare_two_images "xxx.$NAME.$J.ppm" "$NAME.$J.png"
+    if [ "$RESULT" != "ok" ]
+    then
+      ALL_RESULTS="fail"
+      echo
+      echo "Failed test: xxx.$NAME.$J.ppm" >&2
+    else
+      echo -n "$J"
+      rm "xxx.$NAME.$J.ppm"
+    fi
+    J=`expr $J + 1`
+  done
+}
 
-I=`basename $(pwd)`
 
-if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$I.c" >/dev/null
-then
-  echo "$I : No regression test on this one"
-  touch $I.regtest
-  exit 0
-fi
 
-rm -f xxx.regtestfailed
+(
 
-J=0
-while [ -f xxx.$I.$J.ppm ]
+
+echo -n "$NAME"
+
+RETRIES="1 2 3 4 5 6 7"
+
+
+for N in $RETRIES
 do
-  if cmp xxx.$I.$J.ppm xxx_.$I.$J.ppm
+  ALL_RESULTS="ok"
+  echo -n " [$N]"
+  make_dumps "--cache_size=10000"
+  echo -n "/"
+  compare_all_images
+  if [ "$ALL_RESULTS" = "ok" ]
   then
-    rm xxx_.$I.$J.ppm
-  else
-    touch xxx.regtestfailed
-    echo "$I : Not the same result with or without cache"
+    break
   fi
-  compare_images xxx.$I.$J.ppm $I.$J.png
-  J=`expr $J + 1`
-done | tee xxx.$I.regtest
+done
 
-mv xxx.$I.regtest $I.regtest
+if [  "$ALL_RESULTS" = "ok" ]
+then
+  for N in $RETRIES
+  do
+    ALL_RESULTS="ok"
+    echo -n " {$N}"
+    make_dumps "" 2>xxx.logs
+    echo -n "/"
+    compare_all_images
+    if [ "$ALL_RESULTS" = "ok" ]
+    then
+      break
+    fi
+  done
+fi
+
+echo
+
+if [ "$ALL_RESULTS" = "ok" ]
+then
+  mv xxx.logs regtest.pass
+else
+  mv xxx.logs regtest.fail
+fi
+
+
+if [ "$REPLACE" = "yesforall" -o "$REPLACE" = "noforall" ]
+then
+  echo "$REPLACE" >../xxx.replace
+fi
+
+
+) 2>xxx.logs
+
+
+
+
+
 

@@ -47,7 +47,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.4)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.5)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -4155,6 +4155,30 @@
 
       </sect2>
 
+    <sect2>
+      <title>Debugging functions</title>
+      <para>
+	These function will help to find problems.
+      </para>
+
+      <variablelist>
+
+	<varlistentry>
+	  <term>ZMW_ABORT</term>
+	  <listitem>
+	    <para> 
+		Use this function to make an abort in case
+		of big problem in the library or in the widget use.
+		For example if the number of children if not
+		the requested one.
+		This function display the current widget stack.
+		For each widget there is the filename and
+		line number indicating where it has been used.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	</variablelist>
+      </sect2>
 
       <sect2>
 	<title>Command line options</title>
@@ -4246,15 +4270,6 @@
 	<para>
 	  I did not find a documentation on how to use
 	  the interprocess drag and drop from <acronym>GDK</acronym>.
-	</para>
-      </sect2>
-
-
-      <sect2>
-	<title>Scrollbar positioning</title>
-	<para>If the cursor moving a scrollbar go over another
-	  &ZMW; window the position is bad.
-	  This should be easily corrected.
 	</para>
       </sect2>
 

@@ -1,31 +1,60 @@
 #!/bin/sh
+# -*- ksh -*-
 
-case `hostname` in
-big) # Pentium 150 MHz
-    SMALL1=0.3
-    SMALL2=1
-    ;;
-ligimpc37) # Pentium 1.5 GHz
-    SMALL1=0.1
-    SMALL2=0.3
-    ;;
-ligimpc22) # Pentium 1 GHz
-    SMALL1=0.1
-    SMALL2=0.3
-    ;;
-lirispaj) # Pentium 3 GHz
-    SMALL1=0.6
-    SMALL2=0.6
-    ;;
-*)
-    echo "Please edit .../examples/utilities to set good times"
-    echo "With big times, you are safe but the test is sloooow."
-    SMALL1=0.5
-    SMALL2=2
-    ;;
-esac
+# Small time to wait before sending events
+export SMALL1=0.1
+# Time to wait before making the dump
+export SMALL2=0.2
+# X server number for Xvfb
+export ZMW_XVFBN=9
+export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
 
+zmw_small_scale() {
+SAVE_SMALL1=$SMALL1
+SAVE_SMALL2=$SMALL2
 
+SMALL1=`echo "$SMALL1 * $1" | bc`
+SMALL2=`echo "$SMALL2 * $1" | bc`
+}
+
+zmw_small_restore() {
+SMALL1=$ZMW_SMALL1
+SMALL2=$ZMW_SMALL2
+}
+
+export KEY_A=37
+export KEY_B=38
+export KEY_LEFT=39
+export KEY_CONTROL=40
+export KEY_SLASH=41
+export KEY_BACKSPACE=42
+export KEY_F1=43
+export KEY_PAGEUP=44
+export KEY_UP=45
+
+start_xvfb() {
+  Xvfb :$ZMW_XVFBN -ac -screen 0 700x700x24 -noreset &
+  echo $! >xvfb.pid
+  # Xnest :$(ZMW_XVFBN) -ac -noreset & echo $$! >xvfb.pid
+  sleep 1
+  xsetroot -display $ZMW_XVFB -solid white
+  xmodmap -display $ZMW_XVFB -e "keycode $KEY_A = a" \
+   -e "keycode $KEY_B = b" \
+   -e "keycode $KEY_SLASH = slash" \
+   -e "keycode $KEY_LEFT = Left" \
+   -e "keycode $KEY_BACKSPACE = BackSpace" \
+   -e "keycode $KEY_CONTROL = Control_L" \
+   -e "keycode $KEY_F1 = F1" \
+   -e "keycode $KEY_PAGEUP = Prior" \
+   -e "keycode $KEY_UP = Up" \
+   -e "add control = Control_L"
+  fvwm2 -display $ZMW_XVFB -f `pwd`/.fvwm2rc &
+}
+
+stop_xvfb() {
+  kill `cat xvfb.pid`
+  rm xvfb.pid
+}
 
 
 zmw_send() {
@@ -84,13 +113,11 @@ zmw_sleep() {
 	sleep $1 || sleep 1
 }
 
-
 zmw_dump_screen() {
-        NAME="$PROG_NAME.$1.ppm"
 	echo -n "$1"
 	zmw_sleep $SMALL2
 	xwd -root -screen |
 	    xwdtopnm 2>/dev/null |
-	    pnmcrop -white 2>/dev/null >$NAME
+	    pnmcrop -white 2>/dev/null >"xxx.$NAME.$1.ppm"
 }
 

@@ -20,8 +20,7 @@
 */
 
 
-/* Vitesse maison sans gettext : 6.12 fps */
-
+#include <time.h>
 #include <errno.h>
 #include "book.h"
 
@@ -345,7 +344,7 @@ void table_row(Library_GUI *gui, int i)
   char buf[9] ;
   int j, k ;
 
-  sprintf(buf, "%x", i) ;
+  sprintf(buf, "[%x]", i) ;
   zmw_name(buf) ;
 
   for(j=0; j<Column_Last; j++)
@@ -529,13 +528,20 @@ void change_language(Library_GUI *gui)
   gui->prefs.language = gui->prefs.new_language ;
   gui->prefs.new_language = NULL ;
 
-  printf("Try to change to language %s\n", gui->prefs.language) ;
-
   setenv ("LANGUAGE", gui->prefs.language, 1);
   setlocale(LC_ALL, "") ;
   a = setlocale(LC_MESSAGES, gui->prefs.language) ;
+}
 
-  printf("Language changed to %s\n", a) ;
+void library_top_level(Library_GUI *gui)
+{
+  ZMW(zmw_box_vertical())
+    {
+      zmw_horizontal_expand(Zmw_True) ;
+      zmw_vertical_alignment(-1) ;
+      menu_bar(gui) ;
+      table(gui) ;
+    }
 }
 
 void library()
@@ -590,9 +596,13 @@ void library()
       gui.nb = 10 ;
       gui.debug_window = 0 ;
       gui.error_message[0] = NULL ;
+
+      gui.prefs.language = getenv("LANGUAGE") ? getenv("LANGUAGE") : "C" ;
+
+      prefs_load(&gui, "book-preferences.xml") ;      
+
       gui.prefs.new_language = gui.prefs.language ;
       change_language(&gui) ;
-      prefs_load(&gui, "book-preferences.xml") ;      
     }
 
   zmw_rgb(gui.prefs.standard_color[0], gui.prefs.standard_color[1], gui.prefs.standard_color[2]) ;
@@ -600,13 +610,9 @@ void library()
 	  , gui.library_modified ? _(" (Modified)") : "") ;
   ZMW(zmw_window(buf))
     {
-      ZMW(zmw_box_vertical())
-	{
-	  zmw_vertical_alignment(-1) ;
-	  menu_bar(&gui) ;
-	  table(&gui) ;
-	}
+      library_top_level(&gui) ;
     }
+
   if ( gui.debug_window )
     debug_window(&gui) ;
 
@@ -624,7 +630,15 @@ void library()
 
   change_language(&gui) ;
   if ( zmw_state_change_allowed() )
-    gui.library_modified = library_modified(gui.lib) ;
+    {
+      static int last_update = 0 ;
+
+      if ( last_update != time(NULL) )
+	{
+	  gui.library_modified = library_modified(gui.lib) ;
+	  last_update = time(NULL) ;
+	}
+    }
 }
 
 int main(int argc, char *argv[])

@@ -249,6 +249,42 @@ static void menu_bar_edit(Library_GUI *gui)
     }
 }
 
+void semantic_len(Library_GUI *gui)
+{
+  static int stop = 0 ;
+  extern void library_top_level(Library_GUI *gui) ;
+  extern void change_language(Library_GUI *gui) ;
+  char *lang ;
+
+  zmw_button("SL") ;
+  if ( stop == 0 && zmw_window_is_popped() )
+    {
+      stop = 1 ;
+
+      lang = gui->prefs.language ;
+      gui->prefs.new_language = "C" ;
+      change_language(gui) ;
+
+      ZMW(zmw_window_drag())
+	{
+	  zmw_width(100) ;
+	  zmw_height(100) ;
+	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid
+			    | Zmw_Decorator_Clip
+			    | Zmw_Decorator_Translate
+			    , -zmw.x + 110, -zmw.y + 112))
+	    {
+	      library_top_level(gui) ;
+	    }
+	}
+
+      gui->prefs.new_language = lang ;
+      change_language(gui) ;
+
+      stop = 0 ;
+    }
+}
+
 void menu_bar(Library_GUI *gui)
 {
   zmw_vertical_expand(Zmw_False) ;
@@ -260,6 +296,7 @@ void menu_bar(Library_GUI *gui)
       menu_bar_file(gui) ;
       menu_bar_edit(gui) ;
       menu_bar_view(gui) ;
+      semantic_len(gui) ;
     }
 }
 

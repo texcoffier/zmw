@@ -249,7 +249,7 @@ void zmw_filechooser(Zmw_Boolean *visible
 			  zmw_event_remove() ;
 			  x = y = 0 ;
 			}
-		      if ( size >= 0 )
+		      if ( size >= 0 && type == 'f' )
 		    	{
 			  sprintf(buf, "%d", size) ;
 			  zmw_text(buf) ;

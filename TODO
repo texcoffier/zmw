@@ -1,26 +1,72 @@
 Many things are missing in the current library.
 The ones with a "*" are priorities.
 
+WHAT I AM GOING TO PROGRAM NOW:
+	* Change menu API in order to not store informations in
+	  the resource system for detached menu.
+	* Make the regression test in menu3.c (recursive menu)
+	* Append menu3.c example in the documentation
+	* Change menu API in documentation
+	* Apply the idea (end of this file) about new transient management.
+	* Convert tip (widget/test/circuit/book/example/doc) from old to new
+	* Convert menu (widget/test/circuit/book/example/doc) from old to new
+	* Convert d&d (widget/test/circuit/book/example/doc) from old to new
+	* Remove all the transient management from the kernel.
+	* Change accelerator management in order to have infinite menu
+
 WIDGETS:
 	- Alignement left/right in an horizontal widget
 	- Text formatting
-	- Semantic Lens
 	- Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
 	- zmw_table : border are too small to be draggable
 	- Decorator: remove external or internal padding as an option
+	* zmw_window_drag(): Choose the window position relative to cursor
+	* Semantic Lens (move the code from book to the library)
+
 
 LIBRARY CORE:
 	- Make a pile by attribute with a bit vector to indicate
 	  which attributes where pushed.
 	  So in the most current case, there only one 'int' to push
-	  to push all the attributes.
+	  to push all the attributes (see at the end of this text).
 	  Define the attributes in current state dynamicly
 	- zMw->size[0].alignement zMw->size[0].required for X axis ...
 	  and [1] for Y axis.
 	- Use OpenGL
 	- zmw_name must not be called with the same name for sibling.
-	- Create an zmw_action_assert to verify widget tree ?
+	* Cursor shape change when it enter in a widget
+	- animation: It must be possible to specify the next frame time
+	- Create zmw_font_name zmw_font_size zmw_font_weight ...
+	- Creation of substructs in zmw in order to clarify things
+	- ``infinite'' depth menu are impossible because
+	  Dispatch_Accelerator needs to follow all the menu.
+	  So a "menu_not_containing_accelerator" must be created
+	  to stop the recursion. 
+	- Detached menu works in all the case but only if the
+	  detached state is stored in a resource in all the menu parents.
+	  It is because to compute the visibility an information
+	  must be obtained from the NEXT widget CHILDREN.
+	  But this information does not yet exists.
+	  See idea on transient idea at the end of file.
+
+BUGS:
+	* X window is locked (grab?) when debugging info is printed
+	- Window content has not the correct size a little time when the window
+	  is mapped the first time. It is because gdk_window_resize
+	  does not immediatly change the gdk_window_get_size result.
+	  I do not see an easy way to correct this.
+	- zmw_image_from_file are not freed : "when" is the question.
+	  Add a timestamp in resource in order to free images not
+	  used for 1 minute ?
+
+
+LIMITATIONS:
+	- Only one button mouse is used.
+
+QUESTIONS:
+	- Does the tips should appear if the mouse button is pressed?
+	- Window in an invisible notebook page is not visible? Is it a problem?
 	- Having children "not_used_to_compute_parent_size" in CHILDREN
 	  complexify the size computation.
 	  Should the CHILDREN_VISIBLE table be created ?
@@ -28,27 +74,8 @@ LIBRARY CORE:
 	  zmw_dispatch_button_press, zwm_dispatch_key_press, ...
 	  It will simplify the drag and drop operation,
 	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
-	- Cursor shape change
-	- animation: It must be possible to specify the next frame time
-	- Does the tips should appear if the mouse button is pressed?
-	- Create zmw_font_name zmw_font_size zmw_font_weight ...
-	- Creation of substructs in zmw in order to clarify things
-	- Display filename:line on widget warnings
+	- Create an zmw_action_assert to verify widget tree ?
 
-
-BUGS:
-	* X window is locked (grab?) when debugging info is printed
-	- Key pressed have not the current coordinates, but the last
-	  one received.
-	- A detached menu is invisible if its father is not visible
-	  (can be corrected without problems)
-	- A window in an invisible notebook page is not visible
-	- In many widget, cursor draging must not go outside window
-	  (scrollbar, table, ...) (it is due to bad x,y conversion because
-	  the cursor change of window.)
-	- image_from_file are not freed : "when" is the question.
-	  Add a timestamp in resource in order to free images not
-	  used for 1 minute ?
 	  
 NOT TO DO THINGS :
 	- Test "nb_draw" instead of wait a small time in the tests.
@@ -62,7 +89,7 @@ NOT TO DO THINGS :
 
 /*
 *****************************************************************************
- * Idea. (not its place here) about current state
+ * Idea about current state
  *
  * The current values are directly accessible
  *
@@ -79,3 +106,84 @@ NOT TO DO THINGS :
  * But is it necessary to speed up this push/pop ?
 *****************************************************************************
  */
+
+
+
+*****************************************************************************
+*****************************************************************************
+Idea about transient.
+*****************************************************************************
+
+Current transient implementation is complex because
+	- Widget may or may not exists.
+	- Transient names are specials.
+	- Not nice operation are done in the ``next widget name'' functions
+
+Another way to make transient is to introduce a widget.
+This widget is ALWAYS here, but its content is hidden or not.
+So all the problem should vanish and the code is simplified because
+the concept of transient widget is not necessary.
+The new syntax that does not hide anything to the programmer is:
+
+	ZMW( zmw_if(zmw_window_is_popped()) )
+	   {
+	     ZMW(zmw_window_popup_right()) { ... }
+	   }
+
+Alternate syntax not hidding the ZMW:
+	ZMW( zmw_window_is_popped() )
+	   {
+	     ZMW(zmw_window_popup_right()) { ... }
+	   }
+
+Alternate syntax hidding all:
+	zmw_if_window_is_popped()
+	   {
+	     ZMW(zmw_window_popup_right()) { ... }
+	   }
+
+Alternate syntax hidding more than all:
+	ZMW(zmw_window_popup_right())
+	   {
+		// The popup window content
+	   }
+
+
+Old syntax:
+	if ( zmw_window_is_popped() )
+	   {
+	     ZMW(zmw_window_popup_right()) { ... }
+	   }
+
+*****************************************************************************
+*****************************************************************************
+
+New transient syntax for widget drag.
+A case go outside of the switch.
+
+  switch( zmw_drag_from_state() )
+    {
+    case Zmw_Drag_From_Begin:
+      break ;
+    case Zmw_Drag_From_End:
+      break ;
+    }
+
+   ZMW(zmw_if(zmw_drag_from_state() == Zmw_Drag_From_Running) )
+      ZMW(zmw_window_drag())
+	{
+	}
+
+
+Or :
+
+	if ( zmw_drag_from_begin() )
+		{
+		}
+	if ( zmw_drag_from_end() )
+		{
+		}
+	ZMW(zmw_if(zmw_drag_from_running()))
+		ZMW(zmw_window_drag())
+			{
+			}

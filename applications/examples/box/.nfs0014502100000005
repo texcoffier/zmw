@@ -1,0 +1,2 @@
+--cache_size=10000
+socket = 10003

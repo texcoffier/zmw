@@ -167,6 +167,8 @@ int http_node()
 	{
 	  http_printf("<TABLE BORDER>\n") ;
 	  http_printf("<TR><TH>Type</TH><TD>%s</TD></TR>", ZMW_TYPE) ;
+	  http_printf("<TR><TH>Declaration</TH><TD>%s:%d</TD></TR>"
+		      , ZMW_FILE, ZMW_LINE) ;
 	  http_printf("<TR><TH>Asked Size</TH><TD>") ;
 	  http_rectangle_display(&ZMW_SIZE_ASKED) ;
 	  http_printf("</TD></TR>") ;
@@ -286,13 +288,15 @@ int http_tree()
       ZMW_SUBACTION = Zmw_Nothing ;
       ZMW_SUBACTION = Zmw_Debug_Message ;
       zmw_action_second_pass() ;
-      http_printf("<LI> [%d-%d-%d] <A HREF=\"%s\">%s</A> %s"
-	      , ZMW_INDEX
-	      , ZMW_SIZE_INDEX
-	      , zmw.index_last
-	      , zmw_name_full
-	      , ZMW_NAME
-	      , ZMW_TYPE
+      http_printf("<LI> [%d-%d-%d] <A HREF=\"%s\">%s</A> %s:%d %s"
+		  , ZMW_INDEX
+		  , ZMW_SIZE_INDEX
+		  , zmw.index_last
+		  , zmw_name_full
+		  , ZMW_NAME
+		  , ZMW_FILE
+		  , ZMW_LINE
+		  , ZMW_TYPE
 	      ) ;
       if ( ZMW_SIZE_INDEX )
       	{

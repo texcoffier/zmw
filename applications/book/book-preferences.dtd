@@ -6,6 +6,8 @@
 
 <!ELEMENT color EMPTY>
 
+<!ELEMENT language EMPTY>
+
 <!ELEMENT column-order (column-name*)>
 
 <!ELEMENT column-name (#PCDATA)>
@@ -24,5 +26,8 @@
  b CDATA #REQUIRED
 >
 
+<!ATTLIST language
+ name CDATA #REQUIRED
+>
 
 

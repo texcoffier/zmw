@@ -134,7 +134,7 @@ int zmw_event_in()
       zmw_printf("ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH = %d\n", ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH) ; 
     }
 
-  /* Because of viewport, the event must be in the upper window */
+  /* Because of viewport, the event must be in the upper window (no clip) */
   if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].i.event_in )
     return(0) ;
 
@@ -183,6 +183,8 @@ void zmw_state_push()
   zmw_height(ZMW_VALUE_UNDEFINED) ;
 #if ZMW_DEBUG_STORE_WIDGET_TYPE == 0
   ZMW_TYPE = "not compiled with ZMW_DEBUG_STORE_WIDGET_TYPE=1" ;
+  ZMW_FILE = "?" ;
+  ZMW_LINE = -1 ;
 #endif
 
 
@@ -520,6 +522,7 @@ int zmw_action_compute_required_size()
       if ( ZMW_SIZE_ASKED.y != ZMW_VALUE_UNDEFINED )
 	ZMW_SIZE_REQUIRED.y = ZMW_SIZE_ASKED.y ;
 
+      ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_False ;
 
       /*    if ( ZMW_USED_TO_COMPUTE_PARENT_SIZE ) */
       zmw_cache_set_size(&ZMW_SIZE) ;
@@ -632,10 +635,11 @@ void zmw_stack_print()
 {
   Zmw_State *s ;
 
-  zmw_printf("name=(%s)\n", zmw_name_full) ;
+  zmw_printf("current name=(%s)\n", zmw_name_full) ;
   zmw_debug_trace() ;
+  zmw_printf("Call stack\n") ;
   for(s = zmw.zmw_table+1 ; s <= zMw ; s++)
-    zmw_printf("==> %s (external=%d)\n", s->u.type, s->u.external_state) ;
+    zmw_printf("%s:%d %s\n", s->u.file, s->u.line, s->u.type) ;
 }
 
 int zmw_action_draw()

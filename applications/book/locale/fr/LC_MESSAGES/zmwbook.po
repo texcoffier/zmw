@@ -64,7 +64,7 @@ msgstr "Annuler"
 
 #: book-menubar.c:134 book-menubar.c:137
 msgid "View"
-msgstr "Vue"
+msgstr "Voir"
 
 #: book-menubar.c:142 book.c:480
 msgid "Debug window"
@@ -283,11 +283,11 @@ msgstr "Titre"
 #: book.c:595
 #, c-format
 msgid "Library: %s%s"
-msgstr "Bibliothèque : %s%s"
+msgstr "Bibliotheque : %s%s"
 
 #: book.c:596
 msgid " (Modified)"
-msgstr "(Modifié)"
+msgstr " (Modifiee)"
 
 #: book.c:611
 msgid "Error message for book"

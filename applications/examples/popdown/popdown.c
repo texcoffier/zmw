@@ -31,7 +31,7 @@ void popdown(void)
 	  zmw_button("button unsensible") ;
 	  zmw_button("button sensible") ;
 	  if ( zmw_activated() )
-	    printf("Hello\n") ;
+	    fprintf(stderr, "Hello\n") ;
 	  zmw_radio(&radio, 0) ;
 	  zmw_radio(&radio, 1) ;
 	  zmw_radio_with_label(&radio, 0, "lab1") ;

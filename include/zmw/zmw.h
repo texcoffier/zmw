@@ -100,6 +100,7 @@ typedef struct zmw_size
   Zmw_Boolean event_in ;
   Zmw_Boolean invisible ;
   Zmw_Boolean sensible ;
+  Zmw_Boolean do_not_map_window ; /* for menu containing detached window */
 } Zmw_Size ;
 
 typedef enum zmw_subaction
@@ -171,7 +172,9 @@ typedef struct zmw_stackable_uninheritable
   char *name_index ;		/* Pointer on the '.#' part of name */
   int name_separator ;		/* In case of ambiguity of the name */
   int transient_separator ;     /* In case of multiple transient */
-  const char *type ;
+  const char *type ;		/* Content of the ZMW(....) call */
+  const char *file ;		/* File where ZMW was declared */
+  int line ;			/* Line where ZMW was declared */
   enum { Zmw_External_No, Zmw_External_Stop, Zmw_External_Continue } external_state ;
   Zmw_Boolean do_not_execute_pop ;
   Zmw_Subaction subaction ;	/* The action to process in the widget */
@@ -234,6 +237,7 @@ typedef struct zmw
   int x, y, x_root, y_root ;	/* Pointer position */
   GdkEvent event_key ;          /* The pressed key */
   Zmw_Boolean key_pressed ;     /* True if a key is pressed */
+  Zmw_Boolean button_pressed ;  /* True if a button is pressed */
   Zmw_Boolean still_yet_displayed ;
   Zmw_Boolean tips_yet_displayed ;
   /*
@@ -310,6 +314,7 @@ typedef enum zmw_drag_to
 #define ZMW_SIZE_HORIZONTAL_ALIGNMENT (zMw->u.size.horizontal_alignment )
 #define ZMW_SIZE_VERTICAL_EXPAND      (zMw->u.size.vertical_expand      )
 #define ZMW_SIZE_VERTICAL_ALIGNMENT   (zMw->u.size.vertical_alignment   )
+#define ZMW_SIZE_DO_NOT_MAP_WINDOW    (zMw->u.size.do_not_map_window    )
 #define ZMW_NB_OF_CHILDREN            (zMw->u.nb_of_children            )
 #define ZMW_CHILDREN                  (zMw->u.children                  )
 #define ZMW_FONT_COPY_ON_WRITE        (zMw->u.font_copy_on_write        )
@@ -319,6 +324,8 @@ typedef enum zmw_drag_to
 #define ZMW_SIZE_SENSIBLE             (zMw->u.size.sensible             )
 #define ZMW_SIZE_EVENT_IN             (zMw->u.size.event_in             )
 #define ZMW_TYPE                      (zMw->u.type                      )
+#define ZMW_FILE                      (zMw->u.file                      )
+#define ZMW_LINE                      (zMw->u.line                      )
 #define ZMW_SUBACTION                 (zMw->u.subaction                 )
 #define ZMW_USED_TO_COMPUTE_PARENT_SIZE (zMw->u.size.used_to_compute_parent_size )
 
@@ -353,7 +360,7 @@ void zmw_font_free(void) ;
 
 
 #if ZMW_DEBUG_STORE_WIDGET_TYPE
-#define ZMW(TYPE) for(ZMW_TYPE=#TYPE,zmw_init_widget(); \
+#define ZMW(TYPE) for(ZMW_TYPE=#TYPE,ZMW_FILE=__FILE__,ZMW_LINE=__LINE__,zmw_init_widget(); \
                       (zmw.debug&Zmw_Debug_Trace)?zmw_debug_trace():0,(TYPE),(*ZMW_ACTION)() ; \
                       zmw_state_pop())
 #else
@@ -436,6 +443,8 @@ void zmw_need_repaint(void) ;
 void zmw_need_dispatch(void) ;
 void zmw_draw(void (*fct)(void)) ;
 void zmw_call_widget(void (*fct)(void), int (*action)(void)) ;
+void zmw_use_window_from_button_press(Zmw_Boolean b) ;
+Zmw_Boolean zmw_use_window_from_button_press_get() ;
 /*
  * zmw.c
  */
@@ -476,6 +485,7 @@ void zmw_name_debug_window(void) ;
 void zmw_name_register(Zmw_Name *n) ;
 void zmw_name_register_with_name(Zmw_Name *n, const char *name) ;
 void zmw_name_unregister(Zmw_Name *n) ;
+void zmw_name_unregister_value(const char *name, const char *why) ;
 void zmw_name_unregister_value_by_pointer(const char *why, void *p) ;
 Zmw_Boolean zmw_name_get_value_pointer(const char *why, void **value);
 Zmw_Boolean zmw_name_get_value_int(const char *why, int *value) ;
@@ -491,6 +501,10 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_is_inside(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n) ;
 
+void zmw_name_cut_last(char *name, int *len) ;
+Zmw_Boolean zmw_name_is_transient(const char *n, int len) ;
+
+Zmw_Name* zmw_name_get_name(const char *name, const char *why) ;
 void zmw_resource_int_get(int **pointer_value, Zmw_Resource *r) ;
 void zmw_resource_pointer_get(void **pointer_value, Zmw_Resource *r) ;
 void zmw_resource_set(Zmw_Resource *r) ;

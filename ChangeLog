@@ -1,4 +1,14 @@
-2003-??-?? (0.0.4)
+2003-12-15 (0.0.5)
+	Detached subsubmenu is visible even if the submenu is not detached
+	debugging: The widget-stack indicates "file:line" of widget use
+	examples: Add regression test "movepressed.c"
+	zmw_use_window_from_button_press: moving with button pressed is now OK
+	zmw_filechooser(): Do not display directory size: regression problems.
+	Complete rewrite of regression test engine
+	Makefile compile messages are now in the good order
+	Makefile does not make things more than one time
+
+2003-11-27 (0.0.4)
 	Many bugs removed, thanks to "valgrind"
 	zmw_window_name(): May now returns the transient containing the window
 	zmw_border...(): The painted background is now with the right size
@@ -13,7 +23,7 @@
 	zmw.c: Widget using ZMW_EXTERNAL can now be transient
 	zmw.c: ZMW_ABORT display the stack of widgets
 	zmw_run.c: Tips were appearing randomly on slow computer
-	application/book: Many enhancements
+	application/book: Many enhancements, I18N
 
 2003-11-12 (0.0.3)
 	Many changes have been made to make OpenGL port easy

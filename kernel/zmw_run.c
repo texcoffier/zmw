@@ -33,8 +33,14 @@ struct zmw_run
   struct timeval last_user_action ; /* To use for tips */
   int still_time ;              /* Time since last pointer motion */
   int idle_time ;               /* Time since last user interaction */
-  int need_repaint ;
-  int need_dispatch ;           /* for drag and drop */  
+
+  Zmw_Boolean need_repaint ;
+  Zmw_Boolean need_dispatch ;           /* for drag and drop */  
+  /* If false, the events are associated to the window under the cursor.
+   * If true, the events are associated to the window where
+   * the cursor had been pressed.
+   */
+  Zmw_Boolean use_window_from_button_press ;
 
   float frame_per_sec ;
   float frame_per_sec_cpu ;
@@ -53,6 +59,16 @@ void zmw_need_repaint()
 void zmw_need_dispatch()
 {
   zmw.run->need_dispatch = Zmw_True ;
+}
+
+void zmw_use_window_from_button_press(Zmw_Boolean b)
+{
+  zmw.run->use_window_from_button_press = b ;
+}
+
+Zmw_Boolean zmw_use_window_from_button_press_get()
+{
+  return zmw.run->use_window_from_button_press ;
 }
 
 
@@ -126,6 +142,9 @@ static void debug_window()
 	  sprintf(tmp, "%f Real Frames per Second", zmw.run->frame_per_sec) ;
 	  zmw_text(tmp) ;
 	  sprintf(tmp, "%f CPU Frames per Second", zmw.run->frame_per_sec_cpu) ;
+	  zmw_text(tmp) ;
+	  sprintf(tmp, "use_window_from_button_press=%d", zmw.run->use_window_from_button_press) ;
+	  sprintf(tmp, "event->window=%p", zmw.event ? zmw.event->any.window : NULL) ;
 	  zmw_text(tmp) ;
 	}
     }
@@ -305,7 +324,8 @@ static gboolean timeout(gpointer data)
     }
 
   gdk_window_get_pointer(gdk_window_get_toplevels()->data, &x, &y, NULL) ;
-  e.any.window = gdk_window_at_pointer(&x, &y) ;
+  if ( ! zmw.run->use_window_from_button_press || !zmw.button_pressed )
+    e.any.window = gdk_window_at_pointer(&x, &y) ;
   /*
    *
    */
@@ -395,29 +415,27 @@ void event_handler(GdkEvent *e, gpointer o)
   
   zmw.event_saved = *e ;
 
-#if GLIB_MAJOR_VERSION > 1
   /* I want the release event on the real window and not
    * in the window where the button was pressed
    */
-  if ( e->type == GDK_BUTTON_RELEASE )
+  if ( ! zmw.run->use_window_from_button_press )
     {
-      int x, y, origin_x, origin_y ;
-      x = e->button.x_root ;
-      y = e->button.y_root ;
-      w = gdk_window_at_pointer(&x, &y) ;
-      if ( w )
+      if ( e->type == GDK_BUTTON_RELEASE )
 	{
-	  e->any.window = w ;
-	  gdk_window_get_origin(e->any.window, &origin_x, &origin_y) ;
-	  e->button.x = e->button.x_root - origin_x ;
-	  e->button.y = e->button.y_root - origin_y ;
+	  int x, y, origin_x, origin_y ;
+	  x = e->button.x_root ;
+	  y = e->button.y_root ;
+	  w = gdk_window_at_pointer(&x, &y) ;
+	  if ( w )
+	    {
+	      e->any.window = w ;
+	      gdk_window_get_origin(e->any.window, &origin_x, &origin_y) ;
+	      e->button.x = e->button.x_root - origin_x ;
+	      e->button.y = e->button.y_root - origin_y ;
+	    }
 	}
     }
-#endif
-  if ( e->type == GDK_KEY_PRESS )
-    {
-      e->any.window = gdk_window_at_pointer(&zmw.x, &zmw.y) ;      
-    }
+
 
   zmw.event = e ;
   zmw.activated = Zmw_False ;
@@ -513,6 +531,7 @@ void event_handler(GdkEvent *e, gpointer o)
     case GDK_KEY_PRESS:
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** KEY_PRESS\n") ;
+      e->any.window = gdk_window_at_pointer(&zmw.x, &zmw.y) ;      
       if ( zmw.event->type == GDK_KEY_PRESS
 	   && ( zmw.event->key.state & GDK_CONTROL_MASK )
 	   &&  zmw.event->key.keyval == GDK_F1
@@ -525,11 +544,17 @@ void event_handler(GdkEvent *e, gpointer o)
       zmw_accelerator_init() ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
 
+      /* fall thru */
+
     case GDK_2BUTTON_PRESS:
     case GDK_3BUTTON_PRESS:
     case GDK_BUTTON_PRESS:
     case GDK_BUTTON_RELEASE:
       user_action() ;
+      if ( e->type == GDK_BUTTON_RELEASE )
+	zmw.button_pressed = Zmw_False ;
+      if ( e->type == GDK_BUTTON_PRESS )
+	zmw.button_pressed = Zmw_True ;
 
       if ( (zmw.debug & Zmw_Debug_Event) && e->type != GDK_KEY_PRESS )
 	zmw_printf("**** EVENT **** BUTTON! %s on window %p\n"
@@ -624,6 +649,7 @@ void zmw_run(void (*fct)())
   Zmw_Name top_level_focus = ZMW_NAME_UNREGISTERED("Top level Focus") ;
 
   zmw.run->fct = fct ;
+  zmw_use_window_from_button_press(Zmw_True) ;
 
   zMw = zmw.zmw_table ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;

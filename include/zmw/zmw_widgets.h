@@ -37,6 +37,8 @@ typedef enum zmw_detached
 	 } Zmw_Detached ;
  
 Zmw_Boolean zmw_window_detached(const int *detached, Zmw_Detached where) ;
+Zmw_Name *zmw_window_detached_containing(const char *name) ;
+int zmw_window_contains_detached() ;
 void zmw_window_detached_toggle(int *detached, Zmw_Detached where) ;
 
 void zmw_gc_pop() ;

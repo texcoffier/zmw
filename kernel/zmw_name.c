@@ -22,8 +22,8 @@
 #include <ctype.h>
 #include "zmw/zmw.h"
 
-static Zmw_Boolean zmw_name_string_contains(const Zmw_Name *child) ;
-static Zmw_Boolean zmw_name_next_string_contains(const Zmw_Name *child) ;
+static Zmw_Boolean zmw_name_string_contains(const char *child) ;
+static Zmw_Boolean zmw_name_next_string_contains(const char *child) ;
 static Zmw_Boolean zmw_name_string_is(const Zmw_Name *n) ;
 static int zmw_index_of_next_widget() ;
 static int zmw_name_last_index_of_next_widget() ;
@@ -67,8 +67,8 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    , zmw_action_name()		
 		    , ZMW_CALL_NUMBER		
 		    , zMw[-1].u.call_number 
-		    , n->name ? zmw_name_string_contains(n) : -1 
-		    , n->name ? zmw_name_next_string_contains(n) : -1 
+		    , n->name ? zmw_name_string_contains(n->name) : -1 
+		    , n->name ? zmw_name_next_string_contains(n->name) : -1 
 		    , n->name ? zmw_name_string_is(n) : -1 
 		    , zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index 
 		    , zmw_name_last_index_of_next_widget()
@@ -268,23 +268,23 @@ Zmw_Boolean zmw_name_is(const Zmw_Name *n)
 }
 
 
-static Zmw_Boolean zmw_name_string_contains(const Zmw_Name *child)
+static Zmw_Boolean zmw_name_string_contains(const char *name)
 {
   int length ;
   const char *parent ;
 
-  if ( child->name == NULL )
-    return(0) ;
+  if ( name == NULL )
+    return(Zmw_False) ;
   
   PRINTF("Name_string contains child->name=%s parent=%s\n"
-	 , child->name, zmw_name_full) ;
+	 , name, zmw_name_full) ;
 
   parent = zmw_name_full ;
   length = strlen(parent) ;
           
-  if ( strncmp(parent, child->name, length) == 0 )
+  if ( strncmp(parent, name, length) == 0 )
     {
-      if ( child->name[length] == '\0' || child->name[length] == '/' )
+      if ( name[length] == '\0' || name[length] == '/' )
       {
        return(1) ;
       }
@@ -333,7 +333,7 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
       global_name_fast++ ;
       ZMW_NAME_ASSERT( (n->index >= ZMW_INDEX	
 	     && n->index < zmw_index_of_next_widget())
-      	 == zmw_name_string_contains(n) ) ;
+      	 == zmw_name_string_contains(n->name) ) ;
       return(
 	     n->index >= ZMW_INDEX
 	     && n->index < zmw_index_of_next_widget()
@@ -341,7 +341,7 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
     }
   else
     {
-      return( zmw_name_string_contains(n) ) ;
+      return( zmw_name_string_contains(n->name) ) ;
     }
 }
 
@@ -351,20 +351,21 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
  * of the next widget.
  */ 
  
-static Zmw_Boolean zmw_name_next_string_contains(const Zmw_Name *child)
+static Zmw_Boolean zmw_name_next_string_contains(const char *name)
 {
   int i ;
 
-  PRINTF("zmw_name_next_string_contains %s\n", child->name) ;
+  PRINTF("zmw_name_next_string_contains %s\n", name) ;
 
   zmw_name_of_the_transient_begin() ;
-  i = zmw_name_string_contains(child) ;
+  i = zmw_name_string_contains(name) ;
   zmw_name_of_the_transient_end() ;
 
   return(i) ;
 }
 
-Zmw_Boolean zmw_name_is_transient(const char *n)
+
+Zmw_Boolean zmw_name_is_my_transient(const char *n)
 {
 	if ( n == NULL )
 		return(Zmw_False );
@@ -372,6 +373,7 @@ Zmw_Boolean zmw_name_is_transient(const char *n)
 		&& n[strlen(zmw_name_full)] == ',' ) ;
 	
 }
+
 
 static int zmw_name_last_index_of_next_widget()
 {
@@ -390,9 +392,9 @@ static int zmw_name_last_index_of_next_widget()
 
 Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n)
 {
-	
-  if ( !zmw_name_is_transient(n->name) )
+  if ( n==NULL || !zmw_name_is_my_transient(n->name) )
 	return( Zmw_False ) ;
+
   global_name_check++ ;	
   if ( zmw_the_parent_first_pass_is_done() && zmw_the_first_pass_is_done(n)
   )
@@ -400,7 +402,7 @@ Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n)
       global_name_fast++ ;
       ZMW_NAME_ASSERT( (n->index >= ZMW_INDEX
 	     && n->index < zmw_name_last_index_of_next_widget())
-	     	== zmw_name_next_string_contains(n) ) ;
+	     	== zmw_name_next_string_contains(n->name) ) ;
       return(
 	     n->index >= ZMW_INDEX
 	     && n->index < zmw_name_last_index_of_next_widget()
@@ -408,10 +410,35 @@ Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n)
     }
   else
     {
-      return( zmw_name_next_string_contains(n) ) ;
+      return( zmw_name_next_string_contains(n->name) ) ;
     }
 }
 
+/*
+ * Some name manipulations.
+ * To speed up things, the len is given and returned
+ */
+
+void zmw_name_cut_last(char *name, int *len)
+{
+  if ( *len == 0 )
+    {
+      *len = -1 ;
+      return ;
+    }
+  while( *len && name[*len] != '/' )
+    (*len)-- ;
+  if ( *len >= 0 )
+    name[*len] = '\0' ;
+}
+
+Zmw_Boolean zmw_name_is_transient(const char *name, int len)
+{
+  len-- ;
+  while( isdigit(name[len]) )
+    len-- ;
+  return name[len] == ',' ;
+}
 
 /*
  *
@@ -548,6 +575,17 @@ void zmw_name_register_value(const char *name, const char *why, void *value,
     }
   global_registered[index]->value = value ;
 }
+
+Zmw_Name* zmw_name_get_name(const char *name, const char *why)
+{
+  int index ;
+
+  if ( zmw_name_search_index(name, why, &index) )
+    {
+      return global_registered[index] ;
+    }
+  return( NULL ) ;
+}  
 
 Zmw_Boolean zmw_name_get_value_pointer_with_name(const char *name, const char *why, void **value)
 {

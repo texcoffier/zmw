@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE book-preferences SYSTEM "book-preferences.dtd">
+<?xml-stylesheet type="text/xsl" href="book-preferences.xsl"?>
 <book-preferences>
 <column name='Title' width='400' visible='1' default='' />
 <column name='Author' width='200' visible='1' default='?' />
@@ -20,4 +21,5 @@
 <color name='header' r='0' g='0.75' b='0' />
 <color name='borrowed' r='0.75' g='0.5' b='0.75' />
 <color name='menu' r='0.9' g='0.9' b='0.9' />
+<language name='french' />
 </book-preferences>

@@ -20,6 +20,7 @@
 */
 
 
+#include <ctype.h>
 #include "zmw/zmw.h"
 
 typedef enum { Zmw_Popup_None, Zmw_Popup_Right, Zmw_Popup_Bottom } Zmw_Popup ;
@@ -65,15 +66,21 @@ static void zmw_compute_window_size()
       ZMW_ABORT ;
     }
 
-  if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(zMw[1].i.window) )
-    gdk_window_resize(zMw[1].i.window
-		      , ZMW_CHILDREN[the_child].required.width
-		      , ZMW_CHILDREN[the_child].required.height) ;
-
-  gdk_window_get_size(zMw[1].i.window
-		      , &ZMW_SIZE_ALLOCATED.width
-		      , &ZMW_SIZE_ALLOCATED.height
-		      ) ;
+  if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(ZMW_WINDOW) )
+    {
+      gdk_window_resize(ZMW_WINDOW
+			, ZMW_CHILDREN[the_child].required.width
+			, ZMW_CHILDREN[the_child].required.height) ;
+      ZMW_SIZE_ALLOCATED.width = ZMW_CHILDREN[the_child].required.width ;
+      ZMW_SIZE_ALLOCATED.height = ZMW_CHILDREN[the_child].required.height ;
+    }
+  else
+    {
+      gdk_window_get_size(ZMW_WINDOW
+			  , &ZMW_SIZE_ALLOCATED.width
+			  , &ZMW_SIZE_ALLOCATED.height
+			  ) ;
+    }
   ZMW_SIZE_ALLOCATED.x = 0 ;
   ZMW_SIZE_ALLOCATED.y = 0 ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
@@ -92,12 +99,17 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
   Zmw_Resource rgc = { "WindowGC", 0 } ;
   GdkRectangle rect ;
 
-  zmw_resource_pointer_get((void**)&w, &r) ;
-  zmw_resource_pointer_get((void**)&gc, &rgc) ;
-
   switch( ZMW_SUBACTION )
     {
     case Zmw_Init:
+      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+	{
+	  ZMW_WINDOW++ ; // Kludge to make zmw_window_name works
+	  break ;
+	}
+
+      zmw_resource_pointer_get((void**)&w, &r) ;
+      zmw_resource_pointer_get((void**)&gc, &rgc) ;
       if ( *w == NULL )
 	{
 	  wa.title = "toto" ;
@@ -181,9 +193,6 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       zmw_draw_rectangle(Zmw_Color_Background_Normal, Zmw_True,
 			 0,0,9999,9999) ;
       
-      if ( !gdk_window_is_visible(*w) )
-	gdk_window_show(*w) ;
-
       if ( pop && zMw[-1].i.window
 	   && gdk_window_get_type(ZMW_WINDOW) == GDK_WINDOW_TEMP
 	   && !follow_mouse )
@@ -201,19 +210,26 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	}
       if ( title
 	   && ( !pop || zmw_window_detached(detached, Zmw_Detached_Here) ) )
-	gdk_window_set_title(*w, title) ;
+	gdk_window_set_title(ZMW_WINDOW, title) ;
 
-      zmw.nb_windows++ ;
-      ZMW_REALLOC(zmw.windows, zmw.nb_windows ) ;
-      zmw.windows[zmw.nb_windows-1].window = *w;
+
+
+      if ( ! ZMW_SIZE_DO_NOT_MAP_WINDOW )
+	{
+	  if ( !gdk_window_is_visible(ZMW_WINDOW) )
+	    gdk_window_show(ZMW_WINDOW) ;
+	  
+	  zmw.nb_windows++ ;
+	  ZMW_REALLOC(zmw.windows, zmw.nb_windows ) ;
+	  zmw.windows[zmw.nb_windows-1].window = ZMW_WINDOW;
+	}
       break ;
     case Zmw_Post_Drawing:
       zmw_draw_clip_pop() ;
-      if ( follow_mouse && gdk_window_is_visible(*w) )
+      if ( follow_mouse && gdk_window_is_visible(ZMW_WINDOW) )
 	{	
-	  /* the -10 so the cursor don't easely go over the popup
-	   *  when moved, because in this case (window,x,y) are false.
-	   * I don't know how to fix this.
+	  /* the -10 is not required.
+	   * It should be a parameter.
 	   */
 	  gdk_window_move(ZMW_WINDOW
 			  , zmw.x_root - ZMW_SIZE_ALLOCATED.width - 10
@@ -307,6 +323,96 @@ Zmw_Boolean zmw_window_detached(const int *detached
   return(d) ;
 }
 
+/*
+ * Search the deepest detached window containing name.
+ * It is used to compute if a menu should be displayed or not.
+ * Return NULL if there is no such window.
+ */
+Zmw_Name* zmw_window_detached_containing(const char *name)
+{
+  int d, len ;
+  char *n ;
+  Zmw_Name *na ;
+
+  n = strdup(name) ;
+  d = Zmw_False ;
+  len = strlen(n) ;
+
+  do
+    {
+      if ( zmw_name_is_transient(n, len) )
+	{
+	  na = zmw_name_get_name(n, "WindowDetached") ;
+	  if ( na && na->value )
+	    {
+	      free(n) ;
+	      return na ;
+	    }
+	}
+      zmw_name_cut_last(n, &len) ;
+    }
+  while(len > 0 ) ;
+  free(n) ;
+  return NULL ;
+}
+
+/*
+ * Returns true if the next window (transient) contains
+ * a detached window.
+ * In fact returns the number of detached menu contained.
+ */
+
+int zmw_window_contains_detached()
+{
+  int d ;
+  char *name ;
+
+  name = zmw_detached_name(Zmw_Detached_Next) ;
+
+  d = 0 ;
+  zmw_name_get_value_int_with_name(name, "WindowContainsDetached", &d) ;
+
+  free(name) ;
+
+  return(d) ;
+}
+
+
+void zmw_mark_windows_rec(char *name, int detached, int len)
+{
+  int n ;
+
+  zmw_name_cut_last(name, &len) ;
+  if ( len < 0 )
+    return ;
+
+  if ( zmw_name_is_transient(name, len) )
+    {
+      n = 0 ;
+      zmw_name_get_value_int_with_name(name, "WindowContainsDetached", &n);
+      if ( detached )
+	{
+	  zmw_name_set_value_int_with_name(name, "WindowContainsDetached",n+1);
+	}
+      else
+	{
+	  if ( n > 1 )
+	    zmw_name_set_value_int_with_name(name, "WindowContainsDetached"
+					     ,n-1);
+	  else
+	    zmw_name_unregister_value(name, "WindowContainsDetached") ;
+	}
+    }
+
+  zmw_mark_windows_rec(name, detached, len) ;
+  name[len] = '/' ;
+}
+
+void zmw_mark_windows(char *name, int detached)
+{
+  zmw_mark_windows_rec(name, detached, strlen(name)) ;
+}
+
 void zmw_window_detached_toggle(int *detached, Zmw_Detached where)
 {
 	int value ;
@@ -320,6 +426,7 @@ void zmw_window_detached_toggle(int *detached, Zmw_Detached where)
 		name = zmw_detached_name(where) ;
 		zmw_name_get_value_int_with_name(name,"WindowDetached", &value) ;
 		zmw_name_set_value_int_with_name(name, "WindowDetached", 1 - value) ;
+		zmw_mark_windows(name, 1 - value) ;
 		free(name) ;
 	}
 }

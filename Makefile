@@ -2,6 +2,10 @@
 
 default:verify_config TAGS dep lib # run_tests
 
+test::lib
+
+include Makefile.config
+
 verify_config:
 	if [ "" = "$(ZMW_CFLAGS)" ] ;\
 		then \
@@ -17,7 +21,7 @@ run_book:lib
 	cd applications/book ; $(MAKE)
 
 TAGS:
-	echo "Making TAGS"
+	echo "Make TAGS"
 	etags */*.[ch]
 
 tar:makefile_clean clean
@@ -42,21 +46,17 @@ makefile_clean:
 
 exe::lib
 
-test::lib
-
 retest:clean_regtest test
 
 clean_regtest:
-	-cd applications/examples ; $(MAKE) clean_regtest
+	-rm applications/examples/*/regtest.*
 
 doc::lib
-
-include Makefile.config
 
 lib::zmw.so
 
 zmw.so:kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed
-	echo "Creating library zmw.so"
+	echo "Make library zmw.so"
 	$(CC) $(CFLAGS) kernel/*.o utilities/*.o widgets/*.o -o zmw.so
 
 clean::
@@ -67,39 +67,45 @@ clean::
 # Next goals are the ZMW developpers
 ##############################################################################
 
+# Always make copy
 makecopy:
 	echo "Make backup copy"
 	F=`date '+WIDGET_%Y_%m_%d'` ; \
-	rm "/tmp/$$F" ; \
+	rm -f "/tmp/$$F" 2>/dev/null ; \
 	ln -s `pwd` "/tmp/$$F" ; \
 	( cd /tmp ; tar -cf - $$F/* ) | gzip -9 >../$$F.tar.gz
 
+# copy only if the source are modified in the las 24 hours.
 copy:
 	if [ "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
 	then \
 	$(MAKE) makecopy ; \
 	fi
 
-
-xxx.regtestpassed:zmw.so applications/examples/xxx.replace
-	echo "no" >$@
-	if [ "`echo applications/examples/*/xxx.regtestfailed`" = "applications/examples/*/xxx.regtestfailed" -a `id -nu` = exco ] ; \
+# This file contains true if the test passed
+xxx.regtestpassed:zmw.so test
+	rm -f $@
+	if [ "`echo applications/examples/*/regtest.fail`" = "applications/examples/*/regtest.fail" -a `id -nu` = exco ] ; \
 	then \
-		N=$$(for I in applications/examples/*/. ; \
+		echo "yes" >$@ ; \
+		for I in applications/examples/*/. ; \
 		do \
-			FF="$$I/$$(basename $$(dirname $$I)).regtest" ; \
-			if [ ! -f "$$FF" ] ; then echo "BAD" ; \
-			else cat "$$FF" ; fi \
-		done | fgrep -v "is OK" | wc -c) ; \
-		if [ "$$N" -eq 0 ] ; then echo "yes" >$@ ; fi ; \
+			FF="$$I/regtest.pass" ; \
+			if [ ! -f "$$FF" ] ; \
+				then \
+				echo "Where is $$F?" ; \
+				echo "no" >$@ ; \
+			fi ; \
+		done \
+	else \
+		echo "no" >$@ ; \
 	fi
-
 
 public:xxx.regtestpassed
 	F=`date '+WIDGET_%Y_%m_%d.tar.gz'` ; \
-	if [ "`cat xxx.regtestpassed`" = "yes" -a -f ../$$F ] ; \
+	if [ `cat xxx.regtestpassed` = "yes" -a -f ../$$F ] ; \
 	then \
-		echo "Make last version public (no regtest errors)" ; \
+		echo "I Make the last version public (no regtest errors)" ; \
 		rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
 		cp ../$$F /home/exco/public_html/ZMW ; \
 		sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
@@ -107,15 +113,18 @@ public:xxx.regtestpassed
 		echo "REGTEST Failed: no public version" ; \
 	fi
 
-nightjob:dep clean copy default test doc public night
+nightjob:dep clean copy default test doc public
+
+nightfilter:
+	(date ; make nightjob 2>&1 ; date) | \
+	      grep -v -e 'Dump' -e 'Clean' -e 'Using ' -e '[a-z0-9]* [[]1].*[0-9]$$' -e 'Compiling' -e 'Link' -e '^Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0'
 
 night:
-	echo "(date ; make nightjob 2>&1 ; date) | \
-	      fgrep -v -e 'Dump' -e 'Clean' -e 'Using ' -e 'is OK' -e 'Compiling' -e 'Link' -e 'Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0'" | at 07:00
+	echo "make nightfilter night" | at 07:00
 
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.4" ; NEW="0.0.5" ; \
+	OLD="0.0.5" ; NEW="0.0.6" ; \
 	change "$$OLD" "$$NEW" README Makefile.config
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
@@ -133,9 +142,10 @@ diff:
 		--exclude="*.eps" \
 		--exclude="*.sgml" \
 		--exclude="*.png" \
-		--exclude="*.regtest" \
+		--exclude="regtest.fail" \
+		--exclude="regtest.pass" \
 		--exclude="xxx*" \
 		--exclude="#*" \
-		../zmw-0.0.3 .
+		../WIDGET_2003_12_05 .
 
 # DO NOT DELETE

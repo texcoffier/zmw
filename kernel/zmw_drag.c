@@ -68,6 +68,8 @@ void zmw_drag_cancel()
     {
       zmw_name_unregister(&global_zmw_drag_from) ;
       zmw_name_unregister(&global_zmw_drag_to) ;
+
+      zmw_use_window_from_button_press(Zmw_True) ;
       
       if ( global_zmw_drag_data )
 	free(global_zmw_drag_data) ;
@@ -98,6 +100,7 @@ Zmw_Drag_From zmw_drag_from_state()
       zmw_event_remove() ;
       zmw_need_dispatch() ;
       zmw_need_repaint() ;
+      zmw_use_window_from_button_press(Zmw_False) ;
       ZMW_DRAG_RETURN(Zmw_Drag_From_Begin, "Button pressed") ;
     }
   /*

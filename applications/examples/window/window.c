@@ -76,7 +76,7 @@ zmw_move_cursor_to 50 60        # Detach
 zmw_button_click
 zmw_dump_screen 4
 
-zmw_move_cursor_to 125 124 # Text
+zmw_move_cursor_to 125 126 # Text
 zmw_button_click
 zmw_key $KEY_A
 zmw_move_cursor_to 93 106 # Toggle
@@ -104,5 +104,12 @@ zmw_dump_screen 7
 zmw_button_release
 zmw_key $KEY_A
 zmw_dump_screen 8
+
+zmw_move_cursor_to 67 88 # Submenu
+zmw_button_click
+zmw_move_cursor_to 176 92 # Detach of submenu
+zmw_button_click
+zmw_dump_screen 9
+
 
 REGRESSION TEST */

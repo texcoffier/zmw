@@ -1,3 +1,8 @@
+
+default:lib
+
+include ../Makefile.config
+
 O=	zmw.o \
 	zmw_graphic.o \
 	zmw_drag.o \
@@ -11,6 +16,5 @@ O=	zmw.o \
 
 lib:: $(O)
 
-include ../Makefile.config
 
 # DO NOT DELETE

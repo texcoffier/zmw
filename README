@@ -2,10 +2,6 @@ To compile and execute you need at least
 
 	    GTK 2.0.2
 
-		OR
-
-   GTK 1.2.10 with gdk-pixbuf 0.17.0
-
 
 To compile the library : "make"
 
@@ -30,7 +26,7 @@ There is no install goal, it is intented.
 
 
 If you can not compile the documentation, it is browsable from :
-	http://www710.univ-lyon1.fr/~exco/ZMW/zmw-0.0.4/zmw.html
+	http://www710.univ-lyon1.fr/~exco/ZMW/zmw-0.0.5/zmw.html
 The documentation examples are in "examples" directory.
 
 

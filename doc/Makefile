@@ -1,3 +1,8 @@
+
+default:html
+
+include ../Makefile.config
+
 .PHONY:html ps
 
 html:
@@ -20,8 +25,6 @@ html:
 ps:
 	cd examples ; $(MAKE) sgml eps
 	docbook2ps -d zmw.dsssl#print zmw.xml
-
-include ../Makefile.config
 
 doc:: html ps
 
