@@ -176,16 +176,9 @@ Zmw_Boolean zmw_activated()
 Zmw_Boolean zmw_changed()
 {
   zmw_widget_is_tested() ;
-  return( zmw.changed
+  return( (zmw.changed || zmw.activated)
 	  && ( ZMW_ACTION == zmw_action_dispatch_event
 	       || ZMW_ACTION == zmw_action_dispatch_accelerator) ) ;
-}
-/*
- * True if the anchor widget is beeing dragged
- */
-Zmw_Boolean zmw_dragged()
-{
-  return( zmw.dragged ) ;
 }
 /*
  * True is cursor in the zmw and the button pressed
@@ -264,10 +257,11 @@ Zmw_Boolean zmw_window_is_popped_with_detached(const int *detached)
 	zmw_printf("Make popup appear\n") ;
 
       zmw_name_register(&global_inner_visible_menu) ;
-      zmw_event_remove() ;
       zmw.next_is_transient = Zmw_True ;
+      zmw.activated = Zmw_True ;
       return( Zmw_True ) ;
     }
+
   if ( zmw_name_is(&global_inner_visible_menu)
        || zmw_name_next_contains(&global_inner_visible_menu)
        || zmw_window_detached(detached, Zmw_Detached_Next)
@@ -308,6 +302,10 @@ Zmw_Boolean zmw_selected_by_its_parents()
 {
   return( zmw_name_is_inside(&global_zmw_selected) ) ;
 }
+Zmw_Boolean zmw_selected_by_a_children()
+{
+  return( zmw_name_contains(&global_zmw_selected) ) ;
+}
 /*
  * True if the widget is selected button pressed on itself or an ancestor
  */
@@ -340,8 +338,7 @@ void zmw_focus_remove()
  * Remove the current event
  */
 void zmw_event_remove()
-{
-	
+{	
    if ( zmw.debug & Zmw_Debug_Event )
 	   zmw_printf("**** EVENT **** REMOVE of %s\n", zmw_name_full) ;
 	
@@ -436,7 +433,6 @@ void zmw_activable()
 	  {
 	    zmw.activated = Zmw_True ;
 	    zmw_need_repaint() ;
-	    zmw_event_remove() ;
 	  }
       }
   }
@@ -584,14 +580,17 @@ void zmw_event_debug_window()
 		  , zmw.activated
 		  ) ;
 	  zmw_text(buf) ;
-	      sprintf(buf, "idle_time=%d",  zmw.idle_time);
-	      zmw_text(buf) ;
 
 	  if ( zmw_name_registered(&zmw.tip_displayed) )
 	    {
 	      sprintf(buf, "TIP=%s",  zmw_name_registered(&zmw.tip_displayed));
 	      zmw_text(buf) ;
 	    }
+	  sprintf(buf, "zmw.tips_yet_displayed = %d", zmw.tips_yet_displayed) ;
+	  zmw_text(buf) ;
+	  sprintf(buf, "zmw.still_yet_displayed = %d",zmw.still_yet_displayed);
+	  zmw_text(buf) ;
+
 	  if ( zmw_name_registered(&global_zmw_selected) )
 	    {
 	      sprintf(buf, "SELECTED=%s", zmw_name_registered(&global_zmw_selected)) ;

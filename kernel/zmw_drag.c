@@ -37,10 +37,9 @@ void zmw_drag_printf(char *format, ...)
 
   if ( zmw.debug & Zmw_Debug_Drag )
     {
-      zmw_printf("drag_to=%s drag_from=%s redispatch=%d accept=%d"
+      zmw_printf("drag_to=%s drag_from=%s accept=%d"
 		 , global_zmw_drag_to.name
 		 , global_zmw_drag_from.name
-		 , zmw.need_dispatch 
 		 , global_zmw_drag_accepted
 		 ) ;
       zmw_debug_trace() ;
@@ -75,7 +74,7 @@ void zmw_drag_cancel()
       global_zmw_drag_data = NULL ;
       
       zmw_need_repaint() ;
-      zmw.need_dispatch = Zmw_True ;
+      zmw_need_dispatch() ;
     }
 }
 
@@ -97,7 +96,7 @@ Zmw_Drag_From zmw_drag_from_state()
       zmw_name_register(&global_zmw_drag_from) ;
       global_zmw_drag_accepted = Zmw_False ;
       zmw_event_remove() ;
-      zmw.need_dispatch = Zmw_True ;
+      zmw_need_dispatch() ;
       zmw_need_repaint() ;
       ZMW_DRAG_RETURN(Zmw_Drag_From_Begin, "Button pressed") ;
     }
@@ -166,7 +165,7 @@ Zmw_Drag_To zmw_drag_to_state()
       // zmw_name_unregister(&global_zmw_drag_to) ; not yet
       global_zmw_drag_drop = Zmw_True ;
       zmw_event_remove() ;
-      zmw.need_dispatch = Zmw_True ;
+      zmw_need_dispatch() ;
       ZMW_DRAG_RETURN(Zmw_Drag_To_End, "Button released") ;
     }
   /*
@@ -188,7 +187,7 @@ Zmw_Drag_To zmw_drag_to_state()
 		ZMW_DRAG_RETURN(Zmw_Drag_To_No_Change, "not yet?") ;
 	      zmw_event_remove() ;
 	      zmw_name_register(&global_zmw_drag_to) ;
-	      zmw.need_dispatch = Zmw_True ;
+	      zmw_need_dispatch() ;
 	      ZMW_DRAG_RETURN(Zmw_Drag_To_Enter, "Cursor enter on widget") ;
 	    }
   	}
@@ -200,7 +199,7 @@ Zmw_Drag_To zmw_drag_to_state()
 	  zmw_event_remove() ;
 	  zmw_name_unregister(&global_zmw_drag_to) ;
 	  global_zmw_drag_accepted = Zmw_False ;
-	  zmw.need_dispatch = Zmw_True ;
+	  zmw_need_dispatch() ;
 	  ZMW_DRAG_RETURN(Zmw_Drag_To_Leave, "Cursor go out") ;
 	}
       else
@@ -214,8 +213,8 @@ void zmw_drag_to_nothing()
   if ( zmw_name_registered(&global_zmw_drag_to) )
     {
       zmw_name_unregister(&global_zmw_drag_to) ;
+      zmw_need_dispatch() ;
       // global_zmw_drag_accepted = Zmw_False ;
-      zmw.need_dispatch = Zmw_True ;
     }
 }
 
@@ -247,11 +246,11 @@ char *zmw_drag_data_get()
  * You can't immediatly swap back the widget.
  */
 
-Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current)
+Zmw_Boolean zmw_drag_swap(int *p, int **current, int **old_current)
 {
   Zmw_Boolean display_window ;
   int tmp ;
-
+  
   display_window = Zmw_False ;
   switch( zmw_drag_from_state() )
     {
@@ -265,22 +264,22 @@ Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current)
       display_window = Zmw_True ;
       break ;
     case Zmw_Drag_From_End: /* The drop is done */
-      *current = -1 ;
+      *current = NULL ;
       break ;
     default:
       ZMW_ABORT ;
       break ;
     }
-  if ( *current != -1 )
+  if ( *current != NULL )
     switch( zmw_drag_to_state() )
       {
       case Zmw_Drag_To_Enter:
 
 	if ( p != *old_current )
 	  {
-	    tmp = order[*current] ;
-	    order[*current] = order[p] ;
-	    order[p] = tmp ;
+	    tmp = **current ;
+	    **current = *p ;
+	    *p = tmp ;
 	    
 	    *old_current = *current ;
 	    *current = p ;
@@ -288,7 +287,7 @@ Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current)
 	    zmw_drag_accept_set(Zmw_True) ;
 	  }
 	else
-	  *old_current = -1 ;
+	  *old_current = NULL ;
 	    
 	break ;
       case Zmw_Drag_To_End:

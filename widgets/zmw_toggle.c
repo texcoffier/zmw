@@ -72,6 +72,7 @@ int zmw_toggle_bits_with_label(int value, int bits, const char *label)
 {
   Zmw_Boolean a ;
 
+  a = 0 ;
   ZMW( zmw_box_horizontal_activable() )
     {
       zmw_horizontal_expand(0) ;

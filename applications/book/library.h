@@ -55,6 +55,7 @@ typedef struct
 {
   int number ;
   char **strings ;
+  double checksum ;
 } Strings ;
 
 typedef struct
@@ -95,6 +96,9 @@ void strings_write(FILE *file, const Strings *s) ;
 void strings_free(Strings *s) ;
 int strings_add(Strings *s, char *newv) ;
 int strings_search(const char *pin, Strings *straw, Valued *index, int nb);
+double strings_checksum(Strings *s) ;
+int strings_changed(Strings *s) ;
+void strings_reset_checksum(Strings *s) ;
 
 /* loadsave.c */
 double library_book_checksum(Library *lib, Book *b) ;

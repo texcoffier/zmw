@@ -21,24 +21,30 @@
 
 #include "zmw/zmw.h"
 
-void zmw_message(Zmw_Boolean *visible
-		 , const char *title, const char *button_name)
+int zmw_message(int visible, const char *title, const char *button_name)
 {
   ZMW_EXTERNAL_RESTART ;
 
-  if ( *visible )
+  if ( visible )
     ZMW(zmw_window(title))
     {
       ZMW(zmw_box_vertical())
 	{
-	  ZMW_EXTERNAL ;
+	  ZMW_EXTERNAL_RETURNS(visible) ;
 	  zmw_horizontal_alignment(0) ;
 	  zmw_horizontal_expand(0) ;
 	  zmw_button(button_name) ;
 	  if ( zmw_activated() )
-	    *visible = Zmw_False ;
+	    visible = Zmw_False ;
 	}
     }
 
   ZMW_EXTERNAL_STOP ;
+
+  return visible ;
+}
+
+void zmw_message_char(char *visible,const char *title, const char *button_name)
+{
+  *visible = zmw_message(*visible, title, button_name) ;
 }

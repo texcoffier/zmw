@@ -14,6 +14,7 @@ O=\
 	zmw_message.o \
 	zmw_window.o \
 	zmw_decorator.o \
+	zmw_void.o \
 	zmw_table.o
 
 lib:: $(O)

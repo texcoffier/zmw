@@ -27,6 +27,7 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 {
   Zmw_Rectangle r ;
   int border ;
+  Zmw_Float_0_1 new_x, new_y ;
   
   border = ZMW_BORDER_WIDTH + ZMW_FOCUS_WIDTH ;
   switch( ZMW_SUBACTION )
@@ -72,64 +73,49 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
       zmw_focusable() ;
       zmw_activable() ;
 
+
       if ( zmw_selected() )
 	{
-	  zmw.dragged = Zmw_True ;
-	  zmw.changed = Zmw_True ;
-	  *x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
+	  new_x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
 	    / (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
-	  *y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
+	  new_y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
 	    / (float)(ZMW_SIZE_ALLOCATED.height - 2*border) - y_size/2 ;
+
 	  zmw_event_remove() ;
+	}
+      else
+	{
+	  new_x = *x ;
+	  new_y = *y ;
 	}
 
       if ( zmw_key_pressed() )
 	{	    
 	  if ( zmw.event->key.keyval == GDK_Right )
-	    {
-	      *x += x_delta*x_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_x += x_delta*x_size ;
 	  if ( zmw.event->key.keyval == GDK_Left )
-	    {
-	      *x -= x_delta*x_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_x -= x_delta*x_size ;
 	  if ( zmw.event->key.keyval == GDK_Up )
-	    {
-	      *y -= y_delta*y_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_y -= y_delta*y_size ;
 	  if ( zmw.event->key.keyval == GDK_Page_Up )
-	    {
-	      *y -= y_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_y -= y_size ;
 	  if ( zmw.event->key.keyval == GDK_Down )
-	    {
-	      *y += y_delta*y_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_y += y_delta*y_size ;
 	  if ( zmw.event->key.keyval == GDK_Page_Down )
-	    {
-	      *y += y_size ;
-	      zmw.dragged = Zmw_True ;
-	      zmw.activated = Zmw_True ;
-	      zmw_event_remove() ;
-	    }
+	    new_y += y_size ;
 	}
-      ZMW_CLAMP(*x,0,1-x_size) ;
-      ZMW_CLAMP(*y,0,1-y_size) ;
+
+      ZMW_CLAMP(new_x, 0, 1 - x_size ) ;
+      ZMW_CLAMP(new_y, 0, 1 - y_size ) ;
+      
+      if ( new_x != *x || new_y != *y )
+	{
+	  zmw.changed = Zmw_True ;
+	  *x = new_x ;
+	  *y = new_y ;
+	  if ( zmw_key_pressed() )
+	    zmw.activated = Zmw_True ;
+	}
       break ;
 
     default:

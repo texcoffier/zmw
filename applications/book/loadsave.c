@@ -142,6 +142,9 @@ void library_save(Library* lib, const char *filename)
   strings_write(file, &lib->collections) ;
   strings_write(file, &lib->authors) ;
   strings_write(file, &lib->borrowers) ;
+  strings_reset_checksum(&lib->authors) ;
+  strings_reset_checksum(&lib->borrowers) ;
+  strings_reset_checksum(&lib->collections) ;
 
   for(i=0; i < lib->books_number; i++)
     {

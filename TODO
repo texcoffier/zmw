@@ -29,9 +29,12 @@ LIBRARY CORE:
 	  It will simplify the drag and drop operation,
 	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
 	- Cursor shape change
+	- animation: It must be possible to specify the next frame time
 	- Does the tips should appear if the mouse button is pressed?
 	- Create zmw_font_name zmw_font_size zmw_font_weight ...
 	- Creation of substructs in zmw in order to clarify things
+	- Display filename:line on widget warnings
+
 
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
@@ -43,7 +46,6 @@ BUGS:
 	- In many widget, cursor draging must not go outside window
 	  (scrollbar, table, ...) (it is due to bad x,y conversion because
 	  the cursor change of window.)
-	- filechooser at top level does not always appear in a framed window
 	- image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
@@ -56,3 +58,24 @@ NOT TO DO THINGS :
 	- Create a shortcut to stop tree traversal (complex).
 	  Very bad idea, some functions may need a full traversal.
 	  It does not speed hugely things so it is not interesting.
+
+
+/*
+*****************************************************************************
+ * Idea. (not its place here) about current state
+ *
+ * The current values are directly accessible
+ *
+ * First pass: compute the list of attributes modified
+ * by the widget itself (not its children)
+ *
+ * When entering in a widget, the attributes it modifies are pushed.
+ *
+ * On value change: The value change
+ *
+ * When quitting the widget, the attributes are restored.
+ *
+ * This allows to not push everything in the stack each time.
+ * But is it necessary to speed up this push/pop ?
+*****************************************************************************
+ */

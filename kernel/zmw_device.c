@@ -21,6 +21,32 @@
 
 #include "zmw/zmw.h"
 
+int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b)
+{
+  static GdkVisual *visual = NULL ;
+  static int sr, sg, sb ;
+
+  if ( visual == NULL )
+    {
+      visual = gdk_rgb_get_visual() ;
+      sr = visual->red_mask >> visual->red_shift ;
+      sg = visual->green_mask >> visual->green_shift ;
+      sb = visual->blue_mask >> visual->blue_shift ;
+      if ( 0 )
+	zmw_printf("%d %d  %d %d  %d %d\n",
+		   visual->red_mask, visual->red_shift,
+		   visual->green_mask, visual->green_shift,
+		   visual->blue_mask, visual->blue_shift)	 ;
+    }
+
+  ZMW_CLAMP(r, 0, 1) ;
+  ZMW_CLAMP(g, 0, 1) ;
+  ZMW_CLAMP(b, 0, 1) ;
+  return ((int)(r*sr) << visual->red_shift)
+    + ((int)(g*sg) << visual->green_shift)
+    + ((int)(b*sb) << visual->blue_shift)
+    ;
+}
 
 Zmw_Boolean zmw_draw_set_gc(Zmw_Color c)
 {

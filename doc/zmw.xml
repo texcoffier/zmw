@@ -41,12 +41,13 @@
 <!ENTITY exampledefine SYSTEM "examples/define/define.sgml">
 <!ENTITY exampleanimation SYSTEM "examples/animation/animation.sgml">
 <!ENTITY exampledragswap SYSTEM "examples/dragswap/dragswap.sgml">
+<!ENTITY examplezmwvoid SYSTEM "examples/zmwvoid/zmwvoid.sgml">
 <!ENTITY scale "50">
 ]>
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.3)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.4)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -2142,6 +2143,58 @@
 
     </sect1>
 
+    <sect1>
+      <title>Void widget</title>
+
+      <para>
+	Display its child without any change.
+	This widget is used to change the current state only
+	for one widget and not the others.
+	It does not works with more than one child
+	because in this case a box will its work by
+	saving the current state.
+      </para>
+
+      <variablelist>
+
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_void</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      The example shows that this container can
+	      be used for normal widgets or windows widgets.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+      <example>
+	<title>Localy changing the current state</title>
+	<informaltable frame="none" pgwide="1">
+	  <tgroup cols="2">
+	    <tbody>
+	      <row>
+		<entry><programlisting>&examplezmwvoid;</programlisting></entry>
+		<entry align="right"><mediaobject>
+		  <imageobject>
+		    <imagedata fileref="examples/zmwvoid/zmwvoid.0.eps" format="EPS" scale="&scale;" />
+		</imageobject>
+		    <imageobject>
+		      <imagedata fileref="examples/zmwvoid/zmwvoid.0.png" format="PNG" />
+		</imageobject>
+		</mediaobject></entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</informaltable>
+      </example>
+
+</sect1>
 
     <sect1>
     <title>Composed widgets</title>
@@ -2364,18 +2417,35 @@
 
 	<varlistentry>
 	  <term>
-	    <type>void</type>
+	    <type>int</type>
 	    <function>zmw_message</function>
-	    (<type>Zmw_Boolean *</type><parameter>visible</parameter>,
+	    (<type>int </type><parameter>visible</parameter>,
 	      <type>const char *</type><parameter>window_title</parameter>,
 	      <type>const char *</type><parameter>button_name</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>  
-	      If <parameter>visible</parameter> is not <constant>NULL</constant>
+	      If <parameter>visible</parameter> is true
 		a window is displayed with the widget inside this one
 		with a <guibutton>close</guibutton> button labelled
 		<parameter>button_name</parameter>.
+		The return value must be affected to <parameter>visible</parameter>, so the boolean can be of any type.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_message_char</function>
+	    (<type>char *</type><parameter>visible</parameter>,
+	      <type>const char *</type><parameter>window_title</parameter>,
+	      <type>const char *</type><parameter>button_name</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para> 
+		As <function>zmw_message</function> but the
+		affectation is not necessary because the boolean
+		is given as a pointer.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -2881,6 +2951,55 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_selected</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      Return true if the mouse button had been pressed
+	      on the widget but is not yet released.
+	      It can be the case for the
+	      button, anchor, scrollbar widgets.
+	      If true is returned, the program is not allowed to
+	      change its state but it can display a different
+	      graphisme for example.
+	      If you want to change the program state
+	      you should test <function>zmw_state_change_allowed()</function>
+	      return value.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_selected_by_its_parents</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_selected</function>
+	      but return true if a parent of the previous widget
+	      is selected.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_selected_by_a_children</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_selected</function>
+	      but return true if a children of the previous widget
+	      is selected.
+	    </para>
+	  </listitem>
+	</varlistentry>
 
 	<varlistentry>
 	  <term>
@@ -2992,23 +3111,19 @@
 	  <term>
 	    <type>Zmw_Boolean</type>
 	    <function>zmw_drag_swap</function>
-	    (<type>int</type> <parameter>index</parameter>,
-	    <type>int *</type><parameter>table</parameter>,
-	    <type>int *</type><parameter>index_current</parameter>,
-	    <type>int *</type><parameter>index_old</parameter>
+	    (<type>int *</type> <parameter>index</parameter>,
+	    <type>int **</type><parameter>index_current</parameter>,
+	    <type>int **</type><parameter>index_old</parameter>
 	    ) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      This function allows to swap widgets by dragging them,
+	      The function is called after the widget to be swapped,
 	      it could be used to change columns order in a table.
-	      The <parameter>table</parameter> contains
-	      widget number.
-	      What is named <parameter>index</parameter>
-	      is an index in <parameter>table</parameter>.
-	      The function is called
-	      after the widget whose position is <parameter>index</parameter>.
-	      <parameter>index_current</parameter> is <constant>-1</constant>
+	      <parameter>index</parameter> is a pointer on
+	      the data to be swapped.
+	      If <parameter>*index_current</parameter> is <constant>NULL</constant>
 	      if there is no dragging, else it is the
 	      index of the widget being dragged.
 	      Beware the indexes change when there is a swap and
@@ -3271,9 +3386,16 @@
 	<function>ZMW_EXTERNAL ;</function>.
 	<emphasis>Beware, <function>ZMW_EXTERNAL ;</function> contains
 	  a <function>return</function>, so all the local
-	  variables are lost. You should save them in a stack
-	  because your widget can include itself.
+	  variables are lost. You should save them in a static stack
+	  because your widget can include itself so static variables
+	  are not directly usable.
 	</emphasis>
+      </para>
+      <para>
+	If the widget definition returns a value as in
+	<function>zmw_message</function> or <function>zmw_toggle</function>
+	 <function>ZMW_EXTERNAL_RETURNS(value)</function> must
+	be used in place of <function>ZMW_EXTERNAL</function>
       </para>
       
  

@@ -65,6 +65,7 @@ void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
   if ( ZMW_ACTION != zmw_action_draw )
     return ;
 
+
   if ( options & Zmw_Border_Draw_Focus )
     {
       for(i=0; i<ZMW_FOCUS_WIDTH; i++)
@@ -84,6 +85,23 @@ void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
       r->y += ZMW_FOCUS_WIDTH ;
       r->width -= 2 * ZMW_FOCUS_WIDTH ;
       r->height -= 2 * ZMW_FOCUS_WIDTH ;
+    }
+
+  if ( options & Zmw_Border_Background )
+    {
+      if ( options & Zmw_Border_In )
+	b = Zmw_Color_Background_Pushed ;
+      else if ( options & Zmw_Border_Out )
+	b = Zmw_Color_Background_Poped ;
+      else
+	b = Zmw_Color_Background_Normal ;
+
+      zmw_draw_rectangle(b, Zmw_True
+			 , r->x // +ZMW_BORDER_WIDTH
+			 , r->y // +ZMW_BORDER_WIDTH
+			 , r->width // -2*ZMW_BORDER_WIDTH
+			 , r->height // -2*ZMW_BORDER_WIDTH
+			 ) ;
     }
 
   if ( options & Zmw_Border_In )
@@ -120,23 +138,6 @@ void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
 	rectangle_draw(r, i, ul, rd) ;
       for(; i<ZMW_BORDER_WIDTH; i++)
 	rectangle_draw(r, i, rd, ul) ;
-    }
-
-  if ( options & Zmw_Border_Background )
-    {
-      if ( options & Zmw_Border_In )
-	b = Zmw_Color_Background_Pushed ;
-      else if ( options & Zmw_Border_Out )
-	b = Zmw_Color_Background_Poped ;
-      else
-	b = Zmw_Color_Background_Normal ;
-
-      zmw_draw_rectangle(b, Zmw_True
-			 , r->x+ZMW_BORDER_WIDTH
-			 , r->y+ZMW_BORDER_WIDTH
-			 , r->width-2*ZMW_BORDER_WIDTH
-			 , r->height-2*ZMW_BORDER_WIDTH
-			 ) ;
     }
 }
 void zmw_border_draw(int options)
@@ -209,14 +210,6 @@ void zmw_draw_clip_push_inside(const Zmw_Rectangle *r)
   c.height= ZMW_MIN(r->y + r->height, ZMW_CLIPPING.y + ZMW_CLIPPING.height)
     - c.y ;
   zmw_draw_clip_push(&c) ;
-}
-
-int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b)
-{
-  ZMW_CLAMP(r, 0, 1) ;
-  ZMW_CLAMP(g, 0, 1) ;
-  ZMW_CLAMP(b, 0, 1) ;
-  return ((int)(r*255) << 16) + ((int)(g*255) << 8) + (int)(b*255) ;
 }
 
 int zmw_rgb_scale_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b,

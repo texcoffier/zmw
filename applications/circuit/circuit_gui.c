@@ -234,8 +234,8 @@ void gate_area(Circuit *c, Type s)
 	      zmw_event_remove() ;
 	      zmw_focus_remove() ;
 	    }
-	  if ( zmw_dragged() )
-	    circuit_eval(c) ;	/* Recompute circuit size */
+	  if ( zmw_selected() )
+	      circuit_eval(c) ;	/* Recompute circuit size */
 	  gate_draw_input_arcs(c, i) ;
 	}
       gate_draw_interactive_arc(c, &input, &output) ;

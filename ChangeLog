@@ -1,3 +1,20 @@
+2003-??-?? (0.0.4)
+	Many bugs removed, thanks to "valgrind"
+	zmw_window_name(): May now returns the transient containing the window
+	zmw_border...(): The painted background is now with the right size
+	zmw_window(): The windows now receive less event types
+	zmw_rgb_to_int(): Now works on more visual
+	zmw_void(): add the widget, the example
+	The activated/changed widget no more need to remove events themselves
+	zmw_message() : API changes, it returns now the visible value
+	zmw_dragged(): Function removed, use zmw_selected() in place
+	zmw_changed(): Is now true if zmw_activated() is true
+	zmw_drag_swap(): API change; more powerful and less parameters
+	zmw.c: Widget using ZMW_EXTERNAL can now be transient
+	zmw.c: ZMW_ABORT display the stack of widgets
+	zmw_run.c: Tips were appearing randomly on slow computer
+	application/book: Many enhancements
+
 2003-11-12 (0.0.3)
 	Many changes have been made to make OpenGL port easy
 	There is now only one GC by window

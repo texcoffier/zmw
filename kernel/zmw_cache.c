@@ -37,10 +37,18 @@ static int global_cache_size = 0 ;
 
 void zmw_cache_init(int size)
 {
+  int i ;
+
   if ( size != global_cache_size )
     {
       ZMW_REALLOC(global_cache_table, size) ;
+      for(i=global_cache_size; i<size; i++)
+	{
+	  global_cache_table[i].index = 0 ;
+	  global_cache_table[i].name = NULL ;
+	}
       global_cache_size = size ;
+
     }
 }
 
@@ -137,6 +145,8 @@ static void zmw_cache_check(const Zmw_Size *s)
 	p = "required size" ;
       if ( p )
 	{
+	  zmw_printf("%s\n", zmw_name_full) ;
+	  zmw_printf("%s\n", ZMW_TYPE) ;
 	  zmw_printf("[%d] Problems in cache_check : %s\n", ZMW_INDEX, p) ;
 	  zmw_printf("Stored = %s !\n",zmw_size_string(&ss)) ;
 	  zmw_printf("Comput = %s !\n",zmw_size_string(s)) ;
@@ -149,5 +159,6 @@ void zmw_cache_set_size(const Zmw_Size *r)
 {
   if ( zmw.debug & Zmw_Debug_Cache_Slow )
     zmw_cache_check(r) ;
-  zmw_cache_set_size_real(r) ;
+  else
+    zmw_cache_set_size_real(r) ;
 }

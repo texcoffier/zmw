@@ -19,54 +19,23 @@
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw/zmw.h"
-#include "library.h"
 
+/* Vitesse maison sans gettext : 6.12 fps */
 
+#include <errno.h>
+#include "book.h"
 
-typedef struct {
-  Library *lib ;
-
-  Zmw_Boolean filechooser_load, filechooser_save_as, quit_modified ;
-  char *filename_load, *filename_save ;
-  Zmw_Boolean library_modified ;
-  char *new_name ;
-  int selected ;
-
-  void (*sort)(Library *lib) ;
-  Zmw_Boolean need_sort, need_filter ;
-
-  int book ;
-  enum { Nothing, Author_Name_For_Book, Author_Name
-	 , Borrower_Name, Borrower_New
-	 , Collection_Name, Collection_New }  action ;
-
-  Columns order[Column_Last] ;
-  int visible[Column_Last] ;
-  int width[Column_Last] ;
-  char *name[Column_Last] ;
-  char *filter[Column_Last] ;
-  char *default_value[Column_Last] ;
-
-  char *or_filter ;
-  int only_borrowed ;
-  int only_modified ;
-
-  int debug_window ;
-  int start ;
-  int nb ;
-
-  float standard_color[3], tip_color[3], header_color[3] ;
-} Library_GUI ;
-  
 void tip(Library_GUI *gui, const char *text)
 {
   if ( zmw_tip_visible() )
-    ZMW(zmw_window_popup_bottom())
+      ZMW(zmw_void())
     {
-      zmw_rgb(gui->tip_color[0], gui->tip_color[1], gui->tip_color[2]) ;
-      ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed|Zmw_Decorator_Interior))
-	zmw_text(text) ;
+      zmw_rgb(gui->prefs.tip_color[0], gui->prefs.tip_color[1], gui->prefs.tip_color[2]) ;
+      ZMW(zmw_window_popup_bottom())
+	ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed|Zmw_Decorator_Interior))
+	{
+	   zmw_text(text) ;
+	}
     }
 }
 
@@ -77,20 +46,22 @@ void book_filter(Library_GUI *gui, int *start)
     {
       zmw_vertical_alignment(0) ;
       zmw_horizontal_expand(Zmw_False) ;
-      zmw_text("Filter on all the columns :") ;
+      zmw_text(_("Filter on all the columns :")) ;
       zmw_vertical_expand(Zmw_True) ;
       zmw_horizontal_expand(Zmw_True) ;
       zmw_text_editable( &gui->or_filter ) ;
       gui->need_filter |= zmw_changed() ;
-      tip(gui, "Only books containing this filter are displayed") ;
+      tip(gui, _("Only books containing this filter are displayed")) ;
 	
 
       zmw_horizontal_expand(Zmw_False) ;
-      zmw_toggle_int_with_label(&gui->only_borrowed, "Display only borrowed books") ;
-      tip(gui, "Display book borrowed and not yet given back") ;
+      zmw_toggle_int_with_label(&gui->only_borrowed
+				, _("Display only borrowed books")) ;
+      tip(gui, _("Display book borrowed and not yet given back")) ;
       gui->need_filter |= zmw_activated() ;
-      zmw_toggle_int_with_label(&gui->only_modified, "Display only modified books") ;
-      tip(gui, "If true only modified books are displayed, it disables other filters");
+      zmw_toggle_int_with_label(&gui->only_modified
+				, _("Display only modified books")) ;
+      tip(gui, _("If true only modified books are displayed, it disables other filters"));
       gui->need_filter |= zmw_activated() ;
     }
 }
@@ -101,7 +72,7 @@ void table_header(Library_GUI *gui)
 {
   void (*old_sort)(Library*) ;
   int i, j ;
-  static int current = -1, old_current=0 ;
+  static int *current = NULL, *old_current = NULL ;
 
   old_sort = gui->sort ;
 
@@ -110,93 +81,73 @@ void table_header(Library_GUI *gui)
 
   for(i=0; i<Column_Last; i++)
     {
-      j = gui->order[i] ;
-      if ( gui->visible[j] )
+      j = gui->prefs.cols[i].order ;
+      if ( gui->prefs.cols[j].visible )
 	{
-	  switch( j )
+	  ZMW(zmw_box_horizontal())
 	    {
-	    case Column_Title:
-	      ZMW(zmw_box_horizontal())
+	      zmw_horizontal_expand(Zmw_False) ;
+	      switch( j )
 		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_button( "Book title" ) ;
-		  tip(gui, "Sort by book title") ;
+		case Column_Title:
+		  zmw_button( _("Book title") ) ;
+		  tip(gui, _("Sort by book title")) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_title ;
-		}
-	      break ;
+		  break ;
 	      
-	    case Column_Author:
-	      ZMW(zmw_box_horizontal())
-		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_text( "Author" ) ;
-		  zmw_button( "Firstname" ) ;
-		  tip(gui, "Sort by author firstname") ;
+		case Column_Author:
+		  zmw_text( _("Author") ) ;
+		  zmw_button( _("Firstname") ) ;
+		  tip(gui, _("Sort by author firstname")) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_author_firstname ;
-		  zmw_button( "Surname" ) ;
-		  tip(gui, "Sort by author surname") ;
+		  zmw_button( _("Surname") ) ;
+		  tip(gui, _("Sort by author surname")) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_author_surname ;
-		}
-	      break ;
+		  break ;
 	      
-	    case Column_Borrower:
-	      ZMW(zmw_box_horizontal())
-		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_text( "Borrower" ) ;
-		  zmw_button( "Firstname" ) ;
-		  tip(gui, "Sort by borrower firstname") ;
+		case Column_Borrower:
+		  zmw_text( _("Borrower") ) ;
+		  zmw_button( _("Firstname") ) ;
+		  tip(gui, _("Sort by borrower firstname")) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_last_borrower_firstname ;
-		  zmw_button( "Surname" ) ;
-		  tip(gui, "Sort by borrower surname") ;
+		  zmw_button( _("Surname") ) ;
+		  tip(gui, _("Sort by borrower surname")) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_last_borrower_surname ;
-		}
-	      break ;
+		  break ;
 
-	    case Column_Collection:
-	      ZMW(zmw_box_horizontal())
-		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_button( "Collection" ) ;
+		case Column_Collection:
+		  zmw_button( _("Collection") ) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_collection ;
-		  tip(gui, "Sort by collection") ;
-		}
-	      break ;
+		  tip(gui, _("Sort by collection")) ;
+		  break ;
 	      
-	    case Column_Number:
-	      ZMW(zmw_box_horizontal())
-		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_button( "Number" ) ;
+		case Column_Number:
+		  zmw_button( _("Number") ) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_number ;
-		  tip(gui, "Sort by book number in collection") ;
-		}
-	      break ;
+		  tip(gui, _("Sort by book number in collection")) ;
+		  break ;
 	      
-	    case Column_Rate:
-	      ZMW(zmw_box_horizontal())
-		{
-		  zmw_horizontal_expand(Zmw_False) ;
-		  zmw_button( "Rate" ) ;
+		case Column_Rate:
+		  zmw_button( _("Rate") ) ;
 		  if ( zmw_activated() )
 		    gui->sort = library_sort_rate ;
-		  tip(gui, "Sort by book rate") ;
-		}
+		  tip(gui, _("Sort by book rate")) ;
 	      break ;
 	      
-	    case Column_Last:
-	      abort() ;
+		case Column_Last:
+		  abort() ;
+		}
 	    }
-	  if ( zmw_drag_swap(i, (int*)gui->order, &current, &old_current) )
+	  if ( zmw_drag_swap((int*)&gui->prefs.cols[i].order, &current, &old_current) )
 	    ZMW(zmw_window_drag())
-	      zmw_text(gui->name[gui->order[current]]) ;
+	      zmw_text(_(gui->prefs.cols[*current].id)) ;
 	}
     }
 
@@ -215,12 +166,12 @@ void table_filter(Library_GUI *gui)
 
   for(i=0; i<Column_Last; i++)
     {
-      j = gui->order[i] ;
-      if ( gui->visible[j] )
+      j = gui->prefs.cols[i].order ;
+      if ( gui->prefs.cols[j].visible )
 	{
-	  zmw_text_editable(&gui->filter[j]);
+	  zmw_text_editable(&gui->prefs.cols[j].filter);
 	  gui->need_filter |= zmw_changed() ;
-	  sprintf(tmp, "Enter a filter for %s", gui->name[j]) ;
+	  sprintf(tmp, _("Enter a filter for %s"), _(gui->prefs.cols[j].id)) ;
 	  tip(gui, tmp) ;
 	}
     }
@@ -231,57 +182,6 @@ void table_filter(Library_GUI *gui)
 void title(Library_GUI *gui, int i)
 {
   zmw_text_editable( library_book_title_pointer_get(gui->lib, i) ) ;
-}
-
-int menu_approximation(Library_GUI *gui, Strings *choices)
-{
-  static int nb = 0 ;
-  static Valued v[10] ;
-  int j, result ;
-
-  result = 0 ;
-
-  zmw_text_editable(&gui->new_name) ;
-  if ( zmw_changed() || nb == 0 )
-    {
-      nb = strings_search(gui->new_name, choices, v, TABLE_SIZE(v)) ;
-    }
-  ZMW(zmw_window_popup_bottom())
-    {
-      ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
-	{
-	  ZMW(zmw_box_vertical())
-	    {
-	      if ( strcmp_caseless(gui->new_name
-				   , choices->strings[v[0].index]) != 0 )
-		
-		{
-		  zmw_button("Set this as a new name") ;
-		  if ( zmw_activated() )
-		    {
-		      gui->selected = strings_add(choices, gui->new_name) ;
-		      result = 1 ;
-		    }
-		}
-	      for(j=0; j<nb; j++)
-		{
-		  zmw_button(choices->strings[v[j].index]) ;
-		  if ( zmw_activated() )
-		    {
-		      free(gui->new_name) ;
-		      gui->selected = v[j].index ;
-		      result = 1 ;
-		    }
-		}
-	    }
-	}
-    }
-  if ( result )
-    {
-      gui->action = Nothing ;			  
-      nb = 0 ;
-    }
-  return result ;
 }
 
 void author(Library_GUI *gui, int i)
@@ -302,25 +202,22 @@ void author(Library_GUI *gui, int i)
       zmw_button( library_book_author_get(gui->lib, i) ) ;
       if ( zmw_window_is_popped() )
 	{
-	  ZMW(zmw_window_popup_bottom())
+	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
-	      ZMW(zmw_box_vertical())
+	      zmw_button(_("Change author name for all the books")) ;
+	      if ( zmw_activated() )
 		{
-		  zmw_button("Change book author") ;
-		  if ( zmw_activated() )
-		    {
-		      gui->book = i ;
-		      gui->action = Author_Name_For_Book ;
-		      free(gui->new_name) ;
-		      gui->new_name
-			= strdup(library_book_author_get(gui->lib, i)) ;
-		    }
-		  zmw_button("Change author name for all the books") ;
-		  if ( zmw_activated() )
-		    {
-		      gui->book = i ;
-		      gui->action = Author_Name ;
-		    }
+		  gui->book = i ;
+		  gui->action = Author_Name ;
+		}
+	      zmw_button(_("Change book author")) ;
+	      if ( zmw_activated() )
+		{
+		  gui->book = i ;
+		  gui->action = Author_Name_For_Book ;
+		  free(gui->new_name) ;
+		  gui->new_name
+		    = strdup(library_book_author_get(gui->lib, i)) ;
 		}
 	    }
 	}
@@ -345,36 +242,33 @@ void borrowers_menu(Library_GUI *gui, int i)
       zmw_button( library_book_borrower_get(gui->lib, i, -1) ) ;
       if ( zmw_window_is_popped() )
 	{
-	  ZMW(zmw_window_popup_bottom())
+	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
-	      ZMW(zmw_box_vertical())
+	      if ( library_book_borrower_get(gui->lib, i, -1)[0] )
 		{
-		  if ( library_book_borrower_get(gui->lib, i, -1)[0] )
+		  zmw_button(_("Change borrower name for all books")) ;
+		  if ( zmw_activated() )
 		    {
-		      zmw_button("Change borrower name for all books") ;
-		      if ( zmw_activated() )
-			{
-			  gui->book = i ;
-			  gui->action = Borrower_Name ;
-			}
+		      gui->book = i ;
+		      gui->action = Borrower_Name ;
 		    }
-		  if ( library_book_borrower_have_it(gui->lib, i, -1) )
+		}
+	      if ( library_book_borrower_have_it(gui->lib, i, -1) )
+		{
+		  zmw_button(_("Last borrower give back the book")) ;
+		  if ( zmw_activated() )
 		    {
-		      zmw_button("Last borrower give back the book") ;
-		      if ( zmw_activated() )
-			{
-			  library_book_borrower_give_back(gui->lib, i) ;
-			}
+		      library_book_borrower_give_back(gui->lib, i) ;
 		    }
-		  else
+		}
+	      else
+		{
+		  zmw_button(_("This book is borrowed by...")) ;
+		  if ( zmw_activated() )
 		    {
-		      zmw_button("This book is borrowed by...") ;
-		      if ( zmw_activated() )
-			{
-			  gui->new_name[0] = '\0' ;
-			  gui->book = i ;
-			  gui->action = Borrower_New ;
-			}
+		      gui->new_name[0] = '\0' ;
+		      gui->book = i ;
+		      gui->action = Borrower_New ;
 		    }
 		}
 	    }
@@ -386,9 +280,10 @@ void borrowers(Library_GUI *gui, int i)
 {
   if ( library_book_borrower_have_it(gui->lib, i, -1) )
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_void())
 	{
-	  zmw_color(Zmw_Color_Foreground, 0xFF0000) ;
+	  zmw_rgb(gui->prefs.borrowed_color[0]
+		  , gui->prefs.borrowed_color[1], gui->prefs.borrowed_color[2]) ;
 	  borrowers_menu(gui, i) ;
 	}
     }
@@ -414,24 +309,21 @@ void collection(Library_GUI *gui, int i)
       zmw_button( library_book_collection_get(gui->lib, i) ) ;
       if ( zmw_window_is_popped() )
 	{
-	  ZMW(zmw_window_popup_bottom())
+	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom))
 	    {
-	      ZMW(zmw_box_vertical())
+	      zmw_button(_("Change collection name for all books")) ;
+	      if ( zmw_activated() )
 		{
-		  zmw_button("Change collection name for all books") ;
-		  if ( zmw_activated() )
-		    {
-		      gui->book = i ;
-		      gui->action = Collection_Name ;
-		    }
-
-		  zmw_button("Change collection") ;
-		  if ( zmw_activated() )
-		    {
-		      gui->new_name[0] = '\0' ;
-		      gui->book = i ;
-		      gui->action = Collection_New ;
-		    }
+		  gui->book = i ;
+		  gui->action = Collection_Name ;
+		}
+	      
+	      zmw_button(_("Change collection")) ;
+	      if ( zmw_activated() )
+		{
+		  gui->new_name[0] = '\0' ;
+		  gui->book = i ;
+		  gui->action = Collection_New ;
 		}
 	    }
 	}
@@ -458,9 +350,9 @@ void table_row(Library_GUI *gui, int i)
 
   for(j=0; j<Column_Last; j++)
     {
-      k = gui->order[j] ;
+      k = gui->prefs.cols[j].order ;
 
-      if ( gui->visible[k] )
+      if ( gui->prefs.cols[k].visible )
 	{
 	  switch( k )
 	    {
@@ -483,10 +375,10 @@ void widths_get(Library_GUI *gui, int *widths, int *number_of_columns)
   i = 0 ;
   for(j=0; j<Column_Last; j++)
     {
-      k = gui->order[j] ;
-      if ( gui->visible[k] )
+      k = gui->prefs.cols[j].order ;
+      if ( gui->prefs.cols[k].visible )
 	{
-	  widths[i++] = gui->width[k] ;
+	  widths[i++] = gui->prefs.cols[k].width ;
 	}
     }
   *number_of_columns = i ;
@@ -499,10 +391,10 @@ void widths_set(Library_GUI *gui, int *widths)
   i = 0 ;
   for(j=0; j<Column_Last; j++)
     {
-      k = gui->order[j] ;
-      if ( gui->visible[k] )
+      k = gui->prefs.cols[j].order ;
+      if ( gui->prefs.cols[k].visible )
 	{
-	  gui->width[k] = widths[i++] ;
+	  gui->prefs.cols[k].width = widths[i++] ;
 	}
     }
 }
@@ -524,9 +416,9 @@ void table(Library_GUI *gui)
 
   zmw_padding_width(1) ;
   zmw_vertical_expand(Zmw_False) ;
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_void())
     {
-      zmw_rgb(gui->header_color[0], gui->header_color[1], gui->header_color[2]) ;
+      zmw_rgb(gui->prefs.header_color[0], gui->prefs.header_color[1], gui->prefs.header_color[2]) ;
       ZMW(zmw_decorator(Zmw_Decorator_Interior))
 	{
 	  ZMW(zmw_table_with_widths(number_of_columns, widths))
@@ -539,9 +431,15 @@ void table(Library_GUI *gui)
     }
   if ( gui->need_filter )
     {
+      char *t[Column_Last] ;
+      int i ;
+
+      for(i=0; i<Column_Last; i++)
+	t[i] = gui->prefs.cols[i].filter ;
+
       gui->start = 0 ;
       library_filter(gui->lib, gui->or_filter, gui->only_borrowed
-		     ,gui->filter, gui->only_modified) ;
+		     , t, gui->only_modified) ;
       gui->need_filter = Zmw_False ;
       gui->need_sort = Zmw_True ;
     }
@@ -574,187 +472,103 @@ void table(Library_GUI *gui)
     gui->action = Nothing ;
 }
 
-void menu_bar_file(Library_GUI *gui)
-{
-  zmw_button("File") ;
-  if ( zmw_window_is_popped() )
-    {
-      ZMW(zmw_window_popup_bottom_with_title("File"))
-	ZMW(zmw_box_vertical())
-	{
-	  zmw_tearoff() ;
-	  zmw_button_with_accelerator("Load", GDK_CONTROL_MASK, 'L') ;
-	  if ( zmw_activated() )
-	    gui->filechooser_load = Zmw_True ;
-	  zmw_button_with_accelerator("Save", GDK_CONTROL_MASK, 'S') ;
-	  if ( zmw_activated() )
-	    {
-	      library_save(gui->lib, gui->filename_load) ;
-	    }
-	  zmw_button_with_accelerator("Save As", GDK_CONTROL_MASK, 'W') ;
-	  if ( zmw_activated() )
-	    gui->filechooser_save_as = Zmw_True ;
-
-	  zmw_button_with_accelerator("Quit", GDK_CONTROL_MASK, 'Q') ;
-	  if ( zmw_activated() )
-	    {
-	      if ( !gui->library_modified )
-		zmw_exit(0) ;
-	      gui->quit_modified = Zmw_True ;
-	    }
-	}
-
-    }
-  /*
-   *
-   */
-  zmw_filechooser(&gui->filechooser_load, &gui->filename_load
-		  , "Library Load", "Library Load") ;
-  if ( zmw_activated() )
-    {
-      library_free(gui->lib) ;
-      gui->lib = library_load(gui->filename_load) ;
-      gui->library_modified = Zmw_False ;
-    }  
-  /*
-   *
-   */
-  zmw_filechooser(&gui->filechooser_save_as, &gui->filename_save
-		  , "Library Save As", "Library Save As") ;
-  if ( zmw_activated() )
-    {
-      library_save(gui->lib, gui->filename_save) ;
-    }  
-  /*
-   *
-   */
-  if ( gui->quit_modified )
-    {
-      ZMW(zmw_window("Quit confirmation"))
-	{
-	  ZMW(zmw_box_horizontal())
-	    {
-	      zmw_button("Quit without save") ;
-	      if ( zmw_activated() )
-		zmw_exit(0) ;
-	      zmw_button("Save and Quit") ;
-	      if ( zmw_activated() )
-		{
-		  library_save(gui->lib, gui->filename_load) ;
-		  zmw_exit(0) ;
-		}
-	      zmw_button("Cancel") ;
-	      if ( zmw_activated() )
-		gui->quit_modified = Zmw_False ;
-	    }
-	}
-    }  
-
-}
-
-void menu_bar_view(Library_GUI *gui)
-{
-  int i ;
-
-  zmw_button("View") ;
-  if ( zmw_window_is_popped() )
-    {
-      ZMW(zmw_window_popup_bottom_with_title("View"))
-	ZMW(zmw_box_vertical())
-	{
-	  zmw_tearoff() ;
-	  for(i=0; i<Column_Last; i++)
-	    zmw_toggle_int_with_label(&gui->visible[i], gui->name[i]) ;
-	  zmw_text("") ;
-	  zmw_toggle_int_with_label(&gui->debug_window, "Debug window") ;
-	}
-    }
-}
-
-void menu_bar_edit(Library_GUI *gui)
-{
-  zmw_button("Edit") ;
-  if ( zmw_window_is_popped() )
-    {
-      ZMW(zmw_window_popup_bottom_with_title("Edit"))
-	ZMW(zmw_box_vertical())
-	{
-	  zmw_tearoff() ;
-	  zmw_button("Add a new book") ;
-	  if ( zmw_activated() )
-	    {
-	      library_book_new(gui->lib, gui->default_value) ;
-	      gui->need_filter = Zmw_True ;
-	      gui->only_modified = Zmw_True ;
-	    }
-	  zmw_horizontal_expand(Zmw_True) ;
-	  zmw_text("Standard color:") ;
-	  zmw_scrollbar_horizontal(&gui->standard_color[0], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->standard_color[1], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->standard_color[2], 0.1) ;
-	  zmw_text("Tip color:") ;
-	  zmw_scrollbar_horizontal(&gui->tip_color[0], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->tip_color[1], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->tip_color[2], 0.1) ;
-	  zmw_text("Header color:") ;
-	  zmw_scrollbar_horizontal(&gui->header_color[0], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->header_color[1], 0.1) ;
-	  zmw_scrollbar_horizontal(&gui->header_color[2], 0.1) ;
-	}
-    }
-}
-
-void menu_bar(Library_GUI *gui)
-{
-  zmw_vertical_expand(Zmw_False) ;
-  zmw_horizontal_alignment(-1) ;
-  zmw_text("THIS PROGRAM IS UNFINISHED: DO NOT USE ON YOUR LIBRARY");
-  ZMW(zmw_box_horizontal())
-    {
-      zmw_horizontal_expand(Zmw_False) ;
-      menu_bar_file(gui) ;
-      menu_bar_edit(gui) ;
-      menu_bar_view(gui) ;
-    }
-}
 
 void debug_window(Library_GUI *gui)
 {
   int i ;
 
-  ZMW(zmw_window("Debug window"))
+  ZMW(zmw_window(_("Debug window")))
     {
       ZMW(zmw_box_vertical())
 	{
 	  ZMW(zmw_table(4))
 	    {
-	      zmw_text("Name") ;
-	      zmw_text("Visible") ;
-	      zmw_text("Width") ;
-	      zmw_text("Order") ;
+	      zmw_text(_("Name")) ;
+	      zmw_text(_("Visible")) ;
+	      zmw_text(_("Width")) ;
+	      zmw_text(_("Order")) ;
 	      for(i=0; i<Column_Last; i++)
 		{
-		  zmw_text(gui->name[i]) ;
-		  zmw_toggle_int(&gui->visible[i]) ;
-		  zmw_int_editable(&gui->width[i]) ;
-		  zmw_text(gui->name[gui->order[i]]);
+		  zmw_text(_(gui->prefs.cols[i].id)) ;
+		  zmw_toggle_int(&gui->prefs.cols[i].visible) ;
+		  zmw_int_editable(&gui->prefs.cols[i].width) ;
+		  zmw_text(_(gui->prefs.cols[gui->prefs.cols[i].order].id));
 		}
 	    }
-	  ZMW(zmw_box_horizontal()) {zmw_text("Start:"); zmw_int(gui->start); }
-	  ZMW(zmw_box_horizontal()) {zmw_text("#Row:"); zmw_int(gui->nb); }
-	  ZMW(zmw_box_horizontal()) {zmw_text("#Book:"); zmw_int(library_book_number(gui->lib)); }
+	  ZMW(zmw_table(2))
+	    {
+	      zmw_text(_("Start:")) ;
+	      zmw_int(gui->start);
+	      zmw_text(_("#Row:")) ;
+	      zmw_int(gui->nb) ;
+	      zmw_text(_("#Book:")) ;
+	      zmw_int(library_book_number(gui->lib)) ;
+	    }
 	}	  
     }
 }
 
+Columns column_name_to_index(ColDef *c, const char *name)
+{
+  Columns i ;
+
+  for(i=0; i<Column_Last; i++)
+    if ( strcmp(name, c[i].id) == 0 )
+      return i ;
+
+  ZMW_ABORT ;
+}
+
+void change_language(Library_GUI *gui)
+{
+  char *a ;
+
+  if ( gui->prefs.new_language == NULL )
+    return ;
+
+  gui->prefs.language = gui->prefs.new_language ;
+  gui->prefs.new_language = NULL ;
+
+  printf("Try to change to language %s\n", gui->prefs.language) ;
+
+  setenv ("LANGUAGE", gui->prefs.language, 1);
+  setlocale(LC_ALL, "") ;
+  a = setlocale(LC_MESSAGES, gui->prefs.language) ;
+
+  printf("Language changed to %s\n", a) ;
+}
+
 void library()
 {
-  static Library_GUI gui = { NULL } ;
+  static Library_GUI gui =
+    {
+      {
+	{
+	  { Column_Title     , 1, 400, gettext_noop("Title"     ), "" , ""},
+	  { Column_Author    , 1, 200, gettext_noop("Author"    ), "?", ""},
+	  { Column_Borrower  , 1, 200, gettext_noop("Borrower"  ), "" , ""},
+	  { Column_Collection, 1, 200, gettext_noop("Collection"), "?", ""},
+	  { Column_Number    , 1,  50, gettext_noop("Number"    ), "0", ""},
+	  { Column_Rate      , 1,  30, gettext_noop("Rate"      ), "9", ""},
+	},
+	{ 0.75, 0.75, 0.75},
+	{ 0.75, 0.75, 0   },
+	{ 0   , 0.75, 0   },
+	{ 0.75, 0.5 , 0.75},
+        { 0.9 , 0.9 , 0.9 },
+	.language = "C",
+	.new_language = NULL,
+      },
+      NULL
+    } ;
   char buf[999] ;
   int i ;
 
   if ( gui.lib == NULL )
     {
+      bindtextdomain("zmwbook","locale") ;
+      textdomain("zmwbook") ;
+
       gui.filename_load = strdup("./exco.lib") ;
       gui.filename_save = strdup(".") ;
       gui.filechooser_load = Zmw_False ;
@@ -762,65 +576,28 @@ void library()
       gui.new_name = strdup("") ;
       gui.lib = library_load(gui.filename_load) ;
 
-      gui.name[0] = "Column Title" ;
-      gui.name[1] = "Column Author" ;
-      gui.name[2] = "Column Borrower" ;
-      gui.name[3] = "Column Collection" ;
-      gui.name[4] = "Column Number" ;
-      gui.name[5] = "Column Rate" ;
-      gui.order[0] = Column_Title ;
-      gui.order[1] = Column_Author ;
-      gui.order[2] = Column_Borrower ;
-      gui.order[3] = Column_Number ;
-      gui.order[4] = Column_Collection ;
-      gui.order[5] = Column_Rate ;
-      gui.visible[Column_Title] = 1 ;
-      gui.visible[Column_Author] = 1 ;
-      gui.visible[Column_Borrower] = 1 ;
-      gui.visible[Column_Collection] = 1 ;
-      gui.visible[Column_Number] = 1 ;
-      gui.visible[Column_Rate] = 1 ;
-      gui.width[Column_Title] = 400 ;
-      gui.width[Column_Author] = 200 ;
-      gui.width[Column_Borrower] = 200 ;
-      gui.width[Column_Collection] = 200 ;
-      gui.width[Column_Number] = 50 ;
-      gui.width[Column_Rate] = 30 ;
-      gui.default_value[0] = strdup("") ;
-      gui.default_value[1] = strdup("?") ;
-      gui.default_value[2] = NULL ;
-      gui.default_value[3] = strdup("?") ;
-      gui.default_value[4] = strdup("0") ;
-      gui.default_value[5] = strdup("9") ;
-
       for(i=0; i<Column_Last; i++)
-	gui.filter[i] = strdup("") ;
+	{
+	  gui.prefs.cols[i].default_value = strdup(gui.prefs.cols[i].default_value) ;
+	  gui.prefs.cols[i].filter        = strdup(gui.prefs.cols[i].filter) ;
+	}
 
       gui.or_filter = strdup("") ;
       gui.only_borrowed = Zmw_False ;
       gui.only_modified = Zmw_False ;
       gui.need_filter = Zmw_True ;
-
-      gui.standard_color[0] = 0.75 ;
-      gui.standard_color[1] = 0.75 ;
-      gui.standard_color[2] = 0.75 ;
-      gui.tip_color[0] = 0.75 ;
-      gui.tip_color[1] = 0.75 ;
-      gui.tip_color[2] = 0 ;
-      gui.header_color[0] = 0 ;
-      gui.header_color[1] = 0.75 ;
-      gui.header_color[2] = 0 ;
-
-
       gui.start = 0 ;
       gui.nb = 10 ;
-
       gui.debug_window = 0 ;
+      gui.error_message[0] = NULL ;
+      gui.prefs.new_language = gui.prefs.language ;
+      change_language(&gui) ;
+      prefs_load(&gui, "book-preferences.xml") ;      
     }
 
-  zmw_rgb(gui.standard_color[0], gui.standard_color[1], gui.standard_color[2]) ;
-  sprintf(buf, "Library: %s%s", gui.filename_load
-	  , gui.library_modified ? " (Modified)" : "") ;
+  zmw_rgb(gui.prefs.standard_color[0], gui.prefs.standard_color[1], gui.prefs.standard_color[2]) ;
+  sprintf(buf, _("Library: %s%s"), gui.filename_load
+	  , gui.library_modified ? _(" (Modified)") : "") ;
   ZMW(zmw_window(buf))
     {
       ZMW(zmw_box_vertical())
@@ -833,6 +610,19 @@ void library()
   if ( gui.debug_window )
     debug_window(&gui) ;
 
+
+  ZMW(gui.error_message[0] = (char*)zmw_message((int)gui.error_message[0],
+					 _("Error message for book"),
+					 _("Close")) )
+    {
+      ZMW(zmw_box_vertical())
+	{
+	  for(i=0; gui.error_message[i]; i++)
+	    zmw_text(gui.error_message[i]) ;
+	}
+    }
+
+  change_language(&gui) ;
   if ( zmw_state_change_allowed() )
     gui.library_modified = library_modified(gui.lib) ;
 }

@@ -55,13 +55,14 @@ static void zmw_compute_window_size()
 	the_child = i ;
       }
 
+  /* I don't understand this test, always necessary ? */
   if ( nb == 0 )
     return ; /* Aborted event */
 
-  if ( nb > 1 )
+  if ( nb != 1 )
     {
       fprintf(stderr, "Window have more than one child (%d)\n", nb) ;
-      // abort() ;
+      ZMW_ABORT ;
     }
 
   if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(zMw[1].i.window) )
@@ -120,7 +121,16 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	  // zmw_printf("colormap %p visual %p\n", wa.colormap, wa.visual) ;
 	  
 	  *w = gdk_window_new(NULL, &wa, GDK_WA_COLORMAP|GDK_WA_VISUAL) ;
-	  gdk_window_set_events(*w, GDK_ALL_EVENTS_MASK) ;
+	  gdk_window_set_events(*w,
+				GDK_ALL_EVENTS_MASK
+				& ~GDK_PROPERTY_CHANGE_MASK
+				& ~GDK_STRUCTURE_MASK
+				& ~GDK_FOCUS_CHANGE_MASK
+				& ~GDK_SUBSTRUCTURE_MASK
+				& ~GDK_SCROLL_MASK
+				& ~GDK_PROXIMITY_IN_MASK
+				& ~GDK_PROXIMITY_OUT_MASK
+				) ;
 	  *gc = gdk_gc_new(*w) ;
 
 	  {
@@ -139,6 +149,9 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       break ;
 
     case Zmw_Compute_Required_Size:
+      /* To make cache checking happy */
+      ZMW_SIZE_MIN.width = 0 ;
+      ZMW_SIZE_MIN.height = 0 ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size:
@@ -219,16 +232,28 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 }
 
 
-char* zmw_window_name()
+char* zmw_window_name(Zmw_Boolean up)
 {
   Zmw_State *s ;
   static char *name = NULL ;
   char *pc, save ;
+
   /* Search the window */
   s = zmw.ptr ;
-  while( s->i.window == zmw.ptr->i.window )
+
+  if ( up )
+    {
+      while( s->i.window == ZMW_WINDOW )
+	s-- ;
+      s++ ;
+      /* We are on the toplevel window */
+    }
+
+  // And now we go up until a transient
+  // It is for the popup windows contained in a zmw_void.
+  if ( s->u.transient_separator == 0 )
     s-- ;
-  s++ ;
+ 
   /* Take the window name */
   pc = s->u.name_index ;
   while( *pc != '/' && *pc != '\0' )
@@ -248,7 +273,8 @@ static char * zmw_detached_name(Zmw_Detached where)
   switch(where)
   {
   	case Zmw_Detached_Here:
-  		name = strdup(zmw_name_full) ;
+  		name = zmw_window_name(Zmw_False) ;
+  		// name = strdup(zmw_name_full) ;
   		break ;
   	case Zmw_Detached_Next:
 		zmw_name_of_the_transient_begin() ;
@@ -256,7 +282,7 @@ static char * zmw_detached_name(Zmw_Detached where)
 		zmw_name_of_the_transient_end() ;
 		break ;
   	case Zmw_Detached_Up:
-  		name = zmw_window_name() ;
+  		name = zmw_window_name(Zmw_True) ;
   		break ;
   }
   return(name) ;
@@ -272,6 +298,7 @@ Zmw_Boolean zmw_window_detached(const int *detached
     return( *detached ) ;
 
   name = zmw_detached_name(where) ;
+
   d = Zmw_False ;
   zmw_name_get_value_int_with_name(name, "WindowDetached", &d) ;
 

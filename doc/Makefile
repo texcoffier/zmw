@@ -14,7 +14,7 @@ html:
 		fgrep ".png" | \
 		sed -e 's/.* fileref="//' -e 's/".*//' | \
 		tar --files-from=- -cf - | \
-		(cd $$D; tar -xvf -) ; \
+		(cd $$D; tar -xf -) ; \
 	fi
 
 ps:

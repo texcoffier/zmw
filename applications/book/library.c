@@ -31,6 +31,11 @@ int library_modified(Library *lib)
       {
 	return 1 ;
       }
+  if ( strings_changed(&lib->authors)
+       || strings_changed(&lib->borrowers)
+       || strings_changed(&lib->collections)
+       )
+    return 1 ;
   return 0 ;
 }
 

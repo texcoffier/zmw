@@ -5,7 +5,7 @@
 
 void message(void)
 {
-  static Zmw_Boolean message_visible = Zmw_False ;
+  static int message_visible = Zmw_False ;
 
   ZMW(zmw_window("Message"))
     {
@@ -13,9 +13,9 @@ void message(void)
       if ( zmw_activated() )
 	message_visible = Zmw_True ;
 
-      ZMW( zmw_message(&message_visible,
-		       "Message window",
-		       "Close window") )
+      ZMW( message_visible = zmw_message(message_visible,
+					 "Message window",
+					 "Close window") )
 	{
 	  zmw_vertical_alignment(0) ;
 	  zmw_vertical_expand(Zmw_False) ;

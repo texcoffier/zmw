@@ -10,7 +10,8 @@ ZMW_EXECUTION_ARGS=--mstimout=10
 
 # Small goal to test only one example
 ZMW_CURRENT_TEST=draganddrop
-ZMW_CURRENT_TEST=tip
+ZMW_CURRENT_TEST=menuexternal
+ZMW_CURRENT_TEST=menuexternal2
 
 compile_current:
 	cd $(ZMW_CURRENT_TEST) && $(MAKE) -f ../Makefile $(ZMW_CURRENT_TEST).exe
@@ -22,7 +23,10 @@ png_current:
 regtest_current:
 	cd $(ZMW_CURRENT_TEST) && $(MAKE) -f ../Makefile $(ZMW_CURRENT_TEST).regtest
 
-current:compile_current start_xvfb png_current stop_xvfb regtest_current
+clean_current:
+	cd $(ZMW_CURRENT_TEST) && $(MAKE) -f ../Makefile clean
+
+current:clean_current compile_current start_xvfb png_current stop_xvfb regtest_current
 
 
 
@@ -79,6 +83,8 @@ export KEY_CONTROL   = 40
 export KEY_SLASH     = 41
 export KEY_BACKSPACE = 42
 export KEY_F1        = 43
+export KEY_PAGEUP    = 44
+export KEY_UP        = 45
 
 # depth 32 does NOT work, the "xwd" command does not work correctly
 start_xvfb:
@@ -93,6 +99,8 @@ start_xvfb:
 				    -e 'keycode $(KEY_BACKSPACE) = BackSpace' \
 				     -e 'keycode $(KEY_CONTROL) = Control_L' \
 				     -e 'keycode $(KEY_F1) = F1' \
+				     -e 'keycode $(KEY_PAGEUP) = Prior' \
+				     -e 'keycode $(KEY_UP) = Up' \
 				     -e 'add control = Control_L'
 	fvwm2 -display $(ZMW_XVFB) -f `pwd`/.fvwm2rc &
 
@@ -105,7 +113,7 @@ stop_xvfb:
 include ../../Makefile.config
 
 .png.regtest:
-	../regression_test $*
+	../regression_test
 
 regtest:
 	echo "" >xxx.replace

@@ -349,6 +349,15 @@ void zmw_name_of_the_transient_end()
 
 void zmw_init_widget()
 {
+  if ( zmw.external_do_not_make_init )
+    {
+      /* The init was yet done by the widget calling the external compose */
+      zmw.external_do_not_make_init = Zmw_False ;
+      return ;
+    }
+  if ( zmw.activated || zmw.changed )
+    zmw_event_remove() ;
+
   ZMW_SIZE_INDEX = -1000 ; // XXX to debug
   ZMW_CALL_NUMBER = 0 ;
   zmw_increment_index() ;
@@ -358,20 +367,40 @@ void zmw_init_widget()
   zmw.activated = Zmw_False ; // Why should this be done ?
   zmw.changed = Zmw_False ; // Why should this be done ?
   zmw.child_activated = Zmw_False;
-  zmw.dragged = Zmw_False ;
   zmw_debug_set() ;
 }
 
+/*
+ * XXX FIXME
+ * This function needs to be rewrote properly to work
+ * on all the possible cases.
+ * The hard part are the possible use of EXTERNAL and void in the parents.
+ */
 Zmw_Size* zmw_widget_previous_size()
 {
   int i ;
   Zmw_Size *s ;
+  Zmw_State *state ;
+  
+  state = zMw - 1 ;
+  while ( ( ! state->u.size.used_to_compute_parent_size
+	    || state->u.nb_of_children <= 1
+	    )
+	  && state != zmw.zmw_table+1
+	  )
+     state-- ;
+  
   
   for(i=2; ; i++)
     {
-      if ( zMw[-1].u.nb_of_children < i )
-	ZMW_ABORT ;
-      s = &zMw[-1].u.children[zMw[-1].u.nb_of_children - i ] ;
+      if ( state->u.nb_of_children < i ) /* Impossible case */
+	{
+	  zmw_printf("state.Type: %s\n", state->u.type) ;
+	  zmw_printf("Level: %d\n", state - zMw) ;
+	  zmw_printf("nb=%d i=%d\n", state->u.nb_of_children, i) ;
+	  ZMW_ABORT ;
+	}
+      s = &state->u.children[state->u.nb_of_children - i ] ;
       if ( s->used_to_compute_parent_size )
 	return(s) ;
     }
@@ -580,9 +609,10 @@ static void zmw_debug_children(Zmw_State *z)
 
 void zmw_debug_trace()
 {
-  zmw_printf("[%d] %s %s (%s/%d)%s%s%s\n"
+  zmw_printf("[%d] %s %s %s (%s/%d)%s%s%s\n"
 	     , ZMW_INDEX
 	     , ZMW_NAME
+	     , ZMW_TYPE
 	     , zmw_action_name()
 	     , zmw_action_name_fct()+11
 	     , ZMW_CALL_NUMBER
@@ -596,6 +626,16 @@ void zmw_debug_trace()
 	  fprintf(stderr, "PARENT CHIDREN :") ;
 	  zmw_debug_children(zMw-1) ;
   	}
+}
+
+void zmw_stack_print()
+{
+  Zmw_State *s ;
+
+  zmw_printf("name=(%s)\n", zmw_name_full) ;
+  zmw_debug_trace() ;
+  for(s = zmw.zmw_table+1 ; s <= zMw ; s++)
+    zmw_printf("==> %s (external=%d)\n", s->u.type, s->u.external_state) ;
 }
 
 int zmw_action_draw()
@@ -651,6 +691,9 @@ int zmw_action_dispatch_accelerator()
 int zmw_action_dispatch_event()
 {
   ZMW_EXTERNAL_HANDLING ;
+
+  if ( zmw.activated || zmw.changed )
+    zmw_event_remove() ;
   
   if ( zmw.event->type == GDK_NOTHING || zmw.remove_event )
     {

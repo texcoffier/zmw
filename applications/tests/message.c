@@ -32,7 +32,7 @@ void test_message(const char *title)
       if ( zmw_activated() )
 	visible = Zmw_True ;
     }
-  ZMW(zmw_message(&visible, "My Message", "Close window"))
+  ZMW(visible = zmw_message(visible, "My Message", "Close window"))
     {
       zmw_text("Any widget you want") ;
     }

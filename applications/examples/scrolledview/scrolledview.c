@@ -49,7 +49,11 @@ zmw_dump_screen 0
 zmw_button_click
 zmw_dump_screen 1
 
+zmw_key $KEY_UP
+zmw_dump_screen 2
 
+zmw_key $KEY_PAGEUP
+zmw_dump_screen 3
 
 
 REGRESSION TEST */

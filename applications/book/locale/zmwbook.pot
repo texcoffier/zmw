@@ -1,0 +1,298 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2003-11-27 12:33+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: book-menubar.c:53 book-menubar.c:56
+msgid "File"
+msgstr ""
+
+#: book-menubar.c:58
+msgid "Load"
+msgstr ""
+
+#: book-menubar.c:61
+msgid "Save"
+msgstr ""
+
+#: book-menubar.c:66
+msgid "Save As"
+msgstr ""
+
+#: book-menubar.c:70
+msgid "Preference Save"
+msgstr ""
+
+#: book-menubar.c:74
+msgid "Quit"
+msgstr ""
+
+#: book-menubar.c:87
+msgid "Library Load"
+msgstr ""
+
+#: book-menubar.c:98
+msgid "Library Save As"
+msgstr ""
+
+#: book-menubar.c:108
+msgid "Quit confirmation"
+msgstr ""
+
+#: book-menubar.c:112
+msgid "Quit without save"
+msgstr ""
+
+#: book-menubar.c:115
+msgid "Save and Quit"
+msgstr ""
+
+#: book-menubar.c:121
+msgid "Cancel"
+msgstr ""
+
+#: book-menubar.c:134 book-menubar.c:137
+msgid "View"
+msgstr ""
+
+#: book-menubar.c:142 book.c:480
+msgid "Debug window"
+msgstr ""
+
+#: book-menubar.c:165
+msgid "Interface colors"
+msgstr ""
+
+#: book-menubar.c:168
+msgid "Edit colors"
+msgstr ""
+
+#: book-menubar.c:172
+msgid "Standard"
+msgstr ""
+
+#: book-menubar.c:173
+msgid "Tip"
+msgstr ""
+
+#: book-menubar.c:174
+msgid "Header"
+msgstr ""
+
+#: book-menubar.c:175
+msgid "Borrowed"
+msgstr ""
+
+#: book-menubar.c:176
+msgid "Menu"
+msgstr ""
+
+#: book-menubar.c:185 book-menubar.c:188
+msgid "New book defaults"
+msgstr ""
+
+#: book-menubar.c:210 book-menubar.c:213
+msgid "Language"
+msgstr ""
+
+#: book-menubar.c:227 book-menubar.c:230
+msgid "Edit"
+msgstr ""
+
+#: book-menubar.c:232
+msgid "Add a new book"
+msgstr ""
+
+#: book-menubar.c:256
+msgid "THIS PROGRAM IS UNFINISHED: DO NOT USE ON YOUR LIBRARY"
+msgstr ""
+
+#: book-menubar.c:283
+msgid "Set this as a new name"
+msgstr ""
+
+#: book-preferences.c:155
+#, c-format
+msgid "XML TAG UNKNOWN: %s\n"
+msgstr ""
+
+#: book.c:49
+msgid "Filter on all the columns :"
+msgstr ""
+
+#: book.c:54
+msgid "Only books containing this filter are displayed"
+msgstr ""
+
+#: book.c:59
+msgid "Display only borrowed books"
+msgstr ""
+
+#: book.c:60
+msgid "Display book borrowed and not yet given back"
+msgstr ""
+
+#: book.c:63
+msgid "Display only modified books"
+msgstr ""
+
+#: book.c:64
+msgid "If true only modified books are displayed, it disables other filters"
+msgstr ""
+
+#: book.c:93
+msgid "Book title"
+msgstr ""
+
+#: book.c:94
+msgid "Sort by book title"
+msgstr ""
+
+#: book.c:100 book.c:544
+msgid "Author"
+msgstr ""
+
+#: book.c:101 book.c:113
+msgid "Firstname"
+msgstr ""
+
+#: book.c:102
+msgid "Sort by author firstname"
+msgstr ""
+
+#: book.c:105 book.c:117
+msgid "Surname"
+msgstr ""
+
+#: book.c:106
+msgid "Sort by author surname"
+msgstr ""
+
+#: book.c:112 book.c:545
+msgid "Borrower"
+msgstr ""
+
+#: book.c:114
+msgid "Sort by borrower firstname"
+msgstr ""
+
+#: book.c:118
+msgid "Sort by borrower surname"
+msgstr ""
+
+#: book.c:124 book.c:546
+msgid "Collection"
+msgstr ""
+
+#: book.c:127
+msgid "Sort by collection"
+msgstr ""
+
+#: book.c:131 book.c:547
+msgid "Number"
+msgstr ""
+
+#: book.c:134
+msgid "Sort by book number in collection"
+msgstr ""
+
+#: book.c:138 book.c:548
+msgid "Rate"
+msgstr ""
+
+#: book.c:141
+msgid "Sort by book rate"
+msgstr ""
+
+#: book.c:174
+#, c-format
+msgid "Enter a filter for %s"
+msgstr ""
+
+#: book.c:207
+msgid "Change author name for all the books"
+msgstr ""
+
+#: book.c:213
+msgid "Change book author"
+msgstr ""
+
+#: book.c:249
+msgid "Change borrower name for all books"
+msgstr ""
+
+#: book.c:258
+msgid "Last borrower give back the book"
+msgstr ""
+
+#: book.c:266
+msgid "This book is borrowed by..."
+msgstr ""
+
+#: book.c:314
+msgid "Change collection name for all books"
+msgstr ""
+
+#: book.c:321
+msgid "Change collection"
+msgstr ""
+
+#: book.c:486
+msgid "Name"
+msgstr ""
+
+#: book.c:487
+msgid "Visible"
+msgstr ""
+
+#: book.c:488
+msgid "Width"
+msgstr ""
+
+#: book.c:489
+msgid "Order"
+msgstr ""
+
+#: book.c:500
+msgid "Start:"
+msgstr ""
+
+#: book.c:502
+msgid "#Row:"
+msgstr ""
+
+#: book.c:504
+msgid "#Book:"
+msgstr ""
+
+#: book.c:543
+msgid "Title"
+msgstr ""
+
+#: book.c:595
+#, c-format
+msgid "Library: %s%s"
+msgstr ""
+
+#: book.c:596
+msgid " (Modified)"
+msgstr ""
+
+#: book.c:611
+msgid "Error message for book"
+msgstr ""
+
+#: book.c:612
+msgid "Close"
+msgstr ""

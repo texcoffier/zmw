@@ -27,15 +27,32 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
-static float global_frame_per_sec ;
-static float global_frame_per_sec2 ;
-static int global_cache_size = 0 ;
-static gint global_input_http ;
-static void (*global_fct)() ;
+struct zmw_run
+{
+  struct timeval last_cursor_move ; /* To use for shortcut popup */
+  struct timeval last_user_action ; /* To use for tips */
+  int still_time ;              /* Time since last pointer motion */
+  int idle_time ;               /* Time since last user interaction */
+  int need_repaint ;
+  int need_dispatch ;           /* for drag and drop */  
+
+  float frame_per_sec ;
+  float frame_per_sec_cpu ;
+  int cache_size ;
+  gint input_http ;
+  void (*fct)() ;
+} ;
+
+
 
 void zmw_need_repaint()
 {
-  zmw.need_repaint = 1 ;
+  zmw.run->need_repaint = Zmw_True ;
+}
+
+void zmw_need_dispatch()
+{
+  zmw.run->need_dispatch = Zmw_True ;
 }
 
 
@@ -106,9 +123,9 @@ static void debug_window()
 	  zmw_name_debug_window() ;
 	  zmw_debug_flags() ;
 
-	  sprintf(tmp, "%f Real Frames per Second", global_frame_per_sec) ;
+	  sprintf(tmp, "%f Real Frames per Second", zmw.run->frame_per_sec) ;
 	  zmw_text(tmp) ;
-	  sprintf(tmp, "%f CPU Frames per Second", global_frame_per_sec2) ;
+	  sprintf(tmp, "%f CPU Frames per Second", zmw.run->frame_per_sec_cpu) ;
 	  zmw_text(tmp) ;
 	}
     }
@@ -140,9 +157,10 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   if ( zmw.debug & Zmw_Debug_Event )
     zmw_printf("CALL %s index=%d\n", zmw_action_name_fct(), zmw.index_last) ;
 
-  zmw.need_dispatch = Zmw_False ;
+  zmw.external_do_not_make_init = Zmw_False ;
+  zmw.run->need_dispatch = Zmw_False ;
   ZMW_ACTION = action ;
-  zmw_cache_init(global_cache_size) ;
+  zmw_cache_init(zmw.run->cache_size) ;
   zmw_name_init() ;
   if ( zmw.debug & Zmw_Debug_Window )
     {
@@ -196,7 +214,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
       
       zmw_cursor_set(zmw.found.name) ;
 	
-      if ( zmw.need_dispatch && zmw.event->any.type != GDK_MOTION_NOTIFY )
+      if ( zmw.run->need_dispatch && zmw.event->any.type != GDK_MOTION_NOTIFY )
       	{
          zmw.event->any.type = GDK_MOTION_NOTIFY ;
 	 zmw_call_widget(fct, zmw_action_search) ;  // Needed by (:1:)  
@@ -236,8 +254,8 @@ void zmw_draw(void (*fct)())
   times(&begin_tms) ;
   zmw_call_widget(fct, zmw_action_draw) ;
   times(&end_tms) ;
-  global_frame_per_sec = 1000000. / time_from(&begin_time) ;
-  global_frame_per_sec2 = 1/((end_tms.tms_utime-begin_tms.tms_utime)/(float)clk) ;
+  zmw.run->frame_per_sec = 1000000. / time_from(&begin_time) ;
+  zmw.run->frame_per_sec_cpu = 1/((end_tms.tms_utime-begin_tms.tms_utime)/(float)clk) ;
 
   for( tlw = gdk_window_get_toplevels() ; tlw ; tlw = g_list_next(tlw) )
     {
@@ -291,8 +309,8 @@ static gboolean timeout(gpointer data)
   /*
    *
    */
-  zmw.idle_time = time_from(&zmw.last_user_action) ;
-  zmw.still_time = time_from(&zmw.last_cursor_move) ;
+  zmw.run->idle_time = time_from(&zmw.run->last_user_action) ;
+  zmw.run->still_time = time_from(&zmw.run->last_cursor_move) ;
 
   /*
    * Drag and Drop
@@ -303,7 +321,7 @@ static gboolean timeout(gpointer data)
       zmw.x = x ;
       zmw.y = y ;
       zmw.event->any.type = GDK_MOTION_NOTIFY ;
-      zmw.idle_time = 0 ;
+      zmw.run->idle_time = 0 ;
       
       if ( zmw.tips_yet_displayed || zmw.still_yet_displayed )
       	zmw_need_repaint() ;
@@ -318,20 +336,22 @@ static gboolean timeout(gpointer data)
    */
   if ( lx == x && ly == y
        	&& e.any.window && !zmw.still_yet_displayed
-       	&& zmw.still_time > 500000
+       	&& zmw.run->still_time > 500000
      //  	&& zmw_name_registered(&zmw.found)
        	 )
     {
-      if ( zmw.idle_time > 500000 )
-      		zmw.tips_yet_displayed = Zmw_True ;
+      if ( zmw.run->idle_time > 500000 )
+	{
+	  zmw.tips_yet_displayed = Zmw_True ;
+	}
       zmw.still_yet_displayed = Zmw_True ;
       zmw_need_repaint() ;
     }
 
 
-  if ( zmw.need_repaint )
+  if ( zmw.run->need_repaint )
     {
-      zmw.need_repaint = 0 ;
+      zmw.run->need_repaint = 0 ;
       zmw_draw(fct) ;
     }
 
@@ -344,7 +364,7 @@ static gboolean timeout(gpointer data)
 void user_action()
 {
   zmw_name_unregister(&zmw.found) ;
-  gettimeofday(&zmw.last_user_action,NULL) ;
+  gettimeofday(&zmw.run->last_user_action,NULL) ;
   
   if ( zmw_name_registered(&zmw.tip_displayed) )
     {
@@ -352,6 +372,20 @@ void user_action()
       zmw_need_repaint() ;
     }
 }
+
+void zmw_unpop(GdkEvent *e)
+{
+  if ( e->any.window!=NULL 
+       && gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
+    {
+      if ( zmw.debug & Zmw_Debug_Event )
+	{
+	  zmw_printf("Unpop because event on non-popup window\n") ;
+	}
+      zmw_window_unpop_all() ;
+    }
+}  
+
 
 void event_handler(GdkEvent *e, gpointer o)
 {
@@ -387,6 +421,7 @@ void event_handler(GdkEvent *e, gpointer o)
 
   zmw.event = e ;
   zmw.activated = Zmw_False ;
+  zmw.changed = Zmw_False ;
   zmw.child_activated = Zmw_False ;
   zmw.remove_event = Zmw_False ;
   zmw.next_is_transient = Zmw_False ;
@@ -403,7 +438,6 @@ void event_handler(GdkEvent *e, gpointer o)
       zmw.y = e->motion.y ;
       zmw.x_root = e->motion.x_root ;
       zmw.y_root = e->motion.y_root ;
-      gettimeofday(&zmw.last_cursor_move,NULL) ;
       break ;
     case GDK_2BUTTON_PRESS:
     case GDK_3BUTTON_PRESS:
@@ -454,6 +488,7 @@ void event_handler(GdkEvent *e, gpointer o)
   switch( e->type )
     {
     case GDK_MOTION_NOTIFY:
+      gettimeofday(&zmw.run->last_cursor_move,NULL) ;
       if ( zmw.debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** GDK_MOTION_NOTIFY\n") ;
 
@@ -467,6 +502,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	zmw_need_repaint() ; /* for drag */
 
       user_action() ;
+      zmw.run->last_user_action = zmw.run->last_cursor_move ;
       break ;
     case GDK_EXPOSE:
       if ( zmw.debug & Zmw_Debug_Event )
@@ -485,11 +521,7 @@ void event_handler(GdkEvent *e, gpointer o)
 		zmw.debug ^= Zmw_Debug_Window ;	
 		zmw_need_repaint() ;
 	   }
-      if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
-	{
-	  zmw_window_unpop_all() ;
-	}
-
+      zmw_unpop(e) ;
       zmw_accelerator_init() ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
 
@@ -504,16 +536,7 @@ void event_handler(GdkEvent *e, gpointer o)
 		   , e->type == GDK_BUTTON_RELEASE ? "release" : "press"
 		   , e->any.window
 		   ) ;
-      
-      if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
-	{
-	  if ( zmw.debug & Zmw_Debug_Event )
-	    {
-	      zmw_printf("Unpop because event on non-popup window\n") ;
-	    }
-	  zmw_window_unpop_all() ;
-	}
-      
+      zmw_unpop(e) ;
 
       zmw_call_widget(fct, zmw_action_dispatch_event) ;
       /* You always make repaint because a button release
@@ -544,7 +567,7 @@ void event_handler(GdkEvent *e, gpointer o)
       break ;
     default:
       if ( zmw.debug & Zmw_Debug_Event )
-	zmw_printf("**** EVENT **** ????\n") ;
+	zmw_printf("**** EVENT **** ???? = %d\n", e->type) ;
       return ; /* 2003/10/8 to waste less CPU and see less debug garbage */
       break ;
     }
@@ -582,11 +605,13 @@ void zmw_init(gint *argc, gchar ***argv)
   gdk_init(argc, argv) ;
   gdk_rgb_init() ;
 
+  ZMW_MALLOC(zmw.run, 1) ;
+
   zmw.debug = Zmw_Debug_Cache_Fast | Zmw_Debug_Cache_Slow | Zmw_Debug_Name ;
 
   for(i=0; i<*argc; i++)
     {
-      zmw_take_int_param(argc,argv,&i,"--cache_size=", &global_cache_size ) ;
+      zmw_take_int_param(argc,argv,&i,"--cache_size=", &zmw.run->cache_size ) ;
       zmw_take_int_param(argc,argv,&i,"--debug="     , &zmw.debug         ) ;
       zmw_take_int_param(argc,argv,&i,"--mstimeout=" , &zmw_global_timeout) ;
     }
@@ -598,7 +623,7 @@ void zmw_run(void (*fct)())
   int socket ;
   Zmw_Name top_level_focus = ZMW_NAME_UNREGISTERED("Top level Focus") ;
 
-  global_fct = fct ;
+  zmw.run->fct = fct ;
 
   zMw = zmw.zmw_table ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
@@ -629,7 +654,10 @@ void zmw_run(void (*fct)())
   zmw_auto_resize(0) ;
   zmw_sensible(1) ;
   zmw_rgb(0.75, 0.75, 0.75) ;
-  
+
+  zmw.activated = Zmw_False ;
+  zmw.changed = Zmw_False ;
+
   zmw_state_push() ;
   zmw_draw(fct) ;
 
@@ -646,7 +674,7 @@ void zmw_run(void (*fct)())
   socket_listen(socket) ;
   fprintf(stderr, "socket = %d\n", i-1) ;
 
-  global_input_http = gdk_input_add(socket
+  zmw.run->input_http = gdk_input_add(socket
 				    , GDK_INPUT_READ|GDK_INPUT_EXCEPTION
 				    , (GdkInputFunction)http_connection
 				    , (gpointer)fct
@@ -665,11 +693,11 @@ void zmw_exit(int r)
 
   zmw.index_last = 2000000000 ; /* FIXME */
 
-  zmw_call_widget(global_fct, zmw_action_clean) ;
+  zmw_call_widget(zmw.run->fct, zmw_action_clean) ;
 
-  gdk_input_remove(global_input_http) ;
+  gdk_input_remove(zmw.run->input_http) ;
 
-  g_idle_remove_by_data(global_fct) ;
+  g_idle_remove_by_data(zmw.run->fct) ;
 
  // for(i=0; i<ZMW_TABLE_SIZE(zmw.zmw_table[1].i.gc); i++)
  //   gdk_gc_destroy(zmw.zmw_table[1].i.gc[i]) ;

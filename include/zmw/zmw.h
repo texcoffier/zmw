@@ -29,7 +29,6 @@
 #include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <stdio.h>
-#include <setjmp.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -184,6 +183,8 @@ typedef struct zmw_state
   Zmw_Stackable_Uninheritable u ;
 } Zmw_State ;
 
+struct zmw_run ;
+
 typedef struct zmw
 {
   /*
@@ -204,36 +205,47 @@ typedef struct zmw
   Zmw_State *ptr ;
   Zmw_State zmw_table[ZMW_MAX_DEPTH] ;
 
-  int debug ;			/* Debug flags for the library Zmw_Debug_... */
-  GdkEvent *event ;		/* Current event, erased when received */
-  GdkEvent event_saved ;	/* Copy of the last event received */
-  int x, y, x_root, y_root ;	/* Pointer position */
+  /*
+   * These values apply to the widget in which we are
+   */
+  char full_name[ZMW_MAX_NAME_LENGTH] ; // The widget names are computed here
+  /*
+   * These values apply to the next widget and the other after that
+   */
+  int debug ;			        // Library Debug flags Zmw_Debug_...
+  int index_last ;		/* Last value used as widget index */
+  /*
+   * These values apply only once and are reseted
+   */
+  Zmw_Boolean external_do_not_make_init ; // For EXTERNAL
+  Zmw_Boolean remove_event ;    /* Remove event before entering next widget */
+  Zmw_Boolean next_is_transient;/* for tips, menu, ... */
+  /*
+   * These values apply to the last widget (can't be used before first kid)
+   */
   Zmw_Boolean activated ;	/* True if the last widget was activated */
   Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean changed ;	        /* True if the last widget has changed */
-  Zmw_Boolean dragged ;		/* True if being dragged */
-  Zmw_Boolean remove_event ;    /* Remove event before entering next widget */
-  Zmw_Boolean next_is_transient;/* for tips, menu, ... */
-  Zmw_Boolean key_pressed ;     /* True if a key is pressed */
+  /*
+   * Theses values are set by zmw_run.c and should not be modified
+   */ 
+  GdkEvent *event ;		/* Current event, erased when received */
+  GdkEvent event_saved ;	/* Copy of the last event received */
+  int x, y, x_root, y_root ;	/* Pointer position */
   GdkEvent event_key ;          /* The pressed key */
-  
-  struct timeval last_cursor_move ; /* To use for shortcut popup */
+  Zmw_Boolean key_pressed ;     /* True if a key is pressed */
   Zmw_Boolean still_yet_displayed ;
-  int still_time ;              /* Time since last pointer motion */
-  
-  struct timeval last_user_action ; /* To use for tips */
-  Zmw_Name tip_displayed ;	/* Name of the widget with a tip displayed */
   Zmw_Boolean tips_yet_displayed ;
-  int idle_time ;               /* Time since last user interaction */
-
+  /*
+   * Theses values are set while traversing the widgets tree
+   */
   Zmw_Name found ;		/* Widget found by "Zmw_Search"*/
-  int need_repaint ;
-  int need_dispatch ;           /* for drag and drop */
-  int index_last ;		/* Last value used as widget index */
-
+  Zmw_Name tip_displayed ;	/* Name of the widget with a tip displayed */
   Zmw_Name widget_to_trace ;
-
-  char full_name[ZMW_MAX_NAME_LENGTH] ;
+  /*
+   * Theses values are private to "zmw_run.c"
+   */
+  struct zmw_run *run ;         /* Hidden struct, private to zmw_run.c */
 } Zmw ;
 
 extern Zmw zmw ;
@@ -242,17 +254,17 @@ extern Zmw zmw ;
  * the state of the program
  */
 typedef enum zmw_drag_from
-  {   Zmw_Drag_From_No          /* You are not dragged */
-    , Zmw_Drag_From_Begin       /* ! Start of your drag, call zmw_drag_data_set() */
-    , Zmw_Drag_From_End         /* ! End of your drag, call zmw_drag_is_accepted() */
-    , Zmw_Drag_From_Running     /* You MUST display a drag window, you may call zmw_drag_is_accepted() */
+  { Zmw_Drag_From_No      // You are not dragged
+    , Zmw_Drag_From_Begin // ! Start of your drag, call zmw_drag_data_set()
+    , Zmw_Drag_From_End   // ! End of your drag, call zmw_drag_is_accepted()
+    , Zmw_Drag_From_Running // You MUST display a drag window, you may call zmw_drag_is_accepted()
   } Zmw_Drag_From ;
 
 typedef enum zmw_drag_to
-  { Zmw_Drag_To_No_Change     /* No state change */
-    , Zmw_Drag_To_Enter       /* ! A drag is now over you, call zmw_drag_to_accept */
-    , Zmw_Drag_To_Leave       /* ! A drag leave you */
-    , Zmw_Drag_To_End         /* ! The drag is deposited on you */
+  { Zmw_Drag_To_No_Change  // No state change
+    , Zmw_Drag_To_Enter    // ! A drag is now over you, call zmw_drag_to_accept
+    , Zmw_Drag_To_Leave    // ! A drag leave you
+    , Zmw_Drag_To_End      // ! The drag is deposited on you
   } Zmw_Drag_To ;
 
 
@@ -355,11 +367,15 @@ void zmw_font_free(void) ;
  * See zmw_viewport.c for example of use
  */
 
-#define ZMW_EXTERNAL_RESTART  if ( ZMW_CALL_NUMBER ) goto restart
+#define ZMW_EXTERNAL_RESTART  if ( ZMW_CALL_NUMBER ) goto restart ; zmw.external_do_not_make_init = Zmw_True
 
-#define ZMW_EXTERNAL  { ZMW_EXTERNAL_STATE = Zmw_External_Continue ; return ; restart: ZMW_DO_NOT_EXECUTE_POP = Zmw_False ; }
 
-#define ZMW_EXTERNAL_STOP  ZMW_EXTERNAL_STATE = Zmw_External_Stop
+#define ZMW_EXTERNAL_RETURNS(X) { ZMW_EXTERNAL_STATE = Zmw_External_Continue ; return X ; restart: ZMW_DO_NOT_EXECUTE_POP = Zmw_False ; }
+
+#define ZMW_EXTERNAL ZMW_EXTERNAL_RETURNS( )
+
+#define ZMW_EXTERNAL_STOP  ZMW_EXTERNAL_STATE = Zmw_External_Stop ; zmw.external_do_not_make_init = Zmw_False ;
+
 
 /* It is a macro because it contains a return.... */
 /* The children are not executed because they had been
@@ -385,7 +401,7 @@ void zmw_font_free(void) ;
 #define ZMW_FREE(P) ZMW1( free(P) ; (P)=NULL ; )
 #define ZMW_TABLE_SIZE(T) (sizeof(T)/sizeof((T)[0]))
 #define ZMW_HERE zmw_printf("%s:%s:%d %s\n", __FILE__, __FUNCTION__, __LINE__, zmw_action_name()) 
-#define ZMW_ABORT do { ZMW_HERE ; abort() ; } while(0)
+#define ZMW_ABORT do { ZMW_HERE ; zmw_stack_print() ; abort() ; } while(0)
 
 #define ZMW_MIN(A,B) ((A)<(B)?(A):(B))
 #define ZMW_MAX(A,B) ((A)<(B)?(B):(A))
@@ -417,6 +433,7 @@ void zmw_run(void (*fct)(void)) ;
 void zmw_exit(int r) ;
 void zmw_do_nothing(void) ;
 void zmw_need_repaint(void) ;
+void zmw_need_dispatch(void) ;
 void zmw_draw(void (*fct)(void)) ;
 void zmw_call_widget(void (*fct)(void), int (*action)(void)) ;
 /*
@@ -445,6 +462,7 @@ int zmw_action_clean(void) ;
 void zmw_action_second_pass(void) ;
 void zmw_action_do_not_enter(void) ;
 void zmw_debug_trace(void) ;
+void zmw_stack_print(void) ;
 /*
  * zmw_name.c
  */
@@ -493,6 +511,7 @@ void zmw_swap_x_y(void) ;
 /*
  * zmw_device.c
  */
+int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2) ;
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
 			, int x, int y, int width, int height) ;
@@ -531,7 +550,6 @@ void zmw_rgb(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
  */
 Zmw_Boolean zmw_activated(void) ;
 Zmw_Boolean zmw_changed(void) ;
-Zmw_Boolean zmw_dragged(void) ;
 Zmw_Boolean zmw_button_pressed(void) ;
 Zmw_Boolean zmw_button_released(void) ;
 Zmw_Boolean zmw_button_released_anywhere(void) ;
@@ -539,8 +557,9 @@ Zmw_Boolean zmw_focus_in(void) ;
 Zmw_Boolean zmw_key_pressed(void) ;
 Zmw_Boolean zmw_key_string(void) ;
 Zmw_Boolean zmw_selected(void) ;
-Zmw_Boolean zmw_selected_by_its_parents() ;
-Zmw_Boolean zmw_selected_next_by_its_parents() ;
+Zmw_Boolean zmw_selected_by_its_parents(void) ;
+Zmw_Boolean zmw_selected_next_by_its_parents(void) ;
+Zmw_Boolean zmw_selected_by_a_children(void) ;
 Zmw_Boolean zmw_accelerator(GdkModifierType state, int character) ;
 Zmw_Boolean zmw_focused(void) ;
 Zmw_Boolean zmw_focused_by_its_parents(void) ;
@@ -586,7 +605,7 @@ char *zmw_drag_data_get(void) ;
 void zmw_drag_to_nothing(void) ;
 void zmw_drag_cancel(void) ;
 
-Zmw_Boolean zmw_drag_swap(int p, int *order, int *current, int *old_current) ;
+Zmw_Boolean zmw_drag_swap(int *p, int **current, int **old_current) ;
 
 void zmw_drag_debug(FILE *f) ;
 void zmw_drag_debug_window(void) ;

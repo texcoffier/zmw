@@ -360,6 +360,7 @@ void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
 {
   int changed ;
 
+  changed = Zmw_False ;
   ZMW(zmw_decorator(  Zmw_Decorator_Border_Relief
 		    | Zmw_Decorator_Border_In
 		    | Zmw_Decorator_Interior

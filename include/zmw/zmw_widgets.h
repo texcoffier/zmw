@@ -63,7 +63,7 @@ void zmw_window_popup_bottom_with_detached_and_title(const int *detached, const 
 void zmw_window_drag_with_id(GdkWindow **w);
 void zmw_window_drag(void);
 
-char* zmw_window_name(void) ;
+// char* zmw_window_name(Zmw_Boolean up) ;
 void zmw_window_restore() ;
 
 /*
@@ -193,8 +193,12 @@ void zmw_image_dynamic_from_file(const char *filename,char **old_name);
 /*
  * zmw_message.c
  */
-void zmw_message(Zmw_Boolean *visible
-		 , const char *title, const char *button_name) ;
+int zmw_message(int visible, const char *title, const char *button_name);
+void zmw_message_char(char *visible,const char *title,const char *button_name);
+/*
+ * zmw_void.c
+ */
+void zmw_void() ;
 /*
  * zmw_decorator.c
  */

@@ -14,8 +14,8 @@ ligimpc22) # Pentium 1 GHz
     SMALL2=0.3
     ;;
 lirispaj) # Pentium 3 GHz
-    SMALL1=0.1
-    SMALL2=0.3
+    SMALL1=0.6
+    SMALL2=0.6
     ;;
 *)
     echo "Please edit .../examples/utilities to set good times"

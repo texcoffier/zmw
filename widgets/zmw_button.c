@@ -98,7 +98,7 @@ void zmw_button_general(const char *text
     zmw_button(text) ;
 
   if ( !zmw.activated && zmw_accelerator(state, character) )
-    zmw.activated = 1 ;
+    zmw.activated = Zmw_True ;
 }
 
 void zmw_button_with_hidden_accelerator(const char *text
@@ -187,7 +187,6 @@ void zmw_tearoff_with_detached_and_id(int *detached, GdkWindow **w)
 	  zmw_name_unregister_value_by_pointer("WindowID", ZMW_WINDOW) ;
 	}
       zmw_window_detached_toggle(detached, Zmw_Detached_Up) ;
-      zmw_event_remove() ;
     }
 }
 

@@ -339,7 +339,6 @@ void zmw_table_with_widths_and_selection(int nb_cols, int *col_width
 		}
 	      else
 		{
-		  zmw.dragged = Zmw_True ;
 		  zmw.activated = Zmw_True ;
 		  col_width[dragged] = width_orig + (zmw.x - x) ;
 		  zmw_event_remove() ;

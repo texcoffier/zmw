@@ -1,4 +1,5 @@
-- Must had a flag to note the borrowers/authors table value change.
-- Preference load/save
-- Multiple language support
+- Multiple language support :
+	- Save choice in préférence
+	- Remove error messages in french
+
 

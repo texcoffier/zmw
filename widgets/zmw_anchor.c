@@ -89,27 +89,24 @@ void zmw_anchor_vertical(int *x)
       if ( zmw.event->key.keyval == GDK_Right )
 	{
 	  (*x)++ ;
-	  zmw.dragged = Zmw_True ;
 	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
 	}
       if ( zmw.event->key.keyval == GDK_Left )
 	{
 	  (*x)-- ;
-	  zmw.dragged = Zmw_True ;
 	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
 	}
     }
 
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
-      zmw.dragged = Zmw_True ;
-      zmw.activated = Zmw_True ;
+      zmw.changed = Zmw_True ;
       *x = zmw.x - zMw[-1].u.size.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
-	  zmw_event_remove() ;
     }
 
+  // I do not know why it is necessary here, it bugs with cache
+  //  if ( zmw.activated || zmw.changed )
+  //  zmw_event_remove() ;
 }
 
 
@@ -122,26 +119,20 @@ void zmw_anchor_vertical_float(float *x)
       if ( zmw.event->key.keyval == GDK_Right )
 	{
 	  *x += .01 ;
-	  zmw.dragged = Zmw_True ;
 	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
 	}
       if ( zmw.event->key.keyval == GDK_Left )
 	{
 	  *x -= .01 ;
-	  zmw.dragged = Zmw_True ;
 	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
 	}
     }
 
   if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
     {
-      zmw.dragged = Zmw_True ;
       zmw.activated = Zmw_True ;
       *x = (zmw.x - zMw[-1].u.size.allocated.x)
 	/ (float)zMw[-1].u.size.allocated.width ;
-      zmw_event_remove() ;
     }
 }
 
@@ -215,6 +206,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
     case Zmw_Input_Event:
 
       zmw_focusable() ;
+      zmw_activable() ;
       
       if ( zmw_button_pressed() )
 	{
@@ -230,20 +222,17 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 		  corner = i ;
 		  break ;
 		}
-	    }
-	  zmw_event_remove() ;
+	    }	  
 	}
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused())
 	{
 	  corner = -1 ;
 	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
 	  nx = zmw.x - zMw[-1].u.size.allocated.x ;
 	  ny = zmw.y - zMw[-1].u.size.allocated.y ;
-	  zmw.dragged = Zmw_True ;
 	  switch(corner)
 	    {
 	    case 0:
@@ -370,6 +359,7 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
       if ( !movable )
  	 break ;
       zmw_focusable() ;
+      zmw_activable() ;
 
       if ( zmw_button_pressed() )
 	{
@@ -379,20 +369,17 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 	  if ( (zmw.x-xx)*(zmw.x-xx) + (zmw.y-yy)*(zmw.y-yy) <= 512 )
 	    {
 	      corner = 4 ;
-	      zmw_event_remove() ;
 	    }
 	}
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused() )
 	{
 	  	  corner = -1 ;
 	  	  zmw.activated = Zmw_True ;
-		  zmw_event_remove() ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
 	  nx = zmw.x - zMw[-1].u.size.allocated.x ;
 	  ny = zmw.y - zMw[-1].u.size.allocated.y ;
-	  zmw.dragged = Zmw_True ;
 	  *x = nx - ZMW_SIZE_ALLOCATED.width/2 ;
 	  *y = ny - ZMW_SIZE_ALLOCATED.height/2 ;
 	  zmw_event_remove() ;

@@ -1,0 +1,28 @@
+
+
+<!ELEMENT book-preferences (column*, column-order, color*)>
+
+<!ELEMENT column EMPTY>
+
+<!ELEMENT color EMPTY>
+
+<!ELEMENT column-order (column-name*)>
+
+<!ELEMENT column-name (#PCDATA)>
+
+<!ATTLIST column
+ name CDATA #REQUIRED
+ width CDATA #IMPLIED
+ visible CDATA #IMPLIED
+ default CDATA #IMPLIED
+>
+
+<!ATTLIST color
+ name CDATA #REQUIRED
+ r CDATA #REQUIRED
+ g CDATA #REQUIRED
+ b CDATA #REQUIRED
+>
+
+
+

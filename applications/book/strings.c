@@ -25,6 +25,33 @@
 #include <math.h>
 #include "library.h"
 
+double strings_checksum(Strings *s)
+{
+  double cs, cs2 ;
+  int i, j ;
+
+  cs = 0 ;
+  for(i=0; i<s->number; i++)
+    {
+      cs2 = 0 ;
+      for(j=0; s->strings[i][j]; j++)
+	cs2 += 1.5*cs2 + s->strings[i][j] ;
+      cs += cs2 ;
+    }
+  return cs ;
+}
+
+int strings_changed(Strings *s)
+{
+  //  printf("%g %g %d\n", s->checksum, strings_checksum(s),s->checksum != strings_checksum(s)) ;
+  return s->checksum != strings_checksum(s) ;
+}
+
+void strings_reset_checksum(Strings *s)
+{
+  s->checksum = strings_checksum(s) ;
+}
+
 void strings_read(FILE *file, Strings *s)
 {
   int i ;
@@ -37,6 +64,7 @@ void strings_read(FILE *file, Strings *s)
     {
       s->strings[i] = line_read(file) ;
     }
+  strings_reset_checksum(s) ;
 }
 
 void strings_write(FILE *file, const Strings *s)
