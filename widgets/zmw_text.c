@@ -361,7 +361,7 @@ void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
 		    | Zmw_Decorator_Border_In
 		    | Zmw_Decorator_Interior
 		    | Zmw_Decorator_Focusable
-		      // | Zmw_Decorator_Activable
+		    | Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup
 		    )
       )
     {

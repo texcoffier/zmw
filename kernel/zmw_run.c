@@ -350,11 +350,28 @@ void event_handler(GdkEvent *e, gpointer o)
 {
   void (*fct)() = o ;
   GdkEvent *ee ;
+  
+  zmw.event_saved = *e ;
+
+#if GLIB_MAJOR_VERSION > 1
+  /* I want the release event on the real window and not
+   * in the window where the button was pressed
+   */
+  if ( e->type == GDK_BUTTON_RELEASE )
+    {
+      int x, y, origin_x, origin_y ;
+      x = e->button.x_root ;
+      y = e->button.y_root ;
+      e->any.window = gdk_window_at_pointer(&x, &y) ;
+      gdk_window_get_origin(e->any.window, &origin_x, &origin_y) ;
+      e->button.x = e->button.x_root - origin_x ;
+      e->button.y = e->button.y_root - origin_y ;
+    }
+#endif
 
   zmw.event = e ;
   zmw.activated = Zmw_False ;
   zmw.child_activated = Zmw_False ;
-  zmw.event_saved = *e ;
   zmw.remove_event = Zmw_False ;
   zmw.next_is_transient = Zmw_False ;
   
@@ -463,8 +480,10 @@ void event_handler(GdkEvent *e, gpointer o)
       user_action() ;
 
       if ( (zmw.debug & Zmw_Debug_Event) && e->type != GDK_KEY_PRESS )
-	zmw_printf("**** EVENT **** BUTTON! %s\n",
-		   e->type == GDK_BUTTON_RELEASE ? "release" : "press") ;
+	zmw_printf("**** EVENT **** BUTTON! %s on window %p\n"
+		   , e->type == GDK_BUTTON_RELEASE ? "release" : "press"
+		   , e->any.window
+		   ) ;
       if ( e->type == GDK_BUTTON_RELEASE )
 	if ( gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP
 	     && e->type != GDK_BUTTON_RELEASE )
@@ -545,9 +564,9 @@ void zmw_init(gint *argc, gchar ***argv)
 
   for(i=0; i<*argc; i++)
     {
-      zmw_take_int_param(argc, argv, &i, "--cache_size=", &global_cache_size) ;
-      zmw_take_int_param(argc, argv, &i, "--debug=", &zmw.debug) ;
-      zmw_take_int_param(argc, argv, &i, "--mstimeout=", &zmw_global_timeout) ;
+      zmw_take_int_param(argc,argv,&i,"--cache_size=", &global_cache_size ) ;
+      zmw_take_int_param(argc,argv,&i,"--debug="     , &zmw.debug         ) ;
+      zmw_take_int_param(argc,argv,&i,"--mstimeout=" , &zmw_global_timeout) ;
     }
 }
 

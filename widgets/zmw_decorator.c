@@ -232,6 +232,11 @@ void zmw_decorator(int options, ...)
       break ;
 
     case Zmw_Input_Event:
+      if ( (options & Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup)
+	   && gdk_window_get_type(ZMW_WINDOW) != GDK_WINDOW_TEMP
+	   && zmw_button_pressed()
+	   )
+	zmw_window_unpop_all() ;
       if ( options & Zmw_Decorator_Focusable )
 	zmw_focusable() ;
       if ( options & Zmw_Decorator_Activable )
@@ -239,8 +244,16 @@ void zmw_decorator(int options, ...)
       if ( options & Zmw_Decorator_Activable_By_Key )
 	if ( zmw_key_pressed() && zmw.event->key.string[0] )
 	  zmw.activated = Zmw_True ;
-      if ( zmw.activated && (options & Zmw_Decorator_Unpop_On_Activate) )
-	zmw_window_unpop_all() ;
+
+      if ( zmw.activated )
+	{
+	  if (options & Zmw_Decorator_Unpop_On_Activate)
+	    zmw_window_unpop_all() ;
+	  else
+	    if ( (options & Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup)
+		 && gdk_window_get_type(ZMW_WINDOW) != GDK_WINDOW_TEMP )
+	      zmw_window_unpop_all() ;
+	}
       break ;
 
     default:

@@ -127,9 +127,18 @@ void zmw_box_vertical_activable() ;
 /*
  * zmw_scrollbar.c
  */
-void zmw_scrollbar2(float *x, float x_size, float *y, float y_size) ; 
-void zmw_scrollbar_horizontal(float *x, float x_size) ;
-void zmw_scrollbar_vertical(float *y, float y_size) ;
+void zmw_scrollbar2(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size
+		    , Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size) ; 
+void zmw_scrollbar_horizontal(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size) ;
+void zmw_scrollbar_vertical(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size) ;
+
+void zmw_scrollbar2_with_delta
+(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta
+ ,Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta) ;
+void zmw_scrollbar_horizontal_with_delta
+(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta) ;
+void zmw_scrollbar_vertical_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta) ;
+
 /*
  * zmw_viewport.c
  */
@@ -175,19 +184,21 @@ void zmw_message(Zmw_Boolean *visible
 /*
  * zmw_decorator.c
  */
-#define Zmw_Decorator_Focusable           1
-#define Zmw_Decorator_Activable           2
-#define Zmw_Decorator_Border_Relief       4
-#define Zmw_Decorator_Border_Solid        8
-#define Zmw_Decorator_Border_Embossed    16
-#define Zmw_Decorator_Border_In          32
-#define Zmw_Decorator_Border_Focus       64
-#define Zmw_Decorator_Interior          128
-#define Zmw_Decorator_Pushable          256
-#define Zmw_Decorator_Unpop_On_Activate 512
-#define Zmw_Decorator_Activable_By_Key  1024
-#define Zmw_Decorator_Clip              2048
-#define Zmw_Decorator_Translate         4096
+#define Zmw_Decorator_Focusable                               0x0001
+#define Zmw_Decorator_Activable                               0x0002
+#define Zmw_Decorator_Border_Relief                           0x0004
+#define Zmw_Decorator_Border_Solid                            0x0008
+#define Zmw_Decorator_Border_Embossed                         0x0010
+#define Zmw_Decorator_Border_In                               0x0020
+#define Zmw_Decorator_Border_Focus                            0x0040
+#define Zmw_Decorator_Interior                                0x0080
+#define Zmw_Decorator_Pushable                                0x0100
+#define Zmw_Decorator_Unpop_On_Activate                       0x0200
+#define Zmw_Decorator_Activable_By_Key                        0x0400
+#define Zmw_Decorator_Clip                                    0x0800
+#define Zmw_Decorator_Translate                               0x1000
+#define Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup     0x2000
+#define Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup 0x4000
 
 #define Zmw_Decorator_Border_Any (Zmw_Decorator_Border_Relief|Zmw_Decorator_Border_Solid|Zmw_Decorator_Border_Embossed|Zmw_Decorator_Pushable)
 #define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)

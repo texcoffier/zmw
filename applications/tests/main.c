@@ -212,6 +212,7 @@ void main_menu()
     } ;
   static struct menu debug[] =
     {
+      { "Minimal menu"                , test_minimal_menu                , 0 },
       { "Basic menu"                  , test_basic_menu                  , 0 },
       { "Basic menu with tip"         , test_basic_menu2                 , 0 },
       { "Focus on 2 widgets"          , test_focus2                      , 0 },

@@ -21,7 +21,7 @@
 
 #include "zmw/zmw.h"
 
-#define ZMW_TABLE_VERTICAL_WIDTH 1
+#define ZMW_TABLE_VERTICAL_WIDTH 1 // vertical line separator
 
 int * zmw_table_col_width(int nb_cols, int *computed_col_width)
 {
@@ -255,13 +255,13 @@ void zmw_table_draw(int nb_cols, int *width, int *height, Zmw_Boolean *selection
 /*
  * Vertical column separator
  */
-  x = ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH + ZMW_TABLE_VERTICAL_WIDTH ;
+  x = ZMW_SIZE_ALLOCATED.x /* - ZMW_PADDING_WIDTH + ZMW_TABLE_VERTICAL_WIDTH*/ ;
   for(i=0; i<=nb_cols; i++)
     {
       gdk_draw_line(ZMW_WINDOW, ZMW_GC[ZMW_FOREGROUND]
-		    , x + 1
+		    , x /* + 1 */
 		    , ZMW_SIZE_ALLOCATED.y
-		    , x + 1
+		    , x /* + 1 */
 		    , ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height
 		    ) ;
       if ( i != nb_cols )

@@ -1,0 +1,20 @@
+2003-10-31 (0.0.2)
+	Regression tests are OK with GTK 2.0.2
+	No more flickering display with GTK 2
+	Documentation updates
+	Solve portability problems with "fvwm2" in regression test
+	zmw_text & zmw_scrollbar: Unpop all the popups on button press
+	zmw_scrollbar: Add a delta parameter for bar translation with keys
+	zmw_scrollbar: Add Page Up/Down event handling
+	zmw_viewport: Is now activated on scrollbar change
+	zmw_table: vertical line placement corrected
+	zmw_window: The popped windows now continuously updates their position
+	examples: Add a "patchwork" of widgets for FreshMeat screenshot
+	examples: Add "animation" for the documentation
+	zmw_state_change_allowed: returns now true if outside any widget (ok?)
+
+2003-10-27 (0.0.1)
+	Freshmeat release
+
+2003-03-14 (0.0.0)
+	Restricted diffusion release

@@ -79,7 +79,9 @@ Zmw_Boolean zmw_event_to_process()
 
 Zmw_Boolean zmw_state_change_allowed()
 {
-  return( ZMW_SUBACTION == Zmw_Input_Event ) ;
+  return( ZMW_SUBACTION == Zmw_Input_Event
+	  || ZMW_WINDOW == NULL
+	  ) ;
 }
 /*
  * True if the last zmw has the focus
@@ -400,14 +402,17 @@ void zmw_activable()
     }
   else
   {
-  	/*
-  	if( ZMW_SUBACTION == Zmw_Input_Event &&zmw.event->type == GDK_BUTTON_RELEASE )
-  		zmw_printf("%s\n%s\nsp=%d s=%d\n"
-  			, zmw_name_full
-  			, global_zmw_selected.name?global_zmw_selected.name:"???"
-  			, zmw_selected_by_its_parents()
-  				,zmw_selected());
-  				*/
+    
+    if( 0 && ZMW_SUBACTION == Zmw_Input_Event &&zmw.event->type == GDK_BUTTON_RELEASE )
+      zmw_printf("%s\n%s\n event_in_masked=%d sp=%d s=%d event_in=%d\n"
+		 , zmw_name_full
+		 , global_zmw_selected.name?global_zmw_selected.name:"???"
+		 , ZMW_EVENT_IN_MASKED
+		 , zmw_selected_by_its_parents()
+		 , zmw_selected()
+		 , ZMW_EVENT_IN
+		 );
+  				
     zmw.activated = Zmw_False ; // To de-activate child activation
     if ( 
 	 ZMW_SUBACTION == Zmw_Input_Event

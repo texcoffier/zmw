@@ -234,33 +234,25 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 			 0,0,9999,9999) ;
 
       if ( !gdk_window_is_visible(*w) )
+	gdk_window_show(*w) ;
+
+      if ( pop && zMw[-1].i.window
+	   && gdk_window_get_type(ZMW_WINDOW) == GDK_WINDOW_TEMP )
 	{
-	  if ( pop )
-	    {
-	      if ( zMw[-1].i.window )
-	      {
-		      gdk_window_get_origin(zMw[-1].i.window, &x, &y) ;
-		      s = zmw_widget_previous_size() ;
-		      gdk_window_move(ZMW_WINDOW
-			      , x
-			      + s->allocated.x
-			      + (pop==Zmw_Popup_Right ? s->allocated.width : 0 )
-			      , y
-			      + s->allocated.y
-			      + (pop==Zmw_Popup_Bottom ? s->allocated.height : 0)
-			      ) ;
-	      }
-/*	      else
-	      {
-		      gdk_window_move(ZMW_WINDOW, zmw.x, zmw.y) ;	      	
-	      }  */
-	    }
-	  /* (1) */
-	  gdk_window_show(*w) ;
+	  gdk_window_get_origin(zMw[-1].i.window, &x, &y) ;
+	  s = zmw_widget_previous_size() ;
+	  gdk_window_move(ZMW_WINDOW
+			  , x
+			  + s->allocated.x
+			  + (pop==Zmw_Popup_Right ? s->allocated.width : 0 )
+			  , y
+			  + s->allocated.y
+			  + (pop==Zmw_Popup_Bottom ? s->allocated.height : 0)
+			  ) ;
 	}
-      /* Was in (1) */
-	  if ( title && ( !pop || zmw_window_detached(detached, Zmw_Detached_Here) ) )
-	    gdk_window_set_title(*w, title) ;
+      if ( title
+	   && ( !pop || zmw_window_detached(detached, Zmw_Detached_Here) ) )
+	gdk_window_set_title(*w, title) ;
 
       zmw.nb_windows++ ;
       ZMW_REALLOC(zmw.windows, zmw.nb_windows ) ;

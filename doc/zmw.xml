@@ -38,12 +38,14 @@
 <!ENTITY examplenaming SYSTEM "examples/naming/naming.sgml">
 <!ENTITY examplenaming2 SYSTEM "examples/naming2/naming2.sgml">
 <!ENTITY examplehidden SYSTEM "examples/hidden/hidden.sgml">
+<!ENTITY exampledefine SYSTEM "examples/define/define.sgml">
+<!ENTITY exampleanimation SYSTEM "examples/animation/animation.sgml">
 <!ENTITY scale "50">
 ]>
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW;)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.2)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -871,11 +873,13 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar2</function>
-	    (<type>int *</type><parameter>x</parameter>,
-	    <type>int </type><parameter>x_size</parameter>,
-	    <type>int *</type><parameter>y</parameter>,
-	    <type>int </type><parameter>y_size</parameter>
+	    <function>zmw_scrollbar2_with_delta</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_delta</parameter>,
+	    <type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_delta</parameter>
 	    ) ;
 	  </term>
 	  <listitem>
@@ -885,7 +889,11 @@
 	      (<varname>x_size</varname> <varname>y_size</varname>)
 	      define its width and height.
 	      The scrollbar is draggable.
-	      Cursor keys move it if it is focused.
+	      If it is focused, cursor keys move it,
+	      the translation is specified by <parameter>x_delta</parameter>
+	      and <parameter>y_delta</parameter>,
+	      <constant>0.5</constant> means that the scrollbar
+	      is translated on half its size.
 	      On position change, the widget is activated.
 	    </para>
 	  </listitem>
@@ -894,9 +902,40 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_horizontal</function>
-	    (<type>int *</type><parameter>x</parameter>,
-	    <type>int </type><parameter>x_size</parameter>) ;
+	    <function>zmw_scrollbar2</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>,
+	    <type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>,
+	    ) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_scrollbar2_with_delta</function> with
+	      <parameter>x_size</parameter>=<constant>0.</constant>1 and
+	      <parameter>y_size</parameter>=<constant>0.1</constant>.
+	      It is a 2d scrollbar, (<varname>x</varname> <varname>y</varname>)
+	      is the scrollbar position and
+	      (<varname>x_size</varname> <varname>y_size</varname>)
+	      define its width and height.
+	      The scrollbar is draggable.
+	      Cursor keys move it if it is focused,
+	      the translation is specified by <parameter>x_delta</parameter>
+	      and <parameter>y_delta</parameter>,
+	      <constant>0.5</constant> means that the scrollbar
+	      is translated on half its size.
+	      On position change, the widget is activated.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar_horizontal_with_delta</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_delta</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
@@ -905,16 +944,49 @@
 	  </listitem>
 	</varlistentry>
 
+
+
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_vertical</function>
-	    (<type>int *</type><parameter>y</parameter>,
-	    <type>int </type><parameter>y_size</parameter>) ;
+	    <function>zmw_scrollbar_horizontal</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_scrollbar_horizontal_with_delta</function>
+	      with <parameter>x_delta</parameter>=<constant>0.1</constant>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar_vertical_with_delta</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_delta</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      The classical vertical scrollbar.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
+	    <function>zmw_scrollbar_vertical</function>
+	    (<type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
+	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      As <function>zmw_scrollbar_vertical_with_delta</function>
+	      with <parameter>y_delta</parameter>=<constant>0.1</constant>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3709,7 +3781,111 @@
       </sect2>
 
     </sect1>
-    
+
+
+    <sect1>
+      <title>Tips and tricks</title>
+      <para>Some programming shortcuts.</para>
+      
+      <sect2>
+	<title>Less verbose code</title>
+	<para>
+	  If you use many times horizontal box with a couple of children,
+	  it is a little verbose to type each time the box definition.
+	  A simple <command>#define</command> will ease the task.
+	</para>
+     <example>
+	  <title>Using <command>#define</command> to have less verbose code</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&exampledefine;</programlisting></entry>
+		  <entry align="right"><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/define/define.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/define/define.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+      </sect2>
+
+      <sect2>
+	<title>Animation</title>
+	<para>
+	  If you want to do animation, you need to refresh screen
+	  continuously.
+	  To do so, call <function>zmw_need_repaint()</function>
+	  in your widget.
+	</para>
+
+	
+
+	<para>
+	  The example displays several buttons, at any time
+	  it is possible to click on a button to make it move
+	  or if it is moving to reverse its way.
+	  The picture shows what happen when the four buttons are clicked.
+	</para>
+
+	<para>
+	  The example is a bit long, but it should be easy
+	  to encapsulate all this complexity in a widget.
+	</para>
+
+
+     <example>
+	  <title>Animation</title>
+	  <informaltable frame="none" pgwide="1">
+	    <tgroup cols="2">
+	      <tbody>
+		<row>
+		  <entry><programlisting>&exampleanimation;</programlisting></entry>
+		  <entry align="right"><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.0.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.0.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.1.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.1.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.2.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.2.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject><mediaobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.3.eps" format="EPS" scale="&scale;" />
+		      </imageobject>
+		      <imageobject>
+			<imagedata fileref="examples/animation/animation.3.png" format="PNG" />
+		      </imageobject>
+		    </mediaobject></entry>
+		</row>
+	      </tbody>
+	    </tgroup>
+	  </informaltable>
+	</example>
+      </sect2>
+
+    </sect1>
+
+
     <sect1>
       <title>Debugging</title>
       <para>They are several ways to find bugs in the library
@@ -3843,12 +4019,6 @@
 	<para>If a parent menu of a detached menu is not displayed
 	  the detached menu is not displayed.
 	  This should be easily corrected.
-	</para>
-      </sect2>
-
-      <sect2>
-	<title>Display flickering</title>
-	<para>Should be easily corrected.
 	</para>
       </sect2>
 

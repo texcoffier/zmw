@@ -23,7 +23,7 @@
 #include "zmw/zmw.h"
 #include <gdk/gdkkeysyms.h>
 
-static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
+static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
 {
   Zmw_Rectangle r ;
   int border ;
@@ -67,72 +67,89 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 				     , &r);
       break ;
       
-      case Zmw_Input_Event:
+    case Zmw_Input_Event:
       
-      	zmw_focusable() ;
-      	zmw_activable() ;
-      	if ( zmw_selected() )
+      zmw_focusable() ;
+      zmw_activable() ;
+      if ( zmw_button_pressed() )
+	zmw_window_unpop_all() ;
+
+      if ( zmw_selected() )
+	{
+	  zmw.dragged = Zmw_True ;
+	  zmw.activated = Zmw_True ;
+	  *x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
+	    / (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
+	  *y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
+	    / (float)(ZMW_SIZE_ALLOCATED.height - 2*border) - y_size/2 ;
+	  zmw_event_remove() ;
+	}
+
+      if ( zmw_key_pressed() )
+	{	    
+	  if ( zmw.event->key.keyval == GDK_Right )
 	    {
+	      *x += x_delta*x_size ;
 	      zmw.dragged = Zmw_True ;
 	      zmw.activated = Zmw_True ;
-	      *x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
-		/ (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
-	      *y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
-		/ (float)(ZMW_SIZE_ALLOCATED.height - 2*border) - y_size/2 ;
 	      zmw_event_remove() ;
 	    }
-
-   if ( zmw_key_pressed() )
-	{	    
-      if ( zmw.event->key.keyval == GDK_Right )
-	{
-	  *x += 0.1*x_size ;
-	  zmw.dragged = Zmw_True ;
-	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
+	  if ( zmw.event->key.keyval == GDK_Left )
+	    {
+	      *x -= x_delta*x_size ;
+	      zmw.dragged = Zmw_True ;
+	      zmw.activated = Zmw_True ;
+	      zmw_event_remove() ;
+	    }
+	  if ( zmw.event->key.keyval == GDK_Up )
+	    {
+	      *y -= y_delta*y_size ;
+	      zmw.dragged = Zmw_True ;
+	      zmw.activated = Zmw_True ;
+	      zmw_event_remove() ;
+	    }
+	  if ( zmw.event->key.keyval == GDK_Page_Up )
+	    {
+	      *y -= y_size ;
+	      zmw.dragged = Zmw_True ;
+	      zmw.activated = Zmw_True ;
+	      zmw_event_remove() ;
+	    }
+	  if ( zmw.event->key.keyval == GDK_Down )
+	    {
+	      *y += y_delta*y_size ;
+	      zmw.dragged = Zmw_True ;
+	      zmw.activated = Zmw_True ;
+	      zmw_event_remove() ;
+	    }
+	  if ( zmw.event->key.keyval == GDK_Page_Down )
+	    {
+	      *y += y_size ;
+	      zmw.dragged = Zmw_True ;
+	      zmw.activated = Zmw_True ;
+	      zmw_event_remove() ;
+	    }
 	}
-      if ( zmw.event->key.keyval == GDK_Left )
-	{
-	  *x -= 0.1*x_size ;
-	  zmw.dragged = Zmw_True ;
-	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
-	}
-      if ( zmw.event->key.keyval == GDK_Up )
-	{
-	  *y -= 0.1*y_size ;
-	  zmw.dragged = Zmw_True ;
-	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
-	}
-      if ( zmw.event->key.keyval == GDK_Down )
-	{
-	  *y += 0.1*y_size ;
-	  zmw.dragged = Zmw_True ;
-	  zmw.activated = Zmw_True ;
-	  zmw_event_remove() ;
-	}
-	}
-   //   if ( zmw.remove_event )
-      {
-	ZMW_CLAMP(*x,0,1-x_size) ;
-	ZMW_CLAMP(*y,0,1-y_size) ;
-      }
-  
-      	break ;
+      ZMW_CLAMP(*x,0,1-x_size) ;
+      ZMW_CLAMP(*y,0,1-y_size) ;
+      break ;
 
     default:
       break ;
     }
 }
 
-
-void zmw_scrollbar2(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
+void zmw_scrollbar2_with_delta(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
 {
-  ZMW(zmw_scrollbar2_(x, x_size, y, y_size))
+  ZMW(zmw_scrollbar2_(x, x_size, x_delta, y, y_size, y_delta))
     {
     }
   zmw_widget_is_tested() ;	
+}
+
+void zmw_scrollbar2(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
+{
+  zmw_scrollbar2_with_delta(x, x_size, 0.1, y, y_size, 0.1) ;
 }
 
 void zmw_scrollbar_horizontal(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size)
@@ -145,5 +162,17 @@ void zmw_scrollbar_vertical(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
 {
   Zmw_Float_0_1 x = 0 ;	
   zmw_scrollbar2(&x, 1, y, y_size) ;
+}
+
+void zmw_scrollbar_horizontal_with_delta(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta)
+{
+  Zmw_Float_0_1 y = 0 ;	
+  zmw_scrollbar2_with_delta(x, x_size, x_delta, &y, 1, 1) ;
+}
+
+void zmw_scrollbar_vertical_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
+{
+  Zmw_Float_0_1 x = 0 ;	
+  zmw_scrollbar2_with_delta(&x, 1, 1, y, y_size, y_delta) ;
 }
 

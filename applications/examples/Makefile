@@ -3,8 +3,10 @@
 ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; if [ "$$1" = "clean" ] ; then TARGET="$$1" ; else TARGET="$$I.$$1" ; fi ; cd $$I ; $(MAKE) -f ../Makefile $$TARGET ) ; done || true ; } ; zmw_make
 
 
-ZMW_DEBUG_EXE=254 --sync
-ZMW_DEBUG_EXE=0
+ZMW_EXECUTION_ARGS=--debug=254 --sync
+ZMW_EXECUTION_ARGS=--mstimout=100
+ZMW_EXECUTION_ARGS=--mstimout=10
+
 
 # Small goal to test only one example
 ZMW_CURRENT_TEST=draganddrop
@@ -49,7 +51,7 @@ png:
 	\
 	echo "zmw_move_cursor_to 1000 1000" ; \
 	echo "export PROG_NAME=xxx.$*" ; \
-	echo "$*.exe --cache_size=10000 --debug=$(ZMW_DEBUG_EXE) 2>xxx.$*.log &" ; \
+	echo "$*.exe --cache_size=10000 $(ZMW_EXECUTION_ARGS) 2>xxx.$*.log &" ; \
 	echo 'ZMWPID=$$!' ; \
 	echo "zmw_sleep 1" ; \
 	awk <$*.c 'BEGIN{I=0;}/REGRESSION TEST/{I=1-I;next;}I==1{print;}' ; \
@@ -58,7 +60,7 @@ png:
 	\
 	echo "zmw_move_cursor_to 1000 1000" ; \
 	echo "export PROG_NAME=xxx_.$*" ; \
-	echo "$*.exe --debug=$(ZMW_DEBUG_EXE) 2>xxx.cache.$*.log &" ; \
+	echo "$*.exe $(ZMW_EXECUTION_ARGS) 2>xxx.cache.$*.log &" ; \
 	echo 'ZMWPID=$$!' ; \
 	echo "zmw_sleep 1" ; \
 	awk <$*.c 'BEGIN{I=0;}/REGRESSION TEST/{I=1-I;next;}I==1{print;}' ; \
@@ -70,22 +72,6 @@ png:
 .o.exe:
 	echo "Link example $*"
 	$(CC) $*.o $(ZMW_OBJS) -o $*.exe
-
-# Unnecessary because it is a dynamic library
-# quit.o:../../zmw.so
-# quit_simple.o:../../zmw.so
-# text.o:../../zmw.so
-# button.o:../../zmw.so
-# toggle.o:../../zmw.so
-# anchor.o:../../zmw.so
-# image.o:../../zmw.so
-# window.o:../../zmw.so
-# menu.o:../../zmw.so
-# box.o:../../zmw.so
-# box2.o:../../zmw.so
-# table.o:../../zmw.so
-# table2.o:../../zmw.so
-# decorator.o:../../zmw.so
 
 export KEY_A         = 37
 export KEY_B         = 38
@@ -109,7 +95,7 @@ start_xvfb:
 				     -e 'keycode $(KEY_CONTROL) = Control_L' \
 				     -e 'keycode $(KEY_F1) = F1' \
 				     -e 'add control = Control_L'
-	export HOME=`pwd` ; fvwm2 -display $(ZMW_XVFB) &
+	fvwm2 -display $(ZMW_XVFB) -f `pwd`/.fvwm2rc &
 
 stop_xvfb:
 	kill `cat xvfb.pid`

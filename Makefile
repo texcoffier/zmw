@@ -3,16 +3,11 @@
 default:verify_config TAGS dep lib # run_tests
 
 verify_config:
-	@case "`gtk-config --version`" in \
-	"") echo "GTK is needed to use ZMW" ; exit 1 ;; \
-	"1.2.10") echo "GTK version is fine" ;; \
-	*) echo "ZMW has not been tested with this GTK version" ;; \
-	esac 2>/dev/null
-	@case "`gdk-pixbuf-config --version`" in \
-	"") echo "GDK-Pixbuf is needed to use ZMW" ; exit 1 ;; \
-	"0.17.0") echo "GDK-Pixbuf version is fine" ;; \
-	*) echo "ZMW has not been tested with this GDK-Pixbuf version" ;; \
-	esac 2>/dev/null
+	if [ "" = "$(ZMW_CFLAGS)" ] ;\
+		then \
+		echo "Please edit Makefile.config" ; \
+		exit 1 ; \
+		fi >&2
 
 run_tests:lib
 	cd applications/tests ; $(MAKE)
@@ -26,6 +21,7 @@ TAGS:
 	etags */*.[ch]
 
 tar:makefile_clean clean
+	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
 	echo "Creating tar archive"
 	P=`pwd` ; \
 	cd /tmp ; \
@@ -78,7 +74,22 @@ copy:
 
 night:
 	echo "(date ; make night dep clean copy default test doc 2>&1 ; date) | \
-	      fgrep -v -e 'Dump' -e 'Clean' -e 'Using ' -e 'is OK' -e 'Compiling' -e 'Link' -e 'Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0'" | at 03:00
+	      fgrep -v -e 'Dump' -e 'Clean' -e 'Using ' -e 'is OK' -e 'Compiling' -e 'Link' -e 'Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0'" | at 07:00
 
+versionchange:
+	echo "Update Changelog and zmw.xml for release history"
+	change 0.0.1 0.0.2 README Makefile.config
+
+diff:
+	diff -rubB \
+		--exclude="Makefile" \
+		--exclude="*.o" \
+		--exclude="*.so" \
+		--exclude="*~" \
+		--exclude="*.exe" \
+		--exclude="*.regtest" \
+		--exclude="xxx*" \
+		--exclude="#*" \
+		../WIDGET-0.0.1 .
 
 # DO NOT DELETE

@@ -9,20 +9,20 @@ WIDGETS:
 	- Framing (border + name) : decorator enhancement
 
 LIBRARY CORE:
+	* Use only one GC instead of 6 (start of OpenGL conversion)
 	- Make a pile by attribute with a bit vector to indicate
 	  which attributes where pushed (as it is yet done with GC's)
 	  So in the most current case, there only one 'int' to push
 	  to push all the attributes.
 	  Define the attributes in current state dynamicly
-	- Double buffering (easy with OpenGL)
 	- zMw->size[0].alignement zMw->size[0].required for X axis ...
 	  and [1] for Y axis.
 	- Use OpenGL
 	- zmw_name must not be called with the same name for sibling.
-	- Create an zmw_action_assert to verify widget tree
+	- Create an zmw_action_assert to verify widget tree ?
 	- Having children "not_used_to_compute_parent_size" in CHILDREN
 	  complexify the size computation.
-	  Should be CHILDREN_VISIBLE be created ?
+	  Should the CHILDREN_VISIBLE table be created ?
 	- Add a zmw_modified() to zmw_activated() for text or scrollbar
 	  modification.
 	- Should zmw_action_dispatch_event be separated into
@@ -30,14 +30,9 @@ LIBRARY CORE:
 	  It will simplify the drag and drop operation,
 	  zmw_dispatch_test_receptor, zmw_dispatch_drop, ...
 	- Cursor shape change
-
+	- Does the tips should appear if the mouse button is pressed?
+	- Create zmw_font_name zmw_font_size zmw_font_weight ...
 BUGS:
-	* "notebook" regression test does not pass with GDK 2
-	   But "image" does, so it is a pixbuf creation problem
-	* "window" regression test does not pass with GDK 2
-	  The event reception is not the same.
-	  Problem: Key press on menu popup, release on toggle does not toggle.
-	* "draganddrop" regression test does not pass with GDK 2
 	* X window is locked (grab?) when debugging info is printed
 	- Key pressed have not the current coordinates, but the last
 	  one received.
@@ -47,7 +42,10 @@ BUGS:
 	- In many widget, cursor draging must not go outside window
 	  (scrollbar, table, ...) (it is due to bad x,y conversion because
 	  the cursor change of window.)
-	- filechooser at top level does not appear in a framed window
+	- filechooser at top level does not always appear in a framed window
+	- image_from_file are not freed : when is the question.
+	  Add a timestamp in resource in order to free images not
+	  used for 1 minute ?
 	  
 NOT TO DO THINGS :
 	- Test "nb_draw" instead of wait a small time in the tests.

@@ -109,7 +109,11 @@ void zmw_pixbuf_load_and_set(GdkPixbuf **pb, GdkPixbuf **pixbuf, const char *fil
        GError *error = NULL ;
        PRINTF("before gdk_pixbuf_new_from_file\n") ;
        *pixbuf = gdk_pixbuf_new_from_file(filename, &error) ;
-       PRINTF("error=%s\n", error) ;
+       if ( error )
+	 {
+	   PRINTF("error=%s\n", error->message) ;
+	   g_error_free(error) ;
+	 }
      }
 #endif
      zmw_pixbuf_set(pb, *pixbuf) ;

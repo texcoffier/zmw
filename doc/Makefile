@@ -3,7 +3,7 @@
 html:
 	cd examples ; $(MAKE) sgml
 	docbook2html -u -d zmw.dsssl#html zmw.xml | \
-	awk '/^<HTML/{P=1;} P==1{print;} P!=1{print >"/dev/stderr";}' >zmw.html
+	awk '/^<HTML/{P=1;} /^>Done.$$/ {next;} P==1{print;} P!=1{print >"/dev/stderr";}' >zmw.html
 	if [ `id -nu` = 'exco' ] ; \
 	then \
 		D="$(HOME)/public_html/ZMW/zmw-$(ZMW_VERSION)" ; \

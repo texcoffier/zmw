@@ -96,6 +96,25 @@ void test_menu(const char *title)
     }
 }
 
+void test_minimal_menu(const char *title)
+{
+  ZMW(zmw_window(title))
+    {
+      zmw_name("But") ;
+      zmw_button("Menu") ;
+      if ( zmw_window_is_popped() )
+	{
+	  ZMW(zmw_window_popup_right())
+	    {
+	      zmw_name("Action") ;
+	      zmw_button("Action") ;
+	      if ( zmw_activated() )
+		printf("Activated\n") ;
+	    }
+	}
+    }
+}
+
 void test_basic_menu(const char *title)
 {
   static int detached0 = 0, detached1 = 0, detached2 = 0 ;

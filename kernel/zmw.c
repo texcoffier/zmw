@@ -123,6 +123,17 @@ const char* zmw_size_string(Zmw_Size *s)
 
 int zmw_event_in()
 {
+  if ( 0 )
+    {
+      zmw_printf("zMw[-1].i.window = %p\n", zMw[-1].i.window) ;
+      zmw_printf("ZMW_WINDOW = %p\n", zMw[-1].i.event_in) ;
+      if ( zmw.event )
+	zmw_printf("zmw.event->any.window = %p\n", zmw.event->any.window) ;
+      zmw_printf("zmw.x = %d\n", zmw.x) ;
+      zmw_printf("ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH = %d\n", ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH) ;
+      zmw_printf("ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH = %d\n", ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH) ; 
+    }
+
   /* Because of viewport, the event must be in the upper window */
   if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].i.event_in )
     return(0) ;

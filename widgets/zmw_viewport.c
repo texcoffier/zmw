@@ -160,16 +160,20 @@ void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 {
   static Zmw_Float_0_1 x_size[9], y_size[9] ; /* XXX FIXME */
   static Zmw_Rectangle r[9] ; /* XXX FIXME */
+  static int activated[9] ;
   static int depth = 0 ;
 
   ZMW_EXTERNAL_RESTART ;
 
+  activated[depth] = 0 ;
   ZMW(zmw_viewport(*x, *y, &x_size[depth], &y_size[depth], &r[depth]))
     {
       zmw_name("ZMW_VP_SBV") ;
       zmw_scrollbar_vertical(y, y_size[depth]) ;
+      activated[depth] |= zmw_activated() ;
       zmw_name("ZMW_VP_SBH") ;
       zmw_scrollbar_horizontal(x, x_size[depth]) ;
+      activated[depth] |= zmw_activated() ;
 
       zmw_name("ZMW_VP_EX") ;
       ZMW(zmw_decorator(Zmw_Decorator_Clip|Zmw_Decorator_Translate, r[depth].x, r[depth].y))
@@ -179,6 +183,7 @@ void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 	  depth-- ;
 	}
     }   
+  zmw.activated = activated[depth] ;
   ZMW_EXTERNAL_STOP ;
 }
 
