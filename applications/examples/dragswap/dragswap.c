@@ -2,13 +2,15 @@
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
 
-void swappable_text(char **i, int **current, int **old)
+void swappable_text(char **i, int **current)
 {
   zmw_text(*i) ;
-  if ( zmw_drag_swap((int*)i, current, old) )
-    ZMW(zmw_window_drag())
+  zmw_drag_swap((int*)i, current) ;
+  ZMW( zmw_if( zmw_drag_from_running() ) )
     {
-      zmw_text((char*)**current) ;
+      ZMW(zmw_window_drag() )
+	if ( *current )
+	  zmw_text((char*)**current) ;
     }
 }
 
@@ -16,7 +18,7 @@ void dragswap(void)
 {
   static int table1[] = { 1, 2, 3, 4 } ;
   static char *table2[] = { "A","B","C","D","E","F","G","H" } ;
-  static int *current1 = NULL, *old1 = NULL, *current2 = NULL, *old2 = NULL ;
+  static int *current1 = NULL, *current2 = NULL ;
   int i ;
 
   ZMW(zmw_window("DragSwap"))
@@ -28,19 +30,21 @@ void dragswap(void)
 	    for(i=0; i<ZMW_TABLE_SIZE(table1); i++)
 	      {
 		zmw_int(table1[i]) ;
-		if ( zmw_drag_swap(&table1[i], &current1, &old1) )
-		  ZMW(zmw_window_drag())
+		zmw_drag_swap(&table1[i], &current1) ;
+		ZMW( zmw_if( zmw_drag_from_running() ) )
+		  ZMW(zmw_window_drag() )
 		  {
-		    zmw_int(*current1) ;
+		    if ( current1 )
+		      zmw_int(*current1) ;
 		  }
 	      }
 	  // Swap the children in the TWO next containers
 	  ZMW(zmw_box_horizontal())
 	    for(i=0; i<ZMW_TABLE_SIZE(table2)/2; i++)
-	      swappable_text(&table2[i], &current2, &old2) ;
+	      swappable_text(&table2[i], &current2) ;
 	  ZMW(zmw_box_horizontal())
 	    for(i=ZMW_TABLE_SIZE(table2)/2; i<ZMW_TABLE_SIZE(table2); i++)
-	      swappable_text(&table2[i], &current2, &old2) ;
+	      swappable_text(&table2[i], &current2) ;
 	}
     }
 }

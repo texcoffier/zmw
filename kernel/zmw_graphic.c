@@ -148,12 +148,6 @@ void zmw_border_draw(int options)
     return ;
 
   r = ZMW_SIZE_ALLOCATED ;
-  /*
-  r.x -= ZMW_PADDING_WIDTH ;
-  r.y -= ZMW_PADDING_WIDTH ;
-  r.width += 2 * ZMW_PADDING_WIDTH ;
-  r.height += 2 * ZMW_PADDING_WIDTH ;
-  */
   zmw_border_draw_with_rectangle(options, &r) ;
 }
 

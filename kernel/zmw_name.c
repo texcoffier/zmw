@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,10 +23,8 @@
 #include "zmw/zmw.h"
 
 static Zmw_Boolean zmw_name_string_contains(const char *child) ;
-static Zmw_Boolean zmw_name_next_string_contains(const char *child) ;
 static Zmw_Boolean zmw_name_string_is(const Zmw_Name *n) ;
 static int zmw_index_of_next_widget() ;
-static int zmw_name_last_index_of_next_widget() ;
 
 static int global_name_check = 0 ;
 static int global_name_fast = 0 ;
@@ -48,11 +46,8 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    "ZMW_CALL_NUMBER=%d\n"	
 		    "zMw[-1].u.call_number=%d\n" 
 		    "name_string_contains=%d\n"	
-		    "name_next_string_contains=%d\n"	
 		    "name_string_is=%d\n"	
-		    "zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index=%d\n" 
-		    "index_of_next() = %d\n" 
-		    "zMw[-1].u.children[zMw[-1].u.nb_of_children].index=%d\n" 
+		    "zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index=%d\n" 		    "zMw[-1].u.children[zMw[-1].u.nb_of_children].index=%d\n" 
 		    "index_of_next_next() = %d\n" 
 		    "zMw[-1].u.nb_of_children=%d\n" 
 		    "zMw[-1].u.nb_of_children0=%d\n"
@@ -68,10 +63,8 @@ void zmw_name_debug_print(const Zmw_Name *n)
 		    , ZMW_CALL_NUMBER		
 		    , zMw[-1].u.call_number 
 		    , n->name ? zmw_name_string_contains(n->name) : -1 
-		    , n->name ? zmw_name_next_string_contains(n->name) : -1 
 		    , n->name ? zmw_name_string_is(n) : -1 
 		    , zMw[-1].u.children[zMw[-1].u.nb_of_children+1].index 
-		    , zmw_name_last_index_of_next_widget()
 		    , zMw[-1].u.children[zMw[-1].u.nb_of_children].index 
 		    , zmw_index_of_next_widget()
 		    , zMw[-1].u.nb_of_children 
@@ -91,22 +84,10 @@ void zmw_name_debug_print(const Zmw_Name *n)
 #define ZMW_NAME_ASSERT(X) 
 #endif
 
-char* zmw_name_copy()
-{
-  return( strdup( zmw_name_full ) ) ;
-}
-
 Zmw_Boolean zmw_the_first_pass_is_done(const Zmw_Name *n)
 {
 	return( n->index && ZMW_CALL_NUMBER > 1 ) ;
 }
-
-Zmw_Boolean zmw_the_parent_first_pass_is_done()
-{
-	return( zMw[-1].u.call_number > 1 ) ;
-}
-
-
 
 /*
  ******************************************************************************
@@ -344,35 +325,6 @@ Zmw_Boolean zmw_name_contains(const Zmw_Name *n)
     }
 }
 
-/*
- * This is complete garbage.
- * This code works only if the user doesn't change the name
- * of the next widget.
- */ 
- 
-static Zmw_Boolean zmw_name_next_string_contains(const char *name)
-{
-  int i ;
-
-  PRINTF("zmw_name_next_string_contains %s\n", name) ;
-
-  zmw_name_of_the_transient_begin() ;
-  i = zmw_name_string_contains(name) ;
-  zmw_name_of_the_transient_end() ;
-
-  return(i) ;
-}
-
-
-Zmw_Boolean zmw_name_is_my_transient(const char *n)
-{
-	if ( n == NULL )
-		return(Zmw_False );
-	return ( strlen(n) > strlen(zmw_name_full)
-		&& n[strlen(zmw_name_full)] == ',' ) ;
-	
-}
-
 /* Test if the name is one of the previous
  * until a pass_through FALSE (it is tested)
  * It is used to search the first tip
@@ -401,97 +353,6 @@ Zmw_Boolean zmw_name_pass_through_is(const Zmw_Name *n)
     return zMw[-1].u.children[i].index == n->index ;
 
   return Zmw_False ;
-}
-
-int zmw_name_first_index_of_previous_widget()
-{
-  int i ;
-
-  for(i = ZMW_CHILD_NUMBER - 1 ; i>=0 ; i--)
-    if ( ! zMw[-1].u.children[i].pass_through )
-      return zMw[-1].u.children[i].index ;
-
-  return( zMw[-1].i.index + 1) ;
-}
-
-static int zmw_name_last_index_of_next_widget()
-{
-     return( zMw[-1].u.children[ZMW_CHILD_NUMBER + 1].index ) ;
-
-
-   if ( ZMW_CHILD_NUMBER+1 <= zMw[-1].u.nb_of_children_0 )
-     return( zMw[-1].u.children[ZMW_CHILD_NUMBER+1].index ) ;
-   else
-     return( 2000000000 ) ; /* Current widget is the last one */
-
-   if ( ZMW_CHILD_NUMBER+2 < zMw[-1].u.nb_of_children_0 )
-   	return( zMw[-1].u.children[ZMW_CHILD_NUMBER+2].index ) ;
-   return ( zmw_index_of_next_widget_rec(zMw-2) ) ;
-}
-
-Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n)
-{
-  if ( n==NULL || !zmw_name_is_my_transient(n->name) )
-	return( Zmw_False ) ;
-
-  global_name_check++ ;	
-  if ( zmw_the_parent_first_pass_is_done() && zmw_the_first_pass_is_done(n)
-  )
-    {
-      global_name_fast++ ;
-      ZMW_NAME_ASSERT( (n->index >= ZMW_INDEX
-	     && n->index < zmw_name_last_index_of_next_widget())
-	     	== zmw_name_next_string_contains(n->name) ) ;
-      return(
-	     n->index >= ZMW_INDEX
-	     && n->index < zmw_name_last_index_of_next_widget()
-	     ) ;
-    }
-  else
-    {
-      return( zmw_name_next_string_contains(n->name) ) ;
-    }
-}
-
-Zmw_Boolean zmw_name_previous_contains(const Zmw_Name *n)
-{
-  /*
-    global_name_check++ ;	
-    global_name_fast++ ;
-  */
-  if ( n->name == NULL )
-    return Zmw_False ;
-
-  return(
-	 n->index <= ZMW_INDEX
-	 && n->index >= zmw_name_first_index_of_previous_widget()
-	 ) ;
-}
-
-/*
- * Some name manipulations.
- * To speed up things, the len is given and returned
- */
-
-void zmw_name_cut_last(char *name, int *len)
-{
-  if ( *len == 0 )
-    {
-      *len = -1 ;
-      return ;
-    }
-  while( *len && name[*len] != '/' )
-    (*len)-- ;
-  if ( *len >= 0 )
-    name[*len] = '\0' ;
-}
-
-Zmw_Boolean zmw_name_is_transient(const char *name, int len)
-{
-  len-- ;
-  while( isdigit(name[len]) )
-    len-- ;
-  return name[len] == ',' ;
 }
 
 /*
@@ -628,17 +489,6 @@ void zmw_name_register_value(const char *name, const char *why, void *value,
       zmw_name_insert(index, n) ;
     }
   global_registered[index]->value = value ;
-}
-
-Zmw_Name* zmw_name_get_name(const char *name, const char *why)
-{
-  int index ;
-
-  if ( zmw_name_search_index(name, why, &index) )
-    {
-      return global_registered[index] ;
-    }
-  return( NULL ) ;
 }
 
 void *zmw_name_get_pointer_on_resource_with_name_and_type_and_default(const char *name, const char *why, Zmw_Name_Type nt, void *default_value)

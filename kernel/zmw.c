@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -125,25 +125,9 @@ const char* zmw_size_string(const Zmw_Size *s)
 
 int zmw_event_in()
 {
-  if ( 0 )
-    {
-      zmw_printf("zMw[-1].i.window = %p\n", zMw[-1].i.window) ;
-      if ( zmw.event )
-	zmw_printf("zmw.event->any.window = %p\n", zmw.event->any.window) ;
-      zmw_printf("zmw.x = %d\n", zmw.x) ;
-      zmw_printf("ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH = %d\n", ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH) ;
-      zmw_printf("ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH = %d\n", ZMW_SIZE_ALLOCATED.x + ZMW_SIZE_ALLOCATED.width + ZMW_PADDING_WIDTH) ; 
-    }
-
   /* Because of viewport, the event must be in the upper window (no clip) */
-  /* 26/4/2004
-  if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].i.event_in )
-    return(0) ;
-  */
-
   if ( zMw[-1].i.window == ZMW_WINDOW  &&  !zMw[-1].u.size.event_in_rectangle )
     return(0) ;
-
 
   return
     ( zmw.event
@@ -197,8 +181,8 @@ void zmw_state_push()
 
   ZMW_NAME_SEPARATOR = -1 ;
   ZMW_NAME = zMw[-1].u.name + strlen(zMw[-1].u.name) + 1 ;
-  strcpy(&ZMW_NAME[-1], "/?") ;	/* Doesn't inherit name */
-  ZMW_NAME_INDEX = ZMW_NAME + 1 ; /* after the '?' */
+  strcpy(&ZMW_NAME[-1], "/") ;	/* Doesn't inherit name */
+  ZMW_NAME_INDEX = ZMW_NAME ;
   ZMW_DO_NOT_EXECUTE_POP = Zmw_False ;
   ZMW_INVISIBLE = Zmw_False ;
   ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
@@ -297,12 +281,6 @@ static void zmw_debug_set()
 
 void zmw_name(const char *s)
 {
-  if ( zmw.next_is_transient )
-  {
-  	zmw_printf("zmw_name(\"%s\" should not be used on a transient\n",
-  			s) ;
-  	return ;
-  }
   strcpy(ZMW_NAME, s) ;
   ZMW_NAME_INDEX = ZMW_NAME + strlen(ZMW_NAME) ;
   ZMW_NAME_SEPARATOR = -1 ;
@@ -314,28 +292,13 @@ void zmw_name_full_compute()
     sprintf(ZMW_NAME_INDEX, ".%d",  ZMW_NAME_SEPARATOR) ;
  else
     ZMW_NAME_INDEX[0] = '\0' ;
-    
-  if ( zmw.next_is_transient )
-  	{
-    	sprintf(ZMW_NAME_INDEX + strlen(ZMW_NAME_INDEX), ",%d",  ZMW_TRANSIENT_SEPARATOR) ;
-    	zmw.next_is_transient = Zmw_False ;
-  	}
-}
-
-void zmw_next_widget_could_be_transient()
-{
-	ZMW_TRANSIENT_SEPARATOR++ ;
 }
 
 static void zmw_increment_index()
 {
   ZMW_INDEX = zmw.index_last + 1 ;
   zmw.index_last++ ;
-  if ( !zmw.next_is_transient )
-  	{
-	  ZMW_NAME_SEPARATOR++ ;
-	  ZMW_TRANSIENT_SEPARATOR = 0 ;
-  	}
+  ZMW_NAME_SEPARATOR++ ;
   zmw_name_full_compute() ;
 }
 /*
@@ -346,19 +309,6 @@ void zmw_decrement_index()
   zmw_name_full_compute() ;
 }
 */
-void zmw_name_of_the_transient_begin()
-{
-	// ZMW_TRANSIENT_SEPARATOR++ ;
-	zmw.next_is_transient = Zmw_True ;
-	zmw_name_full_compute() ;
-}
-
-void zmw_name_of_the_transient_end()
-{
-	// ZMW_TRANSIENT_SEPARATOR-- ;
-	zmw_name_full_compute() ;
-}
-
 void zmw_init_widget()
 {
   if ( zmw.external_do_not_make_init )
@@ -382,6 +332,7 @@ void zmw_init_widget()
   ZMW_SIZE_CHANGED = Zmw_False ;
   ZMW_SIZE_FOCUSED = Zmw_False ;
   ZMW_SIZE_PASS_THROUGH = Zmw_False ;
+  ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
   ZMW_MENU_STATE = NULL ;
   ZMW_CHILD_NUMBER++ ;
   zmw_debug_set() ;
@@ -423,23 +374,6 @@ Zmw_Size* zmw_widget_previous_size()
     }
 }
 
-/*
- * We don't want to test event on a transient but on
- * the widget BEFORE the transient.
- * It is useful for tips on popup menu button,
- * or multiple tips
- */
-void zmw_remove_transient_name()
-{
-  char *p ;
-  
-  p = strchr(ZMW_NAME_INDEX, ',') ;
-  if ( p )
-  	{
-  	*p = '\0' ;
-  	ZMW_INDEX -= 2 ; /* was 1 the 6/8/2003 */
-  	}
-}
 
 /*
  * do not call if ZMW_SIZE is not computed
@@ -454,18 +388,6 @@ void zmw_action_do_not_enter()
   else
     ZMW_INDEX = ZMW_SIZE_INDEX ;
   */
-  zmw_remove_transient_name() ;
-}
-
-
-static void zmw_padding_remove(Zmw_Rectangle *r)
-{
- r->width  -= 2*ZMW_PADDING_WIDTH ;
- r->height -= 2*ZMW_PADDING_WIDTH ;
- if ( r->x != ZMW_VALUE_UNDEFINED )
-   r->x += ZMW_PADDING_WIDTH ;
- if ( r->y != ZMW_VALUE_UNDEFINED )
-   r->y += ZMW_PADDING_WIDTH ;
 }
 
 
@@ -512,33 +434,32 @@ int zmw_action_compute_required_size()
 	   * This one will be computed once the allocated size
 	   * for itself is known
 	   */
-	  ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
+	  // ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
 	}
 
       /*
        * Asked size set required size
        * These sizes are random if !ZMW_USED_TO_COMPUTE_PARENT_SIZE
        */
-      ZMW_SIZE_MIN.width += 2*ZMW_PADDING_WIDTH ;
-      ZMW_SIZE_MIN.height += 2*ZMW_PADDING_WIDTH ;
       ZMW_SIZE_REQUIRED = ZMW_SIZE_MIN ;
       ZMW_SIZE_HORIZONTAL_EXPAND = ZMW_HORIZONTAL_EXPAND ;
       ZMW_SIZE_VERTICAL_EXPAND = ZMW_VERTICAL_EXPAND ;
       ZMW_SIZE_HORIZONTAL_ALIGNMENT = ZMW_HORIZONTAL_ALIGNMENT ;
       ZMW_SIZE_VERTICAL_ALIGNMENT = ZMW_VERTICAL_ALIGNMENT ;
+      ZMW_SIZE_PADDING_WIDTH = ZMW_PADDING_WIDTH ;
       
       if ( ZMW_SIZE_ASKED.width != ZMW_VALUE_UNDEFINED )
 	{
-	  ZMW_SIZE_REQUIRED.width = ZMW_SIZE_ASKED.width + 2*ZMW_PADDING_WIDTH ;
+	  ZMW_SIZE_REQUIRED.width = ZMW_SIZE_ASKED.width ;
 	  ZMW_SIZE_HORIZONTAL_EXPAND = Zmw_False ;
 	}
       if ( ZMW_SIZE_ASKED.height != ZMW_VALUE_UNDEFINED )
 	{
-	  ZMW_SIZE_REQUIRED.height = ZMW_SIZE_ASKED.height + 2*ZMW_PADDING_WIDTH ;
+	  ZMW_SIZE_REQUIRED.height = ZMW_SIZE_ASKED.height ;
 	  ZMW_SIZE_VERTICAL_EXPAND = Zmw_False ;
 	}
       if ( ZMW_SIZE_ASKED.x != ZMW_VALUE_UNDEFINED )
-	ZMW_SIZE_REQUIRED.x = ZMW_SIZE_ASKED.x ;
+	  ZMW_SIZE_REQUIRED.x = ZMW_SIZE_ASKED.x ;
       if ( ZMW_SIZE_ASKED.y != ZMW_VALUE_UNDEFINED )
 	ZMW_SIZE_REQUIRED.y = ZMW_SIZE_ASKED.y ;
 
@@ -588,10 +509,6 @@ int zmw_action_first_pass()
        */
       if ( !ZMW_SENSIBLE )
 	ZMW_SIZE_SENSIBLE = 0 ;
-
-      zmw_padding_remove(&ZMW_SIZE_ALLOCATED) ;
-      zmw_padding_remove(&ZMW_SIZE_MIN) ;
-      zmw_padding_remove(&ZMW_SIZE_REQUIRED) ;
 
       zMw[-1].u.nb_of_children++ ;
 
@@ -738,17 +655,20 @@ int zmw_action_dispatch_event()
 {
   ZMW_EXTERNAL_HANDLING ;
 
+  /* commented 19/05/2004
   if ( ZMW_SIZE_ACTIVATED || ZMW_SIZE_CHANGED )
     {
       zmw_event_remove() ;  
     }  
-
+  */
   /*
    * Stop widget tree traversal if a widget has been activated.
    * If it is not done, size in cache are no more valid
+   * I think the tree traversal should be stoped, it has
+   * no more any meaning because size are incorrect.
    */
-  /*
-  if ( zmw.event->type == GDK_NOTHING || zmw.remove_event )
+  
+  if ( zmw.event_removed || zmw.remove_event )
     {
       ZMW_CALL_NUMBER++ ;
       zmw_action_do_not_enter() ;
@@ -761,7 +681,7 @@ int zmw_action_dispatch_event()
 	}
       return(0) ;
     }
-  */
+  
 
   switch ( ZMW_CALL_NUMBER++ )
     {

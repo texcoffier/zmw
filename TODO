@@ -2,15 +2,13 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WHAT I AM GOING TO PROGRAM NOW:
-	* Convert d&d (widget/test/circuit/book/example/doc) to use
-	  zmw_if in place of transients.
-	* Remove all the transient management from the kernel.
-	* Remove name_next and other next functions (and for previous)
+        *******************************************************************
+        * Remove duplication of ZMW_SIZE and zMw[-1].u.children
+	* Remove duplication as ZMW_XXX and ZMW_SIZE_XXX when possible.
+        *******************************************************************
+
 	* Make the regression test in menu3.c (recursive menu)
 	* Append menu3.c example in the documentation
-	* Remove duplication as ZMW_XXX and ZMW_SIZE_XXX when possible.
-          May be change padding convention to do the same thing
-	  for the size (they are not the same : +-padding)
 	* Remove name comparaison optimization (ZMW_INDEX, ...)
 	  because they are too complex, don't allow infinite menu,
 	  slow down many thing because other optimisation are not possible.
@@ -45,7 +43,6 @@ LIBRARY CORE:
 	* Cursor shape change when it enters in a widget
 	- animation: Specify the next frame time
 	- Create zmw_font_name zmw_font_size zmw_font_weight ...
-	- Creation of substructs in zmw in order to clarify things
 
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
@@ -61,6 +58,8 @@ BUGS:
 	  but everybody use it to test activation. It may be possible
           to have an action activating many widgets and the next
 	  action is a key press.
+	- ZMW_SIZE_EVENT_IN_RECTANGLE value is incorrect on dispatch_event/3
+	- if ZMW(zmw_popup()) contains a window, it must be its direct child
 
 
 LIMITATIONS:
@@ -119,137 +118,4 @@ NOT TO DO THINGS :
  */
 
 
-
-*****************************************************************************
-*****************************************************************************
-Idea about transient.
-*****************************************************************************
-
-Current transient implementation is complex because
-	- Widget may or may not exists.
-	- Transient names are specials.
-	- Not nice operation are done in the ``next widget name'' functions
-
-Another way to make transient is to introduce a widget.
-This widget is ALWAYS here, but its content is hidden or not.
-So all the problem should vanish and the code is simplified because
-the concept of transient widget is not necessary.
-The new syntax that does not hide anything to the programmer is:
-
-	ZMW( zmw_if(zmw_window_is_popped()) )
-	   {
-	     ZMW(zmw_window_popup_right()) { ... }
-	   }
-
-Alternate syntax not hidding the ZMW:
-	ZMW( zmw_window_is_popped() )
-	   {
-	     ZMW(zmw_window_popup_right()) { ... }
-	   }
-
-Alternate syntax hidding all:
-	zmw_if_window_is_popped()
-	   {
-	     ZMW(zmw_window_popup_right()) { ... }
-	   }
-
-Alternate syntax hidding more than all:
-	ZMW(zmw_window_popup_right())
-	   {
-		// The popup window content
-	   }
-
-
-Old syntax:
-	if ( zmw_window_is_popped() )
-	   {
-	     ZMW(zmw_window_popup_right()) { ... }
-	   }
-
-*****************************************************************************
-*****************************************************************************
-
-New transient syntax for widget drag.
-A case go outside of the switch.
-
-  switch( zmw_drag_from_state() )
-    {
-    case Zmw_Drag_From_Begin:
-      break ;
-    case Zmw_Drag_From_End:
-      break ;
-    }
-
-   ZMW(zmw_if(zmw_drag_from_state() == Zmw_Drag_From_Running) )
-      ZMW(zmw_window_drag())
-	{
-	}
-
-
-Or :
-
-	if ( zmw_drag_from_begin() )
-		{
-		}
-	if ( zmw_drag_from_end() )
-		{
-		}
-	ZMW(zmw_if(zmw_drag_from_running()))
-		ZMW(zmw_window_drag())
-			{
-			}
-
-
-*****************************************************************************
-*****************************************************************************
-
-Menu:
-
-State:   1 if the menu is detached
-       + 2 if the menu is poped
-       + 4 if it contains a detached sub-menu
-
-FullState:   State (current)
-           + 8 if the new state value should be copied over the current one
-	   + 16 * State (new)
-
-The FullState is stored in the "int *detached" given by the
-application or in the resource system.
-
-When not dispatching event, if the new state value
-should be copied it is done.
-
-When dispatching event, the new state value is set to 0 and recomputed.
-If current menu is detached or poped, upper menu new state are updated
-until a detached one.
-
-On read, the current state is read:
-If  state&1, then the menu is detached   , the recursion continue
-else
-If  state&2, then the menu is poped      , the recursion continue
-else
-If  state&4, then somebody visible under , the recursion continue
-else
-             the recursion stop, nobody visible here or under
-
-
-
-1c -+- 11i -+- 111i -+- 1111i
-    |       |        +- 1112i
-    |       +- 112i -+- 1121i
-    |       |	     +- 1122i
-    |       +- 113i -+- 1131i
-    |		     +- 1132i
-    +- 12c -+- 121i -+- 1211i
-    |	    |	     +- 1212i
-    |	    +- 122d -+- 1221v -+- 12211v
-    |	    |	     +- 1222i
-    |	    +- 123i -+- 1231i
-    |		     +- 1232i
-    +- 13c -+- 131i -+- 1311i
-	    |	     +- 1312i
-	    +- 132i -+- 1321i
-	    |	     +- 1322i
-	    +- 133c -+- 1331i
-		     +- 1332d
 

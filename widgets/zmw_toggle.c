@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -78,8 +78,8 @@ int zmw_toggle_bits_with_label(int value, int bits, const char *label)
   a = 0 ;
   ZMW( zmw_box_horizontal_activable() )
     {
-      zmw_horizontal_expand(0) ;
-      zmw_vertical_expand(0) ;
+      zmw_horizontal_expand(Zmw_False) ;
+      zmw_vertical_expand(Zmw_False) ;
 
       value = zmw_toggle_bits(value, bits, 0) ;
       a = zmw_activated() ;

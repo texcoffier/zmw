@@ -47,13 +47,13 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.5)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.7)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
     </author>
     <copyright>
-      <year>2003</year>
+      <year>2003-2004</year>
       <holder>Universit&#233; Claude Bernard,
 	LIRIS, Thierry Excoffier</holder>
     </copyright>
@@ -2609,6 +2609,8 @@
 	    <para>
 	      Set the amount of unused space between the widget border
 	      and the widget content.
+	      This attribute applies to the padded widget,
+	      so a container can contains widget with various paddings.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3017,140 +3019,130 @@
 
 	<varlistentry>
 	  <term>
-	    <type>Zmw_Drag_From</type>
-	    <function>zmw_drag_from_state</function>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_from_started</function>
 	    (<type>void</type>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	    This function is to be called after the widget that can be dragged.
-	    It can return one of the following values:
-	    <variablelist>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_From_No</constant></term>
-		<listitem>
-		  <para>The widget is not being dragged</para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_From_Begin</constant></term>
-		<listitem>
-		  <para>The widget starts to being dragged.
-		  The program may change its state.
-		  It can use the function
-		    <function>zmw_drag_data_set</function>(<type>char*</type>)
-		    in order to allow the receptor widget to get the data.
-		    The data is a string, it is duplicated by the function.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_From_Running</constant></term>
-		<listitem>
-		  <para>The widget is being dragged.
-		    The program is required to display a window
-		    to give a user feedback.
-		    It can be a <link linkend="dragwindow">cursor following window</link>.
-		    The program must not change its state.
-		    It can use <function>zmw_drag_accept_get</function>(<type>void</type>) in order to know if the current widget under accept the drag or no.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_From_End</constant></term>
-		<listitem>
-		  <para>The drag is terminated.
-		    The program can change its state.
-		    It can use <function>zmw_drag_accept_get</function>(<type>void</type>)
-		    in order to know if the drag was accepted.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	    </variablelist>
+	      If it returns true, the previous widget
+	      starts to be dragged, 
+	      the program may change its state.
+	      It can use the function
+	      <function>zmw_drag_data_set</function>(<type>char*</type>)
+	      in order to allow the receptor widget to get the data.
+	      The data is a string, it is duplicated by the function.
 	    </para>
 	  </listitem>
 	</varlistentry>
+
 	<varlistentry>
 	  <term>
-	    <type>Zmw_Drag_to</type>
-	    <function>zmw_drag_to_state</function>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_from_stopped</function>
 	    (<type>void</type>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	    This function is to be called after a widget that can accept a drag.
-	    It can return one of the following values:
-	    <variablelist>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_To_Enter</constant></term>
-		<listitem>
-		  <para>A dragged widget enter into the receptor area.
-		  The program may change its state.
-		  The program can call <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
-		  The program must call <function>zmw_drag_accept_set</function>(<type>Zmw_Boolean</type>)
-		  to indicate if it accepts the drag or no.</para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_To_Leave</constant></term>
-		<listitem>
-		  <para>A dragged widget leave the receptor area.
-		  The program may change its state.</para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_To_No_Change</constant></term>
-		<listitem>
-		  <para>Nothing change.
-		    The program must not change its state.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term><constant>Zmw_Drag_To_End</constant></term>
-		<listitem>
-		  <para>
-		    The dragged widget had been dropped on the previous widget,
-		    even if the drag was not accepted.
-		    The program may change its state.
-		    It can use  <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
-		  </para>
-		</listitem>
-	      </varlistentry>	    
-	    </variablelist>
-	  </para>
-	</listitem>
-	</varlistentry>	    
+	      If it returns true, the previous widget
+	      stops to be dragged, 
+	      the program may change its state.
+	      It can use <function>zmw_drag_accept_get</function>(<type>void</type>)
+	      in order to know if the drag was accepted.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
 	<varlistentry>
 	  <term>
 	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_from_running</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      This function should be used as a <function>zmw_if</function>
+	      parameter.
+	      The program must not change its state.
+	      It can use <function>zmw_drag_accept_get</function>(<type>void</type>) in order to know if the current widget under accept the drag or no.
+
+	      Beware, this function should only be used
+	      after a <function>zmw_drag_from_started</function>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_to_enter</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If it returns true, a dragged widget starts
+	      to be on the previous widget.
+	      The program may change its state.
+	      The program can call <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
+	      The program must call <function>zmw_drag_accept_set</function>(<type>Zmw_Boolean</type>)
+	      to indicate if it accepts the drag or no.
+	  </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_to_leave</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If it returns true, a dragged widget stops
+	      to be on the previous widget.
+	      The program may change its state.
+	  </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>Zmw_Boolean</type>
+	    <function>zmw_drag_to_dropped</function>
+	    (<type>void</type>) ;
+	  </term>
+	  <listitem>
+	    <para>
+	      If it returns true,
+	      the dragged widget had been dropped on the previous widget,
+	      even if the drag was not accepted.
+	      The program may change its state.
+	      It can use  <function>zmw_drag_data_get</function>(<type>void</type>) to retrieve the dragged data.
+	  </para>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <type>void</type>
 	    <function>zmw_drag_swap</function>
 	    (<type>int *</type> <parameter>index</parameter>,
 	    <type>int **</type><parameter>index_current</parameter>,
-	    <type>int **</type><parameter>index_old</parameter>
 	    ) ;
 	  </term>
 	  <listitem>
 	    <para>
 	      This function allows to swap widgets by dragging them,
-	      The function is called after the widget to be swapped,
+	      The function is called after the widget that can be swapped,
 	      it could be used to change columns order in a table.
 	      <parameter>index</parameter> is a pointer on
 	      the data to be swapped.
-	      If <parameter>*index_current</parameter> is <constant>NULL</constant>
+	      <parameter>*index_current</parameter> is <constant>NULL</constant>
 	      if there is no dragging, else it is the
 	      index of the widget being dragged.
 	      Beware the indexes change when there is a swap and
 	      there is swaps while the button is pressed.
-	      If this function returns true, an informative
-	      widget must be displayed.
-	      The example may be more informative than
-	      this text.
-	      <parameter>index_old</parameter> is here to stop
-	      swapping infinity loop, it is not nice at all.
-	      The other ways are to move the cursor (screen pointer)
-	      to a better position when swapping or to not immediately
-	      swap widgets. If you have better ideas, tell me.
+	      
 	    </para>
 	  </listitem>
 	</varlistentry>	    
@@ -3483,6 +3475,9 @@
 	      and <varname>y</varname> value are equals
 	      to <constant>ZMW_VALUE_UNDEFINED</constant>
 	      because children let their parent place them.
+	      It is the container job to add the padding
+	      around the widgets
+	      <varname>ZMW_CHILDREN[i].padding_width</varname>
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3500,12 +3495,16 @@
 	      to allocate the space to its children in
 	      <varname>ZMW_CHILDREN[i].allocated</varname>.
 	      The <varname>x</varname>
-	      and <varname>y</varname> values are all absolute
+	      and <varname>y</varname> values are all <emphasis>absolute</emphasis>
 	      and must be computed for the children.
 	      The widget has access to
 	      <varname>ZMW_CHILDREN[i].required</varname>
 	      in order to compute the allocated size from
 	      the required size.
+	      The required size is the minimal size modified
+	      by the user preferences.
+	      Beware, the computed value are not of the padded widget
+	      but the real one.	      
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3751,20 +3750,6 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry>
-	  <term>
-	    <type>Zmw_Boolean</type>
-	    <function>zmw_name_next_contains</function>
-	    (<type>const Zmw_Name *</type><parameter>name</parameter>) ;
-	  </term>
-	  <listitem>
-	    <para>
-	    True if the next widget contains or is equal
-	    to the widget stored in <parameter>name</parameter>.
-	    This is only useful for the menu system.
-	    </para>
-	  </listitem>
-	</varlistentry>
 
       </variablelist>
 
@@ -3892,7 +3877,7 @@
 	  to store the widget reference.
 	  The default widget name for the third child of the
 	  first widget of the hierarchy is:
-	  <constant>/?.0/?.2</constant>
+	  <constant>/.0/.2</constant>
 	</para>
 	<para>
 	  But with this naming scheme, if the widget hierarchy
@@ -4255,7 +4240,7 @@
 	  It is possible to interactively browse the widget tree,
 	  the resources, the drag state and to
 	  inspect widget attributes.
-	  It is useful to verify the size allocation algorithms.
+	  It is useful to verify the geometry allocation algorithms.
 	</para>
       </sect2>
     </sect1>

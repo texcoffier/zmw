@@ -45,10 +45,7 @@ void zmw_void()
       /* Retrieve size even if not used (to please cache check) */
       if ( ZMW_CHILDREN[0].used_to_compute_parent_size )
 	{
-	  /* Remove the padding */
 	  ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
-	  ZMW_SIZE_MIN.width -= 2 * ZMW_PADDING_WIDTH ;
-	  ZMW_SIZE_MIN.height -= 2 * ZMW_PADDING_WIDTH ;
 	}
       else
 	{
@@ -65,10 +62,7 @@ void zmw_void()
     case Zmw_Compute_Children_Allocated_Size:
       if ( ZMW_CHILDREN[0].used_to_compute_parent_size )
 	{
-	  ZMW_CHILDREN[0].allocated.x = ZMW_SIZE_ALLOCATED.x - ZMW_PADDING_WIDTH ;
-	  ZMW_CHILDREN[0].allocated.y = ZMW_SIZE_ALLOCATED.y - ZMW_PADDING_WIDTH ;
-	  ZMW_CHILDREN[0].allocated.width = ZMW_SIZE_ALLOCATED.width + 2*ZMW_PADDING_WIDTH ;
-	  ZMW_CHILDREN[0].allocated.height= ZMW_SIZE_ALLOCATED.height + 2*ZMW_PADDING_WIDTH ;
+	  ZMW_CHILDREN[0].allocated = ZMW_SIZE_ALLOCATED ;
 	}
       break ;
 

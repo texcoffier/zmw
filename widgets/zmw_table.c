@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
+
+/* Bug : Some bad padding inserted .... */
 
 #include "zmw/zmw.h"
 
@@ -40,10 +42,10 @@ int * zmw_table_col_width(int nb_cols, int *computed_col_width)
 
       for(col=0; col<nb_cols; col++)
 	{
-	  computed_col_width[col] = ZMW_CHILDREN[col].required.width ;
+	  computed_col_width[col] = ZMW_CHILDREN[col].required.width + 2*ZMW_CHILDREN[col].padding_width ;
 	  for(i = col + nb_cols; i<ZMW_NB_OF_CHILDREN; i += nb_cols)	    
-	    if ( ZMW_CHILDREN[i].required.width > computed_col_width[col] )
-	      computed_col_width[col] =  ZMW_CHILDREN[i].required.width ;
+	    if ( ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].padding_width > computed_col_width[col] )
+	      computed_col_width[col] =  ZMW_CHILDREN[i].required.width + 2*ZMW_CHILDREN[i].padding_width ;
 	}
 
     }
@@ -63,10 +65,11 @@ int *zmw_table_row_height(int nb_cols, int *nb_rows)
   pos = 0 ;
   for(row=0; row<*nb_rows; row++)
     {
-      height[row] = ZMW_CHILDREN[pos++].required.height ;
+      height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width ;
+      pos++ ;
       for(i = 1; i < nb_cols && pos <ZMW_NB_OF_CHILDREN; i++, pos++)
-	if ( ZMW_CHILDREN[pos].required.height > height[row] )
-	  height[row] = ZMW_CHILDREN[pos].required.height ;
+	if ( ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width > height[row] )
+	  height[row] = ZMW_CHILDREN[pos].required.height + 2*ZMW_CHILDREN[pos].padding_width ;
     }
   return( height ) ;
 }
@@ -97,15 +100,19 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
 
   *wi = width = zmw_table_col_width(nb_cols, col_width) ;
   *he = height = zmw_table_row_height(nb_cols, &nb_rows) ;
-  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH ;
-  y = ZMW_SIZE_ALLOCATED.y ;
+
+  if ( ZMW_NB_OF_CHILDREN == 0 )
+    return ;
+
+  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].padding_width ;
+  y = ZMW_SIZE_ALLOCATED.y  + ZMW_CHILDREN[0].padding_width ;
 
   for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
     {
       ZMW_CHILDREN[i].allocated.x = x ;
       ZMW_CHILDREN[i].allocated.y = y ;
-      w = width[i%nb_cols] ;
-      h = height[i/nb_cols] ;
+      w = width[i%nb_cols] - 2*ZMW_CHILDREN[i].padding_width ;
+      h = height[i/nb_cols] - 2*ZMW_CHILDREN[i].padding_width ;
       if ( ZMW_CHILDREN[i].horizontal_expand )
 	ZMW_CHILDREN[i].allocated.width = w;
       else
@@ -154,7 +161,7 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
       x += width[i%nb_cols] + ZMW_TABLE_VERTICAL_WIDTH ;
       if ( (i+1)%nb_cols == 0 )
       	{
-	  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH ;
+	  x = ZMW_SIZE_ALLOCATED.x + ZMW_TABLE_VERTICAL_WIDTH + ZMW_CHILDREN[0].padding_width ;
 	  y += height[i/nb_cols] ;
       	}
     }
@@ -255,7 +262,7 @@ void zmw_table_draw(int nb_cols, int *width, int *height, Zmw_Boolean *selection
 /*
  * Vertical column separator
  */
-  x = ZMW_SIZE_ALLOCATED.x /* - ZMW_PADDING_WIDTH + ZMW_TABLE_VERTICAL_WIDTH*/ ;
+  x = ZMW_SIZE_ALLOCATED.x ;
   for(i=0; i<=nb_cols; i++)
     {
       zmw_draw_line(Zmw_Color_Foreground

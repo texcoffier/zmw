@@ -26,7 +26,7 @@ There is no install goal, it is intented.
 
 If you can not compile the documentation, it is browsable from :
 	http://www710.univ-lyon1.fr/~exco/ZMW/
-The documentation examples are in "examples" directory.
+The documentation examples are in "applications/examples" directory.
 
 
 To configure the compilation process, see "Makefile.config".
@@ -45,4 +45,4 @@ They are :
 	- not optimized
 	- certainly bugged
 	- full of misnamed variables and functions
-They should not be used as a basis for a real widget library.
+They should not yet be used as a basis for a real widget library.

@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -350,7 +350,7 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	  /* If the event is not removed, we see selection move
 	   * on all the text widget.
 	   */
-	  zmw_event_remove() ;
+	  // zmw_event_remove() ;
       	}
       break ;
     default:

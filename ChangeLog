@@ -1,3 +1,13 @@
+2004-06-02 (0.0.7)
+	The user can stop the widget-tree traversal with zmw_event_remove()
+	The drag and drop no more use transient widgets but zmw_if
+	zmw_drag_...() API change
+	zmw_drag_swap() API change (one less parameter)
+	All the transient management has been removed from library kernel
+	The default widget name is "" in place of "?" to have name smaller
+	The padding computation has moved from kernel to widget containers
+	The padding width is now copied into Zmw_Size
+	
 2004-05-18 (0.0.6)
 	The event reception no more stops the widget-tree traversal
 	zmw_if(): add the widget, the regression test, the documentation

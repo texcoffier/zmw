@@ -70,7 +70,7 @@ void table_header(Library_GUI *gui)
 {
   void (*old_sort)(Library*) ;
   int i, j ;
-  static int *current = NULL, *old_current = NULL ;
+  static int *current = NULL ;
 
   old_sort = gui->sort ;
 
@@ -146,9 +146,10 @@ void table_header(Library_GUI *gui)
 		  abort() ;
 		}
 	    }
-	  if ( zmw_drag_swap((int*)&gui->prefs.cols[i].order, &current, &old_current) )
+	  zmw_drag_swap((int*)&gui->prefs.cols[i].order, &current) ;
+	  ZMW( zmw_if( zmw_drag_from_running() ) )
 	    ZMW(zmw_window_drag())
-	      zmw_text(_(gui->prefs.cols[*current].id)) ;
+	    zmw_text(_(gui->prefs.cols[current ? *current : 0].id)) ;
 	}
     }
 

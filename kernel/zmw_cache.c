@@ -81,7 +81,7 @@ int zmw_cache_get_size_real(Zmw_Size *r)
 {
   struct cached_data *cd ;
 
-  ZMW_PRINTF("get size from cache of : %s\n", zmw_name_full) ;
+  ZMW_PRINTF("get size from cache of : [%d]%s\n", ZMW_INDEX, zmw_name_full) ;
 
   if ( global_cache_size )
     {
@@ -94,6 +94,7 @@ int zmw_cache_get_size_real(Zmw_Size *r)
 	  if ( zmw.debug & Zmw_Debug_Cache_Fast )
 	    if ( !zmw.event_removed && cd->name && strcmp(cd->name, zmw_name_full) )
 	      {
+		zmw_debug_trace() ;
 		zmw_printf("real name = %s\n", zmw_name_full) ;
 		zmw_printf("index = %d\n", ZMW_INDEX) ;
 		zmw_printf("stored name = %s\n", cd->name) ;
@@ -125,14 +126,17 @@ void zmw_cache_set_size_real(const Zmw_Size *r)
       
       cd->r = *r ;
       cd->index = ZMW_INDEX ;
+      ZMW_PRINTF("zmw_cache_set_size_real [%d]%s : %s\n",
+		 ZMW_INDEX, zmw_name_full, zmw_size_string(r)) ;
       if ( zmw.debug & Zmw_Debug_Cache_Fast )
 	{
+	  ZMW_PRINTF("Update name\n") ;
 	  if ( cd->name )
 	    free(cd->name) ;
 	  cd->name = strdup(zmw_name_full) ;
 	}
       else
-	cd->name = NULL ;
+	cd->name = NULL ; // unecessary ??
     }
 }
 
@@ -171,8 +175,8 @@ static void zmw_cache_check(const Zmw_Size *s)
 		}
 	      return ;
 	    }
+	  zmw_debug_trace() ;
 	  zmw_printf("%s\n", zmw_name_full) ;
-	  zmw_printf("%s\n", ZMW_TYPE) ;
 	  zmw_printf("[%d] Problems in cache_check : %s\n", ZMW_INDEX, p) ;
 	  zmw_printf("Stored = %s !\n",zmw_size_string(&ss)) ;
 	  zmw_printf("Comput = %s !\n",zmw_size_string(s)) ;
@@ -185,7 +189,7 @@ static void zmw_cache_check(const Zmw_Size *s)
 
 void zmw_cache_set_size(const Zmw_Size *r)
 {
-  ZMW_PRINTF("set size of %s to %s\n", zmw_name_full, zmw_size_string(r)) ;
+  ZMW_PRINTF("set size of [%d]%s to %s\n", ZMW_INDEX, zmw_name_full, zmw_size_string(r)) ;
 
   if ( zmw.debug & Zmw_Debug_Cache_Slow )
     zmw_cache_check(r) ;

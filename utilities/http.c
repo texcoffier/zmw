@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -261,8 +261,6 @@ static char *get_zmw(int i)
     strcat(global_buf, " external_do_not_make_init") ;
   if ( zmw.remove_event )
     strcat(global_buf, " remove_event") ;
-  if ( zmw.next_is_transient )
-    strcat(global_buf, " next_is_transient") ;
   if ( zmw.event )
     {
       sprintf(global_buf+strlen(global_buf), " event:%p", zmw.event) ;
@@ -317,13 +315,12 @@ static struct options global_options[] =
     { 0, OPTION(u.nb_of_children_0                   , int                 ) },
     { 0, OPTION(u.font_copy_on_write                 , boolean             ) },
     { 0, OPTION(u.name_separator                     , int                 ) },
-    { 0, OPTION(u.transient_separator                , int                 ) },
     { 0, OPTION(u.menu_state                         , menu_state          ) },
     { 0, OPTION(u.children                           , children            ) },
     { 1, OPTION(u.size.min                           , rectangle           ) },
     { 0, OPTION(u.size.asked                         , rectangle           ) },
     { 0, OPTION(u.size.required                      , rectangle           ) },
-    { 0, OPTION(u.size.allocated                     , rectangle           ) },
+    { 0, OPTION(u.size.allocated                , rectangle           ) },
     { 0, OPTION(u.size.used_to_compute_parent_size   , boolean             ) },
     { 0, OPTION(u.size.index                         , int                 ) },
     { 0, OPTION(u.size.horizontal_expand             , boolean             ) },
@@ -340,8 +337,8 @@ static struct options global_options[] =
     { 0, OPTION(u.size.changed                       , boolean             ) },
     { 0, OPTION(u.size.do_not_map_window             , boolean             ) },
     { 0, OPTION(u.size.pass_through                  , boolean             ) },
+    { 0, OPTION(u.size.padding_width                 , int                 ) },
     { 1, OPTION(i.debug                              , int                 ) },
-    { 0, OPTION(i.padding_width                      , int                 ) },
     { 0, OPTION(i.border_width                       , int                 ) },
     { 0, OPTION(i.focus_width                        , int                 ) },
     { 0, OPTION(i.focus                              , pointer             ) },
@@ -903,7 +900,6 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
       zmw.y = zmw.event->motion.y ;
       ZMW_SIZE_SENSIBLE = Zmw_True ;
       zmw.remove_event = Zmw_False ;
-      zmw.next_is_transient = Zmw_False ;
       ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_True ;
       ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_True ;
       ZMW_WINDOW = NULL ;

@@ -76,18 +76,23 @@ void test_drag_and_drop(const char *title)
 		       * The "from" drag state of this widget.
 		       * This widget can be dragged
 		       */
-		      switch( zmw_drag_from_state() )
+		      if ( zmw_drag_from_started() )
 			{
-			case Zmw_Drag_From_No: /* Not being dragged */
-			  break ;
-			case Zmw_Drag_From_Begin: /* Start being dragged */
 			  zmw_drag_data_set(buf) ;	/* Set drag data */
 			  drag_from_j = j ;
 			  drag_from_i = i ;
-			  break ;
-			case Zmw_Drag_From_Running: /* Being dragged */
-		      sprintf(buf, "%d is %s", numbers[j][i]
-		      	, zmw_drag_accept_get() ? "accepted" : "not accepted") ;
+			}
+		      if ( zmw_drag_from_stopped() )
+			{
+			  drag_from_j = -1 ;
+			  drag_from_i = -1 ;
+			}
+		      ZMW( zmw_drag_from_running() )
+			{
+			  sprintf(buf, "%d is %s", numbers[j][i]
+				  , zmw_drag_accept_get()
+				  ? "accepted"
+				  : "not accepted") ;
 			  ZMW(zmw_window_drag())
 			    {
 			      ZMW(zmw_box_vertical())
@@ -96,14 +101,6 @@ void test_drag_and_drop(const char *title)
 				}
 			      zmw_border_embossed_in_draw() ;
 			    }
-			  break ;
-			case Zmw_Drag_From_End: /* The drop is done */
-			  drag_from_j = -1 ;
-			  drag_from_i = -1 ;
-			  break ;
-			default:
-			  ZMW_ABORT ;
-			  break ;
 			}
 		    }
 		}
@@ -111,9 +108,8 @@ void test_drag_and_drop(const char *title)
 	      /*
 	       * Does a widget is being dragged into this widget
 	       */
-	      switch( zmw_drag_to_state() )
+	      if ( zmw_drag_to_enter() )
 		{
-		case Zmw_Drag_To_Enter:
 		  k = j==0
 		    || (j==1 && (atoi(zmw_drag_data_get())%2) == 0)
 		    || (j==2 && (atoi(zmw_drag_data_get())%3) == 0)
@@ -121,8 +117,9 @@ void test_drag_and_drop(const char *title)
 		  drag_to = j ;
 		  drag_to_k = k ;
 		  zmw_drag_accept_set(k) ;
-		  break ;
-		case Zmw_Drag_To_End:
+		}
+	      if ( zmw_drag_to_dropped() )
+		{
 		  if ( zmw_drag_accept_get() )
                     {
                       for(i=0; numbers[j][i]>=0; i++)
@@ -131,16 +128,10 @@ void test_drag_and_drop(const char *title)
                       numbers[j][i++] = atoi(zmw_drag_data_get()) ;
                       numbers[j][i++] = -1 ;
                     }
-		/* fall thru */
-		case Zmw_Drag_To_Leave:
 		  drag_to = -1 ;
-		  break ;
-		case Zmw_Drag_To_No_Change:
-		  break ;
-		default:
-			  ZMW_ABORT ;
-		  break ;
 		}
+	      if ( zmw_drag_to_leave() )
+		  drag_to = -1 ;
 	    }
 	}
     }

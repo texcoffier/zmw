@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,25 +44,53 @@ typedef enum
     Zmw_Color_Last
   } Zmw_Color ;
 
-#define ZMW_VALUE_UNDEFINED (-32767)
-#define ZMW_MAX_DEPTH 100
-#define ZMW_MAX_NAME_LENGTH 1000
-
-typedef struct zmw_rectangle
-{
-  int x, y, width, height ;
-} Zmw_Rectangle ;
-
-typedef char Zmw_Boolean ;
-
-typedef float Zmw_Float_0_1 ; /* float number between 0 and 1 included */
-
 typedef enum zmw_name_type
 	 { Zmw_Is_A_Registration
 	 , Zmw_Is_A_Resource_String
 	 , Zmw_Is_A_Resource_Int
 	 , Zmw_Is_A_Resource_Pointer
 	 } Zmw_Name_Type ;
+
+typedef enum zmw_subaction
+  {
+    Zmw_Init,
+    Zmw_Compute_Required_Size,
+    Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing,
+    Zmw_Compute_Children_Allocated_Size,
+    Zmw_Post_Drawing,
+    Zmw_Input_Event,
+    Zmw_Nothing,
+    Zmw_Clean,			/* ZMW is shuting down, free resources */
+    Zmw_Debug_Message,          /* Display warnings and debugging messages */
+  } Zmw_Subaction ;
+
+
+#define ZMW_VALUE_UNDEFINED (-32767)
+#define ZMW_MAX_DEPTH 100
+#define ZMW_MAX_NAME_LENGTH 1000
+
+#define Zmw_Debug_Window              1
+#define Zmw_Debug_Draw_Cross          2
+#define Zmw_Debug_Trace               4
+#define Zmw_Debug_Event               8
+#define Zmw_Debug_Widget             16
+#define Zmw_Debug_Draw               32 // Output # of draw in "xxx.nb_draw"
+#define Zmw_Debug_Drag               64
+#define Zmw_Debug_Window_Auto_Resize 128
+#define Zmw_Debug_Cache_Fast         256
+#define Zmw_Debug_Cache_Slow         512
+#define Zmw_Debug_Name              1024
+
+typedef char Zmw_Boolean ;
+enum zmw_boolean { Zmw_False, Zmw_True } ;
+
+typedef float Zmw_Float_0_1 ; /* float number between 0 and 1 included */
+
+typedef struct zmw_rectangle
+{
+  int x, y, width, height ;
+} Zmw_Rectangle ;
+
 
 typedef struct zmw_name
 {
@@ -75,10 +103,10 @@ typedef struct zmw_name
 
 typedef struct zmw_size
 {
-  Zmw_Rectangle min ;		/* Size needed for correct display */
-  Zmw_Rectangle asked ;		/* Size asked by the user */
-  Zmw_Rectangle required ;	/* It is needed overrided by asked */
-  Zmw_Rectangle allocated ;	/* Size given by the parent */
+  Zmw_Rectangle min ;		// Size needed for correct display
+  Zmw_Rectangle asked ;		// Size asked by the user
+  Zmw_Rectangle required ;	// It is : needed overrided by asked
+  Zmw_Rectangle allocated ;   // Size usable (_padded less padding)
   int index ;
   Zmw_Boolean horizontal_expand ;
   Zmw_Boolean vertical_expand ;
@@ -94,6 +122,8 @@ typedef struct zmw_size
   Zmw_Boolean activated ;
   Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean changed ;	        /* True if the widget has changed */
+
+  int padding_width ;
   /*
    * If true, the widget is transparent for size, sensible, activate, ...
    * requests. Because it is not this widget we want to test
@@ -103,39 +133,10 @@ typedef struct zmw_size
   Zmw_Boolean pass_through ;
 } Zmw_Size ;
 
-typedef enum zmw_subaction
-  {
-    Zmw_Init,
-    Zmw_Compute_Required_Size,
-    Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing,
-    Zmw_Compute_Children_Allocated_Size,
-    Zmw_Post_Drawing,
-    Zmw_Input_Event,
-    Zmw_Nothing,
-    Zmw_Clean,			/* ZMW is shuting down, free resources */
-    Zmw_Debug_Message,          /* Display warnings and debugging messages */
-  } Zmw_Subaction ;
-
-enum zmw_boolean { Zmw_False, Zmw_True } ;
-
-
-#define Zmw_Debug_Window              1
-#define Zmw_Debug_Draw_Cross          2
-#define Zmw_Debug_Trace               4
-#define Zmw_Debug_Event               8
-#define Zmw_Debug_Widget             16
-#define Zmw_Debug_Draw               32 // Output # of draw in "xxx.nb_draw"
-#define Zmw_Debug_Drag               64
-#define Zmw_Debug_Window_Auto_Resize 128
-#define Zmw_Debug_Cache_Fast         256
-#define Zmw_Debug_Cache_Slow         512
-#define Zmw_Debug_Name              1024
-
 typedef struct zmw_stackable_inheritable
 {
   int (*action)(void) ;
   int debug ;
-  int padding_width ;
   int border_width ;
   int focus_width ;
   Zmw_Name *focus ;
@@ -150,6 +151,7 @@ typedef struct zmw_stackable_inheritable
   Zmw_Boolean vertical_expand ;
   Zmw_Boolean horizontal_alignment ;
   Zmw_Boolean vertical_alignment ;
+  int padding_width ;
   int index ;
   /*
    * These values should not be inherited
@@ -170,7 +172,6 @@ typedef struct zmw_stackable_uninheritable
   char *name ;			/* Pointer on the last part of full_name */
   char *name_index ;		/* Pointer on the '.#' part of name */
   int name_separator ;		/* In case of ambiguity of the name */
-  int transient_separator ;     /* In case of multiple transient */
   const char *type ;		/* Content of the ZMW(....) call */
   const char *file ;		/* File where ZMW was declared */
   int line ;			/* Line where ZMW was declared */
@@ -223,7 +224,6 @@ typedef struct zmw
    */
   Zmw_Boolean external_do_not_make_init ; // For EXTERNAL
   Zmw_Boolean remove_event ;    /* Remove event before entering next widget */
-  Zmw_Boolean next_is_transient;/* for tips, menu, ... */
   /*
    * These values apply to the last widget (can't be used before first kid)
    */
@@ -256,24 +256,6 @@ typedef struct zmw
 
 extern Zmw zmw ;
 
-/* The ! in the comment indicates that you can change
- * the state of the program
- */
-typedef enum zmw_drag_from
-  { Zmw_Drag_From_No      // You are not dragged
-    , Zmw_Drag_From_Begin // ! Start of your drag, call zmw_drag_data_set()
-    , Zmw_Drag_From_End   // ! End of your drag, call zmw_drag_is_accepted()
-    , Zmw_Drag_From_Running // You MUST display a drag window, you may call zmw_drag_is_accepted()
-  } Zmw_Drag_From ;
-
-typedef enum zmw_drag_to
-  { Zmw_Drag_To_No_Change  // No state change
-    , Zmw_Drag_To_Enter    // ! A drag is now over you, call zmw_drag_to_accept
-    , Zmw_Drag_To_Leave    // ! A drag leave you
-    , Zmw_Drag_To_End      // ! The drag is deposited on you
-  } Zmw_Drag_To ;
-
-
 
 
 #define zMw zmw.ptr
@@ -283,6 +265,7 @@ typedef enum zmw_drag_to
 #define ZMW_WINDOW                    (zMw->i.window                    )
 #define ZMW_ACTION                    (zMw->i.action                    )
 #define ZMW_PADDING_WIDTH             (zMw->i.padding_width             )
+#define ZMW_SIZE_PADDING_WIDTH        (zMw->u.size.padding_width        )
 #define ZMW_DEBUG                     (zMw->i.debug                     )
 #define ZMW_BORDER_WIDTH              (zMw->i.border_width              )
 #define ZMW_FOCUS_WIDTH               (zMw->i.focus_width               )
@@ -291,7 +274,6 @@ typedef enum zmw_drag_to
 #define ZMW_FOCUS                     (zMw->i.focus                     )
 #define ZMW_EVENT_IN_FOCUS            (zMw->i.event_in_focus            )
 #define ZMW_EVENT                     (zMw->i.event                     )
-// #define ZMW_EVENT_IN                  (zMw->i.event_in               )
 #define ZMW_SIZE_EVENT_IN_RECTANGLE   (zMw->u.size.event_in_rectangle   )
 #define ZMW_SIZE_EVENT_IN_CHILDREN    (zMw->u.size.event_in_children    )
 #define ZMW_FONT                      (zMw->i.font                      )
@@ -316,7 +298,6 @@ typedef enum zmw_drag_to
 #define ZMW_NAME                      (zMw->u.name                      )
 #define ZMW_NAME_INDEX                (zMw->u.name_index                )
 #define ZMW_NAME_SEPARATOR            (zMw->u.name_separator            )
-#define ZMW_TRANSIENT_SEPARATOR       (zMw->u.transient_separator       )
 #define ZMW_SIZE_INDEX                (zMw->u.size.index                )
 #define ZMW_SIZE_HORIZONTAL_EXPAND    (zMw->u.size.horizontal_expand    )
 #define ZMW_SIZE_HORIZONTAL_ALIGNMENT (zMw->u.size.horizontal_alignment )
@@ -339,6 +320,11 @@ typedef enum zmw_drag_to
 #define ZMW_MENU_STATE                (zMw->u.menu_state                )
 #define ZMW_CHILD_NUMBER              (zMw->u.child_number              )
 
+#define ZMW_CHILD_REQUIRED_PADDED_WIDTH(I) (ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_HEIGHT(I) (ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_RIGHT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].required.width + 2*ZMW_CHILDREN[I].padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_LEFT(I) (ZMW_CHILDREN[I].required.x + ZMW_CHILDREN[I].padding_width)
+#define ZMW_CHILD_REQUIRED_PADDED_TOP(I) (ZMW_CHILDREN[I].required.y + ZMW_CHILDREN[I].required.height + 2*ZMW_CHILDREN[I].padding_width)
 
 
 #define ZMW1(X) do { X } while(0)
@@ -479,11 +465,8 @@ int zmw_printf(const char *format, ...) ;
 const char *zmw_action_name(void) ;
 const char *zmw_action_name_fct(void) ;
 void zmw_name(const char *s) ;
-void zmw_name_of_the_transient_begin(void) ;
-void zmw_name_of_the_transient_end(void) ;
 void zmw_state_pop(void) ;
 Zmw_Size* zmw_widget_previous_size(void) ;
-void zmw_next_widget_could_be_transient(void) ;
 void zmw_state_push(void) ;
 void zmw_init_widget(void) ;
 const char *zmw_action_name_(Zmw_Subaction sa) ;
@@ -522,9 +505,6 @@ static inline int zmw_debug_in_zmw_loop()
 /*
  * zmw_name.c
  */
-// const char* zmw_name_full(Zmw_State *ws) ;
-// const char* zmw_name_local(Zmw_State *ws) ;
-char * zmw_name_copy(void) ;
 void zmw_name_init(void) ;
 void zmw_name_free(void) ;
 void zmw_name_update(void) ;
@@ -550,13 +530,6 @@ Zmw_Boolean zmw_name_is(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_pass_through_is(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_contains(const Zmw_Name *n) ;
 Zmw_Boolean zmw_name_is_inside(const Zmw_Name *n) ;
-Zmw_Boolean zmw_name_next_contains(const Zmw_Name *n) ;
-Zmw_Boolean zmw_name_previous_contains(const Zmw_Name *n) ;
-
-void zmw_name_cut_last(char *name, int *len) ;
-Zmw_Boolean zmw_name_is_transient(const char *n, int len) ;
-
-Zmw_Name* zmw_name_get_name(const char *name, const char *why) ;
 
 void zmw_resource_get(void **pointer_value, const char *resource
 		      , void *default_value, Zmw_Name_Type nt) ;
@@ -578,6 +551,8 @@ void zmw_compute_no_size(void) ;
 void zmw_asked_size_set_required_size(void) ;
 Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
 void zmw_swap_x_y(void) ;
+void zmw_padding_add(Zmw_Rectangle *r, int padding) ;
+void zmw_padding_remove(Zmw_Rectangle *r, int padding) ;
 
 /*
  * zmw_device.c
@@ -638,8 +613,6 @@ Zmw_Boolean zmw_key_pressed(void) ;
 Zmw_Boolean zmw_key_string(void) ;
 Zmw_Boolean zmw_selected(void) ;
 Zmw_Boolean zmw_selected_by_its_parents(void) ;
-Zmw_Boolean zmw_selected_next_by_its_parents(void) ;
-Zmw_Boolean zmw_selected_by_a_children(void) ;
 Zmw_Boolean zmw_accelerator(GdkModifierType state, int character) ;
 Zmw_Boolean zmw_focused_by_its_parents(void) ;
 Zmw_Boolean zmw_cursor_enter(void) ;
@@ -673,8 +646,13 @@ void zmw_event_dump() ;
 /*
  * zmw_drag.c
  */
-Zmw_Drag_From zmw_drag_from_state(void) ;
-Zmw_Drag_To  zmw_drag_to_state(void) ;
+Zmw_Boolean zmw_drag_from_started(void) ;
+Zmw_Boolean zmw_drag_from_stopped(void) ;
+Zmw_Boolean zmw_drag_from_running(void) ;
+
+Zmw_Boolean zmw_drag_to_enter(void) ;
+Zmw_Boolean zmw_drag_to_leave(void) ;
+Zmw_Boolean zmw_drag_to_dropped(void) ;
 
 Zmw_Boolean zmw_drag_accept_get(void) ;
 void zmw_drag_accept_set(Zmw_Boolean bool) ;
@@ -685,7 +663,7 @@ char *zmw_drag_data_get(void) ;
 void zmw_drag_to_nothing(void) ;
 void zmw_drag_cancel(void) ;
 
-Zmw_Boolean zmw_drag_swap(int *p, int **current, int **old_current) ;
+void zmw_drag_swap(int *p, int **current) ;
 
 void zmw_drag_debug(FILE *f) ;
 void zmw_drag_debug_window(void) ;

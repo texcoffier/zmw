@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
       zmw_name("DebugWindow") ;
       debug_window() ;
     }
-  zmw_name("?") ;
+  zmw_name("") ;
   (*fct)() ;
   zmw_display_accelerator_window() ;
   
@@ -439,7 +439,6 @@ void event_handler(GdkEvent *e, gpointer o)
 
   zmw.event = e ;
   zmw.remove_event = Zmw_False ;
-  zmw.next_is_transient = Zmw_False ;
   
   if ( zmw_handle_selection(e) )
   {
@@ -750,13 +749,12 @@ void zmw_stack_dump()
       fprintf(stderr, "======================== STACK[%d]\n", i) ;
       fprintf(stderr, "NOT HERITABLE\n") ;
       fprintf(stderr, "%s\n", zmw_size_string(&zmw.zmw_table[i].u.size)) ;
-      fprintf(stderr, "CallNum=%d NBC=%d NBMC=%d NBC0=%d name_sep=%d trans_sep=%d\n"
+      fprintf(stderr, "CallNum=%d NBC=%d NBMC=%d NBC0=%d name_sep=%d\n"
 	      , zmw.zmw_table[i].u.call_number
 	      , zmw.zmw_table[i].u.nb_of_children
 	      , zmw.zmw_table[i].u.nb_of_children_max
 	      , zmw.zmw_table[i].u.nb_of_children_0
 	      , zmw.zmw_table[i].u.name_separator
-	      , zmw.zmw_table[i].u.transient_separator
 	      ) ;
       fprintf(stderr, "End of the name = %s\n", zmw.zmw_table[i].u.name) ;
       fprintf(stderr, "Name Suffix = %s\n", zmw.zmw_table[i].u.name_index) ;

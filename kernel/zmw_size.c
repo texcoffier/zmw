@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -125,16 +125,16 @@ static void size_swap_x_y(Zmw_Size *ws)
 {
   int tmp ;
 
- SWAP(ws->allocated.x         ,ws->allocated.y       ) ;
- SWAP(ws->allocated.width     ,ws->allocated.height  ) ;
- SWAP(ws->required.x          ,ws->required.y        ) ;
- SWAP(ws->required.width      ,ws->required.height   ) ;
- SWAP(ws->min.x          ,ws->min.y        ) ;
- SWAP(ws->min.width      ,ws->min.height   ) ;
- SWAP(ws->asked.x             ,ws->asked.y           ) ;
- SWAP(ws->asked.width         ,ws->asked.height      ) ;
- SWAP(ws->horizontal_expand   ,ws->vertical_expand   ) ;
- SWAP(ws->horizontal_alignment,ws->vertical_alignment) ;
+ SWAP(ws->allocated.x      ,ws->allocated.y       ) ;
+ SWAP(ws->allocated.width  ,ws->allocated.height  ) ;
+ SWAP(ws->required.x            ,ws->required.y             ) ;
+ SWAP(ws->required.width        ,ws->required.height        ) ;
+ SWAP(ws->min.x                 ,ws->min.y                  ) ;
+ SWAP(ws->min.width             ,ws->min.height             ) ;
+ SWAP(ws->asked.x               ,ws->asked.y                ) ;
+ SWAP(ws->asked.width           ,ws->asked.height           ) ;
+ SWAP(ws->horizontal_expand     ,ws->vertical_expand        ) ;
+ SWAP(ws->horizontal_alignment  ,ws->vertical_alignment     ) ;
 }
 
 void zmw_swap_x_y()
@@ -146,4 +146,25 @@ void zmw_swap_x_y()
   size_swap_x_y(&ZMW_SIZE) ;
   size_swap_x_y(&zMw[1].u.size) ;
 }
+
+void zmw_padding_add(Zmw_Rectangle *r, int padding)
+{
+ r->width  += 2*padding ;
+ r->height += 2*padding ;
+ if ( r->x != ZMW_VALUE_UNDEFINED )
+   r->x -= padding ;
+ if ( r->y != ZMW_VALUE_UNDEFINED )
+   r->y -= padding ;
+}
+
+void zmw_padding_remove(Zmw_Rectangle *r, int padding)
+{
+ r->width  -= 2*padding ;
+ r->height -= 2*padding ;
+ if ( r->x != ZMW_VALUE_UNDEFINED )
+   r->x += padding ;
+ if ( r->y != ZMW_VALUE_UNDEFINED )
+   r->y += padding ;
+}
+
 

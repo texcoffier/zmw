@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,10 +69,11 @@ static void zmw_compute_window_size()
   if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(*ZMW_WINDOW) )
     {
       gdk_window_resize(*ZMW_WINDOW
-			, ZMW_CHILDREN[the_child].required.width
-			, ZMW_CHILDREN[the_child].required.height) ;
-      ZMW_SIZE_ALLOCATED.width = ZMW_CHILDREN[the_child].required.width ;
-      ZMW_SIZE_ALLOCATED.height = ZMW_CHILDREN[the_child].required.height ;
+			, ZMW_CHILD_REQUIRED_PADDED_WIDTH(the_child)
+			, ZMW_CHILD_REQUIRED_PADDED_HEIGHT(the_child)
+			) ;
+      ZMW_SIZE_ALLOCATED.width = ZMW_CHILD_REQUIRED_PADDED_WIDTH(the_child) ;
+      ZMW_SIZE_ALLOCATED.height = ZMW_CHILD_REQUIRED_PADDED_HEIGHT(the_child) ;
     }
   else
     {
@@ -85,6 +86,7 @@ static void zmw_compute_window_size()
   ZMW_SIZE_ALLOCATED.y = 0 ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
   ZMW_CHILDREN[the_child].allocated = ZMW_SIZE_ALLOCATED ;
+  zmw_padding_remove(&ZMW_CHILDREN[the_child].allocated, ZMW_CHILDREN[the_child].padding_width) ;
 }
 
 
@@ -100,13 +102,6 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
   switch( ZMW_SUBACTION )
     {
     case Zmw_Init:
-      // Kludge to make zmw_window_name works
-      if ( ZMW_WINDOW )
-	{
-	  ZMW_WINDOW = (GdkWindow**)((int)ZMW_WINDOW + 1) ;
-	  ZMW_WINDOW = NULL ;
-	}
-	
       zmw_resource_pointer_get((void**)&w, "WindowID", NULL) ;
       zmw_resource_pointer_get((void**)&gc, "WindowGC", 0) ;
       if ( *w == NULL )
@@ -201,11 +196,11 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	  s = zmw_widget_previous_size() ;
 	  gdk_window_move(*ZMW_WINDOW
 			  , x
-			  + s->allocated.x
-			  + (pop==Zmw_Popup_Right ? s->allocated.width : 0 )
+			  + s->allocated.x - s->padding_width
+			  + (pop==Zmw_Popup_Right ? s->allocated.width + 2*s->padding_width  : 0 )
 			  , y
-			  + s->allocated.y
-			  + (pop==Zmw_Popup_Bottom ? s->allocated.height : 0)
+			  + s->allocated.y - s->padding_width
+			  + (pop==Zmw_Popup_Bottom ? s->allocated.height + 2*s->padding_width  : 0)
 			  ) ;
 	}
       if ( title
@@ -234,7 +229,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       if ( follow_mouse && gdk_window_is_visible(*ZMW_WINDOW) )
 	{	
 	  /* the -10 is not required.
-	   * It should be a parameter.
+	   * It should be a parameter (in current state?)
 	   */
 	  gdk_window_move(*ZMW_WINDOW
 			  , zmw.x_root - ZMW_SIZE_ALLOCATED.width - 10
@@ -250,43 +245,6 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
     default:
       break ;
     }
-}
-
-
-char* zmw_window_name(Zmw_Boolean up)
-{
-  Zmw_State *s ;
-  static char *name = NULL ;
-  char *pc, save ;
-
-  /* Search the window */
-  s = zmw.ptr ;
-
-  if ( up )
-    {
-      while( s->i.window == ZMW_WINDOW && s >= zmw.zmw_table )
-	s-- ;
-      s++ ;
-      /* We are on the toplevel window */
-      if ( s == zmw.zmw_table )
-	return strdup("not found") ;
-    }
-
-  // And now we go up until a transient
-  // It is for the popup windows contained in a zmw_void.
-  if ( s->u.transient_separator == 0 )
-    s-- ;
- 
-  /* Take the window name */
-  pc = s->u.name_index ;
-  while( *pc != '/' && *pc != '\0' )
-    pc++ ;
-  save = *pc ;
-  *pc = '\0' ;
-  name = strdup(zmw_name_full) ;
-  *pc = save ;
-  
-  return(name) ;
 }
 
 Zmw_Boolean zmw_window_is_detached()

@@ -32,8 +32,9 @@
 
 export REPLACE=`cat ../xxx.replace`
 export NAME=`basename $(pwd)`
+export ZMW_EXECUTION_ARGS="--mstimout=10 --debug=2046"
 export ZMW_EXECUTION_ARGS="--mstimout=10"
-export DISPLAY_IMAGE="eeyes"
+export DISPLAY_IMAGE="xv"
 
 # Test if the test need to be done
 
@@ -180,6 +181,7 @@ compare_all_images() {
 echo -n "$NAME"
 
 RETRIES="1 2 3 4 5 6 7"
+# RETRIES="1 2"
 
 
 for N in $RETRIES
@@ -192,6 +194,9 @@ do
   if [ "$ALL_RESULTS" = "ok" ]
   then
     break
+  else
+    stop_xvfb
+    start_xvfb
   fi
 done
 
@@ -207,6 +212,9 @@ then
     if [ "$ALL_RESULTS" = "ok" ]
     then
       break
+    else
+      stop_xvfb
+      start_xvfb
     fi
   done
 fi

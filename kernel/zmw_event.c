@@ -25,7 +25,6 @@
 
 
 static Zmw_Name global_zmw_selected = ZMW_NAME_UNREGISTERED("Selected") ;
-static Zmw_Name global_zmw_selected_next = ZMW_NAME_UNREGISTERED("Selected_next") ;
 static Zmw_Name global_zmw_selection = ZMW_NAME_UNREGISTERED("Selection") ;
 
 #define C(X) if ( (X) == zmw.event->type ) zmw_printf("%s\n", #X)
@@ -184,6 +183,7 @@ Zmw_Boolean zmw_button_pressed()
 	  && zmw.event->type == GDK_BUTTON_PRESS
 	  ) ;
 }
+
 /*
  * True if the cursor is released in the zmw
  */
@@ -525,17 +525,9 @@ Zmw_Boolean zmw_selected_by_its_parents()
 {
   return( zmw_name_is_inside(&global_zmw_selected) ) ;
 }
-Zmw_Boolean zmw_selected_by_a_children()
-{
-  return( zmw_name_contains(&global_zmw_selected) ) ;
-}
 /*
  * True if the widget is selected button pressed on itself or an ancestor
  */
-Zmw_Boolean zmw_selected_next_by_its_parents()
-{
-  return( zmw_name_is_inside(&global_zmw_selected_next) ) ;
-}
 
 Zmw_Boolean zmw_focused_by_its_parents()
 {
@@ -622,15 +614,6 @@ void zmw_activable()
 		, zmw_name_full) ;
       */
       zmw_name_register(&global_zmw_selected) ;
-
-      /* Dirty : store the name of the next widget.
-       * This is used by zmw_selected_by_its_parents
-       */
-      ZMW_TRANSIENT_SEPARATOR++ ;
-      zmw_name_of_the_transient_begin() ;
-      zmw_name_register(&global_zmw_selected_next) ;
-      ZMW_TRANSIENT_SEPARATOR-- ;
-      zmw_name_of_the_transient_end() ;
     }
   else
   {
@@ -791,11 +774,6 @@ void zmw_event_debug_window()
 	  if ( zmw_name_registered(&global_zmw_selected) )
 	    {
 	      sprintf(buf, "SELECTED=%s", zmw_name_registered(&global_zmw_selected)) ;
-	      zmw_text(buf) ;
-	    }
-	  if ( zmw_name_registered(&global_zmw_selected) )
-	    {
-	      sprintf(buf, "SELECTED_NEXT=%s", zmw_name_registered(&global_zmw_selected_next)) ;
 	      zmw_text(buf) ;
 	    }
 	  if ( zmw_name_registered(&zmw.found) )

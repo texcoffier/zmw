@@ -26,13 +26,13 @@ void zmw_alignement_horizontal_make(Zmw_Size *s, int border_width)
 {
   int free_space ;
 
-  s->allocated.x = ZMW_SIZE_ALLOCATED.x + border_width ;
-  s->allocated.width = ZMW_SIZE_ALLOCATED.width	- 2 * border_width ;
+  s->allocated.x = ZMW_SIZE_ALLOCATED.x + border_width + s->padding_width ;
+  s->allocated.width = ZMW_SIZE_ALLOCATED.width	- 2 * border_width - 2 * s->padding_width;
 
   if ( ! s->horizontal_expand )
     {
       free_space = ZMW_SIZE_ALLOCATED.width - 2 * border_width
-	- s->required.width ;
+	- s->required.width - 2 * s->padding_width ;
       s->allocated.width -= free_space ;
       switch(s->horizontal_alignment )
 	    {
@@ -52,13 +52,13 @@ void zmw_alignement_vertical_make(Zmw_Size *s, int border_width)
 {
   int free_space ;
 
-  s->allocated.y = ZMW_SIZE_ALLOCATED.y + border_width ;
-  s->allocated.height = ZMW_SIZE_ALLOCATED.height - 2 * border_width ;
+  s->allocated.y = ZMW_SIZE_ALLOCATED.y + border_width + s->padding_width ;
+  s->allocated.height = ZMW_SIZE_ALLOCATED.height - 2 * border_width  - 2 * s->padding_width ;
 
   if ( ! s->vertical_expand )
     {
       free_space = ZMW_SIZE_ALLOCATED.height - 2 * border_width
-	- s->required.height ;
+	- s->required.height - 2 * s->padding_width  ;
       s->allocated.height -= free_space ;
       switch(s->vertical_alignment )
 	    {
@@ -118,6 +118,7 @@ void zmw_decorator(int options, ...)
 	  ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
 	  ZMW_SIZE_MIN.width += 2 * border_width ;
 	  ZMW_SIZE_MIN.height += 2 * border_width ;
+	  zmw_padding_add(&ZMW_SIZE_MIN, ZMW_CHILDREN[0].padding_width) ;
 	}
       else
 	{
@@ -186,8 +187,8 @@ void zmw_decorator(int options, ...)
 	   */
 	  if ( options & Zmw_Decorator_Translate )
 	    {
-	      ZMW_CHILDREN[0].allocated.x = ZMW_SIZE_ALLOCATED.x + tx ;
-	      ZMW_CHILDREN[0].allocated.y = ZMW_SIZE_ALLOCATED.y + ty ;
+	      ZMW_CHILDREN[0].allocated.x = ZMW_SIZE_ALLOCATED.x + tx + ZMW_CHILDREN[0].padding_width ;
+	      ZMW_CHILDREN[0].allocated.y = ZMW_SIZE_ALLOCATED.y + ty + ZMW_CHILDREN[0].padding_width ;
 	      ZMW_CHILDREN[0].allocated.width =ZMW_CHILDREN[0].required.width;
 	      ZMW_CHILDREN[0].allocated.height=ZMW_CHILDREN[0].required.height;
 	    }

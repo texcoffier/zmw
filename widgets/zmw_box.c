@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,32 +37,19 @@ void zmw_box_horizontal_required_size()
 
       if ( ZMW_CHILDREN[i].required.x == ZMW_VALUE_UNDEFINED )
 	{
-	  width += ZMW_CHILDREN[i].required.width ;
+	  width += ZMW_CHILD_REQUIRED_PADDED_WIDTH(i) ;
 	}
       else
 	{
-	  if ( ZMW_CHILDREN[i].required.x > width )
-	    width = ZMW_CHILDREN[i].required.x
-	      + ZMW_CHILDREN[i].required.width;
-	  else
-	    {
-	      /* Same as above.
-	       * A max should be computed
-	       */
-	      width = ZMW_CHILDREN[i].required.x
-		+ ZMW_CHILDREN[i].required.width;
-	    }
+	  if ( ZMW_CHILD_REQUIRED_PADDED_RIGHT(i) > width )
+	    width = ZMW_CHILD_REQUIRED_PADDED_RIGHT(i) ;
 	}
-      if ( ZMW_CHILDREN[i].required.height > height )
-	height = ZMW_CHILDREN[i].required.height ;
+      if ( ZMW_CHILD_REQUIRED_PADDED_HEIGHT(i) > height )
+	height = ZMW_CHILD_REQUIRED_PADDED_HEIGHT(i) ;
       if ( ZMW_CHILDREN[i].required.y != ZMW_VALUE_UNDEFINED )
-	if ( ZMW_CHILDREN[i].required.y + ZMW_CHILDREN[i].required.height
-	     > height )
-	  height = ZMW_CHILDREN[i].required.y
-	    + ZMW_CHILDREN[i].required.height ;
-
+	if ( ZMW_CHILD_REQUIRED_PADDED_TOP(i) > height )
+	  height = ZMW_CHILD_REQUIRED_PADDED_TOP(i) ;
     }
-
   ZMW_SIZE_MIN.width = width ;
   ZMW_SIZE_MIN.height = height ;
 }
@@ -96,35 +83,36 @@ void zmw_box_horizontal_children_allocated_size()
       /*
        * X compute
        */
-      
       if ( ZMW_CHILDREN[i].required.x != ZMW_VALUE_UNDEFINED )
 	{
 	  ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x
-	    + ZMW_CHILDREN[i].required.x ;
+	    + ZMW_CHILD_REQUIRED_PADDED_LEFT(i) ;
 	}
       else
 	{
 	  if ( first )
 	    {
 	      if ( nb_expandable != 0 )
-		ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x ;
+		ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
 	      else
 		{
 		  if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT < 0 )
-		    ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x ;
+		    ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
 		  else
 		    {
 		      if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 )
 			ZMW_CHILDREN[i].allocated.x
 			= ZMW_SIZE_ALLOCATED.x
+			  + ZMW_CHILDREN[i].padding_width
 			  + ( ZMW_SIZE_ALLOCATED.width
 			      - ZMW_SIZE_REQUIRED.width )
 			  ;
 		      else
 			ZMW_CHILDREN[i].allocated.x
 			  = ZMW_SIZE_ALLOCATED.x
+			  + ZMW_CHILDREN[i].padding_width
 			  + ( ZMW_SIZE_ALLOCATED.width
-			      - ZMW_SIZE_REQUIRED.width ) / 2
+			      - ZMW_SIZE_REQUIRED.width ) / 2 ;
 			  ;
 		    }
 		}
@@ -133,7 +121,10 @@ void zmw_box_horizontal_children_allocated_size()
 	    {
 	      ZMW_CHILDREN[i].allocated.x =
 		ZMW_CHILDREN[last].allocated.x
-		+ ZMW_CHILDREN[last].allocated.width ;
+		+ ZMW_CHILDREN[last].allocated.width
+		+ ZMW_CHILDREN[last].padding_width
+		+ ZMW_CHILDREN[i].padding_width
+		;
 	    }
 	}
       first = 0 ;
@@ -144,46 +135,18 @@ void zmw_box_horizontal_children_allocated_size()
       if ( ZMW_CHILDREN[i].required.y != ZMW_VALUE_UNDEFINED )
 	{
 	  ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y
+	    + ZMW_CHILDREN[i].padding_width
 	    + ZMW_CHILDREN[i].required.y ;
-	  ZMW_CHILDREN[i].allocated.height = ZMW_SIZE_ALLOCATED.height
-	     - ZMW_CHILDREN[i].required.y ;
+	  ZMW_CHILDREN[i].allocated.height = ZMW_SIZE_ALLOCATED.y
+	    + ZMW_SIZE_ALLOCATED.height
+	    - ZMW_CHILDREN[i].allocated.y
+	    - ZMW_CHILDREN[i].padding_width
+	    ;
+
 	}
       else
 	{
 	  zmw_alignement_vertical_make(&ZMW_CHILDREN[i], 0) ;
-	  /*
-	  if ( ZMW_CHILDREN[i].vertical_expand )
-	    {
-	      ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y ;
-	      ZMW_CHILDREN[i].allocated.height = ZMW_SIZE_ALLOCATED.height ;
-	    }
-	  else
-	    {
-	      if ( ZMW_CHILDREN[i].vertical_alignment < 0 )
-		{
-		  ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y ;
-		  ZMW_CHILDREN[i].allocated.height
-		    = ZMW_CHILDREN[i].required.height ;
-		}
-	      else
-		if ( ZMW_CHILDREN[i].vertical_alignment > 0 )
-		  {
-		    ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y
-		      + ZMW_SIZE_ALLOCATED.height
-		      - ZMW_CHILDREN[i].required.height ;
-		    ZMW_CHILDREN[i].allocated.height
-		      = ZMW_CHILDREN[i].required.height ;
-		  }
-		else
-		  {
-		    ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y
-		      + (ZMW_SIZE_ALLOCATED.height
-			 - ZMW_CHILDREN[i].required.height)/2 ;
-		    ZMW_CHILDREN[i].allocated.height
-		      = ZMW_CHILDREN[i].required.height ;
-		  }
-	    }
-	  */
 	}
 	  
       /*
@@ -199,7 +162,7 @@ void zmw_box_horizontal_children_allocated_size()
 	  ZMW_CHILDREN[i].allocated.width = ZMW_CHILDREN[i].required.width;
 	}
 
-
+      
       last = i ;
     }
 }
@@ -274,16 +237,21 @@ void zmw_box_vertical_activable()
 
 void zmw_box_compute_required_size()
 {
-  Zmw_Rectangle c ;
+  Zmw_Rectangle c, d ;
   int i ;
 
   c = ZMW_CHILDREN[0].required ;
+  zmw_padding_add(&c, ZMW_CHILDREN[0].padding_width) ;
   for(i=1; i<ZMW_NB_OF_CHILDREN; i++)
       if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
-      c = zmw_rectangle_max(&ZMW_CHILDREN[i].required, &c) ;
+	{
+	  d = ZMW_CHILDREN[i].required ;
+	  zmw_padding_add(&d, ZMW_CHILDREN[i].padding_width) ;
+	  c = zmw_rectangle_max(&d, &c) ;
+	}
 
-  ZMW_SIZE_MIN.width = c.width + c.x  ;
-  ZMW_SIZE_MIN.height = c.height + c.y ;
+  ZMW_SIZE_MIN.width = c.width ;
+  ZMW_SIZE_MIN.height = c.height ;
 }
 
 
@@ -313,8 +281,8 @@ void zmw_box()
 	    continue ;
 
 	  ZMW_CHILDREN[i].allocated = ZMW_CHILDREN[i].required ;
-	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x ;
-	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y ;
+	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].padding_width ;
+	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[i].padding_width ;
 	}
       break ;
 

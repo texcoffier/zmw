@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -180,6 +180,8 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	    continue ;
 
 	  ZMW_CHILDREN[i].allocated = ZMW_SIZE_ALLOCATED ;
+	  zmw_padding_remove(&ZMW_CHILDREN[i].allocated
+			     , ZMW_CHILDREN[i].padding_width ) ;
 	}
       break ;
     case Zmw_Post_Drawing:

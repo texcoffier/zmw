@@ -131,7 +131,7 @@ night:
 ##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.5" ; NEW="0.0.6" ; \
+	OLD="0.0.6" ; NEW="0.0.7" ; \
 	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
@@ -141,6 +141,7 @@ versionchange:
 diff:
 	diff -rubB \
 		--exclude="Makefile" \
+		--exclude="Makefile.config" \
 		--exclude="*.o" \
 		--exclude="*.so" \
 		--exclude="*~" \
@@ -155,6 +156,12 @@ diff:
 		--exclude="xxx*" \
 		--exclude="regteststatus" \
 		--exclude="#*" \
-		../zmw-0.0.5 .
+		../zmw-0.0.6 .
+##############################################################################
+# Search unused functions
+##############################################################################
+cflow:
+	cflow $(ZMW_INCLUDES) */*.c applications/*/*.c applications/examples/*/*.c | \
+	awk '/^[0-9]*\t[^\t]/ { H = /applications/ ; } H==0 { print $$0 ; }'
 
 # DO NOT DELETE

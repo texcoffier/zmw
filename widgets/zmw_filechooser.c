@@ -142,19 +142,19 @@ void zmw_filechooser(Zmw_Boolean *visible
   struct dirent **d ;
   int err ;
   Zmw_Boolean activated ;
-  Zmw_Boolean take_focus ;
   char buf[999] ;
   static Zmw_Boolean old_visible = Zmw_False ;// XXX only one file chooser at a time...
   static Zmw_Float_0_1 x, y ; // XXX only one file chooser at a time...
+  static Zmw_Boolean take_focus = Zmw_False ;
 
-
-  take_focus = Zmw_False ;
 
   if ( *visible != old_visible )
     {
       old_visible = *visible ;
       if ( *visible )
-	take_focus = Zmw_True ;
+	{
+	  take_focus = Zmw_True ;
+	}
     }
 
   if ( ! *visible )
@@ -265,7 +265,10 @@ void zmw_filechooser(Zmw_Boolean *visible
 	  zmw_vertical_expand(0) ;
 	  zmw_text_editable(filename) ;
 	  if ( take_focus )
-	    zmw_name_register(ZMW_FOCUS) ;
+	    {
+	      zmw_name_register(ZMW_FOCUS) ;
+	      take_focus = Zmw_False ;
+	    }
 	  /* XXX Not nice, but effective.
 	   * I don't know yet how to get keys
 	   * on not focused items.

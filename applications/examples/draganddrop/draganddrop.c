@@ -23,15 +23,20 @@ void box_item_draggable(int *box, int item)
 {
   char message[99] ;
  
-  switch( zmw_drag_from_state() )
+  if ( zmw_drag_from_started() )
     {
-    case Zmw_Drag_From_No:
-      break ;
-    case Zmw_Drag_From_Begin:
       sprintf(message, "%d value is dragged", box[item]) ;
       zmw_drag_data_set(message) ;
-      break ;
-    case Zmw_Drag_From_Running:
+    }
+  if ( zmw_drag_from_stopped() )
+    {
+      if ( zmw_drag_accept_get() )
+	{
+	  box_item_remove(box, item) ;
+	}
+    }
+  ZMW( zmw_if( zmw_drag_from_running() ) )
+    {
       ZMW(zmw_window_drag())
 	{
 	  sprintf(message, "%d %s accepted", box[item],
@@ -39,11 +44,6 @@ void box_item_draggable(int *box, int item)
 		  ) ;
 	  zmw_text(message) ;
 	}
-      break ;
-    case Zmw_Drag_From_End:
-      if ( zmw_drag_accept_get() )
-	box_item_remove(box, item) ;
-      break ;
     }
 }
 
@@ -51,23 +51,21 @@ void box_take_drop(int *box, char **message, int multiple)
 {
   int value ;
 
-  switch(zmw_drag_to_state())
+  if ( zmw_drag_to_enter() )
     {
-    case Zmw_Drag_To_No_Change:
-      break ;
-    case Zmw_Drag_To_Enter:
       value = atoi(zmw_drag_data_get()) ;
       zmw_drag_accept_set( (value % multiple) == 0 ) ;
       *message = zmw_drag_accept_get() ? "I Accept" : "I Refuse" ;
-      break ;
-    case Zmw_Drag_To_Leave:
+    }
+  if ( zmw_drag_to_leave() )
+    {
       *message = NULL ;
-      break ;
-    case Zmw_Drag_To_End:
+    }
+  if ( zmw_drag_to_dropped() )
+    {
       if ( zmw_drag_accept_get() )
 	box_item_add(box, atoi(zmw_drag_data_get()) ) ;
       *message = NULL ;
-      break ;	  
     }
 }
 
@@ -78,7 +76,7 @@ void draganddrop(void)
   static char *messages[NUMBER_OF_BOXES] = { NULL } ;
   int i, j ;
   char title[99] ;
-  
+
   for(i=0; i<NUMBER_OF_BOXES; i++)
     {
       sprintf(title, "%d Multiples", i+1) ;
@@ -111,7 +109,7 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_small_scale 1
+zmw_small_scale 4
 
 # To solve some problems with random event handling
 zmw_gizmo() {
