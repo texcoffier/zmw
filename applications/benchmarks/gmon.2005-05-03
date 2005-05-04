@@ -1,0 +1,1666 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 25.55      8.48     8.48 11565748     0.00     0.00  zmw_state_push
+ 18.11     14.49     6.01 10365249     0.00     0.00  zmw_init_widget
+  9.67     17.70     3.21 17730202     0.00     0.00  zmw_action_compute_required_size
+  8.26     20.44     2.74  9219632     0.00     0.00  leaf
+  8.26     23.18     2.74 98089233     0.00     0.00  zmw_debug_in_zmw_loop
+  4.05     24.53     1.35 19489714     0.00     0.00  zmw_fixed
+  3.25     25.61     1.08   866440     0.00     0.00  zmw_hbox_required_size
+  3.22     26.68     1.07  9164700     0.00     0.00  zmw_hash
+  2.50     27.51     0.83  1033136     0.00     0.00  horizontal
+  1.75     28.09     0.58 11565747     0.00     0.00  zmw_state_pop
+  1.33     28.53     0.44 10365249     0.00     0.00  zmw_name_is
+  1.28     28.95     0.43   133392     0.00     0.00  zmw_hbox_children_allocated_size
+  0.99     29.28     0.33  8865101     0.00     0.00  zmw_cache_get_size_real
+  0.98     29.61     0.33  8865101     0.00     0.00  zmw_cache_set_size_real
+  0.93     29.92     0.31  8865101     0.00     0.00  zmw_cache_set_size
+  0.93     30.23     0.31  9332107     0.00     0.00  vertical
+  0.89     30.52     0.30  7664552     0.00     0.00  zmw_padding_add
+  0.87     30.81     0.29                             zmw_widget_previous_size
+  0.83     31.09     0.28  8865101     0.00     0.00  zmw_cache_get_size
+  0.78     31.35     0.26                             main
+  0.72     31.59     0.24  1067136     0.00     0.00  zmw_alignement_vertical_make
+  0.65     31.80     0.22  1797564     0.00     0.00  zmw_action_draw
+  0.51     31.97     0.17   898782     0.00     0.00  zmw_action_dispatch_event
+  0.50     32.14     0.17  2199648     0.00     0.00  zmw_hbox_with_activable
+  0.41     32.27     0.14                             zmw_box_compute_required_size
+  0.30     32.37     0.10  1200526     0.00     0.00  zmw_action_first_pass
+  0.27     32.46     0.09    16676     0.00     0.00  zmw_vbox_children_allocated_size
+  0.24     32.54     0.08        6     0.01     0.01  zmw_name
+  0.21     32.61     0.07   905260     0.00     0.00  zmw_action_search
+  0.21     32.68     0.07  1200526     0.00     0.00  zmw_event_in
+  0.21     32.75     0.07       10     0.01     0.01  zmw_state_init
+  0.18     32.81     0.06   241617     0.00     0.00  zmw_vbox_with_activable
+  0.18     32.87     0.06  2199648     0.00     0.00  zmw_hbox
+  0.15     32.92     0.05    91629     0.00     0.00  zmw_vbox_required_size
+  0.15     32.97     0.05        3     0.02     0.02  zmw_name_insert
+  0.15     33.02     0.05                             zmw_font_description_copy
+  0.09     33.05     0.03                             zmw_cache_check
+  0.09     33.08     0.03                             zmw_cache_free
+  0.06     33.10     0.02   599188     0.00     0.00  zmw_action_dispatch_accelerator
+  0.06     33.12     0.02                             frame_dummy
+  0.05     33.14     0.02   262144     0.00     0.00  zmw_activable
+  0.05     33.15     0.02       10     0.00     0.00  zmw_rectangle_void
+  0.05     33.17     0.02                             zmw_stack_print
+  0.03     33.18     0.01                             zmw_debug_in_zmw_loop
+  0.03     33.19     0.01                             zmw_size_string
+  0.02     33.19     0.01                             zmw_event_button_release
+  0.00     33.19     0.00   262144     0.00     0.00  zmw_event_to_process
+  0.00     33.19     0.00   241617     0.00     0.00  zmw_vbox
+  0.00     33.19     0.00   133408     0.00     0.00  zmw_alignement_horizontal_make
+  0.00     33.19     0.00      112     0.00     0.00  get_value
+  0.00     33.19     0.00       18     0.00     0.00  zmw_name_hash
+  0.00     33.19     0.00       17     0.00     0.00  zmw_name_equals
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window_generic
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window_with_id
+  0.00     33.19     0.00       15     0.00     0.00  zmw_name_find
+  0.00     33.19     0.00       15     0.00     0.00  zmw_name_find_with_hash
+  0.00     33.19     0.00       12     0.00     0.00  zmw_name_get_pointer_on_resource_with_name_and_type_and_default
+  0.00     33.19     0.00       12     0.00     0.00  zmw_resource_get
+  0.00     33.19     0.00       12     0.00     0.00  zmw_resource_pointer_get
+  0.00     33.19     0.00        9     0.00     0.00  zmw_handle_selection
+  0.00     33.19     0.00        6     0.00     5.37  many
+  0.00     33.19     0.00        6     0.00     0.00  zmw_cache_init
+  0.00     33.19     0.00        6     0.00     5.39  zmw_call_widget
+  0.00     33.19     0.00        6     0.00     0.00  zmw_rgb_to_int
+  0.00     33.19     0.00        5     0.00     0.00  zmw_compute_window_size
+  0.00     33.19     0.00        5     0.00     0.00  zmw_display_accelerator_window
+  0.00     33.19     0.00        5     0.00     0.00  zmw_padding_remove
+  0.00     33.19     0.00        5     0.00     0.00  zmw_rgb_scale_to_int
+  0.00     33.19     0.00        4     0.00     0.00  zmw_draw_clip_push
+  0.00     33.19     0.00        4     0.00     0.00  zmw_take_int_param
+  0.00     33.19     0.00        4     0.00     0.00  zmw_time_from
+  0.00     33.19     0.00        3     0.00     0.02  zmw_name_register_value
+  0.00     33.19     0.00        3     0.00     0.00  zmw_name_unregister
+  0.00     33.19     0.00        3     0.00     0.00  zmw_use_window_from_button_press
+  0.00     33.19     0.00        2     0.00     0.00  socket_open
+  0.00     33.19     0.00        2     0.00     5.39  zmw_draw
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_clip_pop
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_rectangle
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_set_gc
+  0.00     33.19     0.00        2     0.00     5.39  zmw_search
+  0.00     33.19     0.00        2     0.00     0.00  zmw_unpop
+  0.00     33.19     0.00        2     0.00     0.00  zmw_window_unpop_all
+  0.00     33.19     0.00        1     0.00     0.00  get_mem_usage
+  0.00     33.19     0.00        1     0.00     0.00  socket_listen
+  0.00     33.19     0.00        1     0.00     0.00  user_action
+  0.00     33.19     0.00        1     0.00     0.00  zmw_accelerator_init
+  0.00     33.19     0.00        1     0.00     0.00  zmw_cache_size
+  0.00     33.19     0.00        1     0.00    10.77  zmw_dispatch_event
+  0.00     33.19     0.00        1     0.00     0.00  zmw_font_family
+  0.00     33.19     0.00        1     0.00     0.00  zmw_init
+  0.00     33.19     0.00        1     0.00     5.40  zmw_main
+  0.00     33.19     0.00        1     0.00     0.00  zmw_name_init
+  0.00     33.19     0.00        1     0.00     0.02  zmw_name_register
+  0.00     33.19     0.00        1     0.00     0.02  zmw_name_register_with_name
+  0.00     33.19     0.00        1     0.00     0.00  zmw_need_repaint
+  0.00     33.19     0.00        1     0.00     0.00  zmw_rgb
+  0.00     33.19     0.00        1     0.00     0.00  zmw_text_init
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.03% of 33.19 seconds
+
+index % time    self  children    called     name
+                0.00    5.39       1/6           zmw_dispatch_event [10]
+                0.00    5.39       1/6           event_handler [6]
+                0.00   10.77       2/6           zmw_draw [8]
+                0.00   10.77       2/6           zmw_search [9]
+[1]     97.4    0.00   32.32       6         zmw_call_widget [1]
+                0.00   32.24       6/6           many [2]
+                0.08    0.00       6/6           zmw_name [43]
+                0.00    0.00       6/6           zmw_cache_init [74]
+                0.00    0.00       5/5           zmw_display_accelerator_window [77]
+-----------------------------------------------
+                0.00   32.24       6/6           zmw_call_widget [1]
+[2]     97.1    0.00   32.24       6         many [2]
+                1.14   31.07      11/11          vertical <cycle 1> [4]
+                0.00    0.03      17/17          zmw_window [49]
+                0.00    0.00       6/10365249     zmw_init_widget [13]
+                0.00    0.00       6/1797564     zmw_action_draw [22]
+                0.00    0.00       6/905260      zmw_action_search [30]
+                0.00    0.00       3/898782      zmw_action_dispatch_event [26]
+                0.00    0.00      74/98089233     zmw_debug_in_zmw_loop [17]
+                0.00    0.00       2/599188      zmw_action_dispatch_accelerator [36]
+                0.00    0.00      11/11565747     zmw_state_pop [29]
+                0.00    0.00       1/1           zmw_cache_size [95]
+                0.00    0.00       1/1           get_mem_usage [91]
+-----------------------------------------------
+[3]     97.0    1.14   31.07      11+10365232 <cycle 1 as a whole> [3]
+                0.83    4.69 1033136             horizontal <cycle 1> [15]
+-----------------------------------------------
+                             9332096             horizontal <cycle 1> [15]
+                1.14   31.07      11/11          many [2]
+[4]     80.4    0.31   26.38 9332107         vertical <cycle 1> [4]
+                2.74   23.14 9219632/9219632     leaf [5]
+                0.00    0.23  241617/241617      zmw_vbox [39]
+                0.03    0.08  183258/17730202     zmw_action_compute_required_size [7]
+                0.07    0.02  112475/10365249     zmw_init_widget [13]
+                0.03    0.00 1078943/98089233     zmw_debug_in_zmw_loop [17]
+                0.00    0.01   24966/1797564     zmw_action_draw [22]
+                0.00    0.01   12483/898782      zmw_action_dispatch_event [26]
+                0.00    0.01   12588/905260      zmw_action_search [30]
+                0.01    0.00  129142/11565747     zmw_state_pop [29]
+                0.00    0.00    8322/599188      zmw_action_dispatch_accelerator [36]
+                             1033136             horizontal <cycle 1> [15]
+-----------------------------------------------
+                2.74   23.14 9219632/9219632     vertical <cycle 1> [4]
+[5]     78.0    2.74   23.14 9219632         leaf [5]
+                2.86    6.95 15814064/17730202     zmw_action_compute_required_size [7]
+                5.35    1.34 9219632/10365249     zmw_init_widget [13]
+                2.44    0.00 87178488/98089233     zmw_debug_in_zmw_loop [17]
+                1.35    0.02 19489714/19489714     zmw_fixed [20]
+                0.19    0.85 1572864/1797564     zmw_action_draw [22]
+                0.15    0.42  786432/898782      zmw_action_dispatch_event [26]
+                0.52    0.00 10270082/11565747     zmw_state_pop [29]
+                0.06    0.44  792066/905260      zmw_action_search [30]
+                0.02    0.19  524288/599188      zmw_action_dispatch_accelerator [36]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]     48.7    0.00   16.16                 event_handler [6]
+                0.00   10.77       1/1           zmw_dispatch_event [10]
+                0.00    5.39       1/6           zmw_call_widget [1]
+                0.00    0.00       9/9           zmw_handle_selection [73]
+                0.00    0.00       2/2           zmw_unpop [89]
+                0.00    0.00       1/1           zmw_need_repaint [99]
+                0.00    0.00       1/1           zmw_accelerator_init [94]
+                0.00    0.00       1/1           user_action [93]
+-----------------------------------------------
+                0.03    0.08  183258/17730202     vertical <cycle 1> [4]
+                0.31    0.76 1732880/17730202     horizontal <cycle 1> [15]
+                2.86    6.95 15814064/17730202     leaf [5]
+[7]     33.1    3.21    7.79 17730202         zmw_action_compute_required_size [7]
+                6.50    0.05 8865101/11565748     zmw_state_push [12]
+                0.31    0.33 8865101/8865101     zmw_cache_set_size [27]
+                0.28    0.33 8865101/8865101     zmw_cache_get_size [28]
+-----------------------------------------------
+                0.00    5.39       1/2           timeout [11]
+                0.00    5.39       1/2           zmw_main [16]
+[8]     32.5    0.00   10.77       2         zmw_draw [8]
+                0.00   10.77       2/6           zmw_call_widget [1]
+                0.00    0.00       2/4           zmw_time_from [82]
+-----------------------------------------------
+                0.00    5.39       1/2           zmw_dispatch_event [10]
+                0.00    5.39       1/2           timeout [11]
+[9]     32.5    0.00   10.77       2         zmw_search [9]
+                0.00   10.77       2/6           zmw_call_widget [1]
+                0.00    0.00       2/3           zmw_name_unregister [83]
+-----------------------------------------------
+                0.00   10.77       1/1           event_handler [6]
+[10]    32.5    0.00   10.77       1         zmw_dispatch_event [10]
+                0.00    5.39       1/2           zmw_search [9]
+                0.00    5.39       1/6           zmw_call_widget [1]
+-----------------------------------------------
+                                                 <spontaneous>
+[11]    32.5    0.00   10.77                 timeout [11]
+                0.00    5.39       1/2           zmw_search [9]
+                0.00    5.39       1/2           zmw_draw [8]
+                0.00    0.00       2/4           zmw_time_from [82]
+-----------------------------------------------
+                0.00    0.00       1/11565748     zmw_main [16]
+                0.22    0.00  299594/11565748     zmw_action_dispatch_accelerator [36]
+                0.22    0.00  299594/11565748     zmw_action_dispatch_event [26]
+                0.22    0.00  301744/11565748     zmw_action_search [30]
+                0.44    0.00  599188/11565748     zmw_action_draw [22]
+                0.88    0.01 1200526/11565748     zmw_action_first_pass [24]
+                6.50    0.05 8865101/11565748     zmw_action_compute_required_size [7]
+[12]    25.8    8.48    0.07 11565748         zmw_state_push [12]
+                0.06    0.01       8/10          zmw_state_init [42]
+-----------------------------------------------
+                0.00    0.00       6/10365249     many [2]
+                0.07    0.02  112475/10365249     vertical <cycle 1> [4]
+                0.60    0.15 1033136/10365249     horizontal <cycle 1> [15]
+                5.35    1.34 9219632/10365249     leaf [5]
+[13]    22.7    6.01    1.51 10365249         zmw_init_widget [13]
+                1.07    0.00 9164700/9164700     zmw_hash [23]
+                0.44    0.00 10365249/10365249     zmw_name_is [31]
+-----------------------------------------------
+                                                 <spontaneous>
+[14]    17.1    0.26    5.40                 main [14]
+                0.00    5.40       1/1           zmw_main [16]
+                0.00    0.00       1/1           zmw_init [97]
+-----------------------------------------------
+                             1033136             vertical <cycle 1> [4]
+[15]    16.6    0.83    4.69 1033136         horizontal <cycle 1> [15]
+                0.06    2.18 2199648/2199648     zmw_hbox [18]
+                0.31    0.76 1732880/17730202     zmw_action_compute_required_size [7]
+                0.60    0.15 1033136/10365249     zmw_init_widget [13]
+                0.27    0.00 9831728/98089233     zmw_debug_in_zmw_loop [17]
+                0.02    0.11  199728/1797564     zmw_action_draw [22]
+                0.02    0.05   99864/898782      zmw_action_dispatch_event [26]
+                0.01    0.06  100600/905260      zmw_action_search [30]
+                0.06    0.00 1166512/11565747     zmw_state_pop [29]
+                0.00    0.02   66576/599188      zmw_action_dispatch_accelerator [36]
+                             9332096             vertical <cycle 1> [4]
+-----------------------------------------------
+                0.00    5.40       1/1           main [14]
+[16]    16.3    0.00    5.40       1         zmw_main [16]
+                0.00    5.39       1/2           zmw_draw [8]
+                0.01    0.00       2/10          zmw_state_init [42]
+                0.00    0.00       1/11565748     zmw_state_push [12]
+                0.00    0.00       2/2           socket_open [85]
+                0.00    0.00       1/3           zmw_use_window_from_button_press [84]
+                0.00    0.00       1/1           zmw_font_family [96]
+                0.00    0.00       1/1           zmw_rgb [100]
+                0.00    0.00       1/1           socket_listen [92]
+-----------------------------------------------
+                0.00    0.00      74/98089233     many [2]
+                0.03    0.00 1078943/98089233     vertical <cycle 1> [4]
+                0.27    0.00 9831728/98089233     horizontal <cycle 1> [15]
+                2.44    0.00 87178488/98089233     leaf [5]
+[17]     8.3    2.74    0.00 98089233         zmw_debug_in_zmw_loop [17]
+-----------------------------------------------
+                0.06    2.18 2199648/2199648     horizontal <cycle 1> [15]
+[18]     6.7    0.06    2.18 2199648         zmw_hbox [18]
+                0.17    2.01 2199648/2199648     zmw_hbox_with_activable [19]
+-----------------------------------------------
+                0.17    2.01 2199648/2199648     zmw_hbox [18]
+[19]     6.6    0.17    2.01 2199648         zmw_hbox_with_activable [19]
+                1.08    0.27  866440/866440      zmw_hbox_required_size [21]
+                0.43    0.24  133392/133392      zmw_hbox_children_allocated_size [25]
+-----------------------------------------------
+                1.35    0.02 19489714/19489714     leaf [5]
+[20]     4.1    1.35    0.02 19489714         zmw_fixed [20]
+                0.02    0.00  262144/262144      zmw_activable [60]
+-----------------------------------------------
+                1.08    0.27  866440/866440      zmw_hbox_with_activable [19]
+[21]     4.1    1.08    0.27  866440         zmw_hbox_required_size [21]
+                0.27    0.00 6931520/7664552     zmw_padding_add [34]
+-----------------------------------------------
+                0.00    0.00       6/1797564     many [2]
+                0.00    0.01   24966/1797564     vertical <cycle 1> [4]
+                0.02    0.11  199728/1797564     horizontal <cycle 1> [15]
+                0.19    0.85 1572864/1797564     leaf [5]
+[22]     3.6    0.22    0.97 1797564         zmw_action_draw [22]
+                0.05    0.48  599188/1200526     zmw_action_first_pass [24]
+                0.44    0.00  599188/11565748     zmw_state_push [12]
+-----------------------------------------------
+                1.07    0.00 9164700/9164700     zmw_init_widget [13]
+[23]     3.2    1.07    0.00 9164700         zmw_hash [23]
+-----------------------------------------------
+                0.02    0.24  299594/1200526     zmw_action_dispatch_event [26]
+                0.03    0.24  301744/1200526     zmw_action_search [30]
+                0.05    0.48  599188/1200526     zmw_action_draw [22]
+[24]     3.2    0.10    0.96 1200526         zmw_action_first_pass [24]
+                0.88    0.01 1200526/11565748     zmw_state_push [12]
+                0.07    0.00 1200526/1200526     zmw_event_in [45]
+-----------------------------------------------
+                0.43    0.24  133392/133392      zmw_hbox_with_activable [19]
+[25]     2.0    0.43    0.24  133392         zmw_hbox_children_allocated_size [25]
+                0.24    0.00 1067136/1067136     zmw_alignement_vertical_make [37]
+-----------------------------------------------
+                0.00    0.00       3/898782      many [2]
+                0.00    0.01   12483/898782      vertical <cycle 1> [4]
+                0.02    0.05   99864/898782      horizontal <cycle 1> [15]
+                0.15    0.42  786432/898782      leaf [5]
+[26]     2.0    0.17    0.49  898782         zmw_action_dispatch_event [26]
+                0.02    0.24  299594/1200526     zmw_action_first_pass [24]
+                0.22    0.00  299594/11565748     zmw_state_push [12]
+-----------------------------------------------
+                0.31    0.33 8865101/8865101     zmw_action_compute_required_size [7]
+[27]     1.9    0.31    0.33 8865101         zmw_cache_set_size [27]
+                0.33    0.00 8865101/8865101     zmw_cache_set_size_real [33]
+-----------------------------------------------
+                0.28    0.33 8865101/8865101     zmw_action_compute_required_size [7]
+[28]     1.8    0.28    0.33 8865101         zmw_cache_get_size [28]
+                0.33    0.00 8865101/8865101     zmw_cache_get_size_real [32]
+-----------------------------------------------
+                0.00    0.00      11/11565747     many [2]
+                0.01    0.00  129142/11565747     vertical <cycle 1> [4]
+                0.06    0.00 1166512/11565747     horizontal <cycle 1> [15]
+                0.52    0.00 10270082/11565747     leaf [5]
+[29]     1.7    0.58    0.00 11565747         zmw_state_pop [29]
+-----------------------------------------------
+                0.00    0.00       6/905260      many [2]
+                0.00    0.01   12588/905260      vertical <cycle 1> [4]
+                0.01    0.06  100600/905260      horizontal <cycle 1> [15]
+                0.06    0.44  792066/905260      leaf [5]
+[30]     1.7    0.07    0.51  905260         zmw_action_search [30]
+                0.03    0.24  301744/1200526     zmw_action_first_pass [24]
+                0.22    0.00  301744/11565748     zmw_state_push [12]
+                0.00    0.02       1/1           zmw_name_register [58]
+-----------------------------------------------
+                0.44    0.00 10365249/10365249     zmw_init_widget [13]
+[31]     1.3    0.44    0.00 10365249         zmw_name_is [31]
+-----------------------------------------------
+                0.33    0.00 8865101/8865101     zmw_cache_get_size [28]
+[32]     1.0    0.33    0.00 8865101         zmw_cache_get_size_real [32]
+-----------------------------------------------
+                0.33    0.00 8865101/8865101     zmw_cache_set_size [27]
+[33]     1.0    0.33    0.00 8865101         zmw_cache_set_size_real [33]
+-----------------------------------------------
+                0.03    0.00  733032/7664552     zmw_vbox_required_size [44]
+                0.27    0.00 6931520/7664552     zmw_hbox_required_size [21]
+[34]     0.9    0.30    0.00 7664552         zmw_padding_add [34]
+-----------------------------------------------
+                                                 <spontaneous>
+[35]     0.9    0.29    0.00                 zmw_widget_previous_size [35]
+-----------------------------------------------
+                0.00    0.00       2/599188      many [2]
+                0.00    0.00    8322/599188      vertical <cycle 1> [4]
+                0.00    0.02   66576/599188      horizontal <cycle 1> [15]
+                0.02    0.19  524288/599188      leaf [5]
+[36]     0.7    0.02    0.22  599188         zmw_action_dispatch_accelerator [36]
+                0.22    0.00  299594/11565748     zmw_state_push [12]
+-----------------------------------------------
+                0.24    0.00 1067136/1067136     zmw_hbox_children_allocated_size [25]
+[37]     0.7    0.24    0.00 1067136         zmw_alignement_vertical_make [37]
+-----------------------------------------------
+                0.06    0.17  241617/241617      zmw_vbox [39]
+[38]     0.7    0.06    0.17  241617         zmw_vbox_with_activable [38]
+                0.09    0.00   16676/16676       zmw_vbox_children_allocated_size [41]
+                0.05    0.03   91629/91629       zmw_vbox_required_size [44]
+-----------------------------------------------
+                0.00    0.23  241617/241617      vertical <cycle 1> [4]
+[39]     0.7    0.00    0.23  241617         zmw_vbox [39]
+                0.06    0.17  241617/241617      zmw_vbox_with_activable [38]
+-----------------------------------------------
+                                                 <spontaneous>
+[40]     0.4    0.14    0.00                 zmw_box_compute_required_size [40]
+-----------------------------------------------
+                0.09    0.00   16676/16676       zmw_vbox_with_activable [38]
+[41]     0.3    0.09    0.00   16676         zmw_vbox_children_allocated_size [41]
+                0.00    0.00  133408/133408      zmw_alignement_horizontal_make [67]
+-----------------------------------------------
+                0.01    0.00       2/10          zmw_main [16]
+                0.06    0.01       8/10          zmw_state_push [12]
+[42]     0.3    0.07    0.02      10         zmw_state_init [42]
+                0.02    0.00      10/10          zmw_rectangle_void [61]
+-----------------------------------------------
+                0.08    0.00       6/6           zmw_call_widget [1]
+[43]     0.2    0.08    0.00       6         zmw_name [43]
+-----------------------------------------------
+                0.05    0.03   91629/91629       zmw_vbox_with_activable [38]
+[44]     0.2    0.05    0.03   91629         zmw_vbox_required_size [44]
+                0.03    0.00  733032/7664552     zmw_padding_add [34]
+-----------------------------------------------
+                0.07    0.00 1200526/1200526     zmw_action_first_pass [24]
+[45]     0.2    0.07    0.00 1200526         zmw_event_in [45]
+-----------------------------------------------
+                0.05    0.00       3/3           zmw_name_register_value [47]
+[46]     0.2    0.05    0.00       3         zmw_name_insert [46]
+-----------------------------------------------
+                0.00    0.02       1/3           zmw_name_register_with_name [59]
+                0.00    0.03       2/3           zmw_name_get_pointer_on_resource_with_name_and_type_and_default [52]
+[47]     0.2    0.00    0.05       3         zmw_name_register_value [47]
+                0.05    0.00       3/3           zmw_name_insert [46]
+                0.00    0.00       3/15          zmw_name_find [71]
+                0.00    0.00       3/18          zmw_name_hash [69]
+-----------------------------------------------
+                                                 <spontaneous>
+[48]     0.2    0.05    0.00                 zmw_font_description_copy [48]
+-----------------------------------------------
+                0.00    0.03      17/17          many [2]
+[49]     0.1    0.00    0.03      17         zmw_window [49]
+                0.00    0.03      17/17          zmw_window_with_id [51]
+-----------------------------------------------
+                0.00    0.03      17/17          zmw_window_with_id [51]
+[50]     0.1    0.00    0.03      17         zmw_window_generic [50]
+                0.00    0.03      12/12          zmw_resource_pointer_get [54]
+                0.00    0.00       5/5           zmw_compute_window_size [76]
+                0.00    0.00       2/4           zmw_draw_clip_push [80]
+                0.00    0.00       2/2           zmw_draw_rectangle [87]
+                0.00    0.00       2/2           zmw_draw_clip_pop [86]
+-----------------------------------------------
+                0.00    0.03      17/17          zmw_window [49]
+[51]     0.1    0.00    0.03      17         zmw_window_with_id [51]
+                0.00    0.03      17/17          zmw_window_generic [50]
+-----------------------------------------------
+                0.00    0.03      12/12          zmw_resource_get [53]
+[52]     0.1    0.00    0.03      12         zmw_name_get_pointer_on_resource_with_name_and_type_and_default [52]
+                0.00    0.03       2/3           zmw_name_register_value [47]
+                0.00    0.00      12/15          zmw_name_find [71]
+-----------------------------------------------
+                0.00    0.03      12/12          zmw_resource_pointer_get [54]
+[53]     0.1    0.00    0.03      12         zmw_resource_get [53]
+                0.00    0.03      12/12          zmw_name_get_pointer_on_resource_with_name_and_type_and_default [52]
+-----------------------------------------------
+                0.00    0.03      12/12          zmw_window_generic [50]
+[54]     0.1    0.00    0.03      12         zmw_resource_pointer_get [54]
+                0.00    0.03      12/12          zmw_resource_get [53]
+-----------------------------------------------
+                                                 <spontaneous>
+[55]     0.1    0.03    0.00                 zmw_cache_check [55]
+-----------------------------------------------
+                                                 <spontaneous>
+[56]     0.1    0.03    0.00                 zmw_cache_free [56]
+-----------------------------------------------
+                                                 <spontaneous>
+[57]     0.1    0.02    0.00                 frame_dummy [57]
+-----------------------------------------------
+                0.00    0.02       1/1           zmw_action_search [30]
+[58]     0.1    0.00    0.02       1         zmw_name_register [58]
+                0.00    0.02       1/1           zmw_name_register_with_name [59]
+-----------------------------------------------
+                0.00    0.02       1/1           zmw_name_register [58]
+[59]     0.1    0.00    0.02       1         zmw_name_register_with_name [59]
+                0.00    0.02       1/3           zmw_name_register_value [47]
+                0.00    0.00       1/3           zmw_name_unregister [83]
+-----------------------------------------------
+                0.02    0.00  262144/262144      zmw_fixed [20]
+[60]     0.0    0.02    0.00  262144         zmw_activable [60]
+                0.00    0.00  262144/262144      zmw_event_to_process [66]
+-----------------------------------------------
+                0.02    0.00      10/10          zmw_state_init [42]
+[61]     0.0    0.02    0.00      10         zmw_rectangle_void [61]
+-----------------------------------------------
+                                                 <spontaneous>
+[62]     0.0    0.02    0.00                 zmw_stack_print [62]
+-----------------------------------------------
+                                                 <spontaneous>
+[63]     0.0    0.01    0.00                 zmw_debug_in_zmw_loop [63]
+-----------------------------------------------
+                                                 <spontaneous>
+[64]     0.0    0.01    0.00                 zmw_size_string [64]
+-----------------------------------------------
+                                                 <spontaneous>
+[65]     0.0    0.01    0.00                 zmw_event_button_release [65]
+-----------------------------------------------
+                0.00    0.00  262144/262144      zmw_activable [60]
+[66]     0.0    0.00    0.00  262144         zmw_event_to_process [66]
+-----------------------------------------------
+                0.00    0.00  133408/133408      zmw_vbox_children_allocated_size [41]
+[67]     0.0    0.00    0.00  133408         zmw_alignement_horizontal_make [67]
+-----------------------------------------------
+                0.00    0.00     112/112         get_mem_usage [91]
+[68]     0.0    0.00    0.00     112         get_value [68]
+-----------------------------------------------
+                0.00    0.00       3/18          zmw_name_register_value [47]
+                0.00    0.00      15/18          zmw_name_find [71]
+[69]     0.0    0.00    0.00      18         zmw_name_hash [69]
+-----------------------------------------------
+                0.00    0.00      17/17          zmw_name_find_with_hash [72]
+[70]     0.0    0.00    0.00      17         zmw_name_equals [70]
+-----------------------------------------------
+                0.00    0.00       3/15          zmw_name_register_value [47]
+                0.00    0.00      12/15          zmw_name_get_pointer_on_resource_with_name_and_type_and_default [52]
+[71]     0.0    0.00    0.00      15         zmw_name_find [71]
+                0.00    0.00      15/18          zmw_name_hash [69]
+                0.00    0.00      15/15          zmw_name_find_with_hash [72]
+-----------------------------------------------
+                0.00    0.00      15/15          zmw_name_find [71]
+[72]     0.0    0.00    0.00      15         zmw_name_find_with_hash [72]
+                0.00    0.00      17/17          zmw_name_equals [70]
+                0.00    0.00       1/1           zmw_name_init [98]
+-----------------------------------------------
+                0.00    0.00       9/9           event_handler [6]
+[73]     0.0    0.00    0.00       9         zmw_handle_selection [73]
+-----------------------------------------------
+                0.00    0.00       6/6           zmw_call_widget [1]
+[74]     0.0    0.00    0.00       6         zmw_cache_init [74]
+-----------------------------------------------
+                0.00    0.00       1/6           zmw_rgb [100]
+                0.00    0.00       5/6           zmw_rgb_scale_to_int [79]
+[75]     0.0    0.00    0.00       6         zmw_rgb_to_int [75]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_window_generic [50]
+[76]     0.0    0.00    0.00       5         zmw_compute_window_size [76]
+                0.00    0.00       5/5           zmw_padding_remove [78]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_call_widget [1]
+[77]     0.0    0.00    0.00       5         zmw_display_accelerator_window [77]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_compute_window_size [76]
+[78]     0.0    0.00    0.00       5         zmw_padding_remove [78]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_rgb [100]
+[79]     0.0    0.00    0.00       5         zmw_rgb_scale_to_int [79]
+                0.00    0.00       5/6           zmw_rgb_to_int [75]
+-----------------------------------------------
+                0.00    0.00       2/4           zmw_draw_clip_pop [86]
+                0.00    0.00       2/4           zmw_window_generic [50]
+[80]     0.0    0.00    0.00       4         zmw_draw_clip_push [80]
+-----------------------------------------------
+                0.00    0.00       4/4           zmw_init [97]
+[81]     0.0    0.00    0.00       4         zmw_take_int_param [81]
+-----------------------------------------------
+                0.00    0.00       2/4           zmw_draw [8]
+                0.00    0.00       2/4           timeout [11]
+[82]     0.0    0.00    0.00       4         zmw_time_from [82]
+-----------------------------------------------
+                0.00    0.00       1/3           zmw_name_register_with_name [59]
+                0.00    0.00       2/3           zmw_search [9]
+[83]     0.0    0.00    0.00       3         zmw_name_unregister [83]
+-----------------------------------------------
+                0.00    0.00       1/3           zmw_main [16]
+                0.00    0.00       2/3           zmw_window_unpop_all [90]
+[84]     0.0    0.00    0.00       3         zmw_use_window_from_button_press [84]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_main [16]
+[85]     0.0    0.00    0.00       2         socket_open [85]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_window_generic [50]
+[86]     0.0    0.00    0.00       2         zmw_draw_clip_pop [86]
+                0.00    0.00       2/4           zmw_draw_clip_push [80]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_window_generic [50]
+[87]     0.0    0.00    0.00       2         zmw_draw_rectangle [87]
+                0.00    0.00       2/2           zmw_draw_set_gc [88]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_draw_rectangle [87]
+[88]     0.0    0.00    0.00       2         zmw_draw_set_gc [88]
+-----------------------------------------------
+                0.00    0.00       2/2           event_handler [6]
+[89]     0.0    0.00    0.00       2         zmw_unpop [89]
+                0.00    0.00       2/2           zmw_window_unpop_all [90]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_unpop [89]
+[90]     0.0    0.00    0.00       2         zmw_window_unpop_all [90]
+                0.00    0.00       2/3           zmw_use_window_from_button_press [84]
+-----------------------------------------------
+                0.00    0.00       1/1           many [2]
+[91]     0.0    0.00    0.00       1         get_mem_usage [91]
+                0.00    0.00     112/112         get_value [68]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main [16]
+[92]     0.0    0.00    0.00       1         socket_listen [92]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler [6]
+[93]     0.0    0.00    0.00       1         user_action [93]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler [6]
+[94]     0.0    0.00    0.00       1         zmw_accelerator_init [94]
+-----------------------------------------------
+                0.00    0.00       1/1           many [2]
+[95]     0.0    0.00    0.00       1         zmw_cache_size [95]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main [16]
+[96]     0.0    0.00    0.00       1         zmw_font_family [96]
+-----------------------------------------------
+                0.00    0.00       1/1           main [14]
+[97]     0.0    0.00    0.00       1         zmw_init [97]
+                0.00    0.00       4/4           zmw_take_int_param [81]
+                0.00    0.00       1/1           zmw_text_init [101]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_name_find_with_hash [72]
+[98]     0.0    0.00    0.00       1         zmw_name_init [98]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler [6]
+[99]     0.0    0.00    0.00       1         zmw_need_repaint [99]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main [16]
+[100]    0.0    0.00    0.00       1         zmw_rgb [100]
+                0.00    0.00       5/5           zmw_rgb_scale_to_int [79]
+                0.00    0.00       1/6           zmw_rgb_to_int [75]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_init [97]
+[101]    0.0    0.00    0.00       1         zmw_text_init [101]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [57] frame_dummy            [63] zmw_debug_in_zmw_loop (zmw.h) [47] zmw_name_register_value
+  [91] get_mem_usage          [10] zmw_dispatch_event (zmw_main.c) [59] zmw_name_register_with_name
+  [68] get_value              [77] zmw_display_accelerator_window [83] zmw_name_unregister
+  [15] horizontal              [8] zmw_draw               [99] zmw_need_repaint
+   [5] leaf                   [86] zmw_draw_clip_pop      [34] zmw_padding_add
+  [14] main                   [80] zmw_draw_clip_push     [78] zmw_padding_remove
+   [2] many                   [87] zmw_draw_rectangle     [61] zmw_rectangle_void
+  [92] socket_listen          [88] zmw_draw_set_gc        [53] zmw_resource_get
+  [85] socket_open            [65] zmw_event_button_release [54] zmw_resource_pointer_get
+  [93] user_action            [45] zmw_event_in          [100] zmw_rgb
+   [4] vertical               [66] zmw_event_to_process   [79] zmw_rgb_scale_to_int
+  [94] zmw_accelerator_init   [20] zmw_fixed              [75] zmw_rgb_to_int
+   [7] zmw_action_compute_required_size [48] zmw_font_description_copy [9] zmw_search (zmw_main.c)
+  [36] zmw_action_dispatch_accelerator [96] zmw_font_family [64] zmw_size_string
+  [26] zmw_action_dispatch_event [73] zmw_handle_selection [62] zmw_stack_print
+  [22] zmw_action_draw        [23] zmw_hash               [42] zmw_state_init
+  [24] zmw_action_first_pass  [18] zmw_hbox               [29] zmw_state_pop
+  [30] zmw_action_search      [25] zmw_hbox_children_allocated_size [12] zmw_state_push
+  [60] zmw_activable          [21] zmw_hbox_required_size [81] zmw_take_int_param (zmw_main.c)
+  [67] zmw_alignement_horizontal_make [19] zmw_hbox_with_activable [101] zmw_text_init
+  [37] zmw_alignement_vertical_make [97] zmw_init         [82] zmw_time_from (zmw_main.c)
+  [40] zmw_box_compute_required_size [13] zmw_init_widget [89] zmw_unpop
+  [55] zmw_cache_check (zmw_cache.c) [16] zmw_main        [84] zmw_use_window_from_button_press
+  [56] zmw_cache_free         [43] zmw_name               [39] zmw_vbox
+  [28] zmw_cache_get_size     [70] zmw_name_equals (zmw_name.c) [41] zmw_vbox_children_allocated_size
+  [32] zmw_cache_get_size_real [71] zmw_name_find (zmw_name.c) [44] zmw_vbox_required_size
+  [74] zmw_cache_init         [72] zmw_name_find_with_hash (zmw_name.c) [38] zmw_vbox_with_activable
+  [27] zmw_cache_set_size     [52] zmw_name_get_pointer_on_resource_with_name_and_type_and_default [35] zmw_widget_previous_size
+  [33] zmw_cache_set_size_real [69] zmw_name_hash (zmw_name.c) [49] zmw_window
+  [95] zmw_cache_size         [98] zmw_name_init (zmw_name.c) [50] zmw_window_generic
+   [1] zmw_call_widget        [46] zmw_name_insert (zmw_name.c) [90] zmw_window_unpop_all
+  [76] zmw_compute_window_size (zmw_window.c) [31] zmw_name_is [51] zmw_window_with_id
+  [17] zmw_debug_in_zmw_loop (zmw.h) [58] zmw_name_register [3] <cycle 1>
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ns/call  ns/call  name    
+ 11.45      3.80     3.80                             zmw_state_push (zmw.c:216 @ 804bdb8)
+  6.81      6.06     2.26                             leaf (speed.c:38 @ 804ab05)
+  4.10      7.42     1.36 98089233    13.87    13.87  zmw_debug_in_zmw_loop (zmw.h:763 @ 804b717)
+  2.21      8.16     0.74                             zmw_init_widget (zmw.c:435 @ 804c424)
+  1.97      8.81     0.66                             zmw_init_widget (zmw.c:454 @ 804c552)
+  1.84      9.42     0.61                             zmw_fixed (zmw_box.c:90 @ 8059abd)
+  1.54      9.93     0.51                             zmw_debug_in_zmw_loop (zmw.h:898 @ 804b73f)
+  1.45     10.41     0.48                             zmw_state_push (zmw.c:239 @ 804be66)
+  1.42     10.88     0.47                             zmw_init_widget (zmw.c:400 @ 804c292)
+  1.33     11.32     0.44                             zmw_state_push (zmw.c:237 @ 804be4e)
+  1.31     11.76     0.44                             zmw_state_push (zmw.c:240 @ 804be94)
+  1.21     12.16     0.40                             zmw_debug_in_zmw_loop (zmw.h:764 @ 804b722)
+  1.21     12.56     0.40                             zmw_state_push (zmw.c:227 @ 804bdfa)
+  1.04     12.90     0.35 19489714    17.70    17.70  zmw_fixed (zmw_box.c:87 @ 8059aaf)
+  0.96     13.22     0.32                             zmw_hash (zmw.c:297 @ 804bfd0)
+  0.93     13.53     0.31                             zmw_action_compute_required_size (zmw.c:553 @ 804c823)
+  0.92     13.84     0.31                             zmw_init_widget (zmw.c:410 @ 804c310)
+  0.90     14.14     0.30                             zmw_state_push (zmw.c:233 @ 804be36)
+  0.87     14.43     0.29                             zmw_widget_previous_size (zmw.c:515 @ 804c6e9)
+  0.86     14.71     0.29                             horizontal (speed.c:54 @ 804ac20)
+  0.84     14.99     0.28                             zmw_hash (zmw.c:296 @ 804bfb9)
+  0.80     15.26     0.27                             zmw_action_compute_required_size (zmw.c:545 @ 804c794)
+  0.78     15.52     0.26 10365249    25.08    25.08  zmw_init_widget (zmw.c:379 @ 804c1c9)
+  0.78     15.78     0.26                             main (speed.c:267 @ 804b712)
+  0.75     16.03     0.25                             zmw_state_push (zmw.c:228 @ 804be06)
+  0.72     16.27     0.24                             zmw_action_compute_required_size (zmw.c:583 @ 804c999)
+  0.72     16.51     0.24                             zmw_debug_in_zmw_loop (zmw.h:766 @ 804b728)
+  0.71     16.74     0.24                             zmw_init_widget (zmw.c:448 @ 804c525)
+  0.69     16.97     0.23                             zmw_action_compute_required_size (zmw.c:526 @ 804c73e)
+  0.68     17.20     0.23                             zmw_init_widget (zmw.c:406 @ 804c2ec)
+  0.66     17.42     0.22 10365249    21.23    21.23  zmw_name_is (zmw_name.c:178 @ 8052dc8)
+  0.65     17.63     0.22                             zmw_init_widget (zmw.c:421 @ 804c324)
+  0.63     17.84     0.21                             zmw_action_compute_required_size (zmw.c:528 @ 804c74c)
+  0.63     18.05     0.21                             zmw_state_push (zmw.c:196 @ 804bcdc)
+  0.63     18.26     0.21                             zmw_hbox_required_size (zmw_box_hv.h:47 @ 8058444)
+  0.62     18.47     0.21                             zmw_init_widget (zmw.c:395 @ 804c221)
+  0.60     18.67     0.20                             zmw_hbox_required_size (zmw_box_hv.h:46 @ 805840a)
+  0.60     18.87     0.20                             zmw_state_push (zmw.c:234 @ 804be42)
+  0.57     19.06     0.19                             zmw_action_compute_required_size (zmw.c:552 @ 804c80c)
+  0.57     19.25     0.19                             zmw_init_widget (zmw.c:389 @ 804c1ea)
+  0.56     19.43     0.19                             zmw_hash (zmw.c:293 @ 804bfa7)
+  0.56     19.62     0.19                             zmw_init_widget (zmw.c:477 @ 804c594)
+  0.54     19.80     0.18 17730202    10.15    10.15  zmw_action_compute_required_size (zmw.c:519 @ 804c6ee)
+  0.54     19.98     0.18                             zmw_init_widget (zmw.c:446 @ 804c507)
+  0.53     20.15     0.18                             zmw_hash (zmw.c:295 @ 804bfb1)
+  0.53     20.33     0.18                             zmw_init_widget (zmw.c:445 @ 804c4f8)
+  0.53     20.50     0.18                             zmw_init_widget (zmw.c:449 @ 804c534)
+  0.53     20.68     0.18                             zmw_state_push (zmw.c:218 @ 804bdd9)
+  0.51     20.85     0.17                             zmw_init_widget (zmw.c:447 @ 804c516)
+  0.51     21.02     0.17                             zmw_init_widget (zmw.c:441 @ 804c4bc)
+  0.51     21.19     0.17                             zmw_state_push (zmw.c:232 @ 804be2a)
+  0.50     21.35     0.17                             zmw_init_widget (zmw.c:444 @ 804c4e9)
+  0.50     21.52     0.17                             horizontal (speed.c:57 @ 804acfd)
+  0.48     21.68     0.16                             zmw_state_push (zmw.c:256 @ 804bed7)
+  0.47     21.83     0.16                             horizontal (speed.c:56 @ 804ad09)
+  0.47     21.99     0.16                             zmw_state_push (zmw.c:241 @ 804bead)
+  0.47     22.14     0.16  8865101    17.48    17.48  zmw_cache_set_size_real (zmw_cache.c:119 @ 804d39d)
+  0.45     22.29     0.15                             zmw_state_pop (zmw.c:276 @ 804bef7)
+  0.45     22.44     0.15 11565747    12.97    12.97  zmw_state_pop (zmw.c:268 @ 804bedf)
+  0.45     22.59     0.15                             zmw_init_widget (zmw.c:427 @ 804c3dd)
+  0.45     22.74     0.15                             zmw_cache_get_size_real (zmw_cache.c:108 @ 804d35b)
+  0.44     22.89     0.15                             zmw_state_push (zmw.c:249 @ 804bec8)
+  0.42     23.03     0.14 11565748    12.11    12.11  zmw_state_push (zmw.c:191 @ 804bcce)
+  0.42     23.17     0.14                             zmw_init_widget (zmw.c:442 @ 804c4cb)
+  0.42     23.31     0.14                             zmw_state_push (zmw.c:230 @ 804be1e)
+  0.39     23.44     0.13                             zmw_action_compute_required_size (zmw.c:568 @ 804c904)
+  0.39     23.57     0.13                             zmw_action_compute_required_size (zmw.c:579 @ 804c97f)
+  0.39     23.70     0.13                             zmw_init_widget (zmw.c:443 @ 804c4da)
+  0.39     23.83     0.13                             zmw_state_pop (zmw.c:279 @ 804bf1f)
+  0.38     23.95     0.13                             leaf (speed.c:41 @ 804abfc)
+  0.36     24.07     0.12                             zmw_action_compute_required_size (zmw.c:571 @ 804c928)
+  0.36     24.19     0.12                             zmw_action_compute_required_size (zmw.c:573 @ 804c937)
+  0.36     24.31     0.12                             zmw_init_widget (zmw.c:450 @ 804c543)
+  0.36     24.43     0.12                             zmw_name_is (zmw_name.c:183 @ 8052e0e)
+  0.36     24.55     0.12                             zmw_state_push (zmw.c:238 @ 804be5a)
+  0.36     24.67     0.12  9219632    13.02    13.02  leaf (speed.c:30 @ 804a9d4)
+  0.36     24.79     0.12                             zmw_fixed (zmw_box.c:125 @ 8059cd6)
+  0.35     24.91     0.12                             zmw_action_compute_required_size (zmw.c:566 @ 804c8f5)
+  0.35     25.02     0.12                             zmw_debug_in_zmw_loop (zmw.h:767 @ 804b737)
+  0.35     25.14     0.12                             zmw_debug_in_zmw_loop (zmw.h:897 @ 804b73c)
+  0.35     25.25     0.12                             zmw_init_widget (zmw.c:439 @ 804c49e)
+  0.35     25.37     0.12                             zmw_state_push (zmw.c:225 @ 804bdf0)
+  0.33     25.48     0.11  9164700    12.00    12.00  zmw_hash (zmw.c:292 @ 804bf9e)
+  0.33     25.59     0.11                             zmw_action_compute_required_size (zmw.c:561 @ 804c897)
+  0.33     25.70     0.11                             zmw_cache_set_size_real (zmw_cache.c:133 @ 804d42d)
+  0.33     25.81     0.11                             zmw_state_push (zmw.c:229 @ 804be12)
+  0.30     25.91     0.10  8865101    11.28    11.28  zmw_cache_get_size (zmw_cache.c:111 @ 804d365)
+  0.30     26.01     0.10                             zmw_cache_set_size (zmw_cache.c:188 @ 804d5c9)
+  0.30     26.11     0.10  8865101    11.28    11.28  zmw_cache_get_size_real (zmw_cache.c:87 @ 804d299)
+  0.29     26.20     0.10                             zmw_box_compute_required_size (zmw_box.c:83 @ 8059aaa)
+  0.29     26.30     0.10                             zmw_state_push (zmw.c:214 @ 804bd99)
+  0.27     26.39     0.09                             zmw_action_compute_required_size (zmw.c:524 @ 804c6fb)
+  0.27     26.48     0.09                             zmw_cache_set_size (zmw_cache.c:189 @ 804d5d4)
+  0.27     26.57     0.09                             zmw_hbox_required_size (zmw_box_hv.h:49 @ 8058475)
+  0.27     26.66     0.09  9332107     9.64     9.64  vertical (speed.c:62 @ 804ad40)
+  0.27     26.75     0.09                             zmw_hbox_required_size (zmw_box_hv.h:41 @ 80584c7)
+  0.26     26.83     0.09                             zmw_alignement_vertical_make (zmw_box_hv.h:256 @ 805993b)
+  0.26     26.92     0.09                             zmw_padding_add (zmw_size.c:62 @ 8053b3d)
+  0.26     27.00     0.09                             zmw_state_push (zmw.c:208 @ 804bd60)
+  0.26     27.09     0.09                             zmw_action_compute_required_size (zmw.c:565 @ 804c8df)
+  0.26     27.17     0.09                             zmw_padding_add (zmw_size.c:66 @ 8053b79)
+  0.26     27.26     0.09                             zmw_state_push (zmw.c:219 @ 804bde4)
+  0.26     27.34     0.09                             zmw_state_push (zmw.c:242 @ 804bebf)
+  0.24     27.42     0.08  8865101     9.02     9.02  zmw_cache_set_size (zmw_cache.c:182 @ 804d5a0)
+  0.24     27.50     0.08                             horizontal (speed.c:54 @ 804ad10)
+  0.24     27.58     0.08                             zmw_action_compute_required_size (zmw.c:562 @ 804c8b4)
+  0.24     27.66     0.08                             zmw_action_compute_required_size (zmw.c:570 @ 804c912)
+  0.24     27.74     0.08                             zmw_cache_get_size (zmw_cache.c:112 @ 804d370)
+  0.24     27.82     0.08                             zmw_name (zmw.c:289 @ 804bf97)
+  0.24     27.90     0.08                             zmw_state_push (zmw.c:197 @ 804bcf5)
+  0.23     27.98     0.08                             zmw_init_widget (zmw.c:405 @ 804c2e4)
+  0.23     28.05     0.08                             zmw_action_compute_required_size (zmw.c:538 @ 804c787)
+  0.23     28.13     0.08                             zmw_fixed (zmw_box.c:99 @ 8059b06)
+  0.23     28.20     0.08                             zmw_init_widget (zmw.c:401 @ 804c2c6)
+  0.23     28.28     0.08                             zmw_init_widget (zmw.c:402 @ 804c2d5)
+  0.21     28.35     0.07                             zmw_hbox_with_activable (zmw_box_hv.h:197 @ 8058ca7)
+  0.21     28.42     0.07                             horizontal (speed.c:56 @ 804ace9)
+  0.21     28.49     0.07                             leaf (speed.c:32 @ 804a9eb)
+  0.21     28.56     0.07                             leaf (speed.c:33 @ 804a9f7)
+  0.21     28.63     0.07                             zmw_action_compute_required_size (zmw.c:531 @ 804c776)
+  0.21     28.70     0.07                             zmw_action_compute_required_size (zmw.c:560 @ 804c869)
+  0.21     28.77     0.07                             zmw_fixed (zmw_box.c:100 @ 8059b18)
+  0.21     28.84     0.07                             zmw_hbox_required_size (zmw_box_hv.h:41 @ 80583c6)
+  0.21     28.91     0.07                             zmw_hbox_required_size (zmw_box_hv.h:44 @ 8058405)
+  0.21     28.98     0.07                             zmw_hbox_required_size (zmw_box_hv.h:58 @ 805849c)
+  0.21     29.05     0.07                             zmw_init_widget (zmw.c:398 @ 804c27b)
+  0.21     29.12     0.07                             zmw_init_widget (zmw.c:484 @ 804c5c5)
+  0.18     29.18     0.06                             zmw_cache_get_size (zmw_cache.c:115 @ 804d38a)
+  0.18     29.24     0.06                             zmw_hbox_children_allocated_size (zmw_box_hv.h:141 @ 8058962)
+  0.18     29.30     0.06                             zmw_hbox_required_size (zmw_box_hv.h:43 @ 80583e0)
+  0.18     29.36     0.06                             zmw_action_compute_required_size (zmw.c:532 @ 804c77b)
+  0.18     29.42     0.06                             zmw_action_compute_required_size (zmw.c:551 @ 804c7fb)
+  0.18     29.48     0.06                             zmw_hbox_children_allocated_size (zmw_box_hv.h:83 @ 8058587)
+  0.18     29.54     0.06                             zmw_hbox_required_size (zmw_box_hv.h:65 @ 80584e2)
+  0.18     29.60     0.06                             zmw_action_compute_required_size (zmw.c:552 @ 804c862)
+  0.17     29.65     0.06                             vertical (speed.c:70 @ 804ae4b)
+  0.17     29.71     0.06                             vertical (speed.c:75 @ 804ae79)
+  0.17     29.76     0.06                             zmw_action_draw (zmw.c:687 @ 804cd55)
+  0.17     29.82     0.06                             zmw_state_pop (zmw.c:280 @ 804bf2b)
+  0.17     29.87     0.06                             zmw_state_pop (zmw.c:281 @ 804bf35)
+  0.15     29.92     0.05                             zmw_action_draw (zmw.c:664 @ 804ccbf)
+  0.15     29.97     0.05                             zmw_hbox_children_allocated_size (zmw_box_hv.h:182 @ 8058c2f)
+  0.15     30.02     0.05                             zmw_padding_add (zmw_size.c:63 @ 8053b4e)
+  0.15     30.07     0.05                             zmw_state_push (zmw.c:213 @ 804bd8c)
+  0.15     30.12     0.05                             zmw_alignement_vertical_make (zmw_box_hv.h:259 @ 8059959)
+  0.15     30.17     0.05                             zmw_fixed (zmw_box.c:119 @ 8059cd1)
+  0.15     30.22     0.05                             zmw_font_description_copy (zmw.c:376 @ 804c1c7)
+  0.15     30.27     0.05                             zmw_init_widget (zmw.c:437 @ 804c47a)
+  0.15     30.32     0.05                             zmw_name_insert (zmw_name.c:172 @ 8052dc6)
+  0.14     30.37     0.05                             zmw_init_widget (zmw.c:440 @ 804c4ad)
+  0.14     30.41     0.05                             zmw_state_push (zmw.c:203 @ 804bd4e)
+  0.12     30.45     0.04  7664552     5.22     5.22  zmw_padding_add (zmw_size.c:61 @ 8053b35)
+  0.12     30.49     0.04  1033136    38.72    38.72  horizontal (speed.c:46 @ 804ac05)
+  0.12     30.53     0.04                             leaf (speed.c:42 @ 804ac03)
+  0.12     30.57     0.04                             vertical (speed.c:67 @ 804ad51)
+  0.12     30.61     0.04                             zmw_action_compute_required_size (zmw.c:563 @ 804c8d1)
+  0.12     30.65     0.04                             zmw_action_dispatch_event (zmw.c:752 @ 804cf11)
+  0.12     30.69     0.04                             zmw_box_compute_required_size (zmw_box.c:82 @ 8059a99)
+  0.12     30.73     0.04                             zmw_cache_set_size (zmw_cache.c:185 @ 804d5ab)
+  0.12     30.77     0.04                             zmw_cache_set_size_real (zmw_cache.c:131 @ 804d417)
+  0.12     30.81     0.04                             zmw_fixed (zmw_box.c:93 @ 8059af1)
+  0.12     30.85     0.04                             zmw_hbox_required_size (zmw_box_hv.h:51 @ 805847e)
+  0.12     30.89     0.04                             zmw_hbox_required_size (zmw_box_hv.h:62 @ 80584be)
+  0.12     30.93     0.04                             zmw_init_widget (zmw.c:386 @ 804c1e5)
+  0.12     30.97     0.04                             zmw_init_widget (zmw.c:399 @ 804c287)
+  0.12     31.01     0.04                             zmw_name_is (zmw_name.c:179 @ 8052dd3)
+  0.12     31.05     0.04                             zmw_name_is (zmw_name.c:180 @ 8052ddb)
+  0.12     31.09     0.04                             zmw_state_pop (zmw.c:271 @ 804beea)
+  0.12     31.13     0.04                             zmw_vbox_children_allocated_size (zmw_box_hv.h:176 @ 8059694)
+  0.11     31.17     0.04                             zmw_cache_get_size (zmw_cache.c:116 @ 804d398)
+  0.11     31.20     0.04                             zmw_hbox_children_allocated_size (zmw_box_hv.h:91 @ 8058c79)
+  0.11     31.24     0.04                             zmw_state_init (zmw.c:187 @ 804bcbc)
+  0.11     31.27     0.04                             zmw_state_init (zmw.c:188 @ 804bccc)
+  0.09     31.30     0.03  1797564    16.69    16.69  zmw_action_draw (zmw.c:661 @ 804cc71)
+  0.09     31.33     0.03  2199648    13.64    13.64  zmw_hbox (zmw_box_hv.h:226 @ 8058d65)
+  0.09     31.36     0.03                             leaf (speed.c:31 @ 804a9df)
+  0.09     31.39     0.03                             zmw_action_compute_required_size (zmw.c:530 @ 804c767)
+  0.09     31.42     0.03                             zmw_action_compute_required_size (zmw.c:575 @ 804c95b)
+  0.09     31.45     0.03                             zmw_action_dispatch_event (zmw.c:736 @ 804ce96)
+  0.09     31.48     0.03                             zmw_action_draw (zmw.c:668 @ 804ccf2)
+  0.09     31.51     0.03                             zmw_alignement_vertical_make (zmw_box_hv.h:244 @ 80598a6)
+  0.09     31.54     0.03                             zmw_cache_check (zmw_cache.c:179 @ 804d59e)
+  0.09     31.57     0.03                             zmw_cache_free (zmw_cache.c:81 @ 804d297)
+  0.09     31.60     0.03                             zmw_cache_get_size_real (zmw_cache.c:91 @ 804d2a6)
+  0.09     31.63     0.03                             zmw_cache_get_size_real (zmw_cache.c:107 @ 804d354)
+  0.09     31.66     0.03                             zmw_fixed (zmw_box.c:106 @ 8059b2f)
+  0.09     31.69     0.03                             zmw_hbox (zmw_box_hv.h:227 @ 8058d70)
+  0.09     31.72     0.03                             zmw_hbox_children_allocated_size (zmw_box_hv.h:81 @ 8058570)
+  0.09     31.75     0.03                             zmw_hbox_children_allocated_size (zmw_box_hv.h:93 @ 8058605)
+  0.09     31.78     0.03                             zmw_hbox_with_activable (zmw_box_hv.h:200 @ 8058cdd)
+  0.09     31.81     0.03                             zmw_init_widget (zmw.c:438 @ 804c48c)
+  0.09     31.84     0.03                             zmw_vbox_with_activable (zmw_box_hv.h:197 @ 8059788)
+  0.08     31.87     0.03                             zmw_action_dispatch_event (zmw.c:746 @ 804cedc)
+  0.08     31.89     0.03                             zmw_alignement_vertical_make (zmw_box_hv.h:248 @ 80598dd)
+  0.08     31.92     0.03                             leaf (speed.c:34 @ 804aa04)
+  0.06     31.94     0.02   866440    23.08    23.08  zmw_hbox_required_size (zmw_box_hv.h:35 @ 80583ac)
+  0.06     31.96     0.02                             frame_dummy
+  0.06     31.98     0.02                             horizontal (speed.c:59 @ 804ad3e)
+  0.06     32.00     0.02                             vertical (speed.c:65 @ 804ad4b)
+  0.06     32.02     0.02                             vertical (speed.c:70 @ 804ad5b)
+  0.06     32.04     0.02                             vertical (speed.c:72 @ 804ae44)
+  0.06     32.06     0.02                             zmw_action_compute_required_size (zmw.c:582 @ 804c992)
+  0.06     32.08     0.02                             zmw_action_dispatch_event (zmw.c:726 @ 804ce2a)
+  0.06     32.10     0.02                             zmw_action_dispatch_event (zmw.c:749 @ 804cef8)
+  0.06     32.12     0.02                             zmw_action_dispatch_event (zmw.c:770 @ 804cf7e)
+  0.06     32.14     0.02                             zmw_action_first_pass (zmw.c:600 @ 804c9bf)
+  0.06     32.16     0.02                             zmw_action_first_pass (zmw.c:603 @ 804c9d9)
+  0.06     32.18     0.02                             zmw_action_first_pass (zmw.c:609 @ 804c9f3)
+  0.06     32.20     0.02                             zmw_action_search (zmw.c:781 @ 804cfd1)
+  0.06     32.22     0.02                             zmw_action_search (zmw.c:788 @ 804d021)
+  0.06     32.24     0.02                             zmw_alignement_vertical_make (zmw_box_hv.h:243 @ 8059884)
+  0.06     32.26     0.02                             zmw_cache_get_size_real (zmw_cache.c:104 @ 804d34e)
+  0.06     32.28     0.02                             zmw_cache_set_size_real (zmw_cache.c:122 @ 804d3aa)
+  0.06     32.30     0.02                             zmw_event_in (zmw.c:140 @ 804bad2)
+  0.06     32.32     0.02                             zmw_event_in (zmw.c:143 @ 804bade)
+  0.06     32.34     0.02                             zmw_hbox_children_allocated_size (zmw_box_hv.h:86 @ 80585d1)
+  0.06     32.36     0.02                             zmw_hbox_children_allocated_size (zmw_box_hv.h:81 @ 80585d6)
+  0.06     32.38     0.02                             zmw_hbox_children_allocated_size (zmw_box_hv.h:109 @ 8058731)
+  0.06     32.40     0.02                             zmw_hbox_children_allocated_size (zmw_box_hv.h:130 @ 80588d9)
+  0.06     32.42     0.02                             zmw_hbox_children_allocated_size (zmw_box_hv.h:188 @ 8058c83)
+  0.06     32.44     0.02                             zmw_hbox_required_size (zmw_box_hv.h:66 @ 80584f3)
+  0.06     32.46     0.02                             zmw_hbox_with_activable (zmw_box_hv.h:217 @ 8058d54)
+  0.06     32.48     0.02                             zmw_hbox_with_activable (zmw_box_hv.h:223 @ 8058d63)
+  0.06     32.50     0.02                             zmw_init_widget (zmw.c:382 @ 804c1d5)
+  0.06     32.52     0.02                             zmw_init_widget (zmw.c:429 @ 804c3ea)
+  0.06     32.54     0.02                             zmw_name_is (zmw_name.c:182 @ 8052de4)
+  0.06     32.56     0.02                             zmw_padding_add (zmw_size.c:64 @ 8053b5f)
+  0.06     32.58     0.02                             zmw_vbox_children_allocated_size (zmw_box_hv.h:141 @ 8059443)
+  0.06     32.60     0.02                             zmw_vbox_required_size (zmw_box_hv.h:41 @ 8058ea7)
+  0.05     32.61     0.02  2199648     6.82     6.82  zmw_hbox_with_activable (zmw_box_hv.h:191 @ 8058c8b)
+  0.05     32.63     0.02                             zmw_action_draw (zmw.c:662 @ 804cc7c)
+  0.05     32.64     0.02                             zmw_alignement_vertical_make (zmw_box_hv.h:250 @ 805990a)
+  0.05     32.66     0.02                             zmw_alignement_vertical_make (zmw_box_hv.h:251 @ 805991b)
+  0.05     32.67     0.02                             zmw_init_widget (zmw.c:431 @ 804c3fc)
+  0.05     32.69     0.02                             zmw_rectangle_void (zmw_size.c:54 @ 8053b33)
+  0.05     32.70     0.02                             zmw_stack_print (zmw.c:658 @ 804cc6f)
+  0.03     32.71     0.01  1200526     8.33     8.33  zmw_action_first_pass (zmw.c:592 @ 804c9a3)
+  0.03     32.72     0.01  1200526     8.33     8.33  zmw_event_in (zmw.c:133 @ 804baa4)
+  0.03     32.73     0.01   241617    41.39    41.39  zmw_vbox_with_activable (zmw_box_hv.h:191 @ 805976c)
+  0.03     32.74     0.01                             horizontal (speed.c:49 @ 804ac10)
+  0.03     32.75     0.01                             vertical (speed.c:72 @ 804ae24)
+  0.03     32.76     0.01                             zmw_action_compute_required_size (zmw.c:574 @ 804c945)
+  0.03     32.77     0.01                             zmw_action_dispatch_accelerator (zmw.c:696 @ 804cda5)
+  0.03     32.78     0.01                             zmw_action_dispatch_event (zmw.c:754 @ 804cf25)
+  0.03     32.79     0.01                             zmw_action_draw (zmw.c:671 @ 804ccfc)
+  0.03     32.80     0.01                             zmw_action_draw (zmw.c:680 @ 804cd40)
+  0.03     32.81     0.01                             zmw_action_draw (zmw.c:681 @ 804cd45)
+  0.03     32.82     0.01                             zmw_action_first_pass (zmw.c:593 @ 804c9af)
+  0.03     32.83     0.01                             zmw_action_first_pass (zmw.c:613 @ 804ca28)
+  0.03     32.84     0.01                             zmw_action_first_pass (zmw.c:615 @ 804ca3a)
+  0.03     32.85     0.01                             zmw_action_search (zmw.c:782 @ 804cfde)
+  0.03     32.86     0.01                             zmw_action_search (zmw.c:790 @ 804d035)
+  0.03     32.87     0.01                             zmw_action_search (zmw.c:802 @ 804d079)
+  0.03     32.88     0.01                             zmw_activable (zmw_event.c:638 @ 804fc68)
+  0.03     32.89     0.01                             zmw_debug_in_zmw_loop (zmw.h:898 @ 80583a9)
+  0.03     32.90     0.01                             zmw_event_in (zmw.c:145 @ 804bb34)
+  0.03     32.91     0.01                             zmw_event_in (zmw.c:161 @ 804bc32)
+  0.03     32.92     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:91 @ 80585eb)
+  0.03     32.93     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:111 @ 805873b)
+  0.03     32.94     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:154 @ 8058a1e)
+  0.03     32.95     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:168 @ 8058b4b)
+  0.03     32.96     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:186 @ 8058c73)
+  0.03     32.97     0.01                             zmw_hbox_required_size (zmw_box_hv.h:40 @ 80583bf)
+  0.03     32.98     0.01                             zmw_hbox_required_size (zmw_box_hv.h:56 @ 8058493)
+  0.03     32.99     0.01                             zmw_hbox_required_size (zmw_box_hv.h:60 @ 80584aa)
+  0.03     33.00     0.01                             zmw_hbox_required_size (zmw_box_hv.h:64 @ 80584d1)
+  0.03     33.01     0.01                             zmw_hbox_with_activable (zmw_box_hv.h:192 @ 8058c9c)
+  0.03     33.02     0.01                             zmw_init_widget (zmw.c:480 @ 804c5b0)
+  0.03     33.03     0.01                             zmw_padding_add (zmw_size.c:67 @ 8053b85)
+  0.03     33.04     0.01                             zmw_size_string (zmw.c:130 @ 804baa2)
+  0.03     33.05     0.01                             zmw_state_push (zmw.c:211 @ 804bd77)
+  0.03     33.06     0.01                             zmw_vbox_children_allocated_size (zmw_box_hv.h:130 @ 80593ba)
+  0.03     33.07     0.01                             zmw_vbox_children_allocated_size (zmw_box_hv.h:175 @ 805966f)
+  0.03     33.08     0.01                             zmw_vbox_children_allocated_size (zmw_box_hv.h:188 @ 8059764)
+  0.03     33.09     0.01                             zmw_vbox_required_size (zmw_box_hv.h:46 @ 8058eeb)
+  0.03     33.10     0.01                             zmw_vbox_required_size (zmw_box_hv.h:47 @ 8058f25)
+  0.03     33.11     0.01                             zmw_vbox_required_size (zmw_box_hv.h:41 @ 8058fa8)
+  0.03     33.12     0.01                             zmw_vbox_with_activable (zmw_box_hv.h:200 @ 80597be)
+  0.03     33.13     0.01                             zmw_vbox_with_activable (zmw_box_hv.h:217 @ 8059835)
+  0.02     33.14     0.01   599188     8.34     8.34  zmw_action_dispatch_accelerator (zmw.c:693 @ 804cd5a)
+  0.02     33.14     0.01   262144    19.07    19.07  zmw_activable (zmw_event.c:626 @ 804fc31)
+  0.02     33.15     0.01                             horizontal (speed.c:51 @ 804ac16)
+  0.02     33.15     0.01                             zmw_action_dispatch_accelerator (zmw.c:694 @ 804cd65)
+  0.02     33.16     0.01                             zmw_action_dispatch_event (zmw.c:743 @ 804ced0)
+  0.02     33.16     0.01                             zmw_action_draw (zmw.c:686 @ 804cd4e)
+  0.02     33.17     0.01                             zmw_event_button_release (zmw_event.c:623 @ 804fc2f)
+  0.02     33.17     0.01                             zmw_fixed (zmw_box.c:95 @ 8059afc)
+  0.02     33.18     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:95 @ 805862a)
+  0.02     33.18     0.01                             zmw_hbox_children_allocated_size (zmw_box_hv.h:96 @ 8058686)
+  0.02     33.19     0.01                             zmw_init_widget (zmw.c:391 @ 804c21c)
+  0.02     33.19     0.01                             zmw_padding_add (zmw_size.c:65 @ 8053b6a)
+  0.00     33.19     0.00  1067136     0.00     0.00  zmw_alignement_vertical_make (zmw_box_hv.h:240 @ 8059878)
+  0.00     33.19     0.00   905260     0.00     0.00  zmw_action_search (zmw.c:778 @ 804cf83)
+  0.00     33.19     0.00   898782     0.00     0.00  zmw_action_dispatch_event (zmw.c:721 @ 804cddc)
+  0.00     33.19     0.00   262144     0.00     0.00  zmw_event_to_process (zmw_event.c:70 @ 804f088)
+  0.00     33.19     0.00   241617     0.00     0.00  zmw_vbox (zmw_box_hv.h:226 @ 8059846)
+  0.00     33.19     0.00   133408     0.00     0.00  zmw_alignement_horizontal_make (zmw_box_hv.h:240 @ 8058d97)
+  0.00     33.19     0.00   133392     0.00     0.00  zmw_hbox_children_allocated_size (zmw_box_hv.h:74 @ 805854b)
+  0.00     33.19     0.00    91629     0.00     0.00  zmw_vbox_required_size (zmw_box_hv.h:35 @ 8058e8d)
+  0.00     33.19     0.00    16676     0.00     0.00  zmw_vbox_children_allocated_size (zmw_box_hv.h:74 @ 805902c)
+  0.00     33.19     0.00      112     0.00     0.00  get_value (speed.c:78 @ 804ae7b)
+  0.00     33.19     0.00       18     0.00     0.00  zmw_name_hash (zmw_name.c:101 @ 8052c1b)
+  0.00     33.19     0.00       17     0.00     0.00  zmw_name_equals (zmw_name.c:92 @ 8052bcd)
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window (zmw_window.c:314 @ 8062906)
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window_generic (zmw_window.c:84 @ 80621a0)
+  0.00     33.19     0.00       17     0.00     0.00  zmw_window_with_id (zmw_window.c:310 @ 80628cf)
+  0.00     33.19     0.00       15     0.00     0.00  zmw_name_find (zmw_name.c:138 @ 8052d03)
+  0.00     33.19     0.00       15     0.00     0.00  zmw_name_find_with_hash (zmw_name.c:118 @ 8052c6a)
+  0.00     33.19     0.00       12     0.00     0.00  zmw_name_get_pointer_on_resource_with_name_and_type_and_default (zmw_name.c:373 @ 8053553)
+  0.00     33.19     0.00       12     0.00     0.00  zmw_resource_get (zmw_name.c:528 @ 8053950)
+  0.00     33.19     0.00       12     0.00     0.00  zmw_resource_pointer_get (zmw_name.c:547 @ 80539bb)
+  0.00     33.19     0.00       10     0.00     0.00  zmw_rectangle_void (zmw_size.c:52 @ 8053b0d)
+  0.00     33.19     0.00       10     0.00     0.00  zmw_state_init (zmw.c:179 @ 804bc6c)
+  0.00     33.19     0.00        9     0.00     0.00  zmw_handle_selection (selection.c:155 @ 805693f)
+  0.00     33.19     0.00        6     0.00     0.00  many (speed.c:111 @ 804af8f)
+  0.00     33.19     0.00        6     0.00     0.00  zmw_cache_init (zmw_cache.c:43 @ 804d128)
+  0.00     33.19     0.00        6     0.00     0.00  zmw_call_widget (zmw_main.c:182 @ 805124d)
+  0.00     33.19     0.00        6     0.00     0.00  zmw_name (zmw.c:284 @ 804bf37)
+  0.00     33.19     0.00        6     0.00     0.00  zmw_rgb_to_int (zmw_device.c:27 @ 804d5d8)
+  0.00     33.19     0.00        5     0.00     0.00  zmw_compute_window_size (zmw_window.c:34 @ 8061e58)
+  0.00     33.19     0.00        5     0.00     0.00  zmw_display_accelerator_window (zmw_main.c:166 @ 8051215)
+  0.00     33.19     0.00        5     0.00     0.00  zmw_padding_remove (zmw_size.c:71 @ 8053b98)
+  0.00     33.19     0.00        5     0.00     0.00  zmw_rgb_scale_to_int (zmw_graphic.c:211 @ 8050917)
+  0.00     33.19     0.00        4     0.00     0.00  zmw_draw_clip_push (zmw_device.c:100 @ 804d9be)
+  0.00     33.19     0.00        4     0.00     0.00  zmw_take_int_param (zmw_main.c:635 @ 8051f9a)
+  0.00     33.19     0.00        4     0.00     0.00  zmw_time_from (zmw_main.c:254 @ 805147b)
+  0.00     33.19     0.00        3     0.00     0.00  zmw_name_insert (zmw_name.c:163 @ 8052d88)
+  0.00     33.19     0.00        3     0.00     0.00  zmw_name_register_value (zmw_name.c:343 @ 8053494)
+  0.00     33.19     0.00        3     0.00     0.00  zmw_name_unregister (zmw_name.c:500 @ 80538b2)
+  0.00     33.19     0.00        3     0.00     0.00  zmw_use_window_from_button_press (zmw_main.c:67 @ 8050a7a)
+  0.00     33.19     0.00        2     0.00     0.00  socket_open (socket.c:32 @ 8056ad4)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw (zmw_main.c:265 @ 80514bc)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_clip_pop (zmw_device.c:113 @ 804da34)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_rectangle (zmw_device.c:81 @ 804d8b0)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_draw_set_gc (zmw_device.c:60 @ 804d7fd)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_search (zmw_main.c:314 @ 805166e)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_unpop (zmw_main.c:418 @ 8051898)
+  0.00     33.19     0.00        2     0.00     0.00  zmw_window_unpop_all (zmw_event.c:522 @ 804fa62)
+  0.00     33.19     0.00        1     0.00     0.00  get_mem_usage (speed.c:86 @ 804aee0)
+  0.00     33.19     0.00        1     0.00     0.00  socket_listen (socket.c:78 @ 8056bd8)
+  0.00     33.19     0.00        1     0.00     0.00  user_action (zmw_main.c:405 @ 805184b)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_accelerator_init (zmw_button.c:49 @ 8059db3)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_cache_size (zmw_cache.c:63 @ 804d1f7)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_dispatch_event (zmw_main.c:325 @ 805169a)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_font_family (zmw.c:304 @ 804bfdc)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_init (zmw_main.c:655 @ 8052099)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_main (zmw_main.c:679 @ 8052187)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_name_init (zmw_name.c:56 @ 8052a94)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_name_register (zmw_name.c:494 @ 8053892)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_name_register_with_name (zmw_name.c:488 @ 8053856)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_need_repaint (zmw_main.c:57 @ 8050a54)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_rgb (zmw_graphic.c:216 @ 8050946)
+  0.00     33.19     0.00        1     0.00     0.00  zmw_text_init (zmw_device.c:282 @ 804df15)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.03% of 33.19 seconds
+
+index % time    self  children    called     name
+                0.00    0.00      11/98089233     many (speed.c:159 @ 804b20e) [302]
+                0.00    0.00      63/98089233     many (speed.c:159 @ 804b131) [301]
+                0.00    0.00  129142/98089233     vertical (speed.c:70 @ 804ae4b) [137]
+                0.01    0.00  949801/98089233     vertical (speed.c:70 @ 804ad5b) [174]
+                0.02    0.00 1166512/98089233     horizontal (speed.c:54 @ 804ad10) [87]
+                0.12    0.00 8665216/98089233     horizontal (speed.c:54 @ 804ac20) [8]
+                1.21    0.00 87178488/98089233     leaf (speed.c:38 @ 804ab05) [1]
+[3]      4.1    1.36    0.00 98089233         zmw_debug_in_zmw_loop (zmw.h:763 @ 804b717) [3]
+-----------------------------------------------
+                0.35    0.00 19489714/19489714     leaf (speed.c:38 @ 804ab05) [1]
+[16]     1.0    0.35    0.00 19489714         zmw_fixed (zmw_box.c:87 @ 8059aaf) [16]
+-----------------------------------------------
+                0.00    0.00       6/10365249     many (speed.c:159 @ 804b131) [301]
+                0.00    0.00  112475/10365249     vertical (speed.c:70 @ 804ad5b) [174]
+                0.03    0.00 1033136/10365249     horizontal (speed.c:54 @ 804ac20) [8]
+                0.23    0.00 9219632/10365249     leaf (speed.c:38 @ 804ab05) [1]
+[25]     0.8    0.26    0.00 10365249         zmw_init_widget (zmw.c:379 @ 804c1c9) [25]
+-----------------------------------------------
+                0.22    0.00 10365249/10365249     zmw_init_widget (zmw.c:477 @ 804c594) [13]
+[36]     0.7    0.22    0.00 10365249         zmw_name_is (zmw_name.c:178 @ 8052dc8) [36]
+-----------------------------------------------
+                0.00    0.00  183258/17730202     vertical (speed.c:70 @ 804ad5b) [174]
+                0.02    0.00 1732880/17730202     horizontal (speed.c:54 @ 804ac20) [8]
+                0.16    0.00 15814064/17730202     leaf (speed.c:38 @ 804ab05) [1]
+[46]     0.5    0.18    0.00 17730202         zmw_action_compute_required_size (zmw.c:519 @ 804c6ee) [46]
+-----------------------------------------------
+                0.16    0.00 8865101/8865101     zmw_cache_set_size (zmw_cache.c:188 @ 804d5c9) [27]
+[61]     0.5    0.16    0.00 8865101         zmw_cache_set_size_real (zmw_cache.c:119 @ 804d39d) [61]
+-----------------------------------------------
+                0.00    0.00      11/11565747     many (speed.c:159 @ 804b20e) [302]
+                0.00    0.00  129142/11565747     vertical (speed.c:70 @ 804ae4b) [137]
+                0.02    0.00 1166512/11565747     horizontal (speed.c:54 @ 804ad10) [87]
+                0.13    0.00 10270082/11565747     leaf (speed.c:38 @ 804ab05) [1]
+[63]     0.5    0.15    0.00 11565747         zmw_state_pop (zmw.c:268 @ 804bedf) [63]
+-----------------------------------------------
+                0.00    0.00       1/11565748     zmw_main (zmw_main.c:727 @ 80523b6) [304]
+                0.00    0.00  299594/11565748     zmw_action_dispatch_accelerator (zmw.c:709 @ 804cdb3) [297]
+                0.00    0.00  299594/11565748     zmw_action_dispatch_event (zmw.c:753 @ 804cf20) [298]
+                0.00    0.00  301744/11565748     zmw_action_search (zmw.c:789 @ 804d030) [296]
+                0.01    0.00  599188/11565748     zmw_action_draw (zmw.c:680 @ 804cd40) [232]
+                0.01    0.00 1200526/11565748     zmw_action_first_pass (zmw.c:613 @ 804ca28) [200]
+                0.11    0.00 8865101/11565748     zmw_action_compute_required_size (zmw.c:531 @ 804c776) [48]
+[67]     0.4    0.14    0.00 11565748         zmw_state_push (zmw.c:191 @ 804bcce) [67]
+-----------------------------------------------
+                0.12    0.00 9219632/9219632     vertical (speed.c:65 @ 804ad4b) [70]
+[80]     0.4    0.12    0.00 9219632         leaf (speed.c:30 @ 804a9d4) [80]
+-----------------------------------------------
+                0.00    0.00       6/9164700     zmw_init_widget (zmw.c:431 @ 804c3fc) [233]
+                0.11    0.00 9164694/9164700     zmw_init_widget (zmw.c:435 @ 804c424) [4]
+[88]     0.3    0.11    0.00 9164700         zmw_hash (zmw.c:292 @ 804bf9e) [88]
+-----------------------------------------------
+                0.10    0.00 8865101/8865101     zmw_action_compute_required_size (zmw.c:528 @ 804c74c) [18]
+[92]     0.3    0.10    0.00 8865101         zmw_cache_get_size (zmw_cache.c:111 @ 804d365) [92]
+-----------------------------------------------
+                0.10    0.00 8865101/8865101     zmw_cache_get_size (zmw_cache.c:115 @ 804d38a) [57]
+[93]     0.3    0.10    0.00 8865101         zmw_cache_get_size_real (zmw_cache.c:87 @ 804d299) [93]
+-----------------------------------------------
+                0.00    0.00      11/9332107     many (speed.c:160 @ 804b201) [303]
+                0.09    0.00 9332096/9332107     horizontal (speed.c:57 @ 804acfd) [28]
+[99]     0.3    0.09    0.00 9332107         vertical (speed.c:62 @ 804ad40) [99]
+-----------------------------------------------
+                0.08    0.00 8865101/8865101     zmw_action_compute_required_size (zmw.c:579 @ 804c97f) [38]
+[108]    0.2    0.08    0.00 8865101         zmw_cache_set_size (zmw_cache.c:182 @ 804d5a0) [108]
+-----------------------------------------------
+                0.00    0.00  733032/7664552     zmw_vbox_required_size (zmw_box_hv.h:47 @ 8058f25) [240]
+                0.04    0.00 6931520/7664552     zmw_hbox_required_size (zmw_box_hv.h:47 @ 8058444) [30]
+[155]    0.1    0.04    0.00 7664552         zmw_padding_add (zmw_size.c:61 @ 8053b35) [155]
+-----------------------------------------------
+                0.04    0.00 1033136/1033136     vertical (speed.c:73 @ 804ae38) [159]
+[156]    0.1    0.04    0.00 1033136         horizontal (speed.c:46 @ 804ac05) [156]
+-----------------------------------------------
+                0.00    0.00       6/1797564     many (speed.c:159 @ 804b131) [301]
+                0.00    0.00   24966/1797564     vertical (speed.c:70 @ 804ad5b) [174]
+                0.00    0.00  199728/1797564     horizontal (speed.c:54 @ 804ac20) [8]
+                0.03    0.00 1572864/1797564     leaf (speed.c:38 @ 804ab05) [1]
+[179]    0.1    0.03    0.00 1797564         zmw_action_draw (zmw.c:661 @ 804cc71) [179]
+-----------------------------------------------
+                0.03    0.00 2199648/2199648     horizontal (speed.c:54 @ 804ac20) [8]
+[180]    0.1    0.03    0.00 2199648         zmw_hbox (zmw_box_hv.h:226 @ 8058d65) [180]
+-----------------------------------------------
+                0.02    0.00  866440/866440      zmw_hbox_with_activable (zmw_box_hv.h:200 @ 8058cdd) [146]
+[201]    0.1    0.02    0.00  866440         zmw_hbox_required_size (zmw_box_hv.h:35 @ 80583ac) [201]
+-----------------------------------------------
+                                                 <spontaneous>
+[202]    0.1    0.02    0.00                 frame_dummy [202]
+-----------------------------------------------
+                0.02    0.00 2199648/2199648     zmw_hbox (zmw_box_hv.h:227 @ 8058d70) [154]
+[234]    0.0    0.02    0.00 2199648         zmw_hbox_with_activable (zmw_box_hv.h:191 @ 8058c8b) [234]
+-----------------------------------------------
+                0.00    0.00  299594/1200526     zmw_action_dispatch_event (zmw.c:750 @ 804cf07) [300]
+                0.00    0.00  301744/1200526     zmw_action_search (zmw.c:786 @ 804d017) [299]
+                0.00    0.00  599188/1200526     zmw_action_draw (zmw.c:667 @ 804cce3) [295]
+[241]    0.0    0.01    0.00 1200526         zmw_action_first_pass (zmw.c:592 @ 804c9a3) [241]
+-----------------------------------------------
+                0.01    0.00 1200526/1200526     zmw_action_first_pass (zmw.c:609 @ 804c9f3) [186]
+[242]    0.0    0.01    0.00 1200526         zmw_event_in (zmw.c:133 @ 804baa4) [242]
+-----------------------------------------------
+                0.01    0.00  241617/241617      zmw_vbox (zmw_box_hv.h:227 @ 8059851) [274]
+[243]    0.0    0.01    0.00  241617         zmw_vbox_with_activable (zmw_box_hv.h:191 @ 805976c) [243]
+-----------------------------------------------
+                0.00    0.00       2/599188      many (speed.c:159 @ 804b131) [301]
+                0.00    0.00    8322/599188      vertical (speed.c:70 @ 804ad5b) [174]
+                0.00    0.00   66576/599188      horizontal (speed.c:54 @ 804ac20) [8]
+                0.00    0.00  524288/599188      leaf (speed.c:38 @ 804ab05) [1]
+[282]    0.0    0.01    0.00  599188         zmw_action_dispatch_accelerator (zmw.c:693 @ 804cd5a) [282]
+-----------------------------------------------
+                0.01    0.00  262144/262144      zmw_fixed (zmw_box.c:106 @ 8059cc7) [290]
+[283]    0.0    0.01    0.00  262144         zmw_activable (zmw_event.c:626 @ 804fc31) [283]
+-----------------------------------------------
+                0.00    0.00 1067136/1067136     zmw_hbox_children_allocated_size (zmw_box_hv.h:168 @ 8058b4b) [263]
+[305]    0.0    0.00    0.00 1067136         zmw_alignement_vertical_make (zmw_box_hv.h:240 @ 8059878) [305]
+-----------------------------------------------
+                0.00    0.00       6/905260      many (speed.c:159 @ 804b131) [301]
+                0.00    0.00   12588/905260      vertical (speed.c:70 @ 804ad5b) [174]
+                0.00    0.00  100600/905260      horizontal (speed.c:54 @ 804ac20) [8]
+                0.00    0.00  792066/905260      leaf (speed.c:38 @ 804ab05) [1]
+[306]    0.0    0.00    0.00  905260         zmw_action_search (zmw.c:778 @ 804cf83) [306]
+-----------------------------------------------
+                0.00    0.00       3/898782      many (speed.c:159 @ 804b131) [301]
+                0.00    0.00   12483/898782      vertical (speed.c:70 @ 804ad5b) [174]
+                0.00    0.00   99864/898782      horizontal (speed.c:54 @ 804ac20) [8]
+                0.00    0.00  786432/898782      leaf (speed.c:38 @ 804ab05) [1]
+[307]    0.0    0.00    0.00  898782         zmw_action_dispatch_event (zmw.c:721 @ 804cddc) [307]
+-----------------------------------------------
+                0.00    0.00  262144/262144      zmw_activable (zmw_event.c:627 @ 804fc3c) [1240]
+[308]    0.0    0.00    0.00  262144         zmw_event_to_process (zmw_event.c:70 @ 804f088) [308]
+-----------------------------------------------
+                0.00    0.00  241617/241617      vertical (speed.c:70 @ 804ad5b) [174]
+[309]    0.0    0.00    0.00  241617         zmw_vbox (zmw_box_hv.h:226 @ 8059846) [309]
+-----------------------------------------------
+                0.00    0.00  133408/133408      zmw_vbox_children_allocated_size (zmw_box_hv.h:168 @ 805962c) [4007]
+[310]    0.0    0.00    0.00  133408         zmw_alignement_horizontal_make (zmw_box_hv.h:240 @ 8058d97) [310]
+-----------------------------------------------
+                0.00    0.00  133392/133392      zmw_hbox_with_activable (zmw_box_hv.h:209 @ 8058d32) [2571]
+[311]    0.0    0.00    0.00  133392         zmw_hbox_children_allocated_size (zmw_box_hv.h:74 @ 805854b) [311]
+-----------------------------------------------
+                0.00    0.00   91629/91629       zmw_vbox_with_activable (zmw_box_hv.h:200 @ 80597be) [280]
+[312]    0.0    0.00    0.00   91629         zmw_vbox_required_size (zmw_box_hv.h:35 @ 8058e8d) [312]
+-----------------------------------------------
+                0.00    0.00   16676/16676       zmw_vbox_with_activable (zmw_box_hv.h:209 @ 8059813) [4035]
+[313]    0.0    0.00    0.00   16676         zmw_vbox_children_allocated_size (zmw_box_hv.h:74 @ 805902c) [313]
+-----------------------------------------------
+                0.00    0.00      28/112         get_mem_usage (speed.c:97 @ 804af28) [611]
+                0.00    0.00      28/112         get_mem_usage (speed.c:98 @ 804af3e) [612]
+                0.00    0.00      28/112         get_mem_usage (speed.c:99 @ 804af54) [613]
+                0.00    0.00      28/112         get_mem_usage (speed.c:92 @ 804af80) [615]
+[314]    0.0    0.00    0.00     112         get_value (speed.c:78 @ 804ae7b) [314]
+-----------------------------------------------
+                0.00    0.00       3/18          zmw_name_register_value (zmw_name.c:364 @ 805350e) [2943]
+                0.00    0.00      15/18          zmw_name_find (zmw_name.c:140 @ 8052d0e) [2849]
+[315]    0.0    0.00    0.00      18         zmw_name_hash (zmw_name.c:101 @ 8052c1b) [315]
+-----------------------------------------------
+                0.00    0.00      17/17          zmw_name_find_with_hash (zmw_name.c:131 @ 8052ca9) [2854]
+[316]    0.0    0.00    0.00      17         zmw_name_equals (zmw_name.c:92 @ 8052bcd) [316]
+-----------------------------------------------
+                0.00    0.00      17/17          many (speed.c:159 @ 804b131) [301]
+[317]    0.0    0.00    0.00      17         zmw_window (zmw_window.c:314 @ 8062906) [317]
+-----------------------------------------------
+                0.00    0.00      17/17          zmw_window_with_id (zmw_window.c:311 @ 80628da) [4344]
+[318]    0.0    0.00    0.00      17         zmw_window_generic (zmw_window.c:84 @ 80621a0) [318]
+-----------------------------------------------
+                0.00    0.00      17/17          zmw_window (zmw_window.c:315 @ 8062911) [4165]
+[319]    0.0    0.00    0.00      17         zmw_window_with_id (zmw_window.c:310 @ 80628cf) [319]
+-----------------------------------------------
+                0.00    0.00       3/15          zmw_name_register_value (zmw_name.c:349 @ 80534b2) [2935]
+                0.00    0.00      12/15          zmw_name_get_pointer_on_resource_with_name_and_type_and_default (zmw_name.c:376 @ 805355e) [2877]
+[320]    0.0    0.00    0.00      15         zmw_name_find (zmw_name.c:138 @ 8052d03) [320]
+-----------------------------------------------
+                0.00    0.00      15/15          zmw_name_find (zmw_name.c:140 @ 8052d0e) [2849]
+[321]    0.0    0.00    0.00      15         zmw_name_find_with_hash (zmw_name.c:118 @ 8052c6a) [321]
+-----------------------------------------------
+                0.00    0.00      12/12          zmw_resource_get (zmw_name.c:531 @ 8053963) [3188]
+[322]    0.0    0.00    0.00      12         zmw_name_get_pointer_on_resource_with_name_and_type_and_default (zmw_name.c:373 @ 8053553) [322]
+-----------------------------------------------
+                0.00    0.00      12/12          zmw_resource_pointer_get (zmw_name.c:548 @ 80539c6) [3193]
+[323]    0.0    0.00    0.00      12         zmw_resource_get (zmw_name.c:528 @ 8053950) [323]
+-----------------------------------------------
+                0.00    0.00       6/12          zmw_window_generic (zmw_window.c:93 @ 80621e3) [4188]
+                0.00    0.00       6/12          zmw_window_generic (zmw_window.c:94 @ 80621fe) [4189]
+[324]    0.0    0.00    0.00      12         zmw_resource_pointer_get (zmw_name.c:547 @ 80539bb) [324]
+-----------------------------------------------
+                0.00    0.00      10/10          zmw_state_init (zmw.c:187 @ 804bcbc) [177]
+[325]    0.0    0.00    0.00      10         zmw_rectangle_void (zmw_size.c:52 @ 8053b0d) [325]
+-----------------------------------------------
+                0.00    0.00       1/10          zmw_main (zmw_main.c:692 @ 8052232) [2707]
+                0.00    0.00       1/10          zmw_main (zmw_main.c:693 @ 805223f) [2708]
+                0.00    0.00       8/10          zmw_state_push (zmw.c:208 @ 804bd60) [103]
+[326]    0.0    0.00    0.00      10         zmw_state_init (zmw.c:179 @ 804bc6c) [326]
+-----------------------------------------------
+                0.00    0.00       9/9           event_handler (zmw_main.c:466 @ 80519fc) [428]
+[327]    0.0    0.00    0.00       9         zmw_handle_selection (selection.c:155 @ 805693f) [327]
+-----------------------------------------------
+                0.00    0.00       6/6           zmw_call_widget (zmw_main.c:207 @ 805133c) [1642]
+[328]    0.0    0.00    0.00       6         many (speed.c:111 @ 804af8f) [328]
+-----------------------------------------------
+                0.00    0.00       6/6           zmw_call_widget (zmw_main.c:201 @ 8051310) [1638]
+[329]    0.0    0.00    0.00       6         zmw_cache_init (zmw_cache.c:43 @ 804d128) [329]
+-----------------------------------------------
+                0.00    0.00       1/6           zmw_dispatch_event (zmw_main.c:327 @ 80516b0) [1983]
+                0.00    0.00       1/6           event_handler (zmw_main.c:561 @ 8051dd3) [488]
+                0.00    0.00       2/6           zmw_draw (zmw_main.c:279 @ 805150a) [2161]
+                0.00    0.00       2/6           zmw_search (zmw_main.c:317 @ 8051698) [3352]
+[330]    0.0    0.00    0.00       6         zmw_call_widget (zmw_main.c:182 @ 805124d) [330]
+-----------------------------------------------
+                0.00    0.00       6/6           zmw_call_widget (zmw_main.c:206 @ 8051330) [1641]
+[331]    0.0    0.00    0.00       6         zmw_name (zmw.c:284 @ 804bf37) [331]
+-----------------------------------------------
+                0.00    0.00       1/6           zmw_rgb (zmw_graphic.c:220 @ 80509d3) [3198]
+                0.00    0.00       5/6           zmw_rgb_scale_to_int (zmw_graphic.c:212 @ 8050922) [3202]
+[332]    0.0    0.00    0.00       6         zmw_rgb_to_int (zmw_device.c:27 @ 804d5d8) [332]
+-----------------------------------------------
+                0.00    0.00       2/5           zmw_window_generic (zmw_window.c:174 @ 8062418) [4222]
+                0.00    0.00       3/5           zmw_window_generic (zmw_window.c:170 @ 806240e) [4220]
+[333]    0.0    0.00    0.00       5         zmw_compute_window_size (zmw_window.c:34 @ 8061e58) [333]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_call_widget (zmw_main.c:207 @ 805133c) [1642]
+[334]    0.0    0.00    0.00       5         zmw_display_accelerator_window (zmw_main.c:166 @ 8051215) [334]
+-----------------------------------------------
+                0.00    0.00       5/5           zmw_compute_window_size (zmw_window.c:78 @ 8062198) [1756]
+[335]    0.0    0.00    0.00       5         zmw_padding_remove (zmw_size.c:71 @ 8053b98) [335]
+-----------------------------------------------
+                0.00    0.00       1/5           zmw_rgb (zmw_graphic.c:217 @ 8050952) [3195]
+                0.00    0.00       1/5           zmw_rgb (zmw_graphic.c:218 @ 805097d) [3196]
+                0.00    0.00       1/5           zmw_rgb (zmw_graphic.c:219 @ 80509a8) [3197]
+                0.00    0.00       1/5           zmw_rgb (zmw_graphic.c:221 @ 80509f5) [3199]
+                0.00    0.00       1/5           zmw_rgb (zmw_graphic.c:222 @ 8050a20) [3200]
+[336]    0.0    0.00    0.00       5         zmw_rgb_scale_to_int (zmw_graphic.c:211 @ 8050917) [336]
+-----------------------------------------------
+                0.00    0.00       2/4           zmw_draw_clip_pop (zmw_device.c:114 @ 804da3f) [2181]
+                0.00    0.00       2/4           zmw_window_generic (zmw_window.c:182 @ 806246f) [4227]
+[337]    0.0    0.00    0.00       4         zmw_draw_clip_push (zmw_device.c:100 @ 804d9be) [337]
+-----------------------------------------------
+                0.00    0.00       1/4           zmw_init (zmw_main.c:670 @ 80520eb) [2654]
+                0.00    0.00       1/4           zmw_init (zmw_main.c:671 @ 8052111) [2655]
+                0.00    0.00       1/4           zmw_init (zmw_main.c:672 @ 8052137) [2656]
+                0.00    0.00       1/4           zmw_init (zmw_main.c:673 @ 8052159) [2657]
+[338]    0.0    0.00    0.00       4         zmw_take_int_param (zmw_main.c:635 @ 8051f9a) [338]
+-----------------------------------------------
+                0.00    0.00       1/4           timeout (zmw_main.c:364 @ 8051791) [1110]
+                0.00    0.00       1/4           timeout (zmw_main.c:365 @ 80517aa) [1111]
+                0.00    0.00       2/4           zmw_draw (zmw_main.c:281 @ 8051528) [2163]
+[339]    0.0    0.00    0.00       4         zmw_time_from (zmw_main.c:254 @ 805147b) [339]
+-----------------------------------------------
+                0.00    0.00       3/3           zmw_name_register_value (zmw_name.c:365 @ 805351f) [2944]
+[340]    0.0    0.00    0.00       3         zmw_name_insert (zmw_name.c:163 @ 8052d88) [340]
+-----------------------------------------------
+                0.00    0.00       1/3           zmw_name_register_with_name (zmw_name.c:491 @ 8053890) [2951]
+                0.00    0.00       2/3           zmw_name_get_pointer_on_resource_with_name_and_type_and_default (zmw_name.c:381 @ 8053588) [2880]
+[341]    0.0    0.00    0.00       3         zmw_name_register_value (zmw_name.c:343 @ 8053494) [341]
+-----------------------------------------------
+                0.00    0.00       1/3           zmw_name_register_with_name (zmw_name.c:489 @ 8053861) [2949]
+                0.00    0.00       2/3           zmw_search (zmw_main.c:315 @ 8051679) [3350]
+[342]    0.0    0.00    0.00       3         zmw_name_unregister (zmw_name.c:500 @ 80538b2) [342]
+-----------------------------------------------
+                0.00    0.00       1/3           zmw_main (zmw_main.c:688 @ 80521f1) [2704]
+                0.00    0.00       2/3           zmw_window_unpop_all (zmw_event.c:534 @ 804faa2) [4333]
+[343]    0.0    0.00    0.00       3         zmw_use_window_from_button_press (zmw_main.c:67 @ 8050a7a) [343]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_main (zmw_main.c:745 @ 8052508) [2742]
+[344]    0.0    0.00    0.00       2         socket_open (socket.c:32 @ 8056ad4) [344]
+-----------------------------------------------
+                0.00    0.00       1/2           timeout (zmw_main.c:398 @ 8051828) [1119]
+                0.00    0.00       1/2           zmw_main (zmw_main.c:736 @ 80524d8) [2737]
+[345]    0.0    0.00    0.00       2         zmw_draw (zmw_main.c:265 @ 80514bc) [345]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_window_generic (zmw_window.c:238 @ 8062710) [4249]
+[346]    0.0    0.00    0.00       2         zmw_draw_clip_pop (zmw_device.c:113 @ 804da34) [346]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_window_generic (zmw_window.c:193 @ 80624d5) [4233]
+[347]    0.0    0.00    0.00       2         zmw_draw_rectangle (zmw_device.c:81 @ 804d8b0) [347]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_draw_rectangle (zmw_device.c:82 @ 804d8c1) [2201]
+[348]    0.0    0.00    0.00       2         zmw_draw_set_gc (zmw_device.c:60 @ 804d7fd) [348]
+-----------------------------------------------
+                0.00    0.00       1/2           zmw_dispatch_event (zmw_main.c:327 @ 80516b0) [1983]
+                0.00    0.00       1/2           timeout (zmw_main.c:359 @ 8051786) [1109]
+[349]    0.0    0.00    0.00       2         zmw_search (zmw_main.c:314 @ 805166e) [349]
+-----------------------------------------------
+                0.00    0.00       1/2           event_handler (zmw_main.c:559 @ 8051dc3) [486]
+                0.00    0.00       1/2           event_handler (zmw_main.c:582 @ 8051e6c) [498]
+[350]    0.0    0.00    0.00       2         zmw_unpop (zmw_main.c:418 @ 8051898) [350]
+-----------------------------------------------
+                0.00    0.00       2/2           zmw_unpop (zmw_main.c:424 @ 80518ce) [3967]
+[351]    0.0    0.00    0.00       2         zmw_window_unpop_all (zmw_event.c:522 @ 804fa62) [351]
+-----------------------------------------------
+                0.00    0.00       1/1           many (speed.c:195 @ 804b3ae) [1057]
+[352]    0.0    0.00    0.00       1         get_mem_usage (speed.c:86 @ 804aee0) [352]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main (zmw_main.c:748 @ 8052521) [2744]
+[353]    0.0    0.00    0.00       1         socket_listen (socket.c:78 @ 8056bd8) [353]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler (zmw_main.c:571 @ 8051df4) [491]
+[354]    0.0    0.00    0.00       1         user_action (zmw_main.c:405 @ 805184b) [354]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler (zmw_main.c:560 @ 8051dce) [487]
+[355]    0.0    0.00    0.00       1         zmw_accelerator_init (zmw_button.c:49 @ 8059db3) [355]
+-----------------------------------------------
+                0.00    0.00       1/1           many (speed.c:181 @ 804b2da) [1049]
+[356]    0.0    0.00    0.00       1         zmw_cache_size (zmw_cache.c:63 @ 804d1f7) [356]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler (zmw_main.c:584 @ 8051e77) [499]
+[357]    0.0    0.00    0.00       1         zmw_dispatch_event (zmw_main.c:325 @ 805169a) [357]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main (zmw_main.c:702 @ 8052270) [2711]
+[358]    0.0    0.00    0.00       1         zmw_font_family (zmw.c:304 @ 804bfdc) [358]
+-----------------------------------------------
+                0.00    0.00       1/1           main (speed.c:226 @ 804b56a) [999]
+[359]    0.0    0.00    0.00       1         zmw_init (zmw_main.c:655 @ 8052099) [359]
+-----------------------------------------------
+                0.00    0.00       1/1           main (speed.c:265 @ 804b6ff) [1020]
+[360]    0.0    0.00    0.00       1         zmw_main (zmw_main.c:679 @ 8052187) [360]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_name_find_with_hash (zmw_name.c:124 @ 8052c7e) [2852]
+[361]    0.0    0.00    0.00       1         zmw_name_init (zmw_name.c:56 @ 8052a94) [361]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_action_search (zmw.c:794 @ 804d04f) [1235]
+[362]    0.0    0.00    0.00       1         zmw_name_register (zmw_name.c:494 @ 8053892) [362]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_name_register (zmw_name.c:496 @ 80538b0) [2932]
+[363]    0.0    0.00    0.00       1         zmw_name_register_with_name (zmw_name.c:488 @ 8053856) [363]
+-----------------------------------------------
+                0.00    0.00       1/1           event_handler (zmw_main.c:544 @ 8051d44) [478]
+[364]    0.0    0.00    0.00       1         zmw_need_repaint (zmw_main.c:57 @ 8050a54) [364]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_main (zmw_main.c:721 @ 8052328) [2726]
+[365]    0.0    0.00    0.00       1         zmw_rgb (zmw_graphic.c:216 @ 8050946) [365]
+-----------------------------------------------
+                0.00    0.00       1/1           zmw_init (zmw_main.c:675 @ 805217a) [2658]
+[366]    0.0    0.00    0.00       1         zmw_text_init (zmw_device.c:282 @ 804df15) [366]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+ [202] frame_dummy           [191] zmw_cache_get_size_real (zmw_cache.c:107 @ 804d354) [85] zmw_init_widget (zmw.c:439 @ 804c49e)
+ [352] get_mem_usage (speed.c:86 @ 804aee0) [65] zmw_cache_get_size_real (zmw_cache.c:108 @ 804d35b) [152] zmw_init_widget (zmw.c:440 @ 804c4ad)
+ [314] get_value (speed.c:78 @ 804ae7b) [329] zmw_cache_init (zmw_cache.c:43 @ 804d128) [54] zmw_init_widget (zmw.c:441 @ 804c4bc)
+ [156] horizontal (speed.c:46 @ 804ac05) [108] zmw_cache_set_size (zmw_cache.c:182 @ 804d5a0) [68] zmw_init_widget (zmw.c:442 @ 804c4cb)
+ [244] horizontal (speed.c:49 @ 804ac10) [163] zmw_cache_set_size (zmw_cache.c:185 @ 804d5ab) [72] zmw_init_widget (zmw.c:443 @ 804c4da)
+ [284] horizontal (speed.c:51 @ 804ac16) [27] zmw_cache_set_size (zmw_cache.c:188 @ 804d5c9) [56] zmw_init_widget (zmw.c:444 @ 804c4e9)
+   [8] horizontal (speed.c:54 @ 804ac20) [97] zmw_cache_set_size (zmw_cache.c:189 @ 804d5d4) [50] zmw_init_widget (zmw.c:445 @ 804c4f8)
+ [120] horizontal (speed.c:56 @ 804ace9) [61] zmw_cache_set_size_real (zmw_cache.c:119 @ 804d39d) [47] zmw_init_widget (zmw.c:446 @ 804c507)
+  [28] horizontal (speed.c:57 @ 804acfd) [215] zmw_cache_set_size_real (zmw_cache.c:122 @ 804d3aa) [53] zmw_init_widget (zmw.c:447 @ 804c516)
+  [59] horizontal (speed.c:56 @ 804ad09) [164] zmw_cache_set_size_real (zmw_cache.c:131 @ 804d417) [33] zmw_init_widget (zmw.c:448 @ 804c525)
+  [87] horizontal (speed.c:54 @ 804ad10) [90] zmw_cache_set_size_real (zmw_cache.c:133 @ 804d42d) [51] zmw_init_widget (zmw.c:449 @ 804c534)
+ [203] horizontal (speed.c:59 @ 804ad3e) [356] zmw_cache_size (zmw_cache.c:63 @ 804d1f7) [77] zmw_init_widget (zmw.c:450 @ 804c543)
+  [80] leaf (speed.c:30 @ 804a9d4) [330] zmw_call_widget (zmw_main.c:182 @ 805124d) [5] zmw_init_widget (zmw.c:454 @ 804c552)
+ [181] leaf (speed.c:31 @ 804a9df) [333] zmw_compute_window_size (zmw_window.c:34 @ 8061e58) [13] zmw_init_widget (zmw.c:477 @ 804c594)
+ [121] leaf (speed.c:32 @ 804a9eb) [3] zmw_debug_in_zmw_loop (zmw.h:763 @ 804b717) [270] zmw_init_widget (zmw.c:480 @ 804c5b0)
+ [122] leaf (speed.c:33 @ 804a9f7) [14] zmw_debug_in_zmw_loop (zmw.h:764 @ 804b722) [129] zmw_init_widget (zmw.c:484 @ 804c5c5)
+ [199] leaf (speed.c:34 @ 804aa04) [32] zmw_debug_in_zmw_loop (zmw.h:766 @ 804b728) [360] zmw_main (zmw_main.c:679 @ 8052187)
+   [1] leaf (speed.c:38 @ 804ab05) [83] zmw_debug_in_zmw_loop (zmw.h:767 @ 804b737) [331] zmw_name (zmw.c:284 @ 804bf37)
+  [74] leaf (speed.c:41 @ 804abfc) [84] zmw_debug_in_zmw_loop (zmw.h:897 @ 804b73c) [112] zmw_name (zmw.c:289 @ 804bf97)
+ [157] leaf (speed.c:42 @ 804ac03) [7] zmw_debug_in_zmw_loop (zmw.h:898 @ 804b73f) [316] zmw_name_equals (zmw_name.c:92 @ 8052bcd)
+  [26] main (speed.c:267 @ 804b712) [257] zmw_debug_in_zmw_loop (zmw.h:898 @ 80583a9) [320] zmw_name_find (zmw_name.c:138 @ 8052d03)
+ [328] many (speed.c:111 @ 804af8f) [357] zmw_dispatch_event (zmw_main.c:325 @ 805169a) [321] zmw_name_find_with_hash (zmw_name.c:118 @ 8052c6a)
+ [353] socket_listen (socket.c:78 @ 8056bd8) [334] zmw_display_accelerator_window (zmw_main.c:166 @ 8051215) [322] zmw_name_get_pointer_on_resource_with_name_and_type_and_default (zmw_name.c:373 @ 8053553)
+ [344] socket_open (socket.c:32 @ 8056ad4) [345] zmw_draw (zmw_main.c:265 @ 80514bc) [315] zmw_name_hash (zmw_name.c:101 @ 8052c1b)
+ [354] user_action (zmw_main.c:405 @ 805184b) [346] zmw_draw_clip_pop (zmw_device.c:113 @ 804da34) [361] zmw_name_init (zmw_name.c:56 @ 8052a94)
+  [99] vertical (speed.c:62 @ 804ad40) [337] zmw_draw_clip_push (zmw_device.c:100 @ 804d9be) [340] zmw_name_insert (zmw_name.c:163 @ 8052d88)
+  [70] vertical (speed.c:65 @ 804ad4b) [347] zmw_draw_rectangle (zmw_device.c:81 @ 804d8b0) [151] zmw_name_insert (zmw_name.c:172 @ 8052dc6)
+ [158] vertical (speed.c:67 @ 804ad51) [348] zmw_draw_set_gc (zmw_device.c:60 @ 804d7fd) [36] zmw_name_is (zmw_name.c:178 @ 8052dc8)
+ [174] vertical (speed.c:70 @ 804ad5b) [288] zmw_event_button_release (zmw_event.c:623 @ 804fc2f) [170] zmw_name_is (zmw_name.c:179 @ 8052dd3)
+ [245] vertical (speed.c:72 @ 804ae24) [242] zmw_event_in (zmw.c:133 @ 804baa4) [171] zmw_name_is (zmw_name.c:180 @ 8052ddb)
+ [204] vertical (speed.c:72 @ 804ae44) [216] zmw_event_in (zmw.c:140 @ 804bad2) [228] zmw_name_is (zmw_name.c:182 @ 8052de4)
+ [137] vertical (speed.c:70 @ 804ae4b) [217] zmw_event_in (zmw.c:143 @ 804bade) [78] zmw_name_is (zmw_name.c:183 @ 8052e0e)
+ [138] vertical (speed.c:75 @ 804ae79) [258] zmw_event_in (zmw.c:145 @ 804bb34) [362] zmw_name_register (zmw_name.c:494 @ 8053892)
+ [355] zmw_accelerator_init (zmw_button.c:49 @ 8059db3) [259] zmw_event_in (zmw.c:161 @ 804bc32) [341] zmw_name_register_value (zmw_name.c:343 @ 8053494)
+  [46] zmw_action_compute_required_size (zmw.c:519 @ 804c6ee) [308] zmw_event_to_process (zmw_event.c:70 @ 804f088) [363] zmw_name_register_with_name (zmw_name.c:488 @ 8053856)
+  [96] zmw_action_compute_required_size (zmw.c:524 @ 804c6fb) [16] zmw_fixed (zmw_box.c:87 @ 8059aaf) [342] zmw_name_unregister (zmw_name.c:500 @ 80538b2)
+  [34] zmw_action_compute_required_size (zmw.c:526 @ 804c73e) [6] zmw_fixed (zmw_box.c:90 @ 8059abd) [364] zmw_need_repaint (zmw_main.c:57 @ 8050a54)
+  [18] zmw_action_compute_required_size (zmw.c:528 @ 804c74c) [165] zmw_fixed (zmw_box.c:93 @ 8059af1) [155] zmw_padding_add (zmw_size.c:61 @ 8053b35)
+ [182] zmw_action_compute_required_size (zmw.c:530 @ 804c767) [289] zmw_fixed (zmw_box.c:95 @ 8059afc) [102] zmw_padding_add (zmw_size.c:62 @ 8053b3d)
+  [48] zmw_action_compute_required_size (zmw.c:531 @ 804c776) [116] zmw_fixed (zmw_box.c:99 @ 8059b06) [144] zmw_padding_add (zmw_size.c:63 @ 8053b4e)
+ [132] zmw_action_compute_required_size (zmw.c:532 @ 804c77b) [124] zmw_fixed (zmw_box.c:100 @ 8059b18) [229] zmw_padding_add (zmw_size.c:64 @ 8053b5f)
+ [115] zmw_action_compute_required_size (zmw.c:538 @ 804c787) [192] zmw_fixed (zmw_box.c:106 @ 8059b2f) [294] zmw_padding_add (zmw_size.c:65 @ 8053b6a)
+  [24] zmw_action_compute_required_size (zmw.c:545 @ 804c794) [148] zmw_fixed (zmw_box.c:119 @ 8059cd1) [105] zmw_padding_add (zmw_size.c:66 @ 8053b79)
+ [133] zmw_action_compute_required_size (zmw.c:551 @ 804c7fb) [81] zmw_fixed (zmw_box.c:125 @ 8059cd6) [271] zmw_padding_add (zmw_size.c:67 @ 8053b85)
+  [43] zmw_action_compute_required_size (zmw.c:552 @ 804c80c) [149] zmw_font_description_copy (zmw.c:376 @ 804c1c7) [335] zmw_padding_remove (zmw_size.c:71 @ 8053b98)
+  [19] zmw_action_compute_required_size (zmw.c:553 @ 804c823) [358] zmw_font_family (zmw.c:304 @ 804bfdc) [325] zmw_rectangle_void (zmw_size.c:52 @ 8053b0d)
+ [136] zmw_action_compute_required_size (zmw.c:552 @ 804c862) [327] zmw_handle_selection (selection.c:155 @ 805693f) [238] zmw_rectangle_void (zmw_size.c:54 @ 8053b33)
+ [123] zmw_action_compute_required_size (zmw.c:560 @ 804c869) [88] zmw_hash (zmw.c:292 @ 804bf9e) [323] zmw_resource_get (zmw_name.c:528 @ 8053950)
+  [89] zmw_action_compute_required_size (zmw.c:561 @ 804c897) [45] zmw_hash (zmw.c:293 @ 804bfa7) [324] zmw_resource_pointer_get (zmw_name.c:547 @ 80539bb)
+ [109] zmw_action_compute_required_size (zmw.c:562 @ 804c8b4) [49] zmw_hash (zmw.c:295 @ 804bfb1) [365] zmw_rgb (zmw_graphic.c:216 @ 8050946)
+ [160] zmw_action_compute_required_size (zmw.c:563 @ 804c8d1) [23] zmw_hash (zmw.c:296 @ 804bfb9) [336] zmw_rgb_scale_to_int (zmw_graphic.c:211 @ 8050917)
+ [104] zmw_action_compute_required_size (zmw.c:565 @ 804c8df) [17] zmw_hash (zmw.c:297 @ 804bfd0) [332] zmw_rgb_to_int (zmw_device.c:27 @ 804d5d8)
+  [82] zmw_action_compute_required_size (zmw.c:566 @ 804c8f5) [180] zmw_hbox (zmw_box_hv.h:226 @ 8058d65) [349] zmw_search (zmw_main.c:314 @ 805166e)
+  [71] zmw_action_compute_required_size (zmw.c:568 @ 804c904) [154] zmw_hbox (zmw_box_hv.h:227 @ 8058d70) [272] zmw_size_string (zmw.c:130 @ 804baa2)
+ [110] zmw_action_compute_required_size (zmw.c:570 @ 804c912) [311] zmw_hbox_children_allocated_size (zmw_box_hv.h:74 @ 805854b) [239] zmw_stack_print (zmw.c:658 @ 804cc6f)
+  [75] zmw_action_compute_required_size (zmw.c:571 @ 804c928) [193] zmw_hbox_children_allocated_size (zmw_box_hv.h:81 @ 8058570) [326] zmw_state_init (zmw.c:179 @ 804bc6c)
+  [76] zmw_action_compute_required_size (zmw.c:573 @ 804c937) [134] zmw_hbox_children_allocated_size (zmw_box_hv.h:83 @ 8058587) [177] zmw_state_init (zmw.c:187 @ 804bcbc)
+ [246] zmw_action_compute_required_size (zmw.c:574 @ 804c945) [218] zmw_hbox_children_allocated_size (zmw_box_hv.h:86 @ 80585d1) [178] zmw_state_init (zmw.c:188 @ 804bccc)
+ [183] zmw_action_compute_required_size (zmw.c:575 @ 804c95b) [219] zmw_hbox_children_allocated_size (zmw_box_hv.h:81 @ 80585d6) [63] zmw_state_pop (zmw.c:268 @ 804bedf)
+  [38] zmw_action_compute_required_size (zmw.c:579 @ 804c97f) [260] zmw_hbox_children_allocated_size (zmw_box_hv.h:91 @ 80585eb) [172] zmw_state_pop (zmw.c:271 @ 804beea)
+ [205] zmw_action_compute_required_size (zmw.c:582 @ 804c992) [194] zmw_hbox_children_allocated_size (zmw_box_hv.h:93 @ 8058605) [62] zmw_state_pop (zmw.c:276 @ 804bef7)
+  [31] zmw_action_compute_required_size (zmw.c:583 @ 804c999) [291] zmw_hbox_children_allocated_size (zmw_box_hv.h:95 @ 805862a) [73] zmw_state_pop (zmw.c:279 @ 804bf1f)
+ [282] zmw_action_dispatch_accelerator (zmw.c:693 @ 804cd5a) [292] zmw_hbox_children_allocated_size (zmw_box_hv.h:96 @ 8058686) [140] zmw_state_pop (zmw.c:280 @ 804bf2b)
+ [285] zmw_action_dispatch_accelerator (zmw.c:694 @ 804cd65) [220] zmw_hbox_children_allocated_size (zmw_box_hv.h:109 @ 8058731) [141] zmw_state_pop (zmw.c:281 @ 804bf35)
+ [247] zmw_action_dispatch_accelerator (zmw.c:696 @ 804cda5) [261] zmw_hbox_children_allocated_size (zmw_box_hv.h:111 @ 805873b) [67] zmw_state_push (zmw.c:191 @ 804bcce)
+ [307] zmw_action_dispatch_event (zmw.c:721 @ 804cddc) [221] zmw_hbox_children_allocated_size (zmw_box_hv.h:130 @ 80588d9) [39] zmw_state_push (zmw.c:196 @ 804bcdc)
+ [206] zmw_action_dispatch_event (zmw.c:726 @ 804ce2a) [130] zmw_hbox_children_allocated_size (zmw_box_hv.h:141 @ 8058962) [113] zmw_state_push (zmw.c:197 @ 804bcf5)
+ [184] zmw_action_dispatch_event (zmw.c:736 @ 804ce96) [262] zmw_hbox_children_allocated_size (zmw_box_hv.h:154 @ 8058a1e) [153] zmw_state_push (zmw.c:203 @ 804bd4e)
+ [286] zmw_action_dispatch_event (zmw.c:743 @ 804ced0) [263] zmw_hbox_children_allocated_size (zmw_box_hv.h:168 @ 8058b4b) [103] zmw_state_push (zmw.c:208 @ 804bd60)
+ [197] zmw_action_dispatch_event (zmw.c:746 @ 804cedc) [143] zmw_hbox_children_allocated_size (zmw_box_hv.h:182 @ 8058c2f) [273] zmw_state_push (zmw.c:211 @ 804bd77)
+ [207] zmw_action_dispatch_event (zmw.c:749 @ 804cef8) [264] zmw_hbox_children_allocated_size (zmw_box_hv.h:186 @ 8058c73) [145] zmw_state_push (zmw.c:213 @ 804bd8c)
+ [161] zmw_action_dispatch_event (zmw.c:752 @ 804cf11) [176] zmw_hbox_children_allocated_size (zmw_box_hv.h:91 @ 8058c79) [95] zmw_state_push (zmw.c:214 @ 804bd99)
+ [248] zmw_action_dispatch_event (zmw.c:754 @ 804cf25) [222] zmw_hbox_children_allocated_size (zmw_box_hv.h:188 @ 8058c83) [2] zmw_state_push (zmw.c:216 @ 804bdb8)
+ [208] zmw_action_dispatch_event (zmw.c:770 @ 804cf7e) [201] zmw_hbox_required_size (zmw_box_hv.h:35 @ 80583ac) [52] zmw_state_push (zmw.c:218 @ 804bdd9)
+ [179] zmw_action_draw (zmw.c:661 @ 804cc71) [265] zmw_hbox_required_size (zmw_box_hv.h:40 @ 80583bf) [106] zmw_state_push (zmw.c:219 @ 804bde4)
+ [235] zmw_action_draw (zmw.c:662 @ 804cc7c) [125] zmw_hbox_required_size (zmw_box_hv.h:41 @ 80583c6) [86] zmw_state_push (zmw.c:225 @ 804bdf0)
+ [142] zmw_action_draw (zmw.c:664 @ 804ccbf) [131] zmw_hbox_required_size (zmw_box_hv.h:43 @ 80583e0) [15] zmw_state_push (zmw.c:227 @ 804bdfa)
+ [185] zmw_action_draw (zmw.c:668 @ 804ccf2) [126] zmw_hbox_required_size (zmw_box_hv.h:44 @ 8058405) [29] zmw_state_push (zmw.c:228 @ 804be06)
+ [249] zmw_action_draw (zmw.c:671 @ 804ccfc) [41] zmw_hbox_required_size (zmw_box_hv.h:46 @ 805840a) [91] zmw_state_push (zmw.c:229 @ 804be12)
+ [232] zmw_action_draw (zmw.c:680 @ 804cd40) [30] zmw_hbox_required_size (zmw_box_hv.h:47 @ 8058444) [69] zmw_state_push (zmw.c:230 @ 804be1e)
+ [250] zmw_action_draw (zmw.c:681 @ 804cd45) [98] zmw_hbox_required_size (zmw_box_hv.h:49 @ 8058475) [55] zmw_state_push (zmw.c:232 @ 804be2a)
+ [287] zmw_action_draw (zmw.c:686 @ 804cd4e) [166] zmw_hbox_required_size (zmw_box_hv.h:51 @ 805847e) [21] zmw_state_push (zmw.c:233 @ 804be36)
+ [139] zmw_action_draw (zmw.c:687 @ 804cd55) [266] zmw_hbox_required_size (zmw_box_hv.h:56 @ 8058493) [42] zmw_state_push (zmw.c:234 @ 804be42)
+ [241] zmw_action_first_pass (zmw.c:592 @ 804c9a3) [127] zmw_hbox_required_size (zmw_box_hv.h:58 @ 805849c) [11] zmw_state_push (zmw.c:237 @ 804be4e)
+ [251] zmw_action_first_pass (zmw.c:593 @ 804c9af) [267] zmw_hbox_required_size (zmw_box_hv.h:60 @ 80584aa) [79] zmw_state_push (zmw.c:238 @ 804be5a)
+ [209] zmw_action_first_pass (zmw.c:600 @ 804c9bf) [167] zmw_hbox_required_size (zmw_box_hv.h:62 @ 80584be) [9] zmw_state_push (zmw.c:239 @ 804be66)
+ [210] zmw_action_first_pass (zmw.c:603 @ 804c9d9) [100] zmw_hbox_required_size (zmw_box_hv.h:41 @ 80584c7) [12] zmw_state_push (zmw.c:240 @ 804be94)
+ [186] zmw_action_first_pass (zmw.c:609 @ 804c9f3) [268] zmw_hbox_required_size (zmw_box_hv.h:64 @ 80584d1) [60] zmw_state_push (zmw.c:241 @ 804bead)
+ [200] zmw_action_first_pass (zmw.c:613 @ 804ca28) [135] zmw_hbox_required_size (zmw_box_hv.h:65 @ 80584e2) [107] zmw_state_push (zmw.c:242 @ 804bebf)
+ [252] zmw_action_first_pass (zmw.c:615 @ 804ca3a) [223] zmw_hbox_required_size (zmw_box_hv.h:66 @ 80584f3) [66] zmw_state_push (zmw.c:249 @ 804bec8)
+ [306] zmw_action_search (zmw.c:778 @ 804cf83) [234] zmw_hbox_with_activable (zmw_box_hv.h:191 @ 8058c8b) [58] zmw_state_push (zmw.c:256 @ 804bed7)
+ [211] zmw_action_search (zmw.c:781 @ 804cfd1) [269] zmw_hbox_with_activable (zmw_box_hv.h:192 @ 8058c9c) [338] zmw_take_int_param (zmw_main.c:635 @ 8051f9a)
+ [253] zmw_action_search (zmw.c:782 @ 804cfde) [119] zmw_hbox_with_activable (zmw_box_hv.h:197 @ 8058ca7) [366] zmw_text_init (zmw_device.c:282 @ 804df15)
+ [212] zmw_action_search (zmw.c:788 @ 804d021) [146] zmw_hbox_with_activable (zmw_box_hv.h:200 @ 8058cdd) [339] zmw_time_from (zmw_main.c:254 @ 805147b)
+ [254] zmw_action_search (zmw.c:790 @ 804d035) [224] zmw_hbox_with_activable (zmw_box_hv.h:217 @ 8058d54) [350] zmw_unpop (zmw_main.c:418 @ 8051898)
+ [255] zmw_action_search (zmw.c:802 @ 804d079) [225] zmw_hbox_with_activable (zmw_box_hv.h:223 @ 8058d63) [343] zmw_use_window_from_button_press (zmw_main.c:67 @ 8050a7a)
+ [283] zmw_activable (zmw_event.c:626 @ 804fc31) [359] zmw_init (zmw_main.c:655 @ 8052099) [309] zmw_vbox (zmw_box_hv.h:226 @ 8059846)
+ [256] zmw_activable (zmw_event.c:638 @ 804fc68) [25] zmw_init_widget (zmw.c:379 @ 804c1c9) [313] zmw_vbox_children_allocated_size (zmw_box_hv.h:74 @ 805902c)
+ [310] zmw_alignement_horizontal_make (zmw_box_hv.h:240 @ 8058d97) [226] zmw_init_widget (zmw.c:382 @ 804c1d5) [275] zmw_vbox_children_allocated_size (zmw_box_hv.h:130 @ 80593ba)
+ [305] zmw_alignement_vertical_make (zmw_box_hv.h:240 @ 8059878) [168] zmw_init_widget (zmw.c:386 @ 804c1e5) [230] zmw_vbox_children_allocated_size (zmw_box_hv.h:141 @ 8059443)
+ [213] zmw_alignement_vertical_make (zmw_box_hv.h:243 @ 8059884) [44] zmw_init_widget (zmw.c:389 @ 804c1ea) [276] zmw_vbox_children_allocated_size (zmw_box_hv.h:175 @ 805966f)
+ [187] zmw_alignement_vertical_make (zmw_box_hv.h:244 @ 80598a6) [293] zmw_init_widget (zmw.c:391 @ 804c21c) [173] zmw_vbox_children_allocated_size (zmw_box_hv.h:176 @ 8059694)
+ [198] zmw_alignement_vertical_make (zmw_box_hv.h:248 @ 80598dd) [40] zmw_init_widget (zmw.c:395 @ 804c221) [277] zmw_vbox_children_allocated_size (zmw_box_hv.h:188 @ 8059764)
+ [236] zmw_alignement_vertical_make (zmw_box_hv.h:250 @ 805990a) [128] zmw_init_widget (zmw.c:398 @ 804c27b) [312] zmw_vbox_required_size (zmw_box_hv.h:35 @ 8058e8d)
+ [237] zmw_alignement_vertical_make (zmw_box_hv.h:251 @ 805991b) [169] zmw_init_widget (zmw.c:399 @ 804c287) [231] zmw_vbox_required_size (zmw_box_hv.h:41 @ 8058ea7)
+ [101] zmw_alignement_vertical_make (zmw_box_hv.h:256 @ 805993b) [10] zmw_init_widget (zmw.c:400 @ 804c292) [278] zmw_vbox_required_size (zmw_box_hv.h:46 @ 8058eeb)
+ [147] zmw_alignement_vertical_make (zmw_box_hv.h:259 @ 8059959) [117] zmw_init_widget (zmw.c:401 @ 804c2c6) [240] zmw_vbox_required_size (zmw_box_hv.h:47 @ 8058f25)
+ [162] zmw_box_compute_required_size (zmw_box.c:82 @ 8059a99) [118] zmw_init_widget (zmw.c:402 @ 804c2d5) [279] zmw_vbox_required_size (zmw_box_hv.h:41 @ 8058fa8)
+  [94] zmw_box_compute_required_size (zmw_box.c:83 @ 8059aaa) [114] zmw_init_widget (zmw.c:405 @ 804c2e4) [243] zmw_vbox_with_activable (zmw_box_hv.h:191 @ 805976c)
+ [188] zmw_cache_check (zmw_cache.c:179 @ 804d59e) [35] zmw_init_widget (zmw.c:406 @ 804c2ec) [196] zmw_vbox_with_activable (zmw_box_hv.h:197 @ 8059788)
+ [189] zmw_cache_free (zmw_cache.c:81 @ 804d297) [20] zmw_init_widget (zmw.c:410 @ 804c310) [280] zmw_vbox_with_activable (zmw_box_hv.h:200 @ 80597be)
+  [92] zmw_cache_get_size (zmw_cache.c:111 @ 804d365) [37] zmw_init_widget (zmw.c:421 @ 804c324) [281] zmw_vbox_with_activable (zmw_box_hv.h:217 @ 8059835)
+ [111] zmw_cache_get_size (zmw_cache.c:112 @ 804d370) [64] zmw_init_widget (zmw.c:427 @ 804c3dd) [22] zmw_widget_previous_size (zmw.c:515 @ 804c6e9)
+  [57] zmw_cache_get_size (zmw_cache.c:115 @ 804d38a) [227] zmw_init_widget (zmw.c:429 @ 804c3ea) [317] zmw_window (zmw_window.c:314 @ 8062906)
+ [175] zmw_cache_get_size (zmw_cache.c:116 @ 804d398) [233] zmw_init_widget (zmw.c:431 @ 804c3fc) [318] zmw_window_generic (zmw_window.c:84 @ 80621a0)
+  [93] zmw_cache_get_size_real (zmw_cache.c:87 @ 804d299) [4] zmw_init_widget (zmw.c:435 @ 804c424) [351] zmw_window_unpop_all (zmw_event.c:522 @ 804fa62)
+ [190] zmw_cache_get_size_real (zmw_cache.c:91 @ 804d2a6) [150] zmw_init_widget (zmw.c:437 @ 804c47a) [319] zmw_window_with_id (zmw_window.c:310 @ 80628cf)
+ [214] zmw_cache_get_size_real (zmw_cache.c:104 @ 804d34e) [195] zmw_init_widget (zmw.c:438 @ 804c48c)

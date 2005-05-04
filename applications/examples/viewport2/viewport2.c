@@ -12,7 +12,7 @@ void viewport2(void)
     {
       zmw_height(200) ;
       zmw_width(200) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_height(height) ;
 	  zmw_width(width) ;
@@ -25,10 +25,10 @@ void viewport2(void)
 
 	      ZMW(zmw_viewport_with_scrollbar(&x2, &y2))
 		{
-		  ZMW(zmw_box_vertical())
+		  ZMW(zmw_vbox())
 		    {
 		      for(i=0; i<20; i++)
-			zmw_text("bla bla bla bla bla") ;
+			zmw_label("bla bla bla bla bla") ;
 		    }
 		}
 	    }
@@ -49,7 +49,7 @@ void viewport2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(viewport2) ;
+  zmw_main(viewport2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

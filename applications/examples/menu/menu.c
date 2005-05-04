@@ -6,7 +6,7 @@ void menu()
 {
   ZMW(zmw_window_popup_bottom_with_title("Menu"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_tearoff() ;
 	  zmw_button("An action") ;
@@ -22,7 +22,7 @@ void window(void)
 
   ZMW(zmw_window("Window"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
 	  ZMW(zmw_popup_with_detached(&detached))
@@ -34,7 +34,7 @@ void window(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(window) ;
+  zmw_main(window) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

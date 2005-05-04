@@ -1,7 +1,9 @@
 - Multiple language support :
 	- Diacritics not accepted in window title?
 - Semantic lens: not yet clean
-- Too much windows stored in resources
+- When entering a new book, display automaticaly the
+  menu for collection and author
+- Allow to change the filter while entering a new book
 
 
 

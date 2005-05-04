@@ -8,11 +8,11 @@ void movepressed(void)
 
   ZMW(zmw_window("MovePressed"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_scrollbar_horizontal(&x, 0.1) ;
+	  zmw_hscrollbar(&x, 0.1) ;
 	  zmw_button("Menu 1") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    ZMW(zmw_window_popup_bottom())
 	      zmw_button("Action 1") ;
 	}
@@ -20,7 +20,7 @@ void movepressed(void)
   ZMW(zmw_window("MovePressed"))
     {
       zmw_button("Menu 2") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	ZMW(zmw_window_popup_bottom())
 	   zmw_button("Action 2") ;
     }
@@ -29,7 +29,7 @@ void movepressed(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(movepressed) ;
+  zmw_main(movepressed) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

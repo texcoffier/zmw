@@ -6,7 +6,7 @@ void menu_file(Zmw_Boolean *choosing_a_filename)
 {
   ZMW(zmw_window_popup_bottom_with_title("Menu"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Load") ;
 	  if ( zmw_activated() )
@@ -27,15 +27,15 @@ void menu2(void)
 
   ZMW(zmw_window("Window"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    menu_file(&choosing_a_filename) ;
 	}
 
 
-      zmw_filechooser(&choosing_a_filename
+      zmw_file_selection(&choosing_a_filename
 		      , &filename_current
 		      , "Choose a filename"
 		      , "Load file"
@@ -48,7 +48,7 @@ void menu2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(menu2) ;
+  zmw_main(menu2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

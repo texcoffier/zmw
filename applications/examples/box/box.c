@@ -11,7 +11,7 @@ void boxed_text(const char *text, int i)
 	  zmw_horizontal_expand(Zmw_False) ;
 	  zmw_vertical_expand(Zmw_False) ;
 	}
-      zmw_text(text) ;
+      zmw_label(text) ;
     }
 }
 
@@ -22,7 +22,7 @@ void box(void)
 
   ZMW(zmw_window("Boxes"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<3; i++) // Only i=1 is False
 	    {
@@ -33,13 +33,13 @@ void box(void)
 		  zmw_horizontal_expand(Zmw_False) ;
 		  zmw_font_size(24) ;
 		  sprintf(tmp, "i = %d", i ) ;
-		  zmw_text(tmp) ;
+		  zmw_label(tmp) ;
 		}
 
 	      zmw_horizontal_expand(i) ;
 	      zmw_vertical_expand(i) ;
 
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_horizontal_alignment(-1) ;
 		  boxed_text("Left", i) ;
@@ -48,7 +48,7 @@ void box(void)
 		  zmw_horizontal_alignment(1) ;
 		  boxed_text("Right", i) ;
 		  zmw_height(40) ;
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_vertical_alignment(-1) ;
 		      boxed_text("Top", i) ;
@@ -66,7 +66,7 @@ void box(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(box) ;
+  zmw_main(box) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

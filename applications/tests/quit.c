@@ -31,7 +31,7 @@ void test_quit(const char *title)
 	{
 	  ZMW(zmw_window_popup_right())
 	    {
-	      zmw_text("Quit the program") ;
+	      zmw_label("Quit the program") ;
 	    }
 	}
     }

@@ -7,29 +7,29 @@ void tip_button(void)
 
   ZMW(zmw_window("Anchor"))
     {
-      ZMW( zmw_box_vertical() )
+      ZMW( zmw_vbox() )
 	{
 	  zmw_button("Menu 1") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    ZMW(zmw_window_popup_bottom())
-	    zmw_text("Item 1") ;
+	    zmw_label("Item 1") ;
 	  ZMW( zmw_tip() )
 	    ZMW(zmw_window_popup_right())
-	    zmw_text("tip 1") ;
+	    zmw_label("tip 1") ;
 	  if ( zmw_activated() )
 	    b = 1 ;
 
 	  zmw_button("Menu 2") ;
 	  ZMW( zmw_tip() )
 	    ZMW(zmw_window_popup_right())
-	    zmw_text("tip 2") ;
-	  ZMW( zmw_popup() )
+	    zmw_label("tip 2") ;
+	  ZMW( zmw_menu() )
 	    ZMW(zmw_window_popup_bottom())
-	    zmw_text("Item 2") ;
+	    zmw_label("Item 2") ;
 	  if ( zmw_activated() )
 	    b = 2 ;
 
-	  zmw_text("Activ.") ;
+	  zmw_label("Activ.") ;
 	  zmw_int(b) ;
 	}
     }
@@ -38,7 +38,7 @@ void tip_button(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(tip_button) ;
+  zmw_main(tip_button) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

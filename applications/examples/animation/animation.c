@@ -90,7 +90,7 @@ void animation(void)
     {
       zmw_width(200) ;
       zmw_height(100) ;
-      ZMW(zmw_box())
+      ZMW(zmw_fixed())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(b); i++)
 	    animate(&b[i]) ;
@@ -116,7 +116,7 @@ void animation(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(animation) ;
+  zmw_main(animation) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -23,14 +23,14 @@ void text_selection(void)
 
   ZMW(zmw_window("Text Selection"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(text); i++)
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_focus(&focus[i]) ;
-		  zmw_text_editable(&text[i]) ;
+		  zmw_entry(&text[i]) ;
 		  zmw_text_editable_with_cursor(&text[i], &cursors[i]) ;
 		}
 	    }
@@ -41,7 +41,7 @@ void text_selection(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(text_selection) ;
+  zmw_main(text_selection) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -29,7 +29,7 @@ void anchor2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(anchor2) ;
+  zmw_main(anchor2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

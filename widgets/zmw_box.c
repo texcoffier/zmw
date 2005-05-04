@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,220 +22,40 @@
 #include "zmw/zmw.h"
 
 /*
- *
+ * The following lines define the vertical and horizontal boxes
  */
-void zmw_box_horizontal_required_size(int focusable)
-{
-  int width, height, i ;
 
-  width = 0 ;
-  height = 0 ;
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    {
-      if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
-	continue ;
+#define C3(A,B,C) A ## B ## C
 
-      if ( ZMW_CHILDREN[i].required.x == ZMW_VALUE_UNDEFINED )
-	{
-	  width += ZMW_CHILD_REQUIRED_PADDED_WIDTH(i) ;
-	}
-      else
-	{
-	  if ( ZMW_CHILD_REQUIRED_PADDED_RIGHT(i) > width )
-	    width = ZMW_CHILD_REQUIRED_PADDED_RIGHT(i) ;
-	}
-      if ( ZMW_CHILD_REQUIRED_PADDED_HEIGHT(i) > height )
-	height = ZMW_CHILD_REQUIRED_PADDED_HEIGHT(i) ;
-      if ( ZMW_CHILDREN[i].required.y != ZMW_VALUE_UNDEFINED )
-	if ( ZMW_CHILD_REQUIRED_PADDED_TOP(i) > height )
-	  height = ZMW_CHILD_REQUIRED_PADDED_TOP(i) ;
-    }
-  ZMW_SIZE_MIN.width = width ;
-  ZMW_SIZE_MIN.height = height ;
-  if ( focusable )
-    {
-      ZMW_SIZE_MIN.width += 2 * ZMW_FOCUS_WIDTH ;
-      ZMW_SIZE_MIN.height += 2 * ZMW_FOCUS_WIDTH ;
-    }
-}
-
-void zmw_box_horizontal_children_allocated_size(int focusable)
-{
-  int i, last, first, nb_expandable ;
-
-  if (  ZMW_NB_OF_CHILDREN == 0 )
-    return ;
-
-  nb_expandable = 0 ;
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    {
-      if ( ZMW_CHILDREN[i].used_to_compute_parent_size
-	   && ZMW_CHILDREN[i].horizontal_expand
-	   )
-	nb_expandable++ ;
-    }
-  
-  last = 0 ;
-  first = 1 ;
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    {
-      if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
-	{
-	  ZMW_CHILDREN[i].allocated = ZMW_CHILDREN[i].required ;
-	  continue ;
-	}
-
-      /*
-       * X compute
-       */
-      if ( ZMW_CHILDREN[i].required.x != ZMW_VALUE_UNDEFINED )
-	{
-	  ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x
-	    + ZMW_CHILD_REQUIRED_PADDED_LEFT(i) ;
-	}
-      else
-	{
-	  if ( first )
-	    {
-	      ZMW_CHILDREN[i].allocated.x = ZMW_SIZE_ALLOCATED.x
-		+ ZMW_CHILDREN[i].current_state.padding_width ;
-	      if ( focusable )
-		{
-		  ZMW_CHILDREN[i].allocated.x += ZMW_FOCUS_WIDTH ;
-		  ZMW_CHILDREN[i].allocated.y += ZMW_FOCUS_WIDTH ;
-		}
-	      if ( nb_expandable == 0 )
-		{
-		  if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT >= 0 )
-		    {
-		      if ( ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 )
-			ZMW_CHILDREN[i].allocated.x
-			= ZMW_SIZE_ALLOCATED.x
-			  + ZMW_CHILDREN[i].current_state.padding_width
-			  + ( ZMW_SIZE_ALLOCATED.width
-			      - ZMW_SIZE_REQUIRED.width )
-			  ;
-		      else
-			ZMW_CHILDREN[i].allocated.x
-			  = ZMW_SIZE_ALLOCATED.x
-			  + ZMW_CHILDREN[i].current_state.padding_width
-			  + ( ZMW_SIZE_ALLOCATED.width
-			      - ZMW_SIZE_REQUIRED.width ) / 2 ;
-			  ;
-		    }
-		}
-	    }
-	  else
-	    {
-	      ZMW_CHILDREN[i].allocated.x =
-		ZMW_CHILDREN[last].allocated.x
-		+ ZMW_CHILDREN[last].allocated.width
-		+ ZMW_CHILDREN[last].current_state.padding_width
-		+ ZMW_CHILDREN[i].current_state.padding_width
-		;
-	    }
-	}
-      first = 0 ;
-	    
-      /*
-       * Y and height compute
-       */
-      if ( ZMW_CHILDREN[i].required.y != ZMW_VALUE_UNDEFINED )
-	{
-	  ZMW_CHILDREN[i].allocated.y = ZMW_SIZE_ALLOCATED.y
-	    + ZMW_CHILDREN[i].current_state.padding_width
-	    + ZMW_CHILDREN[i].required.y ;
-	  ZMW_CHILDREN[i].allocated.height = ZMW_SIZE_ALLOCATED.y
-	    + ZMW_SIZE_ALLOCATED.height
-	    - ZMW_CHILDREN[i].allocated.y
-	    - ZMW_CHILDREN[i].current_state.padding_width
-	    ;
-
-	}
-      else
-	{
-	  zmw_alignement_vertical_make(&ZMW_CHILDREN[i], 0) ;
-	}
-	  
-      /*
-       * Width compute
-       */
-      if ( ZMW_CHILDREN[i].horizontal_expand )
-	ZMW_CHILDREN[i].allocated.width
-	  = ZMW_CHILDREN[i].required.width
-	  + (ZMW_SIZE_ALLOCATED.width-ZMW_SIZE_MIN.width)/nb_expandable ; /* Can't be a 0 divide */
-      else
-	{
-	  /* Should test if ``reductable'' */
-	  ZMW_CHILDREN[i].allocated.width = ZMW_CHILDREN[i].required.width;
-	}
-
-      
-      last = i ;
-    }
-}
-
-void zmw_box_horizontal_with_activable(Zmw_Boolean activable)
-{
-  if ( activable )
-    {
-      zmw_focusable() ;
-    }
-
-  switch( ZMW_SUBACTION )
-    {
-    case Zmw_Compute_Required_Size:
-      zmw_box_horizontal_required_size(activable) ;
-      break ;
-    case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
-      if ( activable )
-	zmw_border_draw( (activable      ? Zmw_Border_Focusable : 0) |
-			 (zmw_focused() ? Zmw_Border_Draw_Focus : 0)
-			 ) ;
-
-    case Zmw_Compute_Children_Allocated_Size:
-      zmw_box_horizontal_children_allocated_size(activable) ;
-      break ;
-    case Zmw_Input_Event:
-      if ( activable )
-	{
-	  zmw_activable() ;
-	  if ( zmw_key_string_unsensitive() )
-	    {
-	      ZMW_SIZE_ACTIVATED = Zmw_True ;
-	    }
-	}
-    default:
-      break ;
-    }
-}
-
-void zmw_box_horizontal()
-{
-  zmw_box_horizontal_with_activable(Zmw_False) ;
-}
-
-void zmw_box_vertical()
-{
-  zmw_swap_x_y() ;
-  zmw_box_horizontal() ;
-  zmw_swap_x_y() ;
-}
-
-void zmw_box_horizontal_activable()
-{
-  zmw_box_horizontal_with_activable(Zmw_True) ;
-}
-
-void zmw_box_vertical_activable()
-{
-  zmw_swap_x_y() ;
-  zmw_box_horizontal_with_activable(Zmw_True) ;
-  zmw_swap_x_y() ;
-}
+#define ZMW_HORIZONTAL(A,C) C3(A,horizontal,C)
+#define ZMW_VERTICAL(A,C) C3(A,vertical,C)
+#define ZMW_H(A,C) C3(A,h,C)
+#define ZMW_V(A,C) C3(A,v,C)
+#define X x
+#define Y y
+#define WIDTH width
+#define HEIGHT height
+#include "zmw_box_hv.h"
 
 
+#undef ZMW_HORIZONTAL
+#undef ZMW_VERTICAL
+#undef ZMW_H
+#undef ZMW_V
+#undef X
+#undef Y
+#undef WIDTH
+#undef HEIGHT
 
+#define ZMW_HORIZONTAL(A,C) C3(A,vertical,C)
+#define ZMW_VERTICAL(A,C) C3(A,horizontal,C)
+#define ZMW_H(A,C) C3(A,v,C)
+#define ZMW_V(A,C) C3(A,h,C)
+#define X y
+#define Y x
+#define WIDTH height
+#define HEIGHT width
+#include "zmw_box_hv.h"
 
 
 
@@ -263,7 +83,7 @@ void zmw_box_compute_required_size()
 }
 
 
-void zmw_box()
+void zmw_fixed()
 {
   int i ;
 

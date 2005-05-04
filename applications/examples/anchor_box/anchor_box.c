@@ -11,11 +11,11 @@ void anchor_box(void)
       zmw_height(300) ;
       zmw_width(300) ;
 
-      ZMW(zmw_box())
+      ZMW(zmw_fixed())
         {
           ZMW(zmw_anchor_box(&x, &y, &width, &height))
             {
-              zmw_text("MoveMe") ;
+              zmw_label("MoveMe") ;
             }
 	}
     }
@@ -24,7 +24,7 @@ void anchor_box(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(anchor_box) ;
+  zmw_main(anchor_box) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

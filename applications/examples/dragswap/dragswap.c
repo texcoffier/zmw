@@ -4,13 +4,13 @@
 
 void swappable_text(char **i, int **current)
 {
-  zmw_text(*i) ;
+  zmw_label(*i) ;
   zmw_drag_swap((int*)i, current) ;
   ZMW( zmw_if( zmw_drag_from_running() ) )
     {
       ZMW(zmw_window_drag() )
 	if ( *current )
-	  zmw_text((char*)**current) ;
+	  zmw_label((char*)**current) ;
     }
 }
 
@@ -23,10 +23,10 @@ void dragswap(void)
 
   ZMW(zmw_window("DragSwap"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  // Swap the children of a container
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    for(i=0; i<ZMW_TABLE_SIZE(table1); i++)
 	      {
 		zmw_int(table1[i]) ;
@@ -39,10 +39,10 @@ void dragswap(void)
 		  }
 	      }
 	  // Swap the children in the TWO next containers
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    for(i=0; i<ZMW_TABLE_SIZE(table2)/2; i++)
 	      swappable_text(&table2[i], &current2) ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    for(i=ZMW_TABLE_SIZE(table2)/2; i<ZMW_TABLE_SIZE(table2); i++)
 	      swappable_text(&table2[i], &current2) ;
 	}
@@ -52,7 +52,7 @@ void dragswap(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(dragswap) ;
+  zmw_main(dragswap) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

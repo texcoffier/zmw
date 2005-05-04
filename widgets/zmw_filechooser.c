@@ -132,7 +132,7 @@ void zmw_select_file(char **filename, char *file, int end_of_dir)
 }
 
 
-void zmw_filechooser(Zmw_Boolean *visible
+void zmw_file_selection(Zmw_Boolean *visible
 		     , char **filename, const char *title
 		     , const char *message)
 {
@@ -147,6 +147,11 @@ void zmw_filechooser(Zmw_Boolean *visible
   static Zmw_Float_0_1 x, y ; // XXX only one file chooser at a time...
   static Zmw_Boolean take_focus = Zmw_False ;
 
+  if ( ZMW_SUBACTION == Zmw_Input_Event )
+    {
+      ZMW_SIZE_ACTIVATED = Zmw_False ;
+    }
+  activated = Zmw_False ;
 
   if ( *visible != old_visible )
     {
@@ -156,6 +161,14 @@ void zmw_filechooser(Zmw_Boolean *visible
 	  take_focus = Zmw_True ;
 	}
     }
+
+  /* These to are here only to remove compiler warning */
+  nb = 0 ;
+  err = 0 ;
+  /* These lines are here (and not in the 'if') to remove compiler warnings */ 
+  end_of_dir = -1 ;
+  width = ZMW_ASKED.width ;
+  height = ZMW_ASKED.height ;
 
   if ( *visible )
     {
@@ -171,7 +184,6 @@ void zmw_filechooser(Zmw_Boolean *visible
       /*
        * Read directory content
        */  
-      end_of_dir = -1 ;
       for(i=0; (*filename)[i]; i++)
 	if ( (*filename)[i] == '/' )
 	  end_of_dir = i ;
@@ -188,13 +200,8 @@ void zmw_filechooser(Zmw_Boolean *visible
 	  (*filename)[end_of_dir] = '\0' ;
 	  nb = scandir(*filename, &d, NULL, alphasort) ;
 	  (*filename)[end_of_dir] = '/' ;
-	}
-      
+	}    
       err = errno ;
-      activated = Zmw_False ;
-      
-      width = ZMW_ASKED.width ;
-      height = ZMW_ASKED.height ;
     }
 
   ZMW( zmw_if( *visible ) )
@@ -211,7 +218,7 @@ void zmw_filechooser(Zmw_Boolean *visible
 	  else
 	    zmw_width(width) ;
 	  
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_vertical_expand(Zmw_True) ;
 	      zmw_horizontal_expand(Zmw_True) ;
@@ -219,9 +226,9 @@ void zmw_filechooser(Zmw_Boolean *visible
 		{
 		  ZMW(zmw_table(3))
 		    {
-		      zmw_text("Type") ;
-		      zmw_text("Name") ;
-		      zmw_text("Size") ;
+		      zmw_label("Type") ;
+		      zmw_label("Name") ;
+		      zmw_label("Size") ;
 		      for(i=0; i<nb; i++)
 			{
 			  if ( zmw_name_filtered(&(*filename)[end_of_dir+1],
@@ -233,9 +240,9 @@ void zmw_filechooser(Zmw_Boolean *visible
 			  
 			  buf[0] = type ;
 			  buf[1] = '\0' ;
-			  zmw_text(buf) ;
+			  zmw_label(buf) ;
 			  
-			  zmw_text(d[i]->d_name) ;
+			  zmw_label(d[i]->d_name) ;
 			  if ( zmw_button_pressed() )
 			    {
 			      zmw_select_file(filename, d[i]->d_name, end_of_dir) ;
@@ -245,16 +252,16 @@ void zmw_filechooser(Zmw_Boolean *visible
 			  if ( size >= 0 && type == 'f' )
 			    {
 			      sprintf(buf, "%d", size) ;
-			      zmw_text(buf) ;
+			      zmw_label(buf) ;
 			    }
 			  else
-			    zmw_text("") ;
+			    zmw_label("") ;
 			  
 			}
 		    }
 		}
 	      zmw_vertical_expand(0) ;
-	      zmw_text_editable(filename) ;
+	      zmw_entry(filename) ;
 	      if ( take_focus )
 		{
 		  zmw_name_register(ZMW_FOCUS) ;
@@ -284,11 +291,11 @@ void zmw_filechooser(Zmw_Boolean *visible
 	      
 	      if ( nb < 0 )
 		{
-		  zmw_text("Problem with the directory:") ;
-		  zmw_text( strerror(err) ) ;
+		  zmw_label("Problem with the directory:") ;
+		  zmw_label( strerror(err) ) ;
 		}
 	      zmw_horizontal_alignment(0) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{	      
 		  zmw_button("Cancel") ;
 		  if ( zmw_activated() )
@@ -298,10 +305,14 @@ void zmw_filechooser(Zmw_Boolean *visible
 		    {
 		      activated = Zmw_True ;
 		      *visible = Zmw_False ;
+		      printf("========\n") ;
 		    }
 		}
 	    }
 	}
+    }
+  if ( ZMW_SUBACTION == Zmw_Input_Event )
+    {
       if ( activated )
 	ZMW_SIZE_ACTIVATED = Zmw_True ;
     }

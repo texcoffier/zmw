@@ -23,22 +23,22 @@
 void the_boxed_label(int i)
 {
   if ( i != 0 )
-    ZMW(zmw_box_vertical())
+    ZMW(zmw_vbox())
     {
       zmw_padding_width(5) ;
       if ( i == 2 )
 	{
-	  zmw_text("Top") ;
-	  zmw_text("Center") ;
-	  zmw_text("Bottom") ;
+	  zmw_label("Top") ;
+	  zmw_label("Center") ;
+	  zmw_label("Bottom") ;
 	}
       else
 	{
-	  zmw_text("Label") ;
+	  zmw_label("Label") ;
 	}
     }
   else
-    zmw_text("Label") ;
+    zmw_label("Label") ;
 
   zmw_border_embossed_in_draw() ;
 }
@@ -54,28 +54,28 @@ void test_asked(const char *title)
       zmw_horizontal_alignment(0) ;
       zmw_vertical_alignment(0) ;
 
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("The boxed widget size and position is") ;
-	  zmw_text("modified by the four values") ;
+	  zmw_label("The boxed widget size and position is") ;
+	  zmw_label("modified by the four values") ;
 	  
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      zmw_text("X=") ;
+	      zmw_label("X=") ;
 	      zmw_int_editable(&x) ;
-	      zmw_text("Y=") ;
+	      zmw_label("Y=") ;
 	      zmw_int_editable(&y) ;
-	      zmw_text("Width=") ;
+	      zmw_label("Width=") ;
 	      zmw_int_editable(&width) ;
-	      zmw_text("Height=") ;
+	      zmw_label("Height=") ;
 	      zmw_int_editable(&height) ;
 	    }
 	  for(i=0;i<3;i++)
 	    {
-	      zmw_text("---------------------") ;
-	      ZMW(zmw_box_horizontal())
+	      zmw_label("---------------------") ;
+	      ZMW(zmw_hbox())
 		{
-		  zmw_text("BoxA") ;
+		  zmw_label("BoxA") ;
 		  zmw_x(x) ;
 		  zmw_y(y) ;
 		  zmw_width(width) ;
@@ -85,7 +85,7 @@ void test_asked(const char *title)
 		  zmw_y(ZMW_VALUE_UNDEFINED) ;
 		  zmw_width(ZMW_VALUE_UNDEFINED) ;
 		  zmw_height(ZMW_VALUE_UNDEFINED) ;
-		  zmw_text("BoxC") ;
+		  zmw_label("BoxC") ;
 		}
 	    }
 	}

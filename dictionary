@@ -1,0 +1,261 @@
+file:///usr/share/doc/libgtk2.0-doc/gtk-tutorial/index.html
+
+From the most current GTK functions list in the tutorial,
+glib functions are not counted :
+
+46 common functions
+2 only in ZMW (more control on the drag and drop)
+180 only in GTK :
+	- 122 are not necessary with the ZMW philosophy
+	- 25 should be implemented in ZMW
+	- 12 are close to ZMW functions
+	- 21 have an unclear status
+
+===================
+In both GTK and ZMW
+===================
+
+gtk_init				zmw_init
+gtk_main                                zmw_run
+gtk_container_set_border_width		zmw_border_width
+gtk_widget_show				zmw_if widget ?
+gtk_main_quit				zmw_exit ?
+gtk_button_new_with_label               zmw_button
+gtk_button_new				zmw_decorator(activable)
+gtk_window_new				zmw_window
+gtk_hbox_new                            zmw_box_horizontal
+gtk_vbox_new                            zmw_box_vertical
+gtk_table_new				zmw_table (not as powerful)
+gtk_image_new_from_file			zmw_image_from_file
+gtk_check_button_new			zmw_toggle
+gtk_check_button_new_with_label		zmw_toggle_with_label
+gtk_radio_button_new			zmw_radio
+gtk_radio_button_new_with_label		zmw_radio_with_label
+gtk_viewport_new			zmw_viewport
+gtk_vscrollbar_new			zmw_scrollbar_vertical
+gtk_hscrollbar_new			zmw_scrollbar_horizontal
+gtk_label_new                           zmw_text
+gtk_tooltips_new                        zmw_tip
+gtk_entry_new				zmw_text_editable
+gtk_editable_set_editable		ZMW_SENSIBLE
+gtk_combo_disable_activate		ZMW_SENSIBLE
+gtk_editable_select_region		zmw_text_editable_with_cursor_and_start
+gtk_file_selection_new			zmw_filechooser
+gtk_fixed_new				zmw_box
+gtk_notebook_new			zmw_notebook
+gtk_menu_new				zmw_popup
+gtk_widget_set_name			zmw_name
+gtk_widget_get_name			ZMW_NAME
+gtk_widget_set_sensitive		use ZMW_SENSIBLE or don't test it
+
+"drag_begin"				zmw_drag_from_started
+"drag_end"				zmw_drag_from_stopped
+"drag_motion"				zmw_drag_from_running
+"drag_data_get"				zmw_drag_data_set
+"drag_data_delete"			NA
+"drag_drop"				zmw_drag_accept_get returns True
+"drag_data_received"			zmw_drag_to_dropped
+"clicked"				zmw_activated
+"pressed"				zmw_button_pressed
+"released"				zmw_button_released
+"enter"					zmw_cursor_enter
+"leave"					zmw_cursor_leave
+"value_changed"				zmw_changed
+g_signal_emit_by_name			ZMW_ACTIVATED, CHANGED, = True
+
+
+
+===========
+Only in GTK
+===========
+
+gtk_adjustment_get_value		NA
+gtk_adjustment_new			NA (see zmw_scrollbar)
+gtk_adjustment_set_value		NA
+gtk_alignment_new			? zmw_horizontal_alignment
+gtk_alignment_set			NA
+gtk_arrow_new				TBI
+gtk_arrow_set				NA
+gtk_aspect_frame_new			TBI in zmw_decorator
+gtk_aspect_frame_set			NA
+gtk_box_pack_start			NA
+gtk_box_set_spacing			? zmw_padding_width
+gtk_button_box_set_layout		?
+gtk_calendar_clear_marks		?
+gtk_calendar_display_options		?
+gtk_calendar_freeze			NA
+gtk_calendar_get_date			NA
+gtk_calendar_mark_day			?
+gtk_calendar_new			TBI ?
+gtk_calendar_select_day			NA
+gtk_calendar_select_month		NA
+gtk_calendar_thaw			NA
+gtk_calendar_unmark_day			?
+gtk_check_button_new_with_mnemonic	TBI
+gtk_color_selection_dialog_new		TBI
+gtk_color_selection_get_current_alpha	NA
+gtk_color_selection_get_current_color	NA
+gtk_color_selection_new			?
+gtk_color_selection_set_current_alpha	NA
+gtk_color_selection_set_current_color	NA
+gtk_color_selection_set_has_opacity_control NA
+gtk_combo_new				TBI
+gtk_combo_set_case_sensitive		NA
+gtk_combo_set_popdown_strings		NA
+gtk_combo_set_use_arrows		NA
+gtk_combo_set_use_arrows_always		NA
+gtk_container_add			NA
+gtk_dialog_new				TBI
+gtk_dialog_new_with_buttons		NA
+gtk_drag_dest_set                       NA
+gtk_drag_source_set			NA
+gtk_entry_get_text			NA
+gtk_entry_set_text			NA
+gtk_entry_set_visibility		TBI
+gtk_event_box_new			NA
+gtk_file_selection_get_filename		NA
+gtk_file_selection_set_filename		NA
+gtk_fixed_get_has_window		NA
+gtk_fixed_move				NA
+gtk_fixed_set_has_window		NA
+gtk_frame_new				TBI in zmw_decorator
+gtk_frame_set_label			NA
+gtk_frame_set_label_align		NA
+gtk_frame_set_shadow_type		NA
+gtk_hbutton_box_new			?
+gtk_hpaned_new				? zmw_anchor_vertical
+gtk_hruler_new				TBI ?
+gtk_hscale_new				?
+gtk_hscale_new_with_range		?
+gtk_hseparator_new			TBI empty decorator ?)
+gtk_item_factory_create_items		NA
+gtk_item_factory_get_widget		NA
+gtk_item_factory_new			TBI ?
+gtk_label_get_text			NA
+gtk_label_set_justify			TBI in current state
+gtk_label_set_line_wrap			TBI in current state
+gtk_label_set_text			NA
+gtk_layout_get_hadjustment		NA
+gtk_layout_get_vadjustment		NA
+gtk_layout_move				NA
+gtk_layout_new				? zmw_box
+gtk_layout_put				NA
+gtk_layout_set_hadjustment		NA
+gtk_layout_set_size			NA
+gtk_layout_set_vadjustment		NA
+gtk_menu_append				NA
+gtk_menu_bar_new			NA
+gtk_menu_item_new			NA
+gtk_menu_item_new_with_label		NA
+gtk_menu_item_new_with_mnemnonic	? zmw_button_with_accelerator
+gtk_menu_item_set_submenu		NA
+gtk_menu_shell_append			NA
+gtk_misc_set_alignment			?
+gtk_notebook_append_page		NA
+gtk_notebook_insert_page		NA
+gtk_notebook_next_page			NA
+gtk_notebook_prepend_page		NA
+gtk_notebook_prev_page			NA
+gtk_notebook_set_current_page		NA
+gtk_notebook_set_scrollable		TBI ?
+gtk_notebook_set_show_border		NA
+gtk_notebook_set_show_tabs		NA
+gtk_notebook_set_tab_pos		NA
+gtk_paned_add1				NA
+gtk_paned_add2				NA
+gtk_progress_bar_get_text		NA
+gtk_progress_bar_new			TO BE IMPLEMENTED
+gtk_progress_bar_pulse			NA
+gtk_progress_bar_set_fraction		NA
+gtk_progress_bar_set_pulse_step		NA
+gtk_progress_bar_set_text		NA
+gtk_radio_button_get_group		NA
+gtk_radio_button_new_from_widget        NA
+gtk_radio_button_new_with_label_from_widget	NA
+gtk_radio_button_new_with_mnemonic	TBI
+gtk_radio_button_new_with_mnemonic_from_widget	NA
+gtk_range_get_adjustment		NA
+gtk_range_set_adjustment		NA
+gtk_range_set_update_policy		NA
+gtk_ruler_set_metric			TBI ?
+gtk_ruler_set_range			TBI ?
+gtk_scale_set_digits			TBI ?
+gtk_scale_set_draw_value		NA
+gtk_scale_set_value_pos			NA
+gtk_scrolled_window_new			? zmw_viewport_with_scrollbar
+gtk_scrolled_window_set_policy		NA
+gtk_spin_button_configure		NA
+gtk_spin_button_get_value		NA
+gtk_spin_button_get_value_as_int	NA
+gtk_spin_button_new			TBI
+gtk_spin_button_set_adjustment		NA
+gtk_spin_button_set_digits		NA
+gtk_spin_button_set_numeric		NA
+gtk_spin_button_set_snap_to_ticks	NA
+gtk_spin_button_set_update_policy	NA
+gtk_spin_button_set_value		NA
+gtk_spin_button_set_wrap		NA
+gtk_spin_button_spin			NA
+gtk_spin_button_update			NA
+gtk_statusbar_get_context_id		NA
+gtk_statusbar_get_has_resize_grip	NA
+gtk_statusbar_new			It is a too complex widget
+gtk_statusbar_pop			NA
+gtk_statusbar_push			NA
+gtk_statusbar_remove			NA
+gtk_statusbar_set_has_resize_grip	NA
+gtk_table_attach			NA
+gtk_table_attach_defaults		NA
+gtk_table_set_col_spacing               ? zmw_padding_width
+gtk_table_set_col_spacings              ? zmw_padding_width
+gtk_table_set_row_spacing               ? zmw_padding_width
+gtk_table_set_row_spacings              ? zmw_padding_width
+gtk_toggle_button_get_active		NA
+gtk_toggle_button_new			TBI zmw_decorator(toggle)
+gtk_toggle_button_new_with_label	TBI
+gtk_toggle_button_new_with_mnemonic     TBI
+gtk_toggle_button_set_active		NA
+gtk_toolbar_append_item			NA
+gtk_toolbar_append_space		NA
+gtk_toolbar_insert_item			NA
+gtk_toolbar_insert_space		NA
+gtk_toolbar_new				TBI ?
+gtk_toolbar_prepend_item		NA
+gtk_toolbar_prepend_space		NA
+gtk_toolbar_set_orientation		NA
+gtk_toolbar_set_style			NA
+gtk_toolbar_set_tooltips		NA
+gtk_tooltips_disable			NA
+gtk_tooltips_enable			NA
+gtk_tooltips_set_tip			NA
+gtk_vbutton_box_new			?
+gtk_viewport_get_hadjustment		NA
+gtk_viewport_get_vadjustment		NA
+gtk_viewport_set_hadjustment		NA
+gtk_viewport_set_shadow_type		NA
+gtk_viewport_set_vadjustment		NA
+gtk_vpaned_new				? zmw_anchor_horizontal
+gtk_vruler_new				TBI
+gtk_vscale_new				?
+gtk_vscale_new_with_range		?
+gtk_widget_activate			ZMW_SIZE_ACTIVATED = Zmw_True ;
+gtk_widget_get_default_style		?
+gtk_widget_get_style			?
+gtk_widget_grab_default			?
+gtk_widget_grab_focus			?
+gtk_widget_hide				NA
+gtk_widget_set_size_request		? zmw_x zmw_y zmw_width zmw_height
+gtk_widget_set_style			?
+gtk_widget_show				NA
+gtk_window_add_accel_group		NA
+gtk_window_set_title			NA
+
+===========
+Only in ZMW
+===========
+
+zmw_drag_to_enter
+zmw_drag_to_leave
+
+
+

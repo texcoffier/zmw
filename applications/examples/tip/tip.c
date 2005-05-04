@@ -14,7 +14,7 @@ void tip(void)
 {
   ZMW(zmw_window("Anchor"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Unsensible with tip") ;
 	  ZMW(zmw_tip())
@@ -61,7 +61,7 @@ void tip2(void)
 {
   ZMW(zmw_window("Anchor"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Unsensible with tip") ;
 	  zmw_button("tip + tip") ;
@@ -73,7 +73,7 @@ void tip2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(tip) ;
+  zmw_main(tip) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -23,25 +23,25 @@ void test_state(const char *title)
 {
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_horizontal_alignment(0) ;
 	  zmw_color(Zmw_Color_Foreground, 0x000000ff) ;
-	  zmw_text("Blue") ;
-	  ZMW(zmw_box_vertical())
+	  zmw_label("Blue") ;
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_horizontal_alignment(-1) ;
-	      zmw_text("Blue") ;
+	      zmw_label("Blue") ;
 	      zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
-	      zmw_text("Red") ;
+	      zmw_label("Red") ;
 	      zmw_color(Zmw_Color_Foreground, 0x0000ff00) ;
 	      zmw_font_family("swiss") ;
 	      zmw_font_style(Zmw_Font_Style_Italic) ;
 	      zmw_font_size(32) ;
-	      zmw_text("Green") ;
+	      zmw_label("Green") ;
 	    }
 	  zmw_horizontal_alignment(1) ;
-	  zmw_text("Blue") ;
+	  zmw_label("Blue") ;
 	}
     }
 }

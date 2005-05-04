@@ -36,16 +36,16 @@ void minimal(void)
 {
   ZMW(zmw_window("Minimal"))
     {
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
-	      zmw_text("Above") ;
+	      zmw_label("Above") ;
 	      rect() ;
-	      zmw_text("Under") ;
+	      zmw_label("Under") ;
 	    }
 	  rect() ;
-	  zmw_text("Right") ;
+	  zmw_label("Right") ;
 	}
     }
 }
@@ -54,7 +54,7 @@ void minimal(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(minimal) ;
+  zmw_main(minimal) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

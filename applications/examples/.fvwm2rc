@@ -2,4 +2,6 @@
 
 ColormapFocus FollowsMouse
 
+WindowFont		-*-fixed-medium-r-normal-*-14-*-*-*-*-*-*-*
+
 # Style "*"           BorderWidth 3, HandleWidth 5

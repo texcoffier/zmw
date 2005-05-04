@@ -10,23 +10,23 @@ void registration(void)
   zmw_border_width(1) ;
   ZMW(zmw_window("Registration"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      zmw_text("Clicked button =") ;
+	      zmw_label("Clicked button =") ;
 	      if ( zmw_name_registered(&clicked) )
-		zmw_text(zmw_name_registered(&clicked)) ;
+		zmw_label(zmw_name_registered(&clicked)) ;
 	      else
-		zmw_text("No button clicked         ") ;
+		zmw_label("No button clicked         ") ;
 	    }
 	  
 
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
-		  zmw_text("Box1") ;
+		  zmw_label("Box1") ;
 		  zmw_button("Button1") ;
 		  if ( zmw_activated() )
 		    zmw_name_register(&clicked) ;
@@ -35,31 +35,31 @@ void registration(void)
 	  
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
-		      zmw_text("Box2") ;
+		      zmw_label("Box2") ;
 		      zmw_button("Button2") ;
 		      if ( zmw_activated() )
 			zmw_name_register(&clicked) ;
 		    }
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_button("Button3") ;
 		      if ( zmw_activated() )
 			zmw_name_register(&clicked) ;
 		      if ( zmw_name_is(&clicked) )
-			zmw_text("This button == last clicked") ;
+			zmw_label("This button == last clicked") ;
 		      else
-			zmw_text("This button != last clicked") ;
+			zmw_label("This button != last clicked") ;
 		    }
 		}
 	    }
 	  if ( zmw_name_contains(&clicked) )
-	    zmw_text("Box2 contains last clicked") ;
+	    zmw_label("Box2 contains last clicked") ;
 	  else
-	    zmw_text("Last clicked is not in Box2") ;
+	    zmw_label("Last clicked is not in Box2") ;
 	}
     }
 }
@@ -67,7 +67,7 @@ void registration(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(registration) ;
+  zmw_main(registration) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

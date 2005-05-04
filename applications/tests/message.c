@@ -34,6 +34,6 @@ void test_message(const char *title)
     }
   ZMW(visible = zmw_message(visible, "My Message", "Close window"))
     {
-      zmw_text("Any widget you want") ;
+      zmw_label("Any widget you want") ;
     }
 }

@@ -5,7 +5,7 @@ void zmwvoid(void)
 {
   ZMW(zmw_window("Void"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Grey") ;
 	  ZMW(zmw_void())
@@ -25,7 +25,7 @@ void zmwvoid(void)
 	  zmw_button("Same Grey") ;
 	  ZMW(zmw_void())
 	    ZMW(zmw_void())
-	      zmw_text("Void in Void") ;
+	      zmw_label("Void in Void") ;
 	}
     }
 }
@@ -33,7 +33,7 @@ void zmwvoid(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(zmwvoid) ;
+  zmw_main(zmwvoid) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

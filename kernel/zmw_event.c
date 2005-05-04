@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -528,7 +528,7 @@ void zmw_window_unpop_all()
       zmw_name_unregister(&global_inner_visible_menu) ;
       zmw_need_repaint() ;
     }
-  if ( zmw.debug & Zmw_Debug_Event )
+  if ( ZMW_DEBUG & Zmw_Debug_Event )
     zmw_printf("Unpop all popup window\n") ;
 
   zmw_use_window_from_button_press(Zmw_True) ;
@@ -565,7 +565,7 @@ void zmw_focus_remove()
  */
 void zmw_event_remove()
 {	
-  if ( zmw.debug & Zmw_Debug_Event )
+  if ( ZMW_DEBUG & Zmw_Debug_Event )
     zmw_printf("**** EVENT **** REMOVE of %s\n", zmw_name_full) ;
   
   zmw.event_removed = Zmw_True ;
@@ -652,7 +652,8 @@ void zmw_activable()
     }
 }
 /*
- *
+ * Once taken by an accelerator, the key is no more
+ * usable by the others.
  */
 
 Zmw_Boolean zmw_accelerator(GdkModifierType state, int character)
@@ -736,7 +737,7 @@ Zmw_Boolean zmw_tip_visible()
  *
  */
 
-#define C(X) case X: zmw_text(#X)
+#define C(X) case X: zmw_label(#X)
 
 void zmw_event_debug_window()
 {
@@ -746,13 +747,13 @@ void zmw_event_debug_window()
   
   found = zmw_name_registered(&zmw.found) ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       zmw_toggle_int_with_label(&display_zmw, "zmw") ;
       if ( display_zmw )
 	{
 	  sprintf(buf, "event=%p", zmw.event) ;
-	  zmw_text(buf) ;	  
+	  zmw_label(buf) ;	  
 
 	  if ( zmw.event )
 	    switch(zmw.event->type)
@@ -764,7 +765,7 @@ void zmw_event_debug_window()
 			  , zmw.event->key.keyval
 			  , zmw.event->key.string
 			  ) ;
-		  zmw_text(buf) ;
+		  zmw_label(buf) ;
 		  break ;
 
 		  C(GDK_MOTION_NOTIFY) ; break ;
@@ -776,7 +777,7 @@ void zmw_event_debug_window()
 
 		default:
 		  sprintf(buf, "type=%d", zmw.event->type) ;
-		  zmw_text(buf) ;
+		  zmw_label(buf) ;
 		  
 		}
 
@@ -784,24 +785,24 @@ void zmw_event_debug_window()
 		  , zmw.x
 		  , zmw.y
 		  ) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 
 	  if ( zmw_name_registered(&zmw.tip_displayed) )
 	    {
 	      sprintf(buf, "TIP=%s",  zmw_name_registered(&zmw.tip_displayed));
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	    }
 	  sprintf(buf, "inner_menu = %s", global_inner_visible_menu.name) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "zmw.tips_yet_displayed = %d", zmw.tips_yet_displayed) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "zmw.still_yet_displayed = %d",zmw.still_yet_displayed);
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 
 	  sprintf(buf,"SELECTED=%s",zmw_name_registered(&global_zmw_selected));
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "FOUND=%s", found) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	}
     }
   zmw_border_embossed_in_draw() ;

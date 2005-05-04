@@ -10,10 +10,10 @@ void toggle(void)
   ZMW(zmw_window("Toggle"))
     {
       zmw_horizontal_alignment(-1) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  /* Some boolean toggles */
-	  t1 = zmw_toggle_with_label(t1, "Toggle 1") ;
+	  t1 = zmw_check_button_with_label(t1, "Toggle 1") ;
 	  if ( zmw_activated() )
 	    t1_change = 1 ;
 
@@ -22,7 +22,7 @@ void toggle(void)
 	  zmw_toggle_int_with_label(&t1_change, "Toggle 1 was activated") ;
 
 	  /* Editing the bits of an integer */
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_width(5) ;
 	      zmw_padding_width(0) ;
@@ -34,11 +34,11 @@ void toggle(void)
 	  zmw_int_editable(&bits) ;
 
 	  /* Radio button */
-	  zmw_radio_with_label(&radio, (int)"Bonjour", "Hello") ;
-	  zmw_radio_with_label(&radio, (int)"Au revoir", "Goodbye") ;
-	  zmw_radio_with_label(&radio, (int)"Oui", "Yes") ;
-	  zmw_text("French Translation:") ;
-	  zmw_text((char*)radio) ;
+	  zmw_radio_button_with_label(&radio, (int)"Bonjour", "Hello") ;
+	  zmw_radio_button_with_label(&radio, (int)"Au revoir", "Goodbye") ;
+	  zmw_radio_button_with_label(&radio, (int)"Oui", "Yes") ;
+	  zmw_label("French Translation:") ;
+	  zmw_label((char*)radio) ;
 	}
     }
 }
@@ -46,7 +46,7 @@ void toggle(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(toggle) ;
+  zmw_main(toggle) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -42,45 +42,45 @@ void test_focus(const char *title)
     {
       zmw_padding_width(3) ;
       zmw_horizontal_expand(1) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text_editable(&text[9]) ;
+	  zmw_entry(&text[9]) ;
 	  zmw_name("Group 1") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_focus(&focus) ;
 
-	      zmw_text("Focus Group 1") ;
-	      zmw_text_editable(&text[0]) ;
+	      zmw_label("Focus Group 1") ;
+	      zmw_entry(&text[0]) ;
 	      zmw_toggle_int(&t0) ;
-	      zmw_text_editable(&text[2]) ;
+	      zmw_entry(&text[2]) ;
 	    }
 	  zmw_border_embossed_in_draw() ;
 	  zmw_toggle_int(&t2) ;
 	  zmw_name("Group 2") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_focus(&focus2) ;
 
-	      zmw_text("Focus Group 2") ;
-	      zmw_text_editable(&text[3]) ;
+	      zmw_label("Focus Group 2") ;
+	      zmw_entry(&text[3]) ;
 	      zmw_toggle_int(&t1) ;
 
 	      zmw_name("Group 3") ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_focus(&focus3) ;
 
-		  zmw_text("Focus Group 3") ;
-		  zmw_text_editable(&text[6]) ;
+		  zmw_label("Focus Group 3") ;
+		  zmw_entry(&text[6]) ;
 		  zmw_toggle_int(&t3) ;
-		  zmw_text_editable(&text[8]) ;
+		  zmw_entry(&text[8]) ;
 		}
 	      zmw_border_embossed_in_draw() ;
-	      zmw_text_editable(&text[5]) ;
+	      zmw_entry(&text[5]) ;
 	    }
 	  zmw_border_embossed_in_draw() ;
-	  zmw_text_editable(&text[11]) ;
+	  zmw_entry(&text[11]) ;
 	}
     }
 }
@@ -99,13 +99,13 @@ void test_focus2(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Box Vertical") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_focus(&focus) ;
 	  zmw_name("Text1") ;
-	  zmw_text_editable(&text1) ;
+	  zmw_entry(&text1) ;
 	  zmw_name("Text2") ;
-	  zmw_text_editable(&text2) ;
+	  zmw_entry(&text2) ;
 	}
     }
 }
@@ -126,26 +126,26 @@ void test_focus3(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Box Vertical") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("Box 1") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_focus(&focus) ;
 	      zmw_name("Text1") ;
-	      zmw_text_editable(&text1) ;
+	      zmw_entry(&text1) ;
 	      zmw_name("Text2") ;
-	      zmw_text_editable(&text2) ;
+	      zmw_entry(&text2) ;
 	    }
 
 	  zmw_name("Box 2") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_focus(&focus2) ;
 	      zmw_name("Text3") ;
-	      zmw_text_editable(&text1) ;
+	      zmw_entry(&text1) ;
 	      zmw_name("Text4") ;
-	      zmw_text_editable(&text2) ;
+	      zmw_entry(&text2) ;
 	    }
 	}
     }
@@ -164,10 +164,10 @@ void test_focus4(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("This test doesn't work") ;
-	  zmw_text("See test_focus4 in zmw.c") ;
+	  zmw_label("This test doesn't work") ;
+	  zmw_label("See test_focus4 in zmw.c") ;
 	}
     }
 
@@ -176,14 +176,14 @@ void test_focus4(const char *title)
   ZMW(zmw_window(title))
     {
 	      zmw_name("Text1") ;
-	      zmw_text_editable(&text1) ;
+	      zmw_entry(&text1) ;
     }
 
   ZMW(zmw_window(title))
     {
 	      zmw_focus(&focus) ;
 	      zmw_name("Text2") ;
-	      zmw_text_editable(&text2) ;
+	      zmw_entry(&text2) ;
     }
 
 

@@ -5,11 +5,11 @@
 void between_braces(void)
 {
   ZMW_EXTERNAL_RESTART ;
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
-      zmw_text("{") ;
+      zmw_label("{") ;
       ZMW_EXTERNAL ;
-      zmw_text("}") ;
+      zmw_label("}") ;
     }
   ZMW_EXTERNAL_STOP ;
 }
@@ -20,7 +20,7 @@ void external(void)
     {
       ZMW(between_braces())
 	{
-	  zmw_text("HELLO") ;
+	  zmw_label("HELLO") ;
 	}
     }
 }
@@ -28,7 +28,7 @@ void external(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(external) ;
+  zmw_main(external) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

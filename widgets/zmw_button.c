@@ -75,6 +75,7 @@ void zmw_button(const char *text)
 		    | Zmw_Decorator_Activable
 		    | Zmw_Decorator_Activable_By_Key
 		    | Zmw_Decorator_Pushable
+		    | Zmw_Decorator_Feedback
 		    )
       )
     {
@@ -144,15 +145,15 @@ void zmw_accelerators_window(GdkModifierType filter)
   ZMW_AUTO_RESIZE = Zmw_True ;	
   ZMW(zmw_window_drag())
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("Accelerators") ;
-	  zmw_text("-----------------------") ;
+	  zmw_label("Accelerators") ;
+	  zmw_label("-----------------------") ;
 	  for(i=0;i<global_zmw_accelerators_nb; i++)
 	    {
 	      if ( (global_zmw_accelerators[i].state & filter) == filter )
 		{
-		  zmw_text(global_zmw_accelerators[i].button) ;
+		  zmw_label(global_zmw_accelerators[i].button) ;
 		}
 	    }
 	}

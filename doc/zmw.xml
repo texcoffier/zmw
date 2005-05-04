@@ -47,13 +47,13 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.11)</title>
+    <title>Using the &zmw; library (&ZMW; 0.0.12)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
     </author>
     <copyright>
-      <year>2003-2004</year>
+      <year>2003-2005</year>
       <holder>Universit&#233; Claude Bernard,
 	LIRIS, Thierry Excoffier</holder>
     </copyright>
@@ -214,7 +214,7 @@
 
 
       <varlistentry>
-	<term>ZMW(zmw_box_vertical())</term>
+	<term>ZMW(zmw_vbox())</term>
 	<listitem>
 	  <para>
 	    The window contains a vertical stack of widget.
@@ -227,7 +227,7 @@
 
 
       <varlistentry>
-	<term>zmw_text("Hello World!")</term>
+	<term>zmw_label("Hello World!")</term>
 	<listitem>
 	  <para>
 	    The top most widget is a label.
@@ -253,10 +253,10 @@
 
 
       <varlistentry>
-	<term>if ( zmw_activated() ) zmw_exit(0) ;</term>
+	<term>if ( zmw_activated() ) zmw_main_quit(0) ;</term>
 	<listitem>
 	  <para>
-	    The program call <markup>zmw_exit(0)</markup>
+	    The program call <markup>zmw_main_quit(0)</markup>
 	    if the previous widget is activated.
 	    In the example, the program exit is
 	    the button quit is clicked.
@@ -319,7 +319,7 @@
 
 
       <varlistentry>
-	<term>zmw_text("Click here to close the application") ;</term>
+	<term>zmw_label("Click here to close the application") ;</term>
 	<listitem>
 	  <para>
 	    The tip window contains a simple text.
@@ -343,7 +343,7 @@
 
 
       <varlistentry>
-	<term>zmw_run(hello_world)</term>
+	<term>zmw_main(hello_world)</term>
 	<listitem>
 	  <para>
 	    This function call launch the user interface defined
@@ -407,7 +407,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_text</function>
+	    <function>zmw_label</function>
 	    (<type>const char *</type><parameter>text</parameter>) ;
 	  </term>
 	  <listitem>
@@ -473,7 +473,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_text_editable</function>
+	    <function>zmw_entry</function>
 	    (<type>char **</type><parameter>text</parameter>) ;</term>
 	  <listitem>
 	    <para>
@@ -681,7 +681,7 @@
 
 
     <sect1>
-      <title>Toggle</title>
+      <title>Check buttons</title>
 
       <variablelist>
 
@@ -689,21 +689,21 @@
 	<varlistentry>
 	  <term>
 	    <type>int</type>
-	    <function>zmw_toggle</function>
+	    <function>zmw_check_button</function>
 	    (<type>int</type> <parameter>value</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	      Display a boolean toggle, the toggle state is changed
+	      Display a boolean check button, the button state is changed
 	      when clicked.
 	      We can use <function>zmw_activated</function> to know
-	      is the toggle state is modified.
-	      If the toggle has the focus, a key press change
-	      the toggle value.
-	      It is allowed to have several toggles modifying
+	      is the button state is modified.
+	      If the button has the focus, a key press change
+	      the button value.
+	      It is allowed to have several check buttons modifying
 	      the same value.
 	      The returned value should be copied into the parameter,
-	      so it is possible to have toggles stored in a
+	      so it is possible to have check state stored in a
 	      single bit.
 	    </para>
 	  </listitem>
@@ -713,14 +713,14 @@
       <varlistentry>
 	<term>
 	  <type>int</type>
-	  <function>zmw_toggle_with_label</function>
+	  <function>zmw_check_button_with_label</function>
 	  (<type>int</type> <parameter>value</parameter>,
 	  <type>const char *</type><parameter>label</parameter>
 	  ) ;
 	</term>
 	<listitem>
 	  <para>
-	    As above but display a label next to the toggle.
+	    As above but display a label next to the check button.
 	  </para>
 	</listitem>
       </varlistentry>
@@ -729,14 +729,14 @@
       <varlistentry>
 	<term>
 	  <type>int</type>
-	  <function>zmw_toggle_bits</function>
+	  <function>zmw_check_button_bits</function>
 	  (<type>int</type> <parameter>value</parameter>,
 	  <type>int</type> <parameter>bits</parameter>
 	  ) ;
 	</term>
 	<listitem>
 	  <para>
-	    As <function>zmw_toggle</function> but the
+	    As <function>zmw_check_button</function> but the
 	    new value is an exclusive or between the old one and
 	    <varname>bits</varname>.
 	  </para>
@@ -746,7 +746,7 @@
       <varlistentry>
 	<term>
 	  <type>int</type>
-	  <function>zmw_toggle_bits_with_label</function>
+	  <function>zmw_check_button_bits_with_label</function>
 	  (<type>int</type> <parameter>value</parameter>,
 	  <type>int</type> <parameter>bits</parameter>,
 	  <type>const char *</type><parameter>label</parameter>
@@ -754,7 +754,7 @@
 	</term>
 	<listitem>
 	  <para>
-	    As <function>zmw_toggle_bits</function> but with a label.
+	    As <function>zmw_check_button_bits</function> but with a label.
 	  </para>
 	</listitem>
       </varlistentry>
@@ -763,7 +763,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_toggle[_bits]_(int|char)[_with_label]</function>
+	    <function>zmw_check_button[_bits]_(int|char)[_with_label]</function>
 	    (<type>(int|char) *</type><parameter>value</parameter>) ;
 	  </term>
 	  <listitem>
@@ -778,7 +778,7 @@
       <varlistentry>
 	<term>
 	  <type>void</type>
-	  <function>zmw_radio</function>
+	  <function>zmw_radio_button</function>
 	  (<type>int *</type><parameter>value</parameter>,
 	  <type>int</type> <parameter>number</parameter>
 	  ) ;
@@ -786,7 +786,7 @@
 	<listitem>
 	  <para>
 	    When activated, the number is stored in the value.
-	    The other toggles of the radio group use the same value
+	    The other check buttons of the radio group use the same value
 	    but the numbers must but not be equal.
 	    There is not limitation on number values, so it can
 	    be pointers.
@@ -798,7 +798,7 @@
       <varlistentry>
 	<term>
 	  <type>void</type>
-	  <function>zmw_radio_with_label</function>
+	  <function>zmw_radio_button_with_label</function>
 	  (<type>int *</type><parameter>value</parameter>,
 	  <type>int</type> <parameter>number</parameter>,
 	  <type>const char *</type><parameter>label</parameter>
@@ -806,7 +806,7 @@
 	</term>
 	<listitem>
 	  <para>
-	    As  <function>zmw_radio</function> but with a label.
+	    As  <function>zmw_radio_button</function> but with a label.
 	  </para>
 	</listitem>
       </varlistentry>
@@ -820,7 +820,7 @@
 
 
       <example>
-	<title>Some toggles</title>
+	<title>Some check buttons</title>
 	<informaltable frame="none" pgwide="1">
 	  <tgroup cols="2">
 	    <tbody>
@@ -964,7 +964,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_horizontal_with_delta</function>
+	    <function>zmw_hscrollbar_with_delta</function>
 	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>x_delta</parameter>) ;
@@ -981,13 +981,13 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_horizontal</function>
+	    <function>zmw_hscrollbar</function>
 	    (<type>Zmw_Float_0_1 *</type><parameter>x</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>x_size</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	      As <function>zmw_scrollbar_horizontal_with_delta</function>
+	      As <function>zmw_hscrollbar_with_delta</function>
 	      with <parameter>x_delta</parameter>=<constant>0.1</constant>.
 	    </para>
 	  </listitem>
@@ -996,7 +996,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_vertical_with_delta</function>
+	    <function>zmw_vscrollbar_with_delta</function>
 	    (<type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>y_delta</parameter>) ;
@@ -1011,13 +1011,13 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_scrollbar_vertical</function>
+	    <function>zmw_vscrollbar</function>
 	    (<type>Zmw_Float_0_1 *</type><parameter>y</parameter>,
 	    <type>Zmw_Float_0_1 </type><parameter>y_size</parameter>) ;
 	  </term>
 	  <listitem>
 	    <para>
-	      As <function>zmw_scrollbar_vertical_with_delta</function>
+	      As <function>zmw_vscrollbar_with_delta</function>
 	      with <parameter>y_delta</parameter>=<constant>0.1</constant>.
 	    </para>
 	  </listitem>
@@ -1529,7 +1529,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_popped_with_detached</function>
+	    <function>zmw_popup_with_detached</function>
 	    (<type>const int *</type><parameter>detached</parameter>) ;
 	  </term>
 	  <listitem>
@@ -1549,7 +1549,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_popped</function>
+	    <function>zmw_menu</function>
 	    (<type>void</type>) ;
 	  </term>
 	  <listitem>
@@ -1667,7 +1667,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_box_horizontal</function>
+	    <function>zmw_hbox</function>
 	    () ;
 	  </term>
 	  <listitem>
@@ -1683,7 +1683,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_box_vertical</function>
+	    <function>zmw_vbox</function>
 	    () ;
 	  </term>
 	  <listitem>
@@ -1699,7 +1699,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_box_(vertical/horizontal)_activable</function>
+	    <function>zmw_(h|v)box_activable</function>
 	    () ;
 	  </term>
 	  <listitem>
@@ -1713,7 +1713,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_box</function>
+	    <function>zmw_fixed</function>
 	    () ;
 	  </term>
 	  <listitem>
@@ -2012,6 +2012,16 @@
 	      for example if its size is given by
 	      <function>zmw_width</function>
 	      or if a window is downsized.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><constant>Zmw_Decorator_Feedback</constant></term>
+	  <listitem>
+	    <para>If the cursor is above the decorator
+                  then the option
+                  <constant>Zmw_Decorator_Border_In</constant>
+                  is added.                  
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -2417,7 +2427,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_filechooser</function>
+	    <function>zmw_file_selection</function>
 	    (<type>Zmw_Boolean *</type><parameter>visible</parameter>,
 	      <type>char **</type><parameter>filename</parameter>,
 	      <type>const char *</type><parameter>title</parameter>,
@@ -3028,7 +3038,7 @@
 	    Return true if the widget has changed.
 	    This event indicates that the widget changed
 	      but the user does not terminate the interaction
-	      for example for <function>zmw_text_editable</function>
+	      for example for <function>zmw_entry</function>
 	      and <function>zmw_scrollbar</function>.
 	    If true is returned, the program is allowed to
 	    change its state.
@@ -3486,7 +3496,7 @@
       </para>
       <para>
 	If the widget definition returns a value as in
-	<function>zmw_message</function> or <function>zmw_toggle</function>
+	<function>zmw_message</function> or <function>zmw_check_button</function>
 	 <function>ZMW_EXTERNAL_RETURNS(value)</function> must
 	be used in place of <function>ZMW_EXTERNAL</function>
       </para>
@@ -3891,10 +3901,9 @@
 
 
   <chapter>
-    <title>Problems</title>
+    <title>Development</title>
     <para>
-      Some explanation on the frequent problems
-      and hows to solve them.
+      Some explanation for the &ZMW; developers.
     </para>
 
     <sect1>
@@ -3969,7 +3978,7 @@
 	<para>
 	  But with this naming scheme, if the widget hierarchy
 	  change, the widget names change.
-	  In this example, the focus go from the first toggle
+	  In this example, the focus go from the first check button
 	  to the second because a widget vanished.
 	</para>
      <example>
@@ -3986,7 +3995,7 @@
 		      <imageobject>
 			<imagedata fileref="examples/naming/naming.0.png" format="PNG" />
 		      </imageobject>
-		    </mediaobject><para>Activate first toggle</para><mediaobject>
+		    </mediaobject><para>Activate first check button</para><mediaobject>
 		      <imageobject>
 			<imagedata fileref="examples/naming/naming.1.eps" format="EPS" scale="&scale;" />
 		      </imageobject>
@@ -4030,7 +4039,7 @@
 		      <imageobject>
 			<imagedata fileref="examples/naming2/naming2.0.png" format="PNG" />
 		      </imageobject>
-		    </mediaobject><para>Activate first toggle</para><mediaobject>
+		    </mediaobject><para>Activate first check button</para><mediaobject>
 		      <imageobject>
 			<imagedata fileref="examples/naming2/naming2.1.eps" format="EPS" scale="&scale;" />
 		      </imageobject>
@@ -4275,7 +4284,7 @@
 	<variablelist>
 
 	  <varlistentry>
-	    <term><parameter>--cache_size=X</parameter></term>
+	    <term><parameter>--cache-size=X</parameter></term>
 	    <listitem>
 	      <para>
 		Define the number of widget size to be cached in order
@@ -4283,6 +4292,19 @@
 		<emphasis>If debugging was enabled when the library was
 		compiled this option will slow down execution</emphasis>
 		but more debugging tips will be given.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><parameter>--pango_cache=X</parameter></term>
+	    <listitem>
+	      <para>
+		Define the number of text size to be cached in order
+		to speed up display.
+                This option has been added because PANGO is really
+                too slow to compute text size.
+                A good value can be 4 times the number of different
+                texts visible or in menu items.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -4362,6 +4384,29 @@
 	  the interprocess drag and drop from <acronym>GDK</acronym>.
 	</para>
       </sect2>
+
+      <sect2>
+	<title>User interface defined in a file</title>
+	<para>
+	  In the <filename>application/xml</filename> you will
+	  find the start of a library allowing to define
+	  user interfaces in <acronym>XML</acronym>.
+	  The way it is done is as the &ZMW; library without
+	  allocating memory to each widget.
+	  The application displays its owns description
+	  so the user can interactively edit the <acronym>XML</acronym>
+	  and see the modification <emphasis>immediately</emphasis>.
+	</para>
+	<para>
+	  The parser is called recursively in order to define
+	  the widget tree.
+	  So the memory used is proportional to the
+	  <acronym>XML</acronym> widget tree depth.
+	  Currently there is 6 integers needed for each call,
+	  but it is not interesting to reduce this number.
+	</para>
+      </sect2>
+
 
     </sect1>
 

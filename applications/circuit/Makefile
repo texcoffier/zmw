@@ -1,5 +1,5 @@
 run:circuit
-	circuit --cache_size=10000
+	circuit --cache-size=10000 --pango-cache=1000
 
 exe:: circuit
 

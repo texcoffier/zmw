@@ -32,7 +32,7 @@ void expand(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Row") ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(hexpand); i++)
 	    {
@@ -40,25 +40,25 @@ void expand(const char *title)
 	      zmw_vertical_expand(vexpand[i]) ;
 	      zmw_horizontal_alignment(halign[i]) ;
 	      zmw_vertical_alignment(valign[i]) ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_horizontal_expand(0) ;
 		  zmw_vertical_expand(0) ;
 		  zmw_toggle_int_with_label(&hexpand[i], "Horizontal Expand") ;
-		  zmw_text("Horizontal Alignment") ;
-		  ZMW(zmw_box_horizontal())
+		  zmw_label("Horizontal Alignment") ;
+		  ZMW(zmw_hbox())
 		    {
-		      zmw_radio(&halign[i], -1) ;
-		      zmw_radio(&halign[i], 0) ;
-		      zmw_radio(&halign[i], 1) ;
+		      zmw_radio_button(&halign[i], -1) ;
+		      zmw_radio_button(&halign[i], 0) ;
+		      zmw_radio_button(&halign[i], 1) ;
 		    }
 		  zmw_toggle_int_with_label(&vexpand[i], "Vertical Expand") ;
-		  zmw_text("Vertical Alignment") ;
-		  ZMW(zmw_box_horizontal())
+		  zmw_label("Vertical Alignment") ;
+		  ZMW(zmw_hbox())
 		    {
-		      zmw_radio(&valign[i], -1) ;
-		      zmw_radio(&valign[i], 0) ;
-		      zmw_radio(&valign[i], 1) ;
+		      zmw_radio_button(&valign[i], -1) ;
+		      zmw_radio_button(&valign[i], 0) ;
+		      zmw_radio_button(&valign[i], 1) ;
 		    }
 
 		}
@@ -74,7 +74,7 @@ void test_expand(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box())
+      ZMW(zmw_fixed())
 	{
 	  ZMW(zmw_anchor_box(&x, &y, &wi, &h))
 	    {
@@ -82,27 +82,27 @@ void test_expand(const char *title)
 	      zmw_vertical_expand(1) ;
 	      zmw_vertical_alignment(0) ;
 	      zmw_horizontal_alignment(0) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
 		  zmw_vertical_expand(1) ;
 		  zmw_horizontal_expand(0) ;
-		  ZMW(zmw_box_vertical())
+		  ZMW(zmw_vbox())
 		    {
 		  zmw_vertical_expand(0) ;
-		      zmw_text("1") ;
+		      zmw_label("1") ;
 		  zmw_vertical_expand(1) ;
-		      zmw_text("2") ;
+		      zmw_label("2") ;
 		  zmw_vertical_expand(0) ;
-		      zmw_text("3") ;
+		      zmw_label("3") ;
 		    }
 		  zmw_border_embossed_in_draw() ;
 		  zmw_vertical_expand(1) ;
 		  zmw_horizontal_expand(1) ;
-		  zmw_text("B") ;
+		  zmw_label("B") ;
 		  zmw_border_embossed_in_draw() ;
 		  zmw_vertical_expand(0) ;
 		  zmw_horizontal_expand(0) ;
-		  zmw_text("C") ;
+		  zmw_label("C") ;
 		  zmw_border_embossed_in_draw() ;
 		}
 	    }

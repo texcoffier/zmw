@@ -7,7 +7,7 @@ void toggle_list(void)
   char toggle_name[100] ;
   int i ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       for(i=0; i<5; i++)
 	{
@@ -27,7 +27,7 @@ void top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(top) ; // Launch the infinite loop
+  zmw_main(top) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

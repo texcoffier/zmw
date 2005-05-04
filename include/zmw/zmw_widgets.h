@@ -64,12 +64,12 @@ void zmw_window_drag(void);
 void zmw_window_restore() ;
 
 /*
- * zmw_text.c
+ * zmw_label.c
  */
 void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 		     , int *cursor_pos, int *start_pos) ;
-void zmw_text(const char *) ;
-void zmw_text_editable(char **text) ;
+void zmw_label(const char *) ;
+void zmw_entry(char **text) ;
 void zmw_text_editable_with_cursor(char **text, int *cursor_pos) ;
 void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
 			, int *start_pos) ;
@@ -86,27 +86,27 @@ void zmw_tearoff(void) ;
 void zmw_int_editable(int *i) ;
 void zmw_int(int i) ;
 /*
- * zmw_toggle.c
+ * zmw_check_button.c
  */
-int zmw_toggle(int value) ;
+int zmw_check_button(int value) ;
 void zmw_toggle_int(int *value) ;
 void zmw_toggle_char(char *value) ;
 
-int zmw_toggle_with_label(int value, const char *label) ;
+int zmw_check_button_with_label(int value, const char *label) ;
 void zmw_toggle_int_with_label(int *value, const char *label) ;
 void zmw_toggle_char_with_label(char *value, const char *label) ;
 
-int zmw_toggle_bits(int value, int bits, int options) ;
+int zmw_check_button_bits(int value, int bits, int options) ;
 void zmw_toggle_bits_int(int *value, int bits) ;
 void zmw_toggle_bits_char(char *value, int bits) ;
 
-int zmw_toggle_bits_with_label(int value, int bits, const char *label) ;
+int zmw_check_button_bits_with_label(int value, int bits, const char *label) ;
 void zmw_toggle_bits_int_with_label(int *value, int bits, const char *label) ;
 void zmw_toggle_bits_char_with_label(char *value, int bits, const char *label);
 
 
-void zmw_radio(int *value, int number) ;
-void zmw_radio_with_label(int *value, int number, const char *label) ;
+void zmw_radio_button(int *value, int number) ;
+void zmw_radio_button_with_label(int *value, int number, const char *label) ;
 /*
  * zmw_anchor.c
  */
@@ -124,29 +124,29 @@ void zmw_anchor_move_with_init_values(int *x, int *y, int *ix, int *iy) ;
 void zmw_notebook(int *page) ;
 void zmw_compute_notebook_size(int allocated) ;
 /*
- * zmw_box.c
+ * zmw_fixed.c
  */
-void zmw_box_horizontal(void) ;
-void zmw_box_vertical(void) ;
-void zmw_box_horizontal_required_size(int focusable) ;
-void zmw_box_horizontal_children_allocated_size(int focusable) ;
-void zmw_box(void) ;
-void zmw_box_horizontal_activable() ;
-void zmw_box_vertical_activable() ;
+void zmw_hbox(void) ;
+void zmw_vbox(void) ;
+void zmw_hbox_required_size(int focusable) ;
+void zmw_hbox_children_allocated_size(int focusable) ;
+void zmw_fixed(void) ;
+void zmw_hbox_activable() ;
+void zmw_vbox_activable() ;
 /*
  * zmw_scrollbar.c
  */
 void zmw_scrollbar2(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size
 		    , Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size) ; 
-void zmw_scrollbar_horizontal(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size) ;
-void zmw_scrollbar_vertical(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size) ;
+void zmw_hscrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size) ;
+void zmw_vscrollbar(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size) ;
 
 void zmw_scrollbar2_with_delta
 (Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta
  ,Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta) ;
-void zmw_scrollbar_horizontal_with_delta
+void zmw_hscrollbar_with_delta
 (Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta) ;
-void zmw_scrollbar_vertical_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta) ;
+void zmw_vscrollbar_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta) ;
 
 /*
  * zmw_viewport.c
@@ -158,11 +158,11 @@ void zmw_viewport_with_scrollbar(float *x, float *y) ;
 void zmw_scrolled_view(int *start, int *nb, int max) ;
 void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols);
 /*
- * zmw_filechooser.c
+ * zmw_file_selection.c
  */
 Zmw_Boolean zmw_is_dir(const char *name) ;
 void zmw_filename_normalize(char **name) ;
-void zmw_filechooser(Zmw_Boolean *visible, char **filename, const char *title
+void zmw_file_selection(Zmw_Boolean *visible, char **filename, const char *title
 		     , const char *message) ;
 /*
  * zmw_alert.c
@@ -197,8 +197,8 @@ void zmw_void(void) ;
 void zmw_if(Zmw_Boolean value) ;
 void zmw_if_with_accelerators(Zmw_Boolean visible) ;
 void zmw_tip(void) ;
-void zmw_popup(void) ;
-void zmw_popup_without_accelerators(void) ;
+void zmw_menu(void) ;
+void zmw_menu_without_accelerators(void) ;
 void zmw_popup_with_detached(int *detached) ;
 /*
  * zmw_decorator.c
@@ -219,6 +219,7 @@ void zmw_popup_with_detached(int *detached) ;
 // #define Zmw_Decorator_Unpop_On_Activate_If_Not_In_A_Popup     0x2000
 // #define Zmw_Decorator_Unpop_On_Button_Press_If_Not_In_A_Popup 0x4000
 #define Zmw_Decorator_Border_Out                              0x8000
+#define Zmw_Decorator_Feedback                                0x10000
 
 #define Zmw_Decorator_Border_Any (Zmw_Decorator_Border_Relief|Zmw_Decorator_Border_Solid|Zmw_Decorator_Border_Embossed|Zmw_Decorator_Pushable)
 #define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)

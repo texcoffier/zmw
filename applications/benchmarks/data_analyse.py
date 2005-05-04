@@ -102,7 +102,7 @@ plot %s
 
     if image_name != None:
         terminal = """
-set terminal png color
+set terminal png
 set size 1,1
 set output '%s'
 """ % image_name

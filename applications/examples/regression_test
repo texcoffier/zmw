@@ -40,7 +40,19 @@ export REPLACE=`cat ../xxx.replace`
 export NAME=`basename $(pwd)`
 export ZMW_EXECUTION_ARGS="--mstimout=10 --debug=2046"
 export ZMW_EXECUTION_ARGS="--mstimout=10"
-export DISPLAY_IMAGE="xv"
+
+for DISPLAY_IMAGE in xv eeyes display gthumb
+do
+  if [ "`which $DISPLAY_IMAGE`" != '' ]
+  then
+    break
+  fi
+done
+
+display_image() {
+  $DISPLAY_IMAGE $* &
+  PID="$PID $!" 
+}
 
 # If not empty, connect a debugger to given tty.
 # It is useful if the program makes core dump only on regression tests.
@@ -70,7 +82,7 @@ then
   trap "pwd ; cd .. ; stop_xvfb" 0 1 2 # Stop X on exit
   sleep 1
 else
-  trap "cd .. ; stop_xvfb" 1 # Stop X on ^C
+  trap "cd .. ; kill $PID ; stop_xvfb" 1 # Stop X on ^C
 fi
 
 if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$NAME.c" >/dev/null
@@ -150,20 +162,17 @@ compare_two_images() {
 	if [ "$REPLACE" = "" ]
 	then
 	  echo "Replace (yes|yesforall|yeshere|no|noforall|nohere)? :"
-	  $DISPLAY_IMAGE $1 &
-	  PID1=$!
-	  $DISPLAY_IMAGE $2 &
-	  PID2=$!
+	  PID=
+	  display_image $1
+	  display_image $2
 	  pnmarith -subtract xxx.1.ppm xxx.2.ppm | pnmhisteq > xxx_dif.ppm
 	  if [ -s xxx_dif.ppm ]
 	  then
-	    $DISPLAY_IMAGE xxx_dif.ppm &
-	    PID3=$!	
-	  else
-	    PID3=$PID1
+	    display_image xxx_dif.ppm
 	  fi
 	  read REPLACE
-	  kill $PID1 $PID2 $PID3
+	  kill $PID
+	  PID=
 	fi 2>/dev/null
 	    
 	case "$REPLACE" in
@@ -217,7 +226,7 @@ for N in $RETRIES
 do
   ALL_RESULTS="ok"
   echo -n " [$N]"
-  make_dumps "--cache_size=10000"
+  make_dumps "--cache-size=10000 --pango-cache=1000"
   echo -n "/"
   compare_all_images
   if [ "$ALL_RESULTS" = "ok" ]

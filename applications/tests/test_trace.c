@@ -26,28 +26,28 @@ void test_trace(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("BoxH") ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  zmw_name("BoxV") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_name("TextA") ;
-	      zmw_text("A") ;
+	      zmw_label("A") ;
 	      zmw_name("TextB") ;
-	      zmw_text("B") ;
+	      zmw_label("B") ;
 	      zmw_name("OtherWindow") ;
 	      ZMW(zmw_window("Other Window"))
 		{
 		  zmw_name("text") ;
-		  zmw_text("text") ;
+		  zmw_label("text") ;
 		}
 	    }
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_name("TextC") ;
-	      zmw_text("C") ;
+	      zmw_label("C") ;
 	      zmw_name("TextD") ;
-	      zmw_text("D") ;
+	      zmw_label("D") ;
 	    }
 	}
     }
@@ -59,12 +59,12 @@ void test_trace_2(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Box") ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	      zmw_name("Text A") ;
-	      zmw_text("A") ;
+	      zmw_label("A") ;
 	      zmw_name("Text B") ;
-	      zmw_text("B") ;
+	      zmw_label("B") ;
 	}
     }
 }

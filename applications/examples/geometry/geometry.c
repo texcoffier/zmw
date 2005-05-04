@@ -9,14 +9,14 @@ void text(const char *text)
     {
       zmw_horizontal_expand(Zmw_False) ;
       zmw_vertical_expand(Zmw_False) ;
-      zmw_text(text) ;
+      zmw_label(text) ;
     }
 }
 
 void label(const char *text)
 {
   zmw_vertical_expand(Zmw_False) ;
-  zmw_text(text) ;
+  zmw_label(text) ;
 }
 
 void geometry(void)
@@ -27,12 +27,12 @@ void geometry(void)
     {
       // Height of the window
       zmw_height(500) ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  // The content does not expand to the full size
 	  zmw_vertical_expand(Zmw_False) ;
 	  zmw_height(window_height) ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_button("Enlarge box") ;
 	      if ( zmw_activated() )
@@ -48,7 +48,7 @@ void geometry(void)
 	      // This box is not vertically expandable
 	      // See the "label" function.
 	      // The box width is the same than "This" text.
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
 		  // zmw_width is reset to ZMW_VALUE_UNDEFINED
 		  // So the two next widgets width are
@@ -82,7 +82,7 @@ void geometry(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(geometry) ;
+  zmw_main(geometry) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

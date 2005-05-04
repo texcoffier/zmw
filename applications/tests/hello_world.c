@@ -24,6 +24,6 @@ void hello_world()
 {
   ZMW(zmw_window("Hello World"))
     {
-      zmw_text("Hello World!") ;
+      zmw_label("Hello World!") ;
     }
 }

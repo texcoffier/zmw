@@ -22,59 +22,6 @@
 #include "zmw/zmw.h"
 #include <stdarg.h>
 
-void zmw_alignement_horizontal_make(Zmw_Size *s, int border_width)
-{
-  int free_space ;
-
-  s->allocated.x = ZMW_SIZE_ALLOCATED.x + border_width + s->current_state.padding_width ;
-  s->allocated.width = ZMW_SIZE_ALLOCATED.width	- 2 * border_width - 2 * s->current_state.padding_width;
-
-  if ( ! s->horizontal_expand )
-    {
-      free_space = ZMW_SIZE_ALLOCATED.width - 2 * border_width
-	- s->required.width - 2 * s->current_state.padding_width ;
-      s->allocated.width -= free_space ;
-      switch(s->current_state.horizontal_alignment )
-	    {
-	    case -1:
-	      break ;
-	    case 0:
-	      s->allocated.x += free_space / 2 ;
-	      break ;
-	    case 1:
-	      s->allocated.x += free_space ;
-	      break ;
-	    }
-    }
-}
-
-void zmw_alignement_vertical_make(Zmw_Size *s, int border_width)
-{
-  int free_space ;
-
-  s->allocated.y = ZMW_SIZE_ALLOCATED.y + border_width + s->current_state.padding_width ;
-  s->allocated.height = ZMW_SIZE_ALLOCATED.height - 2 * border_width  - 2 * s->current_state.padding_width ;
-
-  if ( ! s->vertical_expand )
-    {
-      free_space = ZMW_SIZE_ALLOCATED.height - 2 * border_width
-	- s->required.height - 2 * s->current_state.padding_width  ;
-      s->allocated.height -= free_space ;
-      switch(s->current_state.vertical_alignment )
-	    {
-	    case -1:
-	      break ;
-	    case 0:
-	      s->allocated.y += free_space / 2 ;
-	      break ;
-	    case 1:
-	      s->allocated.y += free_space ;
-	      break ;
-	    }
-    }
-}
-
-
 static int zmw_decorator_border(int options)
 {
   int border_width ;
@@ -94,6 +41,8 @@ void zmw_decorator(int options, ...)
   int tx, ty ;
   Zmw_Rectangle clip ;
   va_list ap;
+
+  tx = ty = 0 ; /* to remove a compiler warning */
 
   va_start(ap, options);
   if ( options & Zmw_Decorator_Translate )
@@ -163,7 +112,10 @@ void zmw_decorator(int options, ...)
 	border |= Zmw_Border_Out ;
       if ( options & Zmw_Decorator_Interior )
 	border |= Zmw_Border_Background ;
-
+      if ( (options & Zmw_Decorator_Feedback)
+	   && ZMW_SIZE_SENSIBLE
+	   && ZMW_SIZE_EVENT_IN_RECTANGLE )
+	border |= Zmw_Border_In ;
       zmw_border_draw(border) ;
 
 

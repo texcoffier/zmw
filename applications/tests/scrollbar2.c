@@ -29,10 +29,10 @@ void test_scrollbar2(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  sprintf(buf, "Scrollbar position = (%g,%g)  ", x, y) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  zmw_horizontal_expand(1) ;
 	  zmw_height(200) ;
 	  zmw_scrollbar2(&x, 0.1, &y, 0.2) ;

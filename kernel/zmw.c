@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,6 +88,8 @@ const char *zmw_action_name_(Zmw_Subaction sa)
       return("Clean") ;
     case Zmw_Debug_Message :
       return("Message") ;
+    case Zmw_Subaction_Last:
+      return("Zmw_Subaction_Last!!! Bug?") ;
     }
   ZMW_ABORT ;
 }
@@ -143,7 +145,8 @@ int zmw_event_in()
     return Zmw_False ;
 
   /* The current window should be window receiving the event */
-  if ( zmw.event->any.window != *ZMW_WINDOW )
+  // if ( zmw.event->any.window != *ZMW_WINDOW )
+  if ( zmw.window != *ZMW_WINDOW )
     return Zmw_False ;
 
   return
@@ -180,7 +183,7 @@ void zmw_state_init(Zmw_State *s)
   s->u.parent_to_child.window = NULL ;
   s->u.parent_to_child.gc = NULL ;
   s->u.menu_state = NULL ;
-  // Because zmw_swap_xy swap unitialized values and it bother valgrin
+  // Because zmw_swap_xy swap unitialized values and it bother valgrind
   zmw_rectangle_void(&s->u.parent_to_child.clipping) ;
 }
 
@@ -193,6 +196,7 @@ void zmw_state_push()
   p = zMw - zmw.zmw_table ;
   if ( p == zmw.zmw_table_depth-1 )
     {
+      ZMW_PRINTF("enlarge heap\n") ;
       zmw.zmw_table_depth++ ;
       ZMW_REALLOC(zmw.zmw_table, zmw.zmw_table_depth) ;
       zMw = &zmw.zmw_table[p] ;
@@ -300,16 +304,80 @@ void zmw_font_family(const char *family)
 {
   if ( strcmp(family, ZMW_FONT_FAMILY) )
     {
+      /* Do not use zmw_string_copy */
       if ( zMw[-1].i.font.family != ZMW_FONT_FAMILY )
 	free(ZMW_FONT_FAMILY) ;
       ZMW_FONT_FAMILY = strdup(family) ;
     }
 }
 
+Zmw_Boolean zmw_font_description_equals(const Zmw_Font_Description *f1
+					, const Zmw_Font_Description *f2)
+{
+  return f1->size == f2->size
+    && f1->weight == f2->weight
+    && f1->style == f2->style
+    && strcmp(f1->family, f2->family) == 0 ;
+}
+
+/*
+ * This string copy, from into to.
+ * But if to is too small (or a NULL pointer) it is reallocated.
+ */
+void zmw_string_copy(char **to, const char *from)
+{
+  char *c ;
+  int i ;
+
+  if ( 0 )
+    {
+      i = strlen(from) + 1 ;
+      ZMW_REALLOC(*to, i) ;
+      memcpy(*to, from, i) ;
+      return ;
+    }
+
+  /* The following lines are an optimization of above lines */
+
+  if ( *to == NULL )
+    {
+      *to = strdup(from) ;
+      return ;
+    }
+  
+  c = *to ;
+  while(*c)
+    {
+      *c++ = *from ;
+      if ( *from == '\0' )
+	return ; /* Do not release memory if shorter */
+      from++ ;
+    }
+  if ( *from == '\0' )
+    return ; /* Same size */
+
+  i = c - *to ;
+  ZMW_REALLOC(*to, i + strlen(from) + 1) ;
+  strcpy(*to + i, from) ;
+}
+
+void zmw_font_description_copy(Zmw_Font_Description *f1
+					, const Zmw_Font_Description *f2)
+{
+
+  if ( f1->family == NULL || strcmp(f1->family, f2->family) )
+    {
+      zmw_string_copy(&f1->family, f2->family) ;
+    }
+
+  f1->size   = f2->size ;
+  f1->weight = f2->weight ;
+  f1->style  = f2->style ;
+}
 
 void zmw_init_widget()
 {
-  ZMW_PRINTF("init_widget parent callnumber %d\n", zMw[-1].u.call_number) ;
+  ZMW_PRINTF("init_widget parent callnumber %d do not make init: %d\n", zMw[-1].u.call_number, zmw.external_do_not_make_init) ;
 
   if ( zmw.external_do_not_make_init )
     {
@@ -329,7 +397,7 @@ void zmw_init_widget()
   /* Init some variables */
   ZMW_CALL_NUMBER = 0 ;
   ZMW_CHILD_NUMBER++ ;
-  zMw->u.size = &zMw[-1].u.children[ZMW_CHILD_NUMBER] ;
+  zMw->u.size = &zMw[-1].u.children[ZMW_CHILD_NUMBER] ; //for fast access
   ZMW_SUBACTION = Zmw_Init ;
   ZMW_MENU_STATE = NULL ;
 
@@ -352,37 +420,12 @@ void zmw_init_widget()
        */
       if ( zMw[-1].u.nb_of_children + 1 >= zMw[-1].u.nb_of_children_max )
 	{
-	  int i = zMw[-1].u.nb_of_children_max ;
-
 	  zMw[-1].u.nb_of_children_max = 10 + 2*zMw[-1].u.nb_of_children_max  ;
 	  ZMW_REALLOC(zMw[-1].u.children, zMw[-1].u.nb_of_children_max) ;
 	  zMw->u.size = &zMw[-1].u.children[ZMW_CHILD_NUMBER] ;
-
-	  /* Only here to make valgring happy
-	   * This is necessary : zmw_swap_xy is called before value are known
-	   */
-	  while(i<zMw[-1].u.nb_of_children_max)
-	    {
-	      memset(&zMw[-1].u.children[i], 0, sizeof(zMw[-1].u.children[i]));
-	      i++ ;
-	    }
 	}
       zMw[-1].u.nb_of_children++ ;
       
-      ZMW_SIZE_SENSIBLE = Zmw_False ;
-      ZMW_SIZE_ACTIVATED = Zmw_False ;
-      ZMW_SIZE_TIP_VISIBLE = Zmw_False ;
-      ZMW_SIZE_CHILD_ACTIVATED = Zmw_False ;
-      ZMW_SIZE_CHANGED = Zmw_False ;
-      ZMW_SIZE_FOCUSED = Zmw_False ;
-      ZMW_SIZE_PASS_THROUGH = Zmw_False ;
-      ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_False ;
-      ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_False ;
-      ZMW_SIZE_INVISIBLE = Zmw_False ;
-      ZMW_SIZE_MIN.x = ZMW_VALUE_UNDEFINED ;
-      ZMW_SIZE_MIN.y = ZMW_VALUE_UNDEFINED ;
-      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
-      ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_False ;
       if ( ZMW_WIDGET_TOP )
 	{
 	  ZMW_SIZE_HASH = zmw_hash(0, ZMW_NAME-1) ;
@@ -391,6 +434,20 @@ void zmw_init_widget()
 	{
 	  ZMW_SIZE_HASH = zmw_hash(ZMW_PARENT_SIZE.hash, ZMW_NAME-1) ;
 	}
+      ZMW_SIZE_MIN.x                  = ZMW_VALUE_UNDEFINED ;
+      ZMW_SIZE_MIN.y                  = ZMW_VALUE_UNDEFINED ;
+      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
+      ZMW_SIZE_EVENT_IN_RECTANGLE     = Zmw_False ;
+      ZMW_SIZE_EVENT_IN_CHILDREN      = Zmw_False ;
+      ZMW_SIZE_INVISIBLE              = Zmw_False ;
+      ZMW_SIZE_SENSIBLE               = Zmw_False ;
+      ZMW_SIZE_DO_NOT_MAP_WINDOW      = Zmw_False ;
+      ZMW_SIZE_ACTIVATED              = Zmw_False ;
+      ZMW_SIZE_CHANGED 		      = Zmw_False ;
+      ZMW_SIZE_CHILD_ACTIVATED        = Zmw_False ;
+      ZMW_SIZE_TIP_VISIBLE            = Zmw_False ;
+      ZMW_SIZE_FOCUSED 		      = Zmw_False ;
+      ZMW_SIZE_PASS_THROUGH           = Zmw_False ;
       /*
        * Copy the widget current state to the next widget
        */
@@ -433,6 +490,9 @@ void zmw_init_widget()
  * The hard part are the possible use of EXTERNAL and void in the parents.
  *
  * This function is only used by zmw_window
+ *
+ * The invariant is that it is called to display a popup window,
+ * So it CAN NOT be the first child. We go up until it is not the case
  */
 Zmw_Size* zmw_widget_previous_size()
 {
@@ -440,7 +500,7 @@ Zmw_Size* zmw_widget_previous_size()
   Zmw_Size *s ;
   Zmw_State *state ;
   
-  state = zMw - 1 ;
+  state = zMw ;
   while ( state->u.child_number == 0  &&  state != zmw.zmw_table+1 )
     {
       state-- ;
@@ -613,7 +673,7 @@ int zmw_action_draw()
     case 1:
       ZMW_SUBACTION = Zmw_Post_Drawing ;
 
-      if ( (zmw.debug & Zmw_Debug_Draw_Cross)
+      if ( (ZMW_DEBUG & Zmw_Debug_Draw_Cross)
 	   && ZMW_SIZE_EVENT_IN_RECTANGLE
 	   && *ZMW_WINDOW )
 	{
@@ -634,19 +694,21 @@ int zmw_action_draw()
  */
 int zmw_action_dispatch_accelerator()
 {
-  int i ;
-
   ZMW_EXTERNAL_HANDLING ;
 
   if ( ZMW_CALL_NUMBER++ == 0 )
     {
+      /* The following block is commented, speed up : 10% in CPU time.
+       * The block was here certainly to hide a bug that was removed.
+       */
       /* To remove random activation */
+      /*
       for(i=0; i<zMw->u.nb_of_children_max; i++)
 	{
 	  ZMW_CHILDREN[i].activated = Zmw_False ;
 	  ZMW_CHILDREN[i].changed = Zmw_False ;
 	}
-
+      */
       ZMW_SUBACTION = Zmw_Nothing ;
       zmw_state_push() ;
       return(1) ;

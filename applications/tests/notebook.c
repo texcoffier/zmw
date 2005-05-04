@@ -24,20 +24,20 @@ static void toggle_page()
 {
   static int toggle_a=0, toggle_b=0 ;
 
-  zmw_text("Toggle") ;
+  zmw_label("Toggle") ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
-      zmw_text("Toggle A") ;
+      zmw_label("Toggle A") ;
       zmw_toggle_int(&toggle_a) ;
-      zmw_text("Toggle B") ;
+      zmw_label("Toggle B") ;
       zmw_toggle_int(&toggle_b) ;
     }
 }
 static void text_page()
 {
-  zmw_text("Text") ;
-  zmw_text("Simple Text") ;
+  zmw_label("Text") ;
+  zmw_label("Simple Text") ;
 }
 
 static void editable_text_page()
@@ -47,16 +47,16 @@ static void editable_text_page()
   if ( editable_text == NULL )
     editable_text = strdup("Some text") ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
-      zmw_text("Editable") ;
-      zmw_text("Text") ;
+      zmw_label("Editable") ;
+      zmw_label("Text") ;
     }
 
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
-      zmw_text("?dit: ") ;
-      zmw_text_editable(&editable_text) ;
+      zmw_label("?dit: ") ;
+      zmw_entry(&editable_text) ;
     }
 }
 
@@ -65,15 +65,15 @@ void radio_page()
   int i ;
   static int radio = 2 ;
 
-  zmw_text("Radio") ;
+  zmw_label("Radio") ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       for(i=0 ;i<4; i++)
-	ZMW(zmw_box_horizontal())
+	ZMW(zmw_hbox())
 	{
-	  zmw_text("Radio") ;
-	  zmw_radio(&radio, i) ;
+	  zmw_label("Radio") ;
+	  zmw_radio_button(&radio, i) ;
 	}
     }
 }
@@ -85,19 +85,19 @@ void notebook_page()
   char tmp[999] ;
 
   zmw_name("notebook label") ;
-  zmw_text("Notebook") ;
+  zmw_label("Notebook") ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       ZMW(zmw_notebook(&page))
 	{	  
 	  for(i=0 ;i<4; i++)
 	    {
 	      sprintf(tmp, "Page %d", i) ;
-	      zmw_text(tmp) ;
+	      zmw_label(tmp) ;
 	      
 	      sprintf(tmp, "Page content : %*d", i*2+1,i) ;
-	      zmw_text(tmp) ;
+	      zmw_label(tmp) ;
 	    }
 	}
     }
@@ -106,26 +106,26 @@ void notebook_page()
 void window_page()
 {
   zmw_name("window page label") ;
-  zmw_text("Window") ;
+  zmw_label("Window") ;
   zmw_vertical_alignment(1) ;
   zmw_name("wp") ;
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
-      zmw_text("When this page is visible") ;
-      zmw_text("A window must appear") ;
-      zmw_text("or more if the menu is detached") ;
+      zmw_label("When this page is visible") ;
+      zmw_label("A window must appear") ;
+      zmw_label("or more if the menu is detached") ;
       ZMW(zmw_window("In the notebook page"))
 	{
-	  zmw_text("This window appear only for page 'Window'") ;
+	  zmw_label("This window appear only for page 'Window'") ;
 	}
       zmw_name("menu button") ;
       zmw_button("Menu") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	{
 	  ZMW(zmw_window_popup_right())
 	    {
 	      zmw_name("menu") ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_tearoff() ;
 		  zmw_button("An action") ;
@@ -145,9 +145,9 @@ void test_notebook(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_horizontal_alignment(0) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("Text above the notebook") ;
+	  zmw_label("Text above the notebook") ;
 	  ZMW(zmw_notebook(&p))
 	    {
 	      text_page() ;
@@ -157,7 +157,7 @@ void test_notebook(const char *title)
 	      notebook_page() ;
 	      window_page() ;
 	    }
-	  zmw_text("Text under the notebook") ;
+	  zmw_label("Text under the notebook") ;
 	}
     }
 }

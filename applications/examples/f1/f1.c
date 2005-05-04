@@ -5,17 +5,17 @@
 
 void f1(void)
 {
+  ZMW_DEBUG |= Zmw_Debug_Window_Auto_Resize ;
   ZMW(zmw_window("F1"))
     {
-      zmw_text("My application") ;
+      zmw_label("My application") ;
     }
 }
 /* DO NOT DISPLAY */
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw.debug = Zmw_Debug_Window_Auto_Resize ;
-  zmw_run(f1) ;
+  zmw_main(f1) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

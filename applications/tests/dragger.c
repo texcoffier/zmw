@@ -25,35 +25,35 @@ void box_line(int action)
   static int x=80, width=80 ;
   int a ;
 
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
       zmw_padding_width(3) ;
       zmw_horizontal_alignment(0) ;
 
-      zmw_text("FIXEDSIZELEFT") ;
+      zmw_label("FIXEDSIZELEFT") ;
       zmw_border_embossed_in_draw() ;
       
       zmw_horizontal_expand(1) ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  if ( action == 1 )
 	    zmw_width(width) ;
 	  zmw_name("Leftbox") ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
-		  zmw_text("A") ;
+		  zmw_label("A") ;
 		}
 	      zmw_border_embossed_in_draw() ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
-		  zmw_text("B") ;
+		  zmw_label("B") ;
 		}
 	      zmw_border_embossed_in_draw() ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
-		  zmw_text("C") ;
+		  zmw_label("C") ;
 		}
 	      zmw_border_embossed_in_draw() ;
 	    }
@@ -78,18 +78,18 @@ void box_line(int action)
 	    }
 
 	  zmw_name("Rightbox") ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      zmw_text("A") ;
-	      zmw_text("B") ;
-	      zmw_text("C") ;
+	      zmw_label("A") ;
+	      zmw_label("B") ;
+	      zmw_label("C") ;
 	    }
 	  zmw_border_embossed_in_draw() ;
 	}
       zmw_border_embossed_in_draw() ;
       zmw_horizontal_expand(0) ;
       
-      zmw_text("FIXEDSIZERIGHT") ;
+      zmw_label("FIXEDSIZERIGHT") ;
       zmw_border_embossed_in_draw() ;
     }
 }
@@ -98,13 +98,13 @@ void test_dragger(const char *title)
 {
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("The dragger change the X of the right widget") ;
+	  zmw_label("The dragger change the X of the right widget") ;
 
 	  box_line(0) ;
 
-	  zmw_text("The dragger change the width of the left widget") ;
+	  zmw_label("The dragger change the width of the left widget") ;
 	  box_line(1) ;
 
 	}

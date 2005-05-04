@@ -15,14 +15,14 @@ void behaviour(void)
 
   ZMW(zmw_window("Behaviours"))
     {
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  for(i=0; i<2; i++)
 	    {
 	      if ( i == 1 )
 		zmw_sensible(sensible) ;
 
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_focus(&focus[i]) ;
 
@@ -37,7 +37,7 @@ void behaviour(void)
 
 		  zmw_toggle_int_with_label(&sensible, "Sensible state") ;
 
-		  zmw_text_editable(&text) ;
+		  zmw_entry(&text) ;
 		}
 	    }
 	}
@@ -47,7 +47,7 @@ void behaviour(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(behaviour) ;
+  zmw_main(behaviour) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

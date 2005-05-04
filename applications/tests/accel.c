@@ -27,14 +27,14 @@ void test_accel(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu To Change The Value") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    {
 	      ZMW( zmw_window_popup_right() )
 		{
-		  ZMW( zmw_box_vertical() )
+		  ZMW( zmw_vbox() )
 		    {
 		      zmw_button_with_accelerator("Increment value"
 						  ,GDK_CONTROL_MASK, 'I') ;
@@ -48,11 +48,11 @@ void test_accel(const char *title)
 		}
 	    }
 
-	  ZMW( zmw_box_horizontal() )
+	  ZMW( zmw_hbox() )
 	    {
-	      zmw_text("Value : ") ;
+	      zmw_label("Value : ") ;
 	      sprintf(buf, "%d", tv) ;
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	    }
 	}
     }

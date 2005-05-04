@@ -77,3 +77,14 @@ const char *surname(const char *a)
   else
     return a ;
 }
+
+Hash_Key hash_key(Hash_Key start, const char *string)
+{
+  while(*string)
+    {
+      if ( *string != '/' )
+	start = start*532483 + *string ;
+      string++ ;
+    }
+  return start ;
+}

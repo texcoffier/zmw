@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ void zmw_drag_printf(char *format, ...)
 {
   va_list ap;
 
-  if ( zmw.debug & Zmw_Debug_Drag )
+  if ( ZMW_DEBUG & Zmw_Debug_Drag )
     {
       fprintf(stderr,"%10s->%-10s %10s acpt=%d dd=%d data=%p cn=%s/%d uw=%d\t"
 	      , global_zmw_drag_from.name
@@ -97,9 +97,7 @@ void zmw_drag_cancel()
 
       zmw_use_window_from_button_press(Zmw_True) ;
       
-      if ( global_zmw_drag_data )
-	free(global_zmw_drag_data) ;
-      global_zmw_drag_data = NULL ;
+      ZMW_FREE(global_zmw_drag_data) ;
 
       global_zmw_drag_drop = Zmw_False ;
       global_zmw_drag_accepted = Zmw_False ;
@@ -411,21 +409,21 @@ void zmw_drag_debug_window()
   static int display_drag_state = 0 ;
   char buf[9999] ;
   
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       zmw_toggle_int_with_label(&display_drag_state, "drag state") ;
       if ( display_drag_state )
 	{
 	  sprintf(buf, "FROM=%s", zmw_name_registered(&global_zmw_drag_from)) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "TO=%s", zmw_name_registered(&global_zmw_drag_to)) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "accepted=%d", global_zmw_drag_accepted) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "dragdrop=%d", global_zmw_drag_drop) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  sprintf(buf, "DATA=%20s", global_zmw_drag_data) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	}
     }
   zmw_border_embossed_in_draw() ;

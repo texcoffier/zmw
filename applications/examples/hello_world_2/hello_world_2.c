@@ -5,14 +5,14 @@ void hello_world_2(void)
 {
   ZMW(zmw_window("Title"))
     {
-      zmw_text("Hello World! I am a label.") ;
+      zmw_label("Hello World! I am a label.") ;
     }
 }
 /* DO NOT DISPLAY */
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(hello_world_2) ; // Launch the infinite loop
+  zmw_main(hello_world_2) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

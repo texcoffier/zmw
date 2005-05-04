@@ -33,7 +33,7 @@ void gate_input(int *input, int gate_and_port)
   zmw_width(gate_width) ;
   zmw_height(gate_height) ;
   zmw_padding_width(0) ;
-  zmw_radio(input, gate_and_port) ;
+  zmw_radio_button(input, gate_and_port) ;
   zmw_width(ZMW_VALUE_UNDEFINED) ;
   zmw_height(ZMW_VALUE_UNDEFINED) ;
 }
@@ -71,7 +71,7 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
   char buf[99] ;
   int icone_w, icone_h ;
 
-  ZMW(zmw_box())
+  ZMW(zmw_fixed())
     {
       if ( number_of_inputs[c->gates[i].type] )
 	zmw_x(gate_width - ZMW_BORDER_WIDTH) ;
@@ -122,7 +122,7 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
       zmw_x(icone_w + gate_width/2) ;
       zmw_y(0) ;
       sprintf(buf, "%d", c->gates[i].value) ;
-      zmw_text(buf) ;		      
+      zmw_label(buf) ;		      
     }
 }
 
@@ -152,15 +152,15 @@ void gate_debug(Circuit *c, int i)
       ZMW(zmw_window_popup_right())
 	{      	   
 	  zmw_horizontal_alignment(-1) ;	   
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      sprintf(buf, "index=%d", i) ;
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	      sprintf(buf, "type=%d", c->gates[i].type) ;
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	      sprintf(buf, "pos=(%d,%d)"
 		      , c->gates[i].x, c->gates[i].y);
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	    }
 	} 
     }
@@ -214,7 +214,7 @@ void gate_area(Circuit *c, Type s)
   zmw_vertical_expand(1) ;
   zmw_padding_width(0) ;
 
-  ZMW(zmw_box())
+  ZMW(zmw_fixed())
     {
  
       for(i=0; c->gates[i].type != Gate_EOT; i++)
@@ -265,7 +265,7 @@ void circuit_history(Circuit *c)
   zmw_auto_resize(1) ;
   ZMW(zmw_window("Command History"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<c->history_size; i++)
 	    {
@@ -274,7 +274,7 @@ void circuit_history(Circuit *c)
 		      , c->history[i].real ? "" : "    "
 		      , c->history[i].comment
 		      ) ;
-	      zmw_text(buf) ;
+	      zmw_label(buf) ;
 	    }
 	}
     }
@@ -288,14 +288,14 @@ void circuit_menu_bar(Circuit *c)
 
   zmw_horizontal_alignment(-1) ;
   zmw_vertical_expand(0) ;
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
       zmw_horizontal_expand(0) ;
       zmw_button("File") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	ZMW(zmw_window_popup_bottom())
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_tearoff() ;
 	      zmw_button_with_accelerator("Save",GDK_CONTROL_MASK, 'S') ;
@@ -309,14 +309,14 @@ void circuit_menu_bar(Circuit *c)
 		filename_to_open = 1 ;
 	      zmw_button_with_accelerator("Quit",GDK_CONTROL_MASK, 'Q') ;
 	      if ( zmw_activated() )
-		zmw_exit(0) ;
+		zmw_main_quit(0) ;
 	    }
 	}
       zmw_button("Edit") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	ZMW(zmw_window_popup_bottom())
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_tearoff() ;
 	      zmw_button("Snap to grid") ;
@@ -336,7 +336,7 @@ void circuit_menu_bar(Circuit *c)
     circuit_history(c) ;
 
   zmw_auto_resize(Zmw_False) ;
-  zmw_filechooser(&filename_to_save
+  zmw_file_selection(&filename_to_save
 		  , &c->filename, "Circuit Salvator", "Save circuit") ;
   if ( zmw_activated() )
     if ( circuit_save(c) )
@@ -345,7 +345,7 @@ void circuit_menu_bar(Circuit *c)
 	alert_message = strerror(errno) ;
       }
 
-  zmw_filechooser(&filename_to_open
+  zmw_file_selection(&filename_to_open
 		  , &c->filename, "Circuit Resurector", "Load circuit") ;
   if ( zmw_activated() )
     if ( circuit_load(c) )
@@ -362,7 +362,7 @@ void circuit_mode(const Circuit *c, Type *s)
  
   zmw_color(Zmw_Color_Background_Poped, 0x00D0D0D0) ;
   zmw_horizontal_expand(0) ;
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       for(i=0; names[i]; i++)
 	{
@@ -378,9 +378,9 @@ void circuit_mode(const Circuit *c, Type *s)
 	    *s = i ;
 	}
       sprintf(buf, "#gates = %d", c->nb) ;
-      zmw_text(buf) ;
+      zmw_label(buf) ;
       sprintf(buf, "(%dx%d)", c->w, c->h) ;
-      zmw_text(buf) ;
+      zmw_label(buf) ;
     }
   zmw_border_embossed_in_draw() ;
 }
@@ -406,11 +406,11 @@ void circuit()
       zmw_width(500) ;
       zmw_height(500) ;
       zmw_vertical_alignment(-1) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  circuit_menu_bar(&c) ;
 	  zmw_vertical_expand(1) ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_vertical_expand(0) ;
 	      circuit_mode(&c, &s) ;
@@ -427,7 +427,7 @@ void circuit()
     {
       ZMW(zmw_window_popup_right())
 	{      	   
-	  zmw_text("X") ;
+	  zmw_label("X") ;
 	}
     }
 		  */
@@ -443,6 +443,6 @@ void circuit()
 int main(int argc, char **argv)
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(circuit) ;
+  zmw_main(circuit) ;
   return(0) ;
 }

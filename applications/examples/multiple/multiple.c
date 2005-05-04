@@ -7,13 +7,13 @@ void multiple(void)
 
   ZMW(zmw_window("Multiple"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("Very Bad code:") ;
+	  zmw_label("Very Bad code:") ;
 	  i = 0 ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_int(i) ;
 		  i++ ;
@@ -21,11 +21,11 @@ void multiple(void)
 		  i++ ;
 		}
 	    }		  
-	  zmw_text("Bad code:") ;
+	  zmw_label("Bad code:") ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
 	      i = 0 ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_int(i) ;
 		  i++ ;
@@ -33,10 +33,10 @@ void multiple(void)
 		  i++ ;
 		}
 	    }		  
-	  zmw_text("Good code:") ;
+	  zmw_label("Good code:") ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  i = 0 ;
 		  zmw_int(i) ;
@@ -52,7 +52,7 @@ void multiple(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(multiple) ;
+  zmw_main(multiple) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

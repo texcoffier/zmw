@@ -19,17 +19,17 @@ void text(void)
 
   ZMW(zmw_window("Text"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<2; i++)
 	    {
 	      // Texts can be computed
 	      sprintf(tmp, "Label number %d", i) ;
-	      zmw_text(tmp) ;
+	      zmw_label(tmp) ;
 	    }
 	  // "cursor_pos" is only modified on user event.
 	  sprintf(tmp, "cursor_pos = %d", cursor_pos) ;
-	  zmw_text(tmp) ;
+	  zmw_label(tmp) ;
 
 	  zmw_horizontal_alignment(-1) ; // Left
 	  zmw_text_editable_with_cursor(&text1, &cursor_pos) ;
@@ -37,11 +37,11 @@ void text(void)
 	    text1_length = strlen(text1) ;
 
 	  sprintf(tmp, "text1_length = %d", text1_length) ;
-	  zmw_text(tmp) ;	  
+	  zmw_label(tmp) ;	  
 
 	  zmw_horizontal_expand(Zmw_False) ;
 	  zmw_border_width(6) ;
-	  zmw_text_editable(&text2) ;
+	  zmw_entry(&text2) ;
 	}
     }
 }
@@ -49,7 +49,7 @@ void text(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(text) ;
+  zmw_main(text) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

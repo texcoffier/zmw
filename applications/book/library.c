@@ -177,15 +177,22 @@ int library_book_borrower_have_it(Library *lib, int index, int borrower)
   return lib->filtered_books[index]->borrowers[borrower] <= 0 ;
 }
 
+Book *library_book_alloc(Library *lib)
+{
+  lib->books_number++ ;
+  REALLOC(lib->books, lib->books_number) ;
+  REALLOC(lib->filtered_books, lib->books_number) ;
+  lib->filtered_number = 0 ;
+
+  return &lib->books[lib->books_number-1] ;
+}
+
 void library_book_new(Library *lib, char **values)
 {
   Book *b ;
   Valued v ;
 
-
-  lib->books_number++ ;
-  REALLOC(lib->books, lib->books_number) ;
-  b = &lib->books[lib->books_number-1] ;
+  b = library_book_alloc(lib) ;
 
   strings_search(values[Column_Collection], &lib->collections, &v, 1) ;
   b->collection_index = v.index ;
@@ -199,6 +206,26 @@ void library_book_new(Library *lib, char **values)
   b->rate = atoi(values[Column_Rate]) ;
   b->borrowers_number = 0 ;
   b->borrowers = NULL ;
+}
+
+void library_book_clone(Library *lib, int i)
+{
+  Book *original, *b ;
+
+  if ( lib->filtered_number == 0 )
+    return ;
+
+  i = (i + lib->filtered_number) % lib->filtered_number ;
+  original = lib->filtered_books[i] ;
+
+  b = library_book_alloc(lib) ;
+  b->collection_index = original->collection_index ;
+  b->number           = original->number ;
+  b->author_index     = original->author_index ;
+  b->title            = strdup(original->title) ;
+  b->rate             = original->rate ;
+  b->borrowers_number = 0 ;
+  b->borrowers        = NULL ;
 }
 
 

@@ -28,7 +28,7 @@ int zmw_message(int visible, const char *title, const char *button_name)
   ZMW( zmw_if(visible) )
     ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  ZMW_EXTERNAL_RETURNS(visible) ;
 	  zmw_horizontal_alignment(0) ;

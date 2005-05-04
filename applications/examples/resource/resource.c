@@ -11,16 +11,16 @@ void text_with_width(char *text, int *width)
   // The code (more readable, but not intuitive) is :
   //
   // zmw_resource_int_get(&width, "TextWidth", 100 /* Default */) ;
-  // ZMW(zmw_box_horizontal())
+  // ZMW(zmw_hbox())
   //    {
   //
   ZMW((zmw_resource_int_get(&width, "TextWidth", 100 /* Default */),
-       zmw_box_horizontal()))
+       zmw_hbox()))
     {
       zmw_horizontal_expand(Zmw_False) ;
 
       zmw_width(*width) ;
-      zmw_text(text) ;
+      zmw_label(text) ;
 
       zmw_width(ZMW_VALUE_UNDEFINED) ;
       zmw_button("Enlarge text") ;
@@ -36,7 +36,7 @@ void resource(void)
   zmw_auto_resize(Zmw_True) ;
   ZMW(zmw_window("Resource"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  text_with_width("in resource", NULL) ;
 	  text_with_width("in application", &width) ;
@@ -49,7 +49,7 @@ void resource(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(resource) ;
+  zmw_main(resource) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

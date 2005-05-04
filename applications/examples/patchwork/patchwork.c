@@ -8,14 +8,14 @@ void box(const char *title)
 
   ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_vertical_expand(Zmw_False) ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 	    {
 	      zmw_horizontal_expand(Zmw_False) ;
 	      zmw_color(Zmw_Color_Foreground, 0xFF0000) ;
-	      zmw_text(title) ;
+	      zmw_label(title) ;
 	    }
 	  ZMW_EXTERNAL ;
 	}
@@ -50,14 +50,14 @@ void patchwork(void)
     {
       zmw_width(640-4) ;
       zmw_height(480-4) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      ZMW(box("zmw_text"))
-		zmw_text("zmw_text") ;
-	      ZMW(box("zmw_text_editable"))
-		zmw_text_editable(&text) ;
+	      ZMW(box("zmw_label"))
+		zmw_label("zmw_label") ;
+	      ZMW(box("zmw_entry"))
+		zmw_entry(&text) ;
 	      ZMW(box("zmw_button"))
 		zmw_button("not tested") ;
 	      ZMW(box("zmw_button"))
@@ -67,53 +67,53 @@ void patchwork(void)
 		    printf("zmw_button activated\n") ;
 		}
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      ZMW(box("zmw_button_with_accelerator"))
 		zmw_button_with_accelerator("zmw_button_with_accelerator"
 					    , GDK_CONTROL_MASK, 'S') ;
 
-	      ZMW(box("zmw_toggle_with_label"))
+	      ZMW(box("zmw_check_button_with_label"))
 		zmw_toggle_int_with_label(&toggle, "label") ;
 
-	      ZMW(box("zmw_radio"))
+	      ZMW(box("zmw_radio_button"))
 		{
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_vertical_expand(Zmw_False) ;
 		      zmw_horizontal_expand(Zmw_False) ;
-		      zmw_radio(&radio, 0) ;
-		      zmw_radio(&radio, 1) ;
-		      zmw_radio(&radio, 2) ;
+		      zmw_radio_button(&radio, 0) ;
+		      zmw_radio_button(&radio, 1) ;
+		      zmw_radio_button(&radio, 2) ;
 		    }
 		}
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      ZMW(box("zmw_notebook"))
 		{
 		  zmw_vertical_expand(Zmw_True) ;
 		  ZMW(zmw_notebook(&page))
 		    {
-		      ZMW(zmw_box_vertical())
+		      ZMW(zmw_vbox())
 			{
 			  zmw_horizontal_alignment(0) ;
-			  zmw_text("Page") ;
-			  zmw_text("1") ;
+			  zmw_label("Page") ;
+			  zmw_label("1") ;
 			}
-		      zmw_text("Page 1 content") ;
-		      zmw_text("Page 2") ;
-		      ZMW(zmw_box_vertical())
+		      zmw_label("Page 1 content") ;
+		      zmw_label("Page 2") ;
+		      ZMW(zmw_vbox())
 			{
-			  zmw_text("Page label: any kind of widget") ;
-			  zmw_text("Page content: any kind of widget") ;
+			  zmw_label("Page label: any kind of widget") ;
+			  zmw_label("Page content: any kind of widget") ;
 			}
-		      ZMW(zmw_box_horizontal())
+		      ZMW(zmw_hbox())
 			{
-			  zmw_text("P 3") ;
-			  zmw_text_editable(&text) ;
+			  zmw_label("P 3") ;
+			  zmw_entry(&text) ;
 			}
-		      zmw_text("Page 3") ;
+		      zmw_label("Page 3") ;
 		    }
 		}
 
@@ -132,15 +132,15 @@ void patchwork(void)
 		  zmw_vertical_expand(Zmw_True) ;
 		  ZMW(zmw_viewport_with_scrollbar(&x2, &y2))
 		    {
-		      ZMW(zmw_box_vertical())
+		      ZMW(zmw_vbox())
 			for(i=0; i<10; i++)
-			  zmw_text("A very very very long text to be scrolled") ;
+			  zmw_label("A very very very long text to be scrolled") ;
 		    }
 		  if ( zmw_activated() )
 		    printf("x2=%g y2=%g\n", x2, y2) ;
 		}
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      ZMW(box("zmw_image_from_file"))
 		ZMW(zmw_decorator(0))
@@ -151,7 +151,7 @@ void patchwork(void)
 
 	      ZMW(box("zmw_table_with_widths"))
 		{
-		  ZMW(zmw_box_vertical())
+		  ZMW(zmw_vbox())
 		    {
 		      ZMW(zmw_table_with_widths(nb_widths, widths))
 			{
@@ -159,14 +159,14 @@ void patchwork(void)
 			    for(i=0; i<nb_widths; i++)
 			      {
 				sprintf(buf, "[%d,%d]", i, j) ;
-			    zmw_text(buf) ;
+			    zmw_label(buf) ;
 			      }
 			}
 		      if ( zmw_activated() )
 			printf("Table width change\n") ;
-		      ZMW(zmw_box_horizontal())
+		      ZMW(zmw_hbox())
 			{
-			  zmw_text("widths:") ;
+			  zmw_label("widths:") ;
 			  for(i=0;i<nb_widths;i++)
 			    zmw_int(widths[i]) ;
 			}
@@ -177,7 +177,7 @@ void patchwork(void)
 		  zmw_vertical_expand(Zmw_True) ;
 		  ZMW(zmw_scrolled_view(&start, &nb, 5000000))
 		    {
-		      ZMW(zmw_box_vertical())
+		      ZMW(zmw_vbox())
 			{
 			  zmw_vertical_expand(Zmw_False) ;
 			  for(i=start; i<start+nb; i++)
@@ -192,42 +192,42 @@ void patchwork(void)
 	    }
 	  ZMW(box("zmw_decorator"))
 	    {
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
 		  zmw_vertical_expand(Zmw_False) ;
 		  zmw_horizontal_expand(Zmw_False) ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Relief))
-		    zmw_text("Relief") ;
+		    zmw_label("Relief") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Relief
 				    | Zmw_Decorator_Border_In))
-		    zmw_text("+ In") ;
+		    zmw_label("+ In") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Relief
 				    | Zmw_Decorator_Border_In
 				    | Zmw_Decorator_Interior))
-		    zmw_text("+ Interior") ;
+		    zmw_label("+ Interior") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Relief
 				    | Zmw_Decorator_Interior))
-		    zmw_text("- In") ;
+		    zmw_label("- In") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
-		    zmw_text("Solid") ;
+		    zmw_label("Solid") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
-		    zmw_text("Embossed") ;
+		    zmw_label("Embossed") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed
 				    | Zmw_Decorator_Border_In
 				    ))
-		    zmw_text("+ In") ;
+		    zmw_label("+ In") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed
 				    | Zmw_Decorator_Activable
 				    | Zmw_Decorator_Pushable
 				    | Zmw_Decorator_Focusable
 				    | Zmw_Decorator_Interior
 				    ))
-		    zmw_text("Emboss.+Activab.+Focusab.+Pushab.+Interior") ;
+		    zmw_label("Emboss.+Activab.+Focusab.+Pushab.+Interior") ;
 		  if ( zmw_activated() )
 		    printf("decorator activated\n") ;
 		}
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      ZMW(box("zmw_border_width"))
 		zmw_int_editable(&border_width) ;
@@ -245,7 +245,7 @@ void patchwork(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(patchwork) ;
+  zmw_main(patchwork) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

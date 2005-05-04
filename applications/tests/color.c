@@ -31,21 +31,21 @@ void test_color(const char *title)
     {
       zmw_border_relief_out_draw() ;
       zmw_name("Row") ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  zmw_name("SubRow") ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      for(j=0; j<ZMW_TABLE_SIZE(strings); j++)
 		{
 		  zmw_color(Zmw_Color_Foreground, color[j]) ;
 		  zmw_name(strings[j]) ;
-		  zmw_text(strings[j]) ;
+		  zmw_label(strings[j]) ;
 		  zmw_border_relief_out_draw() ;
 		}
 	    }
 	  zmw_name("Black") ;
-	  zmw_text("Black") ;
+	  zmw_label("Black") ;
 	}
       zmw_border_relief_out_draw() ;
     }

@@ -11,9 +11,9 @@ void table(void)
   ZMW(zmw_window("Table"))
     {
       zmw_horizontal_expand(Zmw_False) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("zmw_table") ;
+	  zmw_label("zmw_table") ;
 	  ZMW(zmw_table(3))
 	    {
 	      for(i=0; i<12; i++)
@@ -21,7 +21,7 @@ void table(void)
 	    }
 
 
-	  zmw_text("+ widths") ;
+	  zmw_label("+ widths") ;
 	  ZMW(zmw_table_with_widths(3, width))
 	    {
 	      for(i=0; i<12; i++)
@@ -29,12 +29,12 @@ void table(void)
 	    }
 
 
-	  zmw_text("+ selection") ;
+	  zmw_label("+ selection") ;
 	  ZMW(zmw_table_with_widths_and_selection
 	      (2, width2, selection, Zmw_False))
 	    {
-	      zmw_text("i") ;
-	      zmw_text("i * i") ;
+	      zmw_label("i") ;
+	      zmw_label("i * i") ;
 	      for(i=0; i<5; i++)
 		{
 		  zmw_int(1000+i) ;
@@ -53,7 +53,7 @@ void table(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(table) ;
+  zmw_main(table) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

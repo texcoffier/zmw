@@ -1,7 +1,7 @@
 /* DO NOT DISPLAY */
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
-#define HB(X) do { ZMW(zmw_box_horizontal()) { X; } } while(0)
+#define HB(X) do { ZMW(zmw_hbox()) { X; } } while(0)
 
 void define(void)
 {
@@ -15,10 +15,10 @@ void define(void)
 
   ZMW(zmw_window("Boxes"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  HB(zmw_text("Surname")  ; zmw_text_editable(&surname)) ;
-	  HB(zmw_text("Firstname"); zmw_text_editable(&firstname)) ;
+	  HB(zmw_label("Surname")  ; zmw_entry(&surname)) ;
+	  HB(zmw_label("Firstname"); zmw_entry(&firstname)) ;
 	}
     }
 }
@@ -26,7 +26,7 @@ void define(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(define) ;
+  zmw_main(define) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

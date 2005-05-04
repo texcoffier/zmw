@@ -7,7 +7,7 @@ O=	zmw.o \
 	zmw_graphic.o \
 	zmw_drag.o \
 	zmw_event.o \
-	zmw_run.o \
+	zmw_main.o \
 	zmw_name.o \
 	zmw_device.o \
 	zmw_cache.o \

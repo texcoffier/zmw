@@ -10,11 +10,11 @@ zmw_button("A button") ;
 
 ZMW(zmw_if(zmw_tip_visible()))
   ZMW(zmw_window_popup_right_with_id(&window_tip_right))
-     zmw_text("Right tip") ;
+     zmw_label("Right tip") ;
 
 ZMW(zmw_tip()) // Equivalent to zmw_if(zmw_tip_visible())
   ZMW(zmw_window_popup_bottom_with_id(&window_tip_bottom))
-     zmw_text("Bottom tip") ;
+     zmw_label("Bottom tip") ;
 /* DO NOT DISPLAY */
 }
 
@@ -27,7 +27,7 @@ void top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(top) ; // Launch the infinite loop
+  zmw_main(top) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

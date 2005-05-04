@@ -42,7 +42,7 @@ void box_item_draggable(int *box, int item)
 	  sprintf(message, "%d %s accepted", box[item],
 		  zmw_drag_accept_get() ? " is" : " not"
 		  ) ;
-	  zmw_text(message) ;
+	  zmw_label(message) ;
 	}
     }
 }
@@ -84,16 +84,16 @@ void draganddrop(void)
 	{
 	  zmw_height(150) ;
 	  zmw_vertical_expand(Zmw_False) ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
-	      zmw_text(title) ;
+	      zmw_label(title) ;
 	      for(j=0; boxes[i][j] != -1; j++)
 		{
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 		    zmw_int(boxes[i][j]) ;
 		  box_item_draggable(boxes[i], j) ;
 		}
-	      zmw_text(messages[i] ? messages[i] : "Nothing") ;
+	      zmw_label(messages[i] ? messages[i] : "Nothing") ;
 	    }
 	  box_take_drop(boxes[i], &messages[i], i+1) ;
 	}
@@ -103,7 +103,7 @@ void draganddrop(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(draganddrop) ;
+  zmw_main(draganddrop) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

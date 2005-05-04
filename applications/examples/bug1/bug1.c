@@ -16,19 +16,19 @@ void bug1(void)
 
   ZMW(zmw_window("Bug1"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("box") ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_name("button") ;
 	      zmw_button("B") ;
 	      zmw_name("popup") ;
-	      ZMW( zmw_popup() )
+	      ZMW( zmw_menu() )
 		{
 		  ZMW(zmw_window_popup_bottom())
 		    {
-		      zmw_text("x") ;
+		      zmw_label("x") ;
 		    }
 		}
 	    }
@@ -51,7 +51,7 @@ void bug1(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(bug1) ;
+  zmw_main(bug1) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

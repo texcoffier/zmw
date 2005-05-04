@@ -35,7 +35,7 @@ xxx.speed: speed ../../zmw.so Makefile
 			echo "Before $$CACHE $$DEPTH $$CHILDREN" >/dev/tty ; \
 			./speed --display=$$ZMW_XVFB \
 		      		--debug=0 \
-		      		--cache_size=$$CACHE \
+		      		--cache-size=$$CACHE \
 		      		$$DEPTH $$CHILDREN \
 				& \
 			while true ; do sleep 1; if [ -f "xxx.drawdone" ] ; then break ; fi ; done ; \
@@ -68,10 +68,10 @@ gmon.out: speed.o Makefile
 	export DISPLAY="$$ZMW_XVFB" ; \
 	zmw_move_cursor_to 50 50 ; \
 	rm -f "xxx.drawdone" ; \
-	$(CC) speed.o $(ZMW_PROFILING) ../../*/*.o $(ZMW_LIBS) -o speed ; \
+	$(CC) speed.o $(ZMW_GPROF_PROFILING) ../../*/*.o $(ZMW_LIBS) -o speed ; \
 	./speed --display=$$ZMW_XVFB \
 		      		--debug=0 \
-		      		--cache_size=0 \
+		      		--cache-size=0 \
 		      		18 8 & \
 	while true ; do sleep 1; if [ -f "xxx.drawdone" ] ; then break ; fi ; done ; \
 	zmw_key $$KEY_A ; \

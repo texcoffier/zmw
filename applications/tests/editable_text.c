@@ -30,7 +30,7 @@ void editable_text(const char *title)
   zmw_auto_resize(1) ;
   ZMW(zmw_window(title))
     {
-      zmw_text_editable(&text) ;
+      zmw_entry(&text) ;
     }
 }
 
@@ -47,7 +47,7 @@ void editable_text_2(const char *title)
   zmw_auto_resize(1) ;
   ZMW(zmw_window(title))
     {
-    	ZMW(zmw_box_vertical())
+    	ZMW(zmw_vbox())
     	{
       zmw_text_editable_with_cursor_and_start(&text1, &cursor, &start) ;
       zmw_text_editable_with_cursor_and_start(&text2, &cursor, &start) ;

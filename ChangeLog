@@ -1,3 +1,22 @@
+2005-05-04 (0.0.12)
+	The file chooser set activated to false if it is not visible
+	The book managing application "load" menu now works
+	zmw_device.c zmw_text.c support now vertical cursor movements.
+	Correction of a geometry problem on focusable horizontal box
+	zmw.debug renamed as zmw.run->top_level_debug
+	Add "accel_menu2" regression test (2 buttons with the same accelerator)
+	Tell about "application/xml" in the documentation "zmw.xml"
+	No more "zmw_swap_x_y", "zmw_box_hv.h" is included twice with axis swap
+	About 20 functions renamed to be GTK like, see "zmw_upgrade" script
+	"zmw_run.c" renamed "zmw_main.c"
+	Add a Widget profiling to display time statistics per widget defined
+	Regression tests run fine on Debian Testing > 2005/04/15
+	zmw_device.c: Add a text size cache to pango
+	Add a function zmw_string_copy which do not malloc/free each time
+	Many small speed enhancements and clean up code
+	Fix some bad popup positionning
+	The background of the buttons change when the cursor is above
+	
 2004-09-23 (0.0.11)
 	No more core dump on exit
 	New application example: an XML GUI not using memory at all

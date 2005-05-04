@@ -38,7 +38,7 @@ void image(void)
 
   ZMW(zmw_window("Image"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  // If the big disc button is clicked, radius is set to 50
 	  zmw_image_from_file_activable("button.png") ;
@@ -47,7 +47,7 @@ void image(void)
 	  // Non activable image
 	  zmw_image_from_file("img.png") ;
 	  // A scrollbar to modify the radius
-	  zmw_scrollbar_horizontal(&radius, 0.1) ;
+	  zmw_hscrollbar(&radius, 0.1) ;
 	  // The image with the disc picture computed.
 	  zmw_image(pb) ;
 	}
@@ -57,7 +57,7 @@ void image(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(image) ;
+  zmw_main(image) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -40,11 +40,11 @@ void test_table(const char *title)
 	      	zmw_button(buf) ;
 	      	else
 	      	{
-	      	ZMW(zmw_box_vertical())
+	      	ZMW(zmw_vbox())
 	      		{
-		      	zmw_text("over") ;
+		      	zmw_label("over") ;
 		      	zmw_button(buf) ;
-		      	zmw_text("under") ;
+		      	zmw_label("under") ;
 	      		}
 	      	zmw_border_embossed_in_draw() ;
 	      	}
@@ -56,24 +56,24 @@ void test_table(const char *title)
 		        zmw_color(Zmw_Color_Foreground, 0x00ff0000) ;
 		        zmw_color(Zmw_Color_Border_Light, 0x00FF8080) ;
 		        zmw_color(Zmw_Color_Border_Dark, 0x00900000) ;
-	      	   	ZMW(zmw_box_vertical())
+	      	   	ZMW(zmw_vbox())
 	      	   		{
 	      	   		sprintf(tip, "Text=%s", buf) ;
-	      	   		zmw_text(tip) ;
+	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Horizontal alignment = %d"
 	      	   			, ZMW_SIZE_HORIZONTAL_ALIGNMENT) ;
-	      	   		zmw_text(tip) ;
+	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Horizontal expand = %d"
 	      	   			, ZMW_SIZE_HORIZONTAL_EXPAND) ;
-	      	   		zmw_text(tip) ;
+	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Vertical alignment = %d"
 	      	   			, ZMW_SIZE_VERTICAL_ALIGNMENT) ;
-	      	   		zmw_text(tip) ;
+	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Vertical expand = %d"
 	      	   			, ZMW_SIZE_VERTICAL_EXPAND) ;
-	      	   		zmw_text(tip) ;
+	      	   		zmw_label(tip) ;
 	      	   		if ( ! (i&1) )
-	      	   			zmw_text("With 'under' and 'over'") ;
+	      	   			zmw_label("With 'under' and 'over'") ;
 	      	   		}
 	      	   	zmw_border_embossed_out_draw() ;	
 	      	   	}	
@@ -105,14 +105,14 @@ void test_table_width(const char *title)
 	      zmw_vertical_alignment  (((i/3)%3)-1) ;
 	      zmw_horizontal_expand   ((i/9)%2) ;
 	      zmw_vertical_expand     ((i/18)%2) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 	      	{
-	      		zmw_text("{{{") ;
+	      		zmw_label("{{{") ;
 		        sprintf(buf, "%c", i) ;
 	      		zmw_button(buf) ;
 	      		if ( zmw_activated() )
 	      			zmw_printf("%s activated\n", buf) ;
-	      		zmw_text("}}}") ;
+	      		zmw_label("}}}") ;
 	      	}
 	    }
 	}

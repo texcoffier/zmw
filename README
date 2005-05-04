@@ -1,7 +1,9 @@
-To compile and execute you need at least
-
-	    GTK 2.0.2
-
+===================================================================
+The API changed with release 0.0.12
+If you have developped some code using ZMW library
+you need to run "scripts/zmw-upgrade.py" to rename some functions
+in your programs.
+===================================================================
 
 To compile the library : "make"
 
@@ -45,4 +47,3 @@ They are :
 	- not optimized
 	- certainly bugged
 	- full of misnamed variables and functions
-They should not yet be used as a basis for a real widget library.

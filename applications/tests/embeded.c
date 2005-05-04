@@ -27,7 +27,7 @@ void zmw_border_widget()
 {
   ZMW_EXTERNAL_RESTART ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       ZMW_EXTERNAL ;
     }
@@ -41,22 +41,22 @@ void test_embeded(const char *title)
 {
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("text not embeded") ;
+	  zmw_label("text not embeded") ;
 
 	  ZMW(zmw_border_widget())
 	    {
-	      zmw_text("2 lines of text") ;
-	      zmw_text("embeded once") ;
+	      zmw_label("2 lines of text") ;
+	      zmw_label("embeded once") ;
 	    }
 
 	  ZMW(zmw_border_widget())
 	    {
 	      ZMW(zmw_border_widget())
 		{
-		  zmw_text("2 lines of text") ;
-		  zmw_text("embeded twice") ;
+		  zmw_label("2 lines of text") ;
+		  zmw_label("embeded twice") ;
 		}
 	    }
 	}

@@ -9,7 +9,7 @@ void filechooser2(void)
   if ( filename_current == NULL )
     filename_current = strdup("tst") ;
   
-  zmw_filechooser(&choosing_a_filename
+  zmw_file_selection(&choosing_a_filename
 		  , &filename_current
 		  , "Choose a filename"
 		  , "Load file"
@@ -22,7 +22,7 @@ void filechooser2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(filechooser2) ;
+  zmw_main(filechooser2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

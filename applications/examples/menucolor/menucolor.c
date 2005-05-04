@@ -7,10 +7,10 @@ void menucolor(void)
 {
   ZMW(zmw_window("Menu"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW ( zmw_popup() )
+	  ZMW ( zmw_menu() )
 	    {
 	      ZMW(zmw_window_popup_right())
 		{
@@ -26,7 +26,7 @@ void menucolor(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(menucolor) ;
+  zmw_main(menucolor) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

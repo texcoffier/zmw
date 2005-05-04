@@ -11,14 +11,14 @@ void filechooser(void)
   
   ZMW(zmw_window("FC"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Load File") ;
 	  if ( zmw_activated() )
 	    choosing_a_filename = Zmw_True ;
 
 	  
-	  zmw_filechooser(&choosing_a_filename
+	  zmw_file_selection(&choosing_a_filename
 			  , &filename_current
 			  , "Choose a filename"
 			  , "Load file"
@@ -27,8 +27,8 @@ void filechooser(void)
 	    printf("Load file : '%s'\n", filename_current) ;
 
 
-	  zmw_text("File name current:") ;
-	  zmw_text(filename_current) ;
+	  zmw_label("File name current:") ;
+	  zmw_label(filename_current) ;
 	}
     }
 }
@@ -36,7 +36,7 @@ void filechooser(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(filechooser) ;
+  zmw_main(filechooser) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

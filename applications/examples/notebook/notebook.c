@@ -13,26 +13,26 @@ void notebook(void)
 	  zmw_vertical_expand(Zmw_False) ;
 	  zmw_horizontal_expand(Zmw_False) ;
 
-	  zmw_text("Large content") ; // The page 0 label
-	  ZMW(zmw_box_horizontal())   // The page 0 content
+	  zmw_label("Large content") ; // The page 0 label
+	  ZMW(zmw_hbox())   // The page 0 content
 	    for(i=0; i<7; i++)
-	      zmw_text("Large") ;
+	      zmw_label("Large") ;
 
-	  ZMW(zmw_box_vertical())  // The page 1 label is a box
+	  ZMW(zmw_vbox())  // The page 1 label is a box
 	    {
-	      zmw_text("Very") ;
-	      zmw_text("tall") ;
-	      zmw_text("content") ;
+	      zmw_label("Very") ;
+	      zmw_label("tall") ;
+	      zmw_label("content") ;
 	    }
-	  ZMW(zmw_box_vertical()) // The page 1 content
+	  ZMW(zmw_vbox()) // The page 1 content
 	    for(i=0; i<5; i++)
-	      zmw_text("Tall") ;
+	      zmw_label("Tall") ;
 
 	  // The page 2 label is an image
 	  zmw_image_from_file("smallcontent.png") ;
 	  // The page 2 content is not centered because
 	  // it is not in a box.
-	  zmw_text("Small content") ;
+	  zmw_label("Small content") ;
 	}
     }
 }
@@ -40,7 +40,7 @@ void notebook(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(notebook) ;
+  zmw_main(notebook) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

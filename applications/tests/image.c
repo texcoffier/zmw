@@ -55,19 +55,19 @@ void test_image(const char *title)
     {
       zmw_height(900) ;
       zmw_width(900) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  sprintf(buf, "%d images", nb_images) ;
-	  zmw_text(buf) ;
+	  zmw_label(buf) ;
 	  zmw_horizontal_expand(1) ;
 	  zmw_vertical_expand(1) ;
 	  ZMW( zmw_viewport_with_scrollbar(&x, &y) )
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  for(i=0; i<nb_images; i++)
 		    {
-		      zmw_text(image_names[i]) ;
+		      zmw_label(image_names[i]) ;
 		      if ( zmw_button_pressed() )
 			to_display = i ;
 		    }		  

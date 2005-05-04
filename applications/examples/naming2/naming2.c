@@ -5,12 +5,12 @@ void toggle_and_its_name(int *value)
 {
   char buf[999] ;
 
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
       zmw_toggle_int(value) ;
       strcpy(buf, zmw_name_full) ;
-      zmw_text("toggle named") ;
-      zmw_text(buf) ;
+      zmw_label("toggle named") ;
+      zmw_label(buf) ;
     }
 }
 
@@ -30,10 +30,10 @@ void naming2(void)
   hide_label = 0 ;
   ZMW(zmw_window("Named toggle"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  if ( label_visible )
-	    zmw_text("Click on first toggle and go outside") ;
+	    zmw_label("Click on first toggle and go outside") ;
 	  /*STARTEMPHASIS*/zmw_name("Toggle") ;/*STOPEMPHASIS*/
 	  toggle_and_its_name(&t1) ;
 	  if ( zmw_cursor_leave() )
@@ -48,7 +48,7 @@ void naming2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(naming2) ;
+  zmw_main(naming2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

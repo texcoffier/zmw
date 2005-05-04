@@ -35,7 +35,7 @@ void test_viewport(const char *title)
 
       ZMW(zmw_viewport_with_scrollbar(&x, &y))
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      for(i=0; i<10; i++)
 		{
@@ -46,11 +46,11 @@ void test_viewport(const char *title)
 	      zmw_height(50) ;
 	      ZMW(zmw_viewport_with_scrollbar(&x2, &y2))
 		{
-		  ZMW(zmw_box_vertical())
+		  ZMW(zmw_vbox())
 		    {
-		      zmw_text("A long long long long text to scroll") ;
-		      zmw_text("A long text to scroll") ;
-		      zmw_text("A long text to scroll") ;
+		      zmw_label("A long long long long text to scroll") ;
+		      zmw_label("A long text to scroll") ;
+		      zmw_label("A long text to scroll") ;
 		    }
 		}
 	    }
@@ -61,17 +61,17 @@ void test_viewport(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("nb = ") ;
+	  zmw_label("nb = ") ;
 	  zmw_int(nb) ;
-	  zmw_text("start = ") ;
+	  zmw_label("start = ") ;
 	  zmw_int(start) ;
 	  zmw_vertical_expand(Zmw_True) ;
 	  zmw_horizontal_expand(Zmw_True) ;
 	  ZMW(zmw_scrolled_view(&start, &nb, max))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_horizontal_expand(Zmw_False) ;
 		  for(i=start; i<start+nb; i++)

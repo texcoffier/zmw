@@ -9,7 +9,7 @@ void accelerator(void)
 
   ZMW(zmw_window("Accelerator"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_horizontal_alignment(-1) ;
 	  for(c=0; c<=GDK_CONTROL_MASK; c += GDK_CONTROL_MASK)
@@ -31,7 +31,7 @@ void accelerator(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(accelerator) ;
+  zmw_main(accelerator) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -19,17 +19,17 @@ void focus4(void)
   ZMW(zmw_window("Focus4"))
     {
       zmw_focus(&focus_out) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text_editable(&text[0]) ;
-	  ZMW(zmw_box_vertical())
+	  zmw_entry(&text[0]) ;
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_focus(&focus_in) ;
-	      zmw_text_editable(&text[1]) ;
-	      zmw_text_editable(&text[2]) ;
+	      zmw_entry(&text[1]) ;
+	      zmw_entry(&text[2]) ;
 	    }
 	  zmw_border_embossed_in_draw() ;
-	  zmw_text_editable(&text[3]) ;
+	  zmw_entry(&text[3]) ;
 	}
     }
 }
@@ -37,7 +37,7 @@ void focus4(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(focus4) ;
+  zmw_main(focus4) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

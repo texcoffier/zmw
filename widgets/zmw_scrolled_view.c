@@ -58,7 +58,7 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
   ZMW_EXTERNAL_RESTART ;
 
   zmw_scrolled_view_clamp(start, nb, max) ;
-  ZMW(zmw_box_horizontal())
+  ZMW(zmw_hbox())
     {
       zmw_horizontal_expand(Zmw_True) ;
       zmw_vertical_expand(Zmw_True) ;
@@ -121,7 +121,7 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
 	  delta = 0 ;
 	}
       zmw_vertical_expand(Zmw_True) ;
-      zmw_scrollbar_vertical_with_delta(&y, y_size, delta) ;
+      zmw_vscrollbar_with_delta(&y, y_size, delta) ;
       if ( zmw_changed() )
 	{
 	  *start = y * max + 0.499 ;

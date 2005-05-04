@@ -28,7 +28,7 @@ void main_sb()
   ZMW(zmw_window("Scrollbar test"))
     {
       zmw_width(100) ;
-      zmw_scrollbar_horizontal(&v, 0.1) ;
+      zmw_hscrollbar(&v, 0.1) ;
       if ( zmw_activated() )
 	printf("Scrollbar position = %g\n", v) ;
     }
@@ -37,6 +37,6 @@ void main_sb()
 int main(int argc, char **argv)
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(main_sb) ;
+  zmw_main(main_sb) ;
   return(0) ;
 }

@@ -20,19 +20,19 @@ void table2(void)
     {
       //   zmw_horizontal_expand(Zmw_False) ;
       //   zmw_vertical_expand(Zmw_False) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  ZMW(zmw_table(1))
 	    {
-	      zmw_text("III") ;
+	      zmw_label("III") ;
 	      ZMW(zmw_decorator(Zmw_Decorator_Border_Relief))
-		zmw_text("X") ;
+		zmw_label("X") ;
 	    }
 	  ZMW(zmw_table(2))
 	    {
-	      zmw_text("III") ;
+	      zmw_label("III") ;
 	      ZMW(zmw_decorator(Zmw_Decorator_Border_Relief))
-		zmw_text("X") ;
+		zmw_label("X") ;
 	    }
 	}
     }
@@ -41,7 +41,7 @@ void table2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(table2) ;
+  zmw_main(table2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

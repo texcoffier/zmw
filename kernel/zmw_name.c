@@ -285,12 +285,12 @@ void zmw_name_debug_window()
   char buf[999] ;
   static int display_name_state = 0 ;
 
-  ZMW( zmw_box_vertical() )
+  ZMW( zmw_vbox() )
     {
       zmw_toggle_int_with_label(&display_name_state, "Ressources and Registration") ;
       if ( display_name_state )
 	{
-	  ZMW( zmw_box_vertical() )
+	  ZMW( zmw_vbox() )
 	    {
 	      zmw_font_size(6) ;
 	      zmw_font_family("courier") ;
@@ -306,7 +306,7 @@ void zmw_name_debug_window()
 			      , zmw_name_value(global_registered[i])
 			      , global_registered[i]->name
 			      ) ;
-		      zmw_text(buf) ;
+		      zmw_label(buf) ;
 		    }
 		}
 	    }

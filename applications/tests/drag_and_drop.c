@@ -32,25 +32,25 @@ void test_drag_and_drop(const char *title)
     {
       zmw_name("VerticalBox") ;
       zmw_vertical_alignment(-1) ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  zmw_name("draginfo") ;
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
-	      zmw_text("drag_from_j") ;
+	      zmw_label("drag_from_j") ;
 	      zmw_int_editable(&drag_from_j) ;
-	      zmw_text("drag_from_i") ;
+	      zmw_label("drag_from_i") ;
 	      zmw_int_editable(&drag_from_i) ;
-	      zmw_text("drag_to") ;
+	      zmw_label("drag_to") ;
 	      zmw_int_editable(&drag_to) ;
-	      zmw_text("drag_to_k") ;
+	      zmw_label("drag_to_k") ;
 	      zmw_int_editable(&drag_to_k) ;
 	    }
 	  for(j=0 ;j<3; j++)
 	    {
 	      sprintf(buf3, "set%d", j) ;
 	      zmw_name(buf3) ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  if ( j == drag_to )
 		    {
@@ -61,7 +61,7 @@ void test_drag_and_drop(const char *title)
 		    }
 
 		  zmw_name("Title") ;
-		  zmw_text(name[j]) ;
+		  zmw_label(name[j]) ;
 		  for(i=0; numbers[j][i]>=0; i++)
 		    {
 		      sprintf(buf, "L%d", i) ;
@@ -69,7 +69,7 @@ void test_drag_and_drop(const char *title)
 		      sprintf(buf2, "%d%s", numbers[j][i]
 			      , (j==drag_from_j && i==drag_from_i) ? "*" : ""
 			      ) ;
-		      zmw_text(buf2) ;
+		      zmw_label(buf2) ;
 		      sprintf(buf, "%d", numbers[j][i]) ;
 
 		      /*
@@ -95,9 +95,9 @@ void test_drag_and_drop(const char *title)
 				  : "not accepted") ;
 			  ZMW(zmw_window_drag())
 			    {
-			      ZMW(zmw_box_vertical())
+			      ZMW(zmw_vbox())
 				{
-				  zmw_text(buf) ;
+				  zmw_label(buf) ;
 				}
 			      zmw_border_embossed_in_draw() ;
 			    }

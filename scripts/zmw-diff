@@ -1,0 +1,54 @@
+#!/bin/sh
+# -*- ksh -*-
+
+
+START=`pwd`
+cd `dirname $0`/..
+
+
+if [ "" = "$1" ]
+then
+  # Search the last version
+  D=`cd .. ; ls -td WIDGET*-*[^z] | ( read A ; echo $A)`
+else
+  D="$1"
+fi
+
+case $D in
+"/"*) ;;
+*)
+   if [ -d "$START/$D" ]
+   then
+     D="$START/$D"
+   else
+     if [ -d "../$D" ]
+     then
+       D="../$D"
+     else
+       echo "Can't find $D" >&2
+       exit 1
+     fi
+   fi
+   ;;
+esac
+
+echo $D
+
+diff -rubB \
+	--exclude="Makefile" \
+	--exclude="Makefile.config" \
+	--exclude="*.o" \
+	--exclude="*.so" \
+	--exclude="*~" \
+	--exclude="*.exe" \
+	--exclude="*.bak" \
+	--exclude="*.old" \
+	--exclude="*.new" \
+	--exclude="TAGS" \
+	--exclude="*.eps" \
+	--exclude="*.sgml" \
+	--exclude="*.png" \
+	--exclude="xxx*" \
+	--exclude="regteststatus" \
+	--exclude="#*" \
+	"$D" .

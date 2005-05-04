@@ -6,12 +6,12 @@ void hello_world(void)
   
   ZMW(zmw_window_with_id(&id_window, "My Window"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("Hello World!") ;
+	  zmw_label("Hello World!") ;
 	  zmw_button("Quit") ;
 	  if ( zmw_activated() )
-	    zmw_exit(0) ;
+	    zmw_main_quit(0) ;
 	  ZMW( zmw_tip() )
 	    {
 	      zmw_border_width(2) ;
@@ -19,7 +19,7 @@ void hello_world(void)
 		{
 		  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid))
 		    {
-		      zmw_text("Click here to close the application") ;
+		      zmw_label("Click here to close the application") ;
 		    }
 		}
 	    }
@@ -30,7 +30,7 @@ void hello_world(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(hello_world) ;
+  zmw_main(hello_world) ;
   return 0 ;
 }
 /* REGRESSION TEST

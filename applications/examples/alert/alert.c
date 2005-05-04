@@ -9,7 +9,7 @@ void alert(void)
 
   ZMW(zmw_window("Boxes"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Do not click on this button") ;
 	  if ( zmw_activated() )
@@ -26,7 +26,7 @@ void alert(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(alert) ;
+  zmw_main(alert) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

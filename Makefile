@@ -40,7 +40,12 @@ kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed:
 	cd `dirname $@` ; $(MAKE)
 
 clean::
-	@rm -f TAGS zmw.so include/zmw/*~ include/zmw/*.bak include/zmw/"#"*
+	find . \( -name "*~" \
+               -o -name "#*" \
+               -o -name "*.bak" \
+               -o -name "*.old" \
+               \) -exec rm {} \;
+	@rm -f TAGS zmw.so
 
 
 ##############################################################################
@@ -152,32 +157,10 @@ night:
 ##############################################################################
 versionchange:
 	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.10" ; NEW="0.1.0" ; \
+	OLD="0.0.11" ; NEW="0.0.12" ; \
 	change "$$OLD" "$$NEW" README Makefile.config ; \
 	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
 
-##############################################################################
-# Display difference between developpement files and the last version
-##############################################################################
-diff:
-	diff -rubB \
-		--exclude="Makefile" \
-		--exclude="Makefile.config" \
-		--exclude="*.o" \
-		--exclude="*.so" \
-		--exclude="*~" \
-		--exclude="*.exe" \
-		--exclude="*.bak" \
-		--exclude="*.old" \
-		--exclude="*.new" \
-		--exclude="TAGS" \
-		--exclude="*.eps" \
-		--exclude="*.sgml" \
-		--exclude="*.png" \
-		--exclude="xxx*" \
-		--exclude="regteststatus" \
-		--exclude="#*" \
-		../zmw-0.0.10 .
 ##############################################################################
 # Search unused functions
 ##############################################################################

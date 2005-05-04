@@ -12,17 +12,17 @@ void scrolledview(void)
       zmw_width(60) ;
       zmw_vertical_expand(Zmw_True) ;
       zmw_horizontal_expand(Zmw_True) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_vertical_expand(Zmw_False) ;
-	  zmw_text("visible = ") ;
+	  zmw_label("visible = ") ;
 	  zmw_int(visible) ;
 
 	  zmw_vertical_expand(Zmw_True) ;
 	  zmw_horizontal_expand(Zmw_True) ;
 	  ZMW(zmw_scrolled_view(&start, &visible, max))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_vertical_expand(Zmw_False) ;
 		  for(i=start; i<start+visible; i++)
@@ -36,7 +36,7 @@ void scrolledview(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(scrolledview) ;
+  zmw_main(scrolledview) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -26,7 +26,7 @@ void test_button(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Button1") ;
 	  if ( zmw_activated() )
@@ -37,7 +37,7 @@ void test_button(const char *title)
 	  zmw_button("Button3") ;
 	  if ( zmw_activated() )
 	    t = "Button3 has been activated" ;
-	  zmw_text(t) ;
+	  zmw_label(t) ;
 	}
     }
 }

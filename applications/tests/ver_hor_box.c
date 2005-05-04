@@ -29,17 +29,17 @@ void ver_hor_box(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Column") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(strings); i++)
 	    {
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
 		  for(j=0; j<ZMW_TABLE_SIZE(strings); j++)
 		    {
 		      zmw_name("Row") ;
 		      zmw_name(strings[j]) ;
-		      zmw_text(strings[j]) ;
+		      zmw_label(strings[j]) ;
 		    }
 		}
 	    }

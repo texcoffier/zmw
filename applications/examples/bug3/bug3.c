@@ -6,14 +6,14 @@ void bug3(void)
 {
   ZMW(zmw_window("Bug3"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_width(100) ;
-	  zmw_text("text") ;
-	  ZMW(zmw_box_horizontal())
+	  zmw_label("text") ;
+	  ZMW(zmw_hbox())
 	    {
-	      zmw_text("i") ;
-	      zmw_text("j") ;
+	      zmw_label("i") ;
+	      zmw_label("j") ;
 	    }
 	}
     }
@@ -23,7 +23,7 @@ void bug3(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(bug3) ;
+  zmw_main(bug3) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

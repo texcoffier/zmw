@@ -80,9 +80,9 @@ struct menu
 void page_test(const char *label, struct menu *tests)
 {
   int i ;
-  zmw_text(label) ;
+  zmw_label(label) ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       zmw_vertical_alignment(0) ;
       
@@ -109,65 +109,65 @@ void page_test_windows(struct menu *tests, int auto_resize)
 void page_option(int *box, int *border_width, int *padding_width
 		 , char **font_name, int *auto_resize, int *size)
 {
-  zmw_text("Option") ;
+  zmw_label("Option") ;
 
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       zmw_vertical_alignment(0) ;
 
-      zmw_text("Draw box") ;
-      zmw_radio_with_label((int*)box,0
+      zmw_label("Draw box") ;
+      zmw_radio_button_with_label((int*)box,0
 			   , "No box") ;
-      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Solid
+      zmw_radio_button_with_label((int*)box,Zmw_Decorator_Border_Solid
 			   , "Solid Box") ;
 
-      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+      zmw_radio_button_with_label((int*)box,Zmw_Decorator_Border_Relief
 			   | Zmw_Decorator_Border_Out
 			   , "Relief Out Box") ;
-      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+      zmw_radio_button_with_label((int*)box,Zmw_Decorator_Border_Relief
 			   | Zmw_Decorator_Border_In
 			   , "Relief In Box") ;
-      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+      zmw_radio_button_with_label((int*)box,Zmw_Decorator_Border_Relief
 			   | Zmw_Decorator_Border_In
 			   ,"Embossed in Box") ;
-      zmw_radio_with_label((int*)box,Zmw_Decorator_Border_Relief
+      zmw_radio_button_with_label((int*)box,Zmw_Decorator_Border_Relief
 			   | Zmw_Decorator_Border_Out
 			   , "Embossed out Box") ;
 
-      zmw_text("Border width in pixel") ;
-      ZMW(zmw_box_horizontal())
+      zmw_label("Border width in pixel") ;
+      ZMW(zmw_hbox())
 	{
-	  zmw_radio_with_label(border_width, 1, "1") ;
-	  zmw_radio_with_label(border_width, 2, "2") ;
-	  zmw_radio_with_label(border_width, 4, "4") ;
-	  zmw_radio_with_label(border_width, 6, "6") ;
-	  zmw_radio_with_label(border_width, 8, "8") ;
+	  zmw_radio_button_with_label(border_width, 1, "1") ;
+	  zmw_radio_button_with_label(border_width, 2, "2") ;
+	  zmw_radio_button_with_label(border_width, 4, "4") ;
+	  zmw_radio_button_with_label(border_width, 6, "6") ;
+	  zmw_radio_button_with_label(border_width, 8, "8") ;
 	}
       
-      zmw_text("Padding width in pixel") ;
-      ZMW(zmw_box_horizontal())
+      zmw_label("Padding width in pixel") ;
+      ZMW(zmw_hbox())
 	{
-	  zmw_radio_with_label(padding_width, 0, "0") ;
-	  zmw_radio_with_label(padding_width, 1, "1") ;
-	  zmw_radio_with_label(padding_width, 2, "2") ;
-	  zmw_radio_with_label(padding_width, 4, "4") ;
+	  zmw_radio_button_with_label(padding_width, 0, "0") ;
+	  zmw_radio_button_with_label(padding_width, 1, "1") ;
+	  zmw_radio_button_with_label(padding_width, 2, "2") ;
+	  zmw_radio_button_with_label(padding_width, 4, "4") ;
 	}
       
-      zmw_text("Font family") ;
-      ZMW(zmw_box_horizontal())
+      zmw_label("Font family") ;
+      ZMW(zmw_hbox())
 	{
-	  static char *fonts[] = { "times", "helvetica",
-				   "courier", "fixed", NULL } ;
+	  static char *fonts[] = { "fixed", "clean",
+				   "sans", "monospace", NULL } ;
 	  int i ;
 
 	  for(i=0; fonts[i]; i++)
 	    {
 	      zmw_font_family( fonts[i] ) ;
-	      zmw_radio_with_label((int*)font_name, (int)fonts[i], fonts[i]) ;
+	      zmw_radio_button_with_label((int*)font_name, (int)fonts[i], fonts[i]) ;
 	    }
 	}
-      zmw_text("Font size") ;
-      ZMW(zmw_box_horizontal())
+      zmw_label("Font size") ;
+      ZMW(zmw_hbox())
 	{
 	  static char *sizes[] = { "8", "10", "12", "16", NULL } ;
 	  int i ;
@@ -175,12 +175,12 @@ void page_option(int *box, int *border_width, int *padding_width
 	  for(i=0; sizes[i]; i++)
 	    {
 	      zmw_font_size( atoi(sizes[i]) ) ;
-	      zmw_radio_with_label(size, atoi(sizes[i]), sizes[i]) ;
+	      zmw_radio_button_with_label(size, atoi(sizes[i]), sizes[i]) ;
 	    }
 	}
       
       
-      zmw_text("Misc") ;
+      zmw_label("Misc") ;
       zmw_toggle_int_with_label(auto_resize, "Window auto resize") ;
     }
 }
@@ -192,7 +192,7 @@ void main_menu()
   static int box = 0 ;
   static int border_width = 2 ;
   static int padding_width = 1 ;
-  static char *font_family = "times" ;
+  static char *font_family = "fixed" ;
   static int auto_resize = 0 ;
   static int page = 0 ;
   static struct menu output[] =
@@ -295,15 +295,15 @@ void main_menu()
 	{
       zmw_horizontal_expand(Zmw_True) ;
       zmw_vertical_expand(Zmw_True) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_padding_width(padding_width) ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_horizontal_alignment(0) ;
-		  zmw_text("Welcome to the ZMW testbed") ;
+		  zmw_label("Welcome to the ZMW testbed") ;
 
 		  zmw_horizontal_alignment(-1) ;
 		  ZMW(zmw_notebook(&page))
@@ -321,13 +321,13 @@ void main_menu()
 		  zmw_horizontal_alignment(0) ;
 		  zmw_horizontal_expand(Zmw_False) ;
 		  zmw_vertical_expand(Zmw_False) ;
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_button_with_hidden_accelerator("Quit", GDK_CONTROL_MASK, 'Q') ;
 		      if ( zmw_activated() || zmw_accelerator(GDK_CONTROL_MASK,'C') )
 			{
 			  printf("Bye bye\n") ;
-			  zmw_exit(0) ;
+			  zmw_main_quit(0) ;
 			}
 		      zmw_button("Close windows") ;
 		      if ( zmw_activated() )
@@ -364,6 +364,6 @@ int main(int argc, char **argv)
   if ( argc > 1 )
     test_name = argv[1] ;
 
-  zmw_run(main_menu) ;
+  zmw_main(main_menu) ;
   return(0) ;
 }

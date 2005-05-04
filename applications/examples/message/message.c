@@ -19,10 +19,10 @@ void message(void)
 	{
 	  zmw_vertical_alignment(0) ;
 	  zmw_vertical_expand(Zmw_False) ;
-	  ZMW( zmw_box_horizontal() )
+	  ZMW( zmw_hbox() )
 	    {
 	      zmw_image_from_file("warning.png") ;
-	      zmw_text("Why did you click?") ;
+	      zmw_label("Why did you click?") ;
 	    }
 	}
     }
@@ -31,7 +31,7 @@ void message(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(message) ;
+  zmw_main(message) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

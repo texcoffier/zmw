@@ -14,10 +14,10 @@ void copypaste(void)
   zmw_auto_resize(Zmw_True) ;
   ZMW(zmw_window("Text"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text_editable(&text1) ;
-	  zmw_text_editable(&text2) ;
+	  zmw_entry(&text1) ;
+	  zmw_entry(&text2) ;
 	}
     }
 }
@@ -25,7 +25,7 @@ void copypaste(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(copypaste) ;
+  zmw_main(copypaste) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

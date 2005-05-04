@@ -25,20 +25,15 @@
 #include <math.h>
 #include "library.h"
 
-double strings_checksum(Strings *s)
+Hash_Key strings_checksum(Strings *s)
 {
-  double cs, cs2 ;
-  int i, j ;
+  Hash_Key k ;
+  int i ;
 
-  cs = 0 ;
+  k = s->number ;
   for(i=0; i<s->number; i++)
-    {
-      cs2 = 0 ;
-      for(j=0; s->strings[i][j]; j++)
-	cs2 += 1.5*cs2 + s->strings[i][j] ;
-      cs += cs2 ;
-    }
-  return cs ;
+    k = hash_key(k, s->strings[i]) ;
+  return k ;
 }
 
 int strings_changed(Strings *s)

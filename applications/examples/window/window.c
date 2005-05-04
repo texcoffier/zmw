@@ -6,7 +6,7 @@ void submenu()
 {
   ZMW(zmw_window_popup_right_with_title("Submenu"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_tearoff() ;
 	  zmw_button("Action 2") ;
@@ -25,15 +25,15 @@ void menu()
 
   ZMW(zmw_window_popup_bottom_with_title("Menu"))		
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_tearoff() ;
 	  zmw_button("Submenu") ;
-	  ZMW ( zmw_popup() )
+	  ZMW ( zmw_menu() )
 	    submenu() ;
 	  zmw_button("An action") ;
 	  zmw_toggle_int_with_label(&boolean, "Toggle") ;
-	  zmw_text_editable(&text) ;
+	  zmw_entry(&text) ;
 	}
     }
 }
@@ -42,10 +42,10 @@ void window(void)
 {
   ZMW(zmw_window("Window"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW ( zmw_popup() )
+	  ZMW ( zmw_menu() )
 	    menu() ;
 	}
     }
@@ -54,7 +54,7 @@ void window(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(window) ;
+  zmw_main(window) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

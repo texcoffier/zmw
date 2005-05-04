@@ -38,25 +38,25 @@ void test_cursorin(const char *title)
 	
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
           sprintf(buf, "In the box: %d, in text A: %d, in text B: %d",
           		in1, in2, in3) ;
-          zmw_text(buf) ;
+          zmw_label(buf) ;
 
 	  if ( in2_ )
-	    zmw_text("Text A in") ;
+	    zmw_label("Text A in") ;
 	  else
-	    zmw_text("Text A") ;
+	    zmw_label("Text A") ;
 	  if ( zmw_cursor_enter() )
 	  	in2 = 1 ;
 	  if ( zmw_cursor_leave() )
 	  	in2 = 0 ;
 
 	  if ( in3_ )
-	    zmw_text("Text B in") ;
+	    zmw_label("Text B in") ;
 	  else
-	    zmw_text("Text B") ;
+	    zmw_label("Text B") ;
 	  if ( zmw_cursor_leave() )
 	  	in3 = 0 ;
 	  if ( zmw_cursor_enter() )

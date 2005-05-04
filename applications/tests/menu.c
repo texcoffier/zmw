@@ -27,7 +27,7 @@ static void popup_leaf(int j, int *radio)
   
   ZMW(zmw_window_popup_right())
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_tearoff() ;
 	  for(i=0; i<3; i++)
@@ -38,7 +38,7 @@ static void popup_leaf(int j, int *radio)
 	    }
 	  zmw_name("RadioBox") ;
 	  for(i=0; i<3; i++)
-	      zmw_radio_with_label(&radio[j], i, "Radio toggle") ;
+	      zmw_radio_button_with_label(&radio[j], i, "Radio toggle") ;
 	}
     }
 }
@@ -57,7 +57,7 @@ static void popup_node()
   zmw_horizontal_alignment(-1) ;
   ZMW(zmw_window_popup_right())
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_tearoff() ;
 	  for(i=0; i<3; i++)
@@ -65,7 +65,7 @@ static void popup_node()
 	      sprintf(name, "Button-%d", i) ;
 	      zmw_name(name) ;
 	      zmw_button(name) ;
-	      ZMW( zmw_popup() )
+	      ZMW( zmw_menu() )
 		{
 		  popup_leaf(i, &radio[i*3]) ;
 		}
@@ -73,7 +73,7 @@ static void popup_node()
 	  zmw_horizontal_expand(0) ;
 	  zmw_name("ToggleBox") ;
 	  zmw_toggle_int_with_label(&v, "Toggle in menu") ;
-	  zmw_text_editable(&text) ;
+	  zmw_entry(&text) ;
 	  
 	  zmw_button("Print a message") ;
 	  if ( zmw_activated() )
@@ -87,10 +87,10 @@ void test_menu(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Stack") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    popup_node() ;
 	}
     }
@@ -102,7 +102,7 @@ void test_minimal_menu(const char *title)
     {
       zmw_name("But") ;
       zmw_button("Menu") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	{
 	  ZMW(zmw_window_popup_right())
 	    {
@@ -122,7 +122,7 @@ void test_basic_menu(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Stack") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("But") ;
 	  zmw_button("Menu") ;
@@ -152,11 +152,11 @@ void test_basic_menu2(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Stack") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("But") ;
 	  zmw_button("Menu") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    {
 	      ZMW(zmw_window_popup_right())
 		{
@@ -166,7 +166,7 @@ void test_basic_menu2(const char *title)
 		  	{
 		  	  ZMW(zmw_window_popup_right(0) )
 		  	  	{
-		  	  		zmw_text("foo") ;
+		  	  		zmw_label("foo") ;
 		  	  	}
 		  	}
 		  	*/
@@ -176,7 +176,7 @@ void test_basic_menu2(const char *title)
 		  	{
 		  	  ZMW(zmw_window_popup_bottom() )
 		  	  	{
-		  	  		zmw_text("bar") ;
+		  	  		zmw_label("bar") ;
 		  	  	}
 		  	}
 		}
@@ -190,11 +190,11 @@ void test_menu_tearoff_simple(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_button("Menu") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	{
 	  ZMW(zmw_window_popup_right_with_title("pop"))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_tearoff() ;
 		  zmw_button("button") ;
@@ -216,7 +216,7 @@ void test_menu_tearoff_simple_orig(const char *title)
 	{
 	  ZMW(zmw_window_popup_right_with_id_and_title(&w, "pop"))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_tearoff() ;
 		  zmw_button("button") ;

@@ -31,12 +31,12 @@ void zmw_alert(char **message)
       zmw_auto_resize(1) ;
       ZMW(zmw_window("Alert"))
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
-	      zmw_text("Error message of the application") ;
+	      zmw_label("Error message of the application") ;
 	      ZMW(zmw_decorator(Zmw_Decorator_Border_Embossed))
 		{
-		  zmw_text(*message) ;
+		  zmw_label(*message) ;
 		}
 	      zmw_horizontal_alignment(0) ;
 	      zmw_horizontal_expand(0) ;

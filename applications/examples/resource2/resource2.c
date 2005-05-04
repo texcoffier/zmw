@@ -24,12 +24,12 @@ void resource2(void)
   ZMW(zmw_window("Resource"))
     {
       zmw_horizontal_expand(Zmw_True) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_horizontal_expand(Zmw_False) ;
-	  zmw_text("Click to change the alignment") ;
-	  ZMW(alignment(&horizontal_alignment)) zmw_text("Application") ;
-	  ZMW(alignment(NULL))                  zmw_text("Resource") ;
+	  zmw_label("Click to change the alignment") ;
+	  ZMW(alignment(&horizontal_alignment)) zmw_label("Application") ;
+	  ZMW(alignment(NULL))                  zmw_label("Resource") ;
 	}
     }
 }
@@ -37,7 +37,7 @@ void resource2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(resource2) ;
+  zmw_main(resource2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

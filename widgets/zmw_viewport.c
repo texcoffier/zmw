@@ -166,7 +166,7 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
 /*
  * Should save the state value for expand?
  * All these complex things are done because ZMW_EXTERNAL
- * erase all local variables.
+ * lost all local variables.
  */
 void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 {
@@ -181,10 +181,10 @@ void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
   ZMW(zmw_viewport(*x, *y, &x_size[depth], &y_size[depth], &r[depth]))
     {
       zmw_name("ZMW_VP_SBV") ;
-      zmw_scrollbar_vertical(y, y_size[depth]) ;
+      zmw_vscrollbar(y, y_size[depth]) ;
       activated[depth] |= zmw_activated() ;
       zmw_name("ZMW_VP_SBH") ;
-      zmw_scrollbar_horizontal(x, x_size[depth]) ;
+      zmw_hscrollbar(x, x_size[depth]) ;
       activated[depth] |= zmw_activated() ;
 
       zmw_name("ZMW_VP_EX") ;

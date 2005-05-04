@@ -14,7 +14,7 @@ void popup(char *title)
     {
       ZMW(zmw_window_popup_right_with_title(title))
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_tearoff() ;
 	      ZMW_EXTERNAL ;
@@ -29,11 +29,11 @@ void menuexternal2(void)
   ZMW(zmw_window("Menu"))
     {
       zmw_button("Menu") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	{
 	  ZMW(popup("Menu1"))
 	    {
-	      zmw_text(zmw_name_full) ;
+	      zmw_label(zmw_name_full) ;
 	      zmw_button("Action2") ;
 	    }
 	}
@@ -43,7 +43,7 @@ void menuexternal2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(menuexternal2) ;
+  zmw_main(menuexternal2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -9,7 +9,7 @@
 void decorated_text(const char *text, int option)
 {
   ZMW(zmw_decorator(option))
-    zmw_text(text) ;
+    zmw_label(text) ;
   if ( zmw_activated() )
     printf("%s activated\n", text) ;
 }
@@ -21,8 +21,8 @@ void decorator(void)
     {
       ZMW(zmw_table(2))
 	{
-	  zmw_text("Option") ;
-	  zmw_text("Option | Border_In") ;
+	  zmw_label("Option") ;
+	  zmw_label("Option | Border_In") ;
 
 	  T(Focusable) ;
 	  T(Activable) ;
@@ -38,7 +38,7 @@ void decorator(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(decorator) ;
+  zmw_main(decorator) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

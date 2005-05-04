@@ -57,34 +57,6 @@ void zmw_rectangle_void(Zmw_Rectangle *a)
  *
  */
 
-#define SWAP(X,Y) { tmp = ws->X ; ws->X = ws->Y ; ws->Y = tmp ; }
-
-static void size_swap_x_y(Zmw_Size *ws)
-{
-  int tmp ;
-
-  SWAP(allocated.x                       ,allocated.y                     ) ;
-  SWAP(allocated.width                   ,allocated.height                ) ;
-  SWAP(required.x                        ,required.y                      ) ;
-  SWAP(required.width                    ,required.height                 ) ;
-  SWAP(min.x                             ,min.y                           ) ;
-  SWAP(min.width                         ,min.height                      ) ;
-  SWAP(current_state.horizontal_expand   ,current_state.vertical_expand   ) ;
-  SWAP(current_state.horizontal_alignment,current_state.vertical_alignment) ;
-  SWAP(horizontal_expand                 ,vertical_expand                 ) ;
-}
-
-void zmw_swap_x_y()
-{
-  int i ;
-
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    {
-      size_swap_x_y(&ZMW_CHILDREN[i]) ;
-    }
-  size_swap_x_y(&ZMW_SIZE) ;
-}
-
 void zmw_padding_add(Zmw_Rectangle *r, int padding)
 {
  r->width  += 2*padding ;

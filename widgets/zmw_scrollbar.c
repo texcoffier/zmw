@@ -133,25 +133,25 @@ void zmw_scrollbar2(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 *y, Zm
   zmw_scrollbar2_with_delta(x, x_size, 0.1, y, y_size, 0.1) ;
 }
 
-void zmw_scrollbar_horizontal(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size)
+void zmw_hscrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size)
 {
   Zmw_Float_0_1 y = 0 ;	
   zmw_scrollbar2(x, x_size, &y, 1) ;
 }
 
-void zmw_scrollbar_vertical(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
+void zmw_vscrollbar(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size)
 {
   Zmw_Float_0_1 x = 0 ;	
   zmw_scrollbar2(&x, 1, y, y_size) ;
 }
 
-void zmw_scrollbar_horizontal_with_delta(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta)
+void zmw_hscrollbar_with_delta(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta)
 {
   Zmw_Float_0_1 y = 0 ;	
   zmw_scrollbar2_with_delta(x, x_size, x_delta, &y, 1, 1) ;
 }
 
-void zmw_scrollbar_vertical_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
+void zmw_vscrollbar_with_delta(Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
 {
   Zmw_Float_0_1 x = 0 ;	
   zmw_scrollbar2_with_delta(&x, 1, 1, y, y_size, y_delta) ;

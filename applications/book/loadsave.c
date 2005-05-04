@@ -24,19 +24,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-double library_book_checksum(Library *lib, Book *b)
+Hash_Key library_book_checksum(Library *lib, Book *b)
 {
-  double cs ;
+  Hash_Key cs ;
   int i ;
 
-  cs  =  1 + b->collection_index ;
-  cs *=  1 + b->number ;
-  cs *=  1 + b->author_index ;
-  cs *=  1 + b->rate ;
-  for(i=0; b->title[i]; i++)
-    cs *=  b->title[i] + 1 - ' ' ;
+  cs  =  b->collection_index
+    + 1000*(b->number
+	    + 1000*(b->author_index
+		    + 1000*(b->rate)
+		    )
+	    )
+    ;
+  cs = hash_key(cs, b->title) ;
   for(i=0; i<b->borrowers_number; i++)
-    cs *=  b->borrowers[i] ;
+    cs = cs*532483 + b->borrowers[i] ;
 
   return cs ;
 }

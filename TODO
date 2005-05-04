@@ -1,21 +1,8 @@
 Many things are missing in the current library.
 The ones with a "*" are priorities.
 
-WHAT I AM GOING TO DO NOW:
-	* UTF8 cursor vertical movement
-	* Text alignment
-	* Regression test on accelerator reception by multiple widgets
-	* Check why there is "zmw.debug" and "inherited.debug" ?
-	* Make the regression test in menu3.c (recursive menu)
-	* Append menu3.c example in the documentation
-	* zmw_swap_x_y can use a third of CPU time.
-	  So I will modify data structure to use a table.
-	  zMw->size[0].alignement zMw->size[0].required for X axis ...
-	  and [1] for Y axis (and [2] if we work in three D).
-	* Speak about XML GUI interface without memory in the documentation.
-
 WIDGETS:
-	* Input of composed characters in text entry
+	* Input of composed characters in text entry : Input method
 	- Alignement left/right in an horizontal widget
 	* Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
@@ -23,7 +10,8 @@ WIDGETS:
 	* zmw_window_drag(): Choose the window position relative to cursor
 	  with values in current state.
 	* Semantic Lens (move the code from book example to the library)
-
+	- Button with accelerators and menu with a table to align
+	  the button text and the accelerator name.
 
 LIBRARY CORE:
 	- Make a pile by attribute with a bit vector to indicate
@@ -42,7 +30,13 @@ LIBRARY CORE:
 		- no more "zmw_event_button_release"
 		- function calls outside user top level widgets
 		  are no more a special case.
+	  It is not a small change.
 	* Use bit record to store booleans in the structures,
+	- Hide references to gdk inside zmw_device (apply also to widgets)
+
+MISC:
+	* Debug book.c
+	* Append menu3.c example in the documentation
 
 BUGS:
 	* X window is locked (grab?) when debugging info is printed
@@ -54,10 +48,9 @@ BUGS:
 	- zmw_image_from_file are not freed : "when" is the question.
 	  Add a timestamp in resource in order to free images not
 	  used for 1 minute ?
-	- Tips do not appears if valgrind is used.
-	  It can be a problem of speed of execution
-	  and must be corrected.
 	- A menu can't be inside a not popped (a normal) window.
+	- Vertical cursors movement needs an attribute "x" in order
+	  to have regular motion.
 
 LIMITATIONS:
 	- Only one button mouse is used.

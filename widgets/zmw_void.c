@@ -116,12 +116,12 @@ void zmw_tip()
   zmw_if(zmw_tip_visible()) ;
 }
 
-void zmw_popup()
+void zmw_menu()
 {
   zmw_if_with_accelerators(zmw_window_is_popped()) ;
 }
 
-void zmw_popup_without_accelerators()
+void zmw_menu_without_accelerators()
 {
   zmw_if(zmw_window_is_popped()) ;
 }

@@ -8,7 +8,7 @@
  *
  * The menu stay popped if it contains a detached.
  *
- * zmw_popup() indicates DO_NOT_MAP_WINDOW to its child
+ * zmw_menu() indicates DO_NOT_MAP_WINDOW to its child
  * but its child is zmw_void and not a zmw_window
  * So the window is mapped....
  */
@@ -19,18 +19,18 @@ void menuvoid(void)
 
   ZMW(zmw_window("Menu void"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
 	  zmw_name("popup") ;
-	  ZMW(zmw_popup())
+	  ZMW(zmw_menu())
 	    {
 	      ZMW( zmw_void() ) // Only to trigger the bug
 		{
 		  ZMW(zmw_window_popup_right_with_title("Menu"))
 		    {
 		      zmw_button("Item1") ;
-		      ZMW(zmw_popup())
+		      ZMW(zmw_menu())
 			{
 			  ZMW(zmw_window_popup_right_with_title("Menu"))
 			    {
@@ -48,7 +48,7 @@ void menuvoid(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(menuvoid) ;
+  zmw_main(menuvoid) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -29,12 +29,12 @@ void vertical_box(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Column") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(strings); i++)
 	    {
 	      zmw_name(strings[i]) ;
-	      zmw_text(strings[i]) ;
+	      zmw_label(strings[i]) ;
 	    }
 	}
     }

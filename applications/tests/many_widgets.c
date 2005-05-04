@@ -42,7 +42,7 @@ void many_widgets(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 
 	  c[1] = '\0' ;
@@ -50,17 +50,17 @@ void many_widgets(const char *title)
 	    {
 	      sprintf(tmp, "Line=%d", j) ;
 	      zmw_name(tmp) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
 		  for(i=0; i<20; i++)
 		    {
 		      sprintf(tmp2, "Col=%d", i) ;
 		      zmw_name(tmp2) ;
-		      ZMW(zmw_box_vertical())
+		      ZMW(zmw_vbox())
 			{
 			  for(k=0; k<3; k++)
 			    {
-			      zmw_text_editable(&t[j][i][k]) ;
+			      zmw_entry(&t[j][i][k]) ;
 			    }
 			}
 		    }

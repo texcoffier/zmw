@@ -3,10 +3,10 @@
 /* DO NOT DISPLAY */
 void two_widgets(void)
 {
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
-      zmw_text("Hello") ;
-      zmw_text("World!") ;
+      zmw_label("Hello") ;
+      zmw_label("World!") ;
     }
 }
 /* DO NOT DISPLAY */
@@ -20,7 +20,7 @@ void top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(top) ; // Launch the infinite loop
+  zmw_main(top) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

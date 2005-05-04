@@ -10,7 +10,7 @@ void viewport(void)
 
   ZMW(zmw_window("Viewport"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  // If the size is not set, the viewport take
 	  // the size of its content.
@@ -18,7 +18,7 @@ void viewport(void)
 	  zmw_width(90) ;
 	  ZMW(zmw_viewport_with_scrollbar(&x, &y))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  for(i=0; i<sizeof(toggle)/sizeof(toggle[0]); i++)
 		    {
@@ -30,9 +30,9 @@ void viewport(void)
 	  zmw_height(ZMW_VALUE_UNDEFINED) ;
 	  zmw_width(ZMW_VALUE_UNDEFINED) ;
 	  sprintf(tmp, "x = %g", x) ;
-	  zmw_text(tmp) ;
+	  zmw_label(tmp) ;
 	  sprintf(tmp, "y = %g", y) ;
-	  zmw_text(tmp) ;	  
+	  zmw_label(tmp) ;	  
 	}
     }
 }
@@ -40,7 +40,7 @@ void viewport(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(viewport) ;
+  zmw_main(viewport) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

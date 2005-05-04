@@ -12,7 +12,7 @@ void hidden(void)
   ZMW(zmw_window("FC"))
     {
       zmw_button("File") ;
-      ZMW( zmw_popup() )
+      ZMW( zmw_menu() )
 	ZMW(zmw_window_popup_bottom())
 	{
 	  zmw_button("Load") ;
@@ -23,7 +23,7 @@ void hidden(void)
        * If it is before it will disappear when the menu popdown
        */
       zmw_height(100) ;
-      zmw_filechooser(&choosing_a_filename
+      zmw_file_selection(&choosing_a_filename
 		      , &filename_current
 		      , "Choose a filename"
 		      , "Load file"
@@ -36,7 +36,7 @@ void hidden(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(hidden) ;
+  zmw_main(hidden) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

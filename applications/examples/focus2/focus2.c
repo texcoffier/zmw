@@ -17,10 +17,10 @@ void focus2(void)
   ZMW(zmw_window("Focus2"))
     {
       zmw_focus(&focus) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text_editable(&text) ;
-	  zmw_text_editable(&text2) ;
+	  zmw_entry(&text) ;
+	  zmw_entry(&text2) ;
 	}
     }
 }
@@ -28,7 +28,7 @@ void focus2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(focus2) ;
+  zmw_main(focus2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

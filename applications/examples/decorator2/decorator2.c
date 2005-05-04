@@ -16,34 +16,34 @@ void decorator2(void)
 {
   ZMW(zmw_window("Decorator2"))
     {
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
-	  zmw_text("left") ;
+	  zmw_label("left") ;
 	  zmw_width(100) ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Clip|Zmw_Decorator_Interior
 			    |Zmw_Border_Solid))
 	    {
 	      zmw_horizontal_expand(Zmw_False) ;
 	      zmw_horizontal_alignment(-1) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
-		  zmw_text("L") ;
+		  zmw_label("L") ;
 		  ZMW(zmw_decorator(Zmw_Decorator_Clip|Zmw_Decorator_Interior))
-		    zmw_text("A clipped text because it is long") ;
-		  zmw_text("R") ;
+		    zmw_label("A clipped text because it is long") ;
+		  zmw_label("R") ;
 		}
 	    }
 	  zmw_width(ZMW_VALUE_UNDEFINED) ;
-	  zmw_text("middle") ;
+	  zmw_label("middle") ;
 	  zmw_width(100) ;
 	  ZMW(zmw_decorator(Zmw_Decorator_Clip|Zmw_Decorator_Interior
 			    |Zmw_Border_Solid))
-	    zmw_text("A clipped text because it is long") ;
+	    zmw_label("A clipped text because it is long") ;
 	  zmw_width(ZMW_VALUE_UNDEFINED) ;
-	  zmw_text("right") ;
+	  zmw_label("right") ;
 	  zmw_width(50) ;
 	  ZMW(clip())
-	    zmw_text("ABCDEFGHIJKL") ;
+	    zmw_label("ABCDEFGHIJKL") ;
 	}
     }
 }
@@ -51,7 +51,7 @@ void decorator2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(decorator2) ;
+  zmw_main(decorator2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

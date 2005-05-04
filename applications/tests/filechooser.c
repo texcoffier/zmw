@@ -34,23 +34,23 @@ void test_filechooser(const char *title)
     
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Launch File Chooser") ;
 	  if ( zmw_activated() )
 	    choosing_a_filename = 1 ;
 
-  zmw_filechooser(&choosing_a_filename
+  zmw_file_selection(&choosing_a_filename
 		  , &filename_current, "Choose a filename", "Load file") ;
   if ( zmw_activated() )
     {
       free(filename_selected) ;
       filename_selected = strdup(filename_current) ;
     }
-	  zmw_text("File name current :") ;
-	  zmw_text(filename_current) ;
-	  zmw_text("File name selected :") ;
-	  zmw_text(filename_selected) ;
+	  zmw_label("File name current :") ;
+	  zmw_label(filename_current) ;
+	  zmw_label("File name selected :") ;
+	  zmw_label(filename_selected) ;
 	}
 
     }

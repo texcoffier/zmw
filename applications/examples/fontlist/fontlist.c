@@ -42,15 +42,15 @@ void fontlist(void)
 
   ZMW(zmw_window("Boxes"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  for(i=0 ; families[i]; i++)
 	    {
 	      zmw_font_family(families[i]) ;
-	      ZMW(zmw_box_horizontal())
+	      ZMW(zmw_hbox())
 		{
-		  zmw_text(families[i]) ;
-		  zmw_text("0123456789 abcdefg ABCDEFG llllll") ;
+		  zmw_label(families[i]) ;
+		  zmw_label("0123456789 abcdefg ABCDEFG llllll") ;
 		}
 	    }
 	}
@@ -60,7 +60,7 @@ void fontlist(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(fontlist) ;
+  zmw_main(fontlist) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

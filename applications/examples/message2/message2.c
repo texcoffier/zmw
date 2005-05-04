@@ -9,7 +9,7 @@ void message(GdkWindow **w, Zmw_Boolean *visible,
   if ( *visible )
     ZMW(zmw_window_with_id(w, title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  ZMW_EXTERNAL ; /* Insert the child here */
 	  zmw_horizontal_alignment(Zmw_False) ;
@@ -31,7 +31,7 @@ void use_the_message_widget(void)
 
   ZMW(message(&message_window, &visible, "My Message", "Close window"))
     {
-      zmw_text("Any widget you want") ;
+      zmw_label("Any widget you want") ;
     }
 }
 /* DO NOT DISPLAY */
@@ -39,7 +39,7 @@ void use_the_message_widget(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(use_the_message_widget) ; // Launch the infinite loop
+  zmw_main(use_the_message_widget) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

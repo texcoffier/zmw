@@ -10,19 +10,19 @@ void xml_window(char *tag)
 
 void xml_box_vertical(char *tag)
 {
-  zmw_box_vertical() ;
+  zmw_vbox() ;
 }
 
 void xml_box_horizontal(char *tag)
 {
-  zmw_box_horizontal() ;
+  zmw_hbox() ;
 }
 
 void xml_label(char *tag)
 {
   char *p ;
   p = xml_get_tag_attribute(tag, "value", "A label") ;
-  zmw_text(p) ;
+  zmw_label(p) ;
 } 
 
 void xml_button(char *tag)
@@ -47,7 +47,7 @@ void xml_text(char *tag)
   if ( *v == NULL )
     *v = strdup(xml_get_tag_attribute(tag, "value", "edit me")) ;
   
-  zmw_text_editable(v) ;
+  zmw_entry(v) ;
 }
 
 
@@ -131,7 +131,7 @@ void xml_top()
        "</window>"
        ) ;
   ZMW(zmw_window("XML source"))
-    zmw_text_editable(&text) ;
+    zmw_entry(&text) ;
 
   xml(text) ;
 }
@@ -139,6 +139,6 @@ void xml_top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(xml_top) ;
+  zmw_main(xml_top) ;
   return 0 ;
 }

@@ -9,7 +9,7 @@ void bug2(void)
 
   ZMW(zmw_window("Bug1"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("int") ;
 	  zmw_int_editable(&widths[0]) ;
@@ -28,7 +28,7 @@ void bug2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(bug2) ;
+  zmw_main(bug2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,9 +28,11 @@ static struct cached_data {
   Zmw_Hash hash ;
   Zmw_Size r ;
   char *name ;
+  int age ;
 } *global_cache_table = NULL ;
 
 static int global_cache_size = 0 ; 
+static int global_cache_age = 0 ;
 
 #define ZMW_PRINTF if (0) zmw_printf
 
@@ -43,20 +45,18 @@ void zmw_cache_init(int size)
 
   ZMW_PRINTF("Cache init : %d\n", size) ;
 
-  for(i=0; i<global_cache_size; i++)
-    if ( global_cache_table[i].name )
-      ZMW_FREE(global_cache_table[i].name) ;
-
   if ( size != global_cache_size )
     {
       ZMW_REALLOC(global_cache_table, size) ;
       for(i=global_cache_size; i<size; i++)
 	{
 	  global_cache_table[i].name = NULL ;
+	  global_cache_table[i].age = 0 ;
+	  global_cache_table[i].hash = 0 ;
 	}
       global_cache_size = size ;
-
     }
+  global_cache_age++ ;
 }
 
 int zmw_cache_size()
@@ -66,12 +66,16 @@ int zmw_cache_size()
 
 void zmw_cache_free()
 {
+  int i ;
+
   if ( global_cache_size )
     {
       fprintf(stderr, "Size cache miss=%g%%\n"
 	      , 100*(global_cache_miss/(float)global_cache_test)
 	      ) ;
-      zmw_cache_init(global_cache_size) ;
+      for(i=0; i<global_cache_size; i++)
+	free(global_cache_table[i].name) ;
+
       free(global_cache_table) ;
     }
 }
@@ -90,13 +94,14 @@ int zmw_cache_get_size_real(Zmw_Size *r)
       cd = &global_cache_table[ZMW_SIZE_HASH % global_cache_size] ;
 
       if ( cd->hash == ZMW_SIZE_HASH
-	   && cd->name && strcmp(cd->name, zmw_name_full) == 0 )
+	   && cd->age == global_cache_age
+	   &&  cd->name && strcmp(cd->name, zmw_name_full) == 0 )
 	{
 	  *r = cd->r ;
 	  ZMW_PRINTF("Size in cache : %s\n", zmw_size_string(r)) ;
 	  return(0) ;
 	}
-     global_cache_miss++ ;
+      global_cache_miss++ ;
     }
   ZMW_PRINTF("Size NOT in cache\n") ;
   return(1) ;
@@ -104,7 +109,7 @@ int zmw_cache_get_size_real(Zmw_Size *r)
 
 int zmw_cache_get_size(Zmw_Size *r)
 {
-  if ( zmw.debug & Zmw_Debug_Cache_Slow )
+  if ( ZMW_DEBUG & Zmw_Debug_Cache_Slow )
     return 1 ;
 
   return zmw_cache_get_size_real(r) ;
@@ -120,11 +125,10 @@ void zmw_cache_set_size_real(const Zmw_Size *r)
       
       cd->r = *r ;
       cd->hash = ZMW_SIZE_HASH ;
+      cd->age = global_cache_age ;
       ZMW_PRINTF("zmw_cache_set_size_real %s : %s\n",
 		 zmw_name_full, zmw_size_string(r)) ;
-      if ( cd->name )
-	free(cd->name) ;
-      cd->name = strdup(zmw_name_full) ;
+      zmw_string_copy(&cd->name, zmw_name_full) ;
     }
 }
 
@@ -178,7 +182,7 @@ void zmw_cache_set_size(const Zmw_Size *r)
 {
   ZMW_PRINTF("set size of %s to %s\n", zmw_name_full, zmw_size_string(r)) ;
 
-  if ( zmw.debug & Zmw_Debug_Cache_Slow )
+  if ( ZMW_DEBUG & Zmw_Debug_Cache_Slow )
     zmw_cache_check(r) ;
   else
     zmw_cache_set_size_real(r) ;

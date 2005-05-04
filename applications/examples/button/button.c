@@ -9,7 +9,7 @@ void button(void)
   ZMW(zmw_window("Button"))
     {
       zmw_horizontal_expand(Zmw_False) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Button 1") ;
 	  if ( zmw_activated() )
@@ -30,7 +30,7 @@ void button(void)
 	    printf("I have been clicked !\n") ;
 
 	  sprintf(tmp, "State = %d %d %d", on_1, on_2, on_3) ;
-	  zmw_text(tmp) ;
+	  zmw_label(tmp) ;
 	}
     }
 }
@@ -38,7 +38,7 @@ void button(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(button) ;
+  zmw_main(button) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

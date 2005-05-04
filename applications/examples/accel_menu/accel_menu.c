@@ -7,10 +7,10 @@ void accel_menu(void)
 
   ZMW(zmw_window("Accelerator"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    {
 	      ZMW( zmw_window_popup_right() )
 		{
@@ -28,7 +28,7 @@ void accel_menu(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(accel_menu) ;
+  zmw_main(accel_menu) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

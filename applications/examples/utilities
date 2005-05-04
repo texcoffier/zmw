@@ -9,6 +9,15 @@ export SMALL2=0.2
 export ZMW_XVFBN=9
 export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
 
+
+if false
+then
+  VALGRIND=valgrind
+  SMALL1=100
+  SMALL2=200
+fi
+
+
 zmw_small_scale() {
 SAVE_SMALL1=$SMALL1
 SAVE_SMALL2=$SMALL2
@@ -36,6 +45,7 @@ export KEY_META=47
 export KEY_SHIFT=48
 export KEY_ESCAPE=49
 export KEY_TAB=50
+
 
 start_xvfb() {
   if [ "" = "$1" ]

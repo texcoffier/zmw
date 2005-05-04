@@ -3,10 +3,10 @@
 /* DO NOT DISPLAY */
 void toggle_with_label(int *value, const char *label)
 {
-  ZMW(zmw_box_horizontal_activable())
+  ZMW(zmw_hbox_activable())
     {
       zmw_toggle_int(value) ;
-      zmw_text(label) ;
+      zmw_label(label) ;
     }
   if ( zmw_activated() ) 
     *value = 1 - *value ;
@@ -23,7 +23,7 @@ void top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(top) ; // Launch the infinite loop
+  zmw_main(top) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */

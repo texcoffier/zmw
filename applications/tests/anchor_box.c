@@ -33,25 +33,25 @@ void test_anchor_box(const char *title)
       zmw_vertical_expand(1) ;
       zmw_horizontal_alignment(0) ;
       zmw_vertical_alignment(0) ;
-      ZMW(zmw_box())
+      ZMW(zmw_fixed())
 	{
 	  ZMW(zmw_anchor_box(&x, &y, &width, &height))
 	    {
-	      zmw_text("toto") ;
+	      zmw_label("toto") ;
 	    }
 	  ZMW(zmw_anchor_box(&x2, &y2, &width2, &height2))
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
-		  zmw_text("blablablabla") ;
+		  zmw_label("blablablabla") ;
 		  zmw_button("top") ;
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_button("foo") ;
-		      zmw_text("blabla") ;
+		      zmw_label("blabla") ;
 		      zmw_button("bar") ;
 		    }
-		  zmw_text("blablablabla") ;
+		  zmw_label("blablablabla") ;
 		}
 	    }
 	}

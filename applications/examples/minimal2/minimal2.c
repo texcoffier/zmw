@@ -50,12 +50,12 @@ void minimal2(void)
 
   ZMW(zmw_window("Rect + Activable"))
     {
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  ZMW( rectangle_activable() ) { }
 	  if ( zmw_activated() )
 	    has_been_activated = Zmw_True ;
-	  zmw_text("Has been activated:") ;
+	  zmw_label("Has been activated:") ;
 	  zmw_int(has_been_activated) ;
 	}
     }
@@ -65,7 +65,7 @@ void minimal2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(minimal2) ;
+  zmw_main(minimal2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

@@ -10,26 +10,26 @@ void box2(void)
       zmw_width(150) ;
       zmw_height(150) ;
 
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_horizontal_expand(Zmw_True) ;
 	  zmw_vertical_expand(Zmw_False) ;
-	  zmw_scrollbar_horizontal(&x,0.1) ;
+	  zmw_hscrollbar(&x,0.1) ;
 	  zmw_vertical_expand(Zmw_True) ;
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_horizontal_expand(Zmw_False) ;
-	      zmw_scrollbar_vertical(&y,0.1) ;
+	      zmw_vscrollbar(&y,0.1) ;
 	      zmw_horizontal_expand(Zmw_True) ;
-	      ZMW(zmw_box())
+	      ZMW(zmw_fixed())
 		{
 		  zmw_x(x*100) ;
 		  zmw_y(y*100) ;
-		  zmw_text("Here") ;
+		  zmw_label("Here") ;
 
 		  zmw_x(x*100 - 20) ;
 		  zmw_y(y*100 + 20) ;
-		  zmw_text("UnderLeft of 'Here'") ;
+		  zmw_label("UnderLeft of 'Here'") ;
 		}
 	    }
 	}
@@ -39,7 +39,7 @@ void box2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(box2) ;
+  zmw_main(box2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

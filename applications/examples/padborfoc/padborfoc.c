@@ -48,9 +48,9 @@ void item(int with_border, int border, int padding, int focus)
       zmw_border_width(padding) ;
       zmw_focus_width(focus) ;
       zmw_padding_width(padding) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_foreground(1,0,0) ;
 	      rect(with_border) ;
@@ -59,16 +59,16 @@ void item(int with_border, int border, int padding, int focus)
 	      zmw_foreground(1,0.6,0) ;
 	      rect(with_border) ;
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
 	      zmw_foreground(1,0,1) ;
 	      rect(with_border) ;
 	      zmw_foreground(1,0.5,1) ;
 	      rect(with_border) ;
 	    }
-	  ZMW(zmw_box_horizontal())
+	  ZMW(zmw_hbox())
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  /*
 		  zmw_foreground(0,0,1) ;
@@ -79,7 +79,7 @@ void item(int with_border, int border, int padding, int focus)
 		  zmw_foreground(0,0.6,1) ;
 		  rect(with_border) ;
 		}
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_foreground(0.4,0.4,0.4) ;
 		  rect(with_border) ;
@@ -101,14 +101,14 @@ void test(void)
       zmw_vertical_expand(Zmw_False) ;
       zmw_padding_width(0) ;
       zmw_border_width(2) ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  for(with_border=0; with_border<4; with_border++)
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		for(b=0; b<4; b++)
 		  {
-		    ZMW(zmw_box_horizontal())
+		    ZMW(zmw_hbox())
 		      {
 			for(p=0; p<3; p++)
 			  {
@@ -125,7 +125,7 @@ void test(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(test) ;
+  zmw_main(test) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

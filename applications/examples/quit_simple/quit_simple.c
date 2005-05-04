@@ -4,12 +4,12 @@ void hello_world(void)
 {
   ZMW(zmw_window("My Window"))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  zmw_text("Hello World!") ;
+	  zmw_label("Hello World!") ;
 	  zmw_button("Quit") ;
 	  if ( zmw_activated() )
-	    zmw_exit(0) ;
+	    zmw_main_quit(0) ;
 	}
     }
 }
@@ -17,7 +17,7 @@ void hello_world(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(hello_world) ;
+  zmw_main(hello_world) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

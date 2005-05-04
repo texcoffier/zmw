@@ -26,7 +26,7 @@ void test_toggle_()
   char toggle_name[100] ;
   int i ;
   
-  ZMW(zmw_box_vertical())
+  ZMW(zmw_vbox())
     {
       for(i=0; i<5; i++)
 	{

@@ -10,19 +10,19 @@ void notebook2(void)
     {
       ZMW(zmw_notebook(&current_page))
 	{
-	  zmw_text("NB") ;
+	  zmw_label("NB") ;
 	  ZMW(zmw_notebook(&current_page_2))
 	    {
-	      zmw_text("p1") ;
-	      zmw_text("c1") ;
-	      zmw_text("p2") ;
-	      zmw_text("c2") ;
+	      zmw_label("p1") ;
+	      zmw_label("c1") ;
+	      zmw_label("p2") ;
+	      zmw_label("c2") ;
 	    }
 
-	  zmw_text("T1") ;
+	  zmw_label("T1") ;
 	  zmw_toggle_int(&t1) ;
 
-	  zmw_text("T2") ;
+	  zmw_label("T2") ;
 	  zmw_toggle_int(&t2) ;
 	}
     }
@@ -31,7 +31,7 @@ void notebook2(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(notebook2) ;
+  zmw_main(notebook2) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

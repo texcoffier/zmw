@@ -14,14 +14,14 @@ void focus(void)
   ZMW(zmw_window("Focus"))
     {
       zmw_focus(&focus) ;
-      zmw_text_editable(&text) ;
+      zmw_entry(&text) ;
     }
 }
 /* DO NOT DISPLAY */
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(focus) ;
+  zmw_main(focus) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

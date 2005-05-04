@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ void main_sb()
 {
   if ( ZMW_ACTION == zmw_action_draw )
   	{
-	    zmw.debug |= Zmw_Debug_Trace ;
+	    ZMW_DEBUG |= Zmw_Debug_Trace ;
   	}
 
   switch(what)
@@ -49,7 +49,7 @@ void main_sb()
 	break ;
     }
 
-  if ( zmw.debug )
+  if ( ZMW_DEBUG )
     exit(0) ;
 }
 
@@ -57,6 +57,6 @@ int main(int argc, char **argv)
 {
   what = atoi(argv[1]) ;
   zmw_init(&argc, &argv) ;
-  zmw_run(main_sb) ;
+  zmw_main(main_sb) ;
   return(0) ;
 }

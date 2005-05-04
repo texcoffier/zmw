@@ -28,11 +28,11 @@ void test_animation(const char *title)
 
   ZMW(zmw_window(title))
     {
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 
 	  zmw_height(100) ;
-	  zmw_text(ctime(&tv.tv_sec)) ;
+	  zmw_label(ctime(&tv.tv_sec)) ;
 
 	  if ( zmw_drawing() )
 	    zmw_draw_line(Zmw_Color_Border_Dark

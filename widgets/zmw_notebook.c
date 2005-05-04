@@ -46,7 +46,7 @@ static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Size *ws)
     ZMW_CHILDREN[i] = ws[i*2] ;
 
   save = ZMW_SIZE_MIN ;
-  zmw_box_horizontal_required_size(Zmw_False) ; // Padding taken into account
+  zmw_hbox_required_size(Zmw_False) ; // Padding taken into account
   res = ZMW_SIZE_MIN ;
   ZMW_SIZE_MIN = save ;
 
@@ -89,7 +89,7 @@ static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
   ZMW_SIZE_ALLOCATED.height = name.height ;
   if ( ZMW_SIZE_ALLOCATED.width > ZMW_SIZE_MIN.width )
     ZMW_SIZE_ALLOCATED.width = ZMW_SIZE_MIN.width ;
-  zmw_box_horizontal_children_allocated_size(Zmw_False) ;
+  zmw_hbox_children_allocated_size(Zmw_False) ;
   ZMW_SIZE_ALLOCATED = r ;
   for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
     ws[i*2] = ZMW_CHILDREN[i] ;

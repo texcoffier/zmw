@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
 
 typedef enum
   {
@@ -62,6 +65,8 @@ typedef enum zmw_subaction
     Zmw_Nothing,
     Zmw_Clean,			/* ZMW is shuting down, free resources */
     Zmw_Debug_Message,          /* Display warnings and debugging messages */
+
+    Zmw_Subaction_Last          /* Only mark the table end */
   } Zmw_Subaction ;
 
 typedef enum {
@@ -83,6 +88,7 @@ typedef enum {
 #define Zmw_Debug_Cache_Fast         256
 #define Zmw_Debug_Cache_Slow         512
 #define Zmw_Debug_Name              1024
+#define Zmw_Debug_Profiling         2048
 
 #define ZMW_LEFT -1
 #define ZMW_CENTER 0
@@ -113,25 +119,35 @@ typedef struct zmw_name
   struct zmw_name *next ;	// Collision in the hash table
 } Zmw_Name ;
 
+/*
+ * This structure contains:
+ *   - Informations needed by the parent to computed children allocated size
+ *   - And state information computed from previous loops
+ * "expand" information is here twice (not nice at all):
+ *   - The current expand state asked by the user
+ *   - The expand state that apply to the widget.
+ *     Because if the user ask a fixed width, the widget can't expand.
+ *     (see zmw.c "zmw_action_compute_required_size")
+ */
 typedef struct zmw_size
 {
+  Zmw_Hash hash ;             // Key of the full widget name
   Zmw_Rectangle min ;		// Size needed for correct display
   Zmw_Rectangle required ;	// It is : needed overrided by asked
   Zmw_Rectangle allocated ;   // Size usable (_padded less padding)
-  Zmw_Hash hash ;
   Zmw_Boolean used_to_compute_parent_size ;
   Zmw_Boolean event_in_rectangle ;
   Zmw_Boolean event_in_children ;
   Zmw_Boolean invisible ;
   Zmw_Boolean sensible ;
-  Zmw_Boolean focused ;
   Zmw_Boolean do_not_map_window ; /* for menu containing detached window */
   Zmw_Boolean activated ;
-  Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean changed ;	        /* True if the widget has changed */
+  Zmw_Boolean child_activated ; /* True if a child was activated */
   Zmw_Boolean tip_visible ;	/* True if it is a displayed tip */
   Zmw_Boolean horizontal_expand ;
   Zmw_Boolean vertical_expand ;
+  Zmw_Boolean focused ;
   /*
    * If true, the widget is transparent for size, sensible, activate, ...
    * requests. Because it is not this widget we want to test
@@ -141,7 +157,7 @@ typedef struct zmw_size
   Zmw_Boolean pass_through ;
   /*
    * These values are stored for each widgets in the child list.
-   * But A subset of these values are the current state that
+   * But a subset of these values are the current state that
    * must be passed to the next sibling or to the first child.
    */
   struct
@@ -213,7 +229,7 @@ typedef struct zmw_state
   Zmw_Stackable_Uninheritable u ;
 } Zmw_State ;
 
-struct zmw_run ;
+struct zmw_main ;
 
 typedef struct zmw
 {
@@ -221,7 +237,7 @@ typedef struct zmw
    * Window list.
    * This window list is created by "zmw_window".
    * The windows in the GDK list and not in this one must be unmapped.
-   * See zmw_run.c/zmw_draw
+   * See zmw_main.c/zmw_draw
    */
   int nb_windows ;
   struct zmw_windows
@@ -241,10 +257,6 @@ typedef struct zmw
    */
   char full_name[ZMW_MAX_NAME_LENGTH] ; // The widget names are computed here
   /*
-   * These values apply to the next widget and the other after that
-   */
-  int debug ;			        // Library Debug flags Zmw_Debug_...
-  /*
    * These values apply only once and are reseted
    */
   Zmw_Boolean external_do_not_make_init ; // For EXTERNAL
@@ -252,7 +264,7 @@ typedef struct zmw
    * These values apply to the last widget (can't be used before first kid)
    */
   /*
-   * Theses values are set by zmw_run.c and should not be modified
+   * Theses values are set by zmw_main.c and should not be modified
    */ 
   GdkEvent *event ;		/* Current event, erased when received */
   Zmw_Boolean event_removed ;   /* If true the event had been processed */
@@ -274,9 +286,12 @@ typedef struct zmw
   Zmw_Boolean inside_zmw_parameter ;
 #endif
   /*
-   * Theses values are private to "zmw_run.c"
+   * Theses values are private to "zmw_main.c"
    */
-  struct zmw_run *run ;         /* Hidden struct, private to zmw_run.c */
+  struct zmw_main *run ;         /* Hidden struct, private to zmw_main.c */
+#if ZMW_PROFILING
+  Zmw_Boolean profiling_displayed ;
+#endif
 } Zmw ;
 
 extern Zmw zmw ;
@@ -381,13 +396,9 @@ extern Zmw zmw ;
 
 
 #if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
-#define ZMW_GO_INSIDE   zmw.inside_zmw_parameter = Zmw_True,
-#define ZMW_GO_OUTSIDE  zmw.inside_zmw_parameter = Zmw_False,
 #define ZMW_FUNCTION_CALLED_OUTSIDE_ZMW_PARAMETER if ( zmw.inside_zmw_parameter) ZMW_ABORT
 #define ZMW_FUNCTION_CALLED_INSIDE_ZMW_PARAMETER if ( !zmw.inside_zmw_parameter) ZMW_ABORT
 #else
-#define ZMW_GO_INSIDE
-#define ZMW_GO_OUTSIDE
 #define ZMW_FUNCTION_CALLED_OUTSIDE_ZMW_PARAMETER
 #define ZMW_FUNCTION_CALLED_INSIDE_ZMW_PARAMETER
 #endif
@@ -398,44 +409,80 @@ extern Zmw zmw ;
 #define ZMW_STORE_WIDGET_TYPE(TYPE)
 #endif
 
-#define ZMW(TYPE) for(ZMW_STORE_WIDGET_TYPE(TYPE) zmw_init_widget(),zmw_debug_in_zmw_loop(-1); \
-                      ZMW_GO_INSIDE zmw_debug_in_zmw_loop(0),(TYPE),zmw_debug_in_zmw_loop(1),ZMW_GO_OUTSIDE (*ZMW_ACTION)() ; \
-                      zmw_state_pop())
+
+
+#define ZMW(TYPE) for(							\
+		      ZMW_STORE_WIDGET_TYPE(TYPE)			\
+			zmw_debug_in_zmw_loop(0,0,__LINE__,__FILE__),	\
+			zmw_init_widget(),				\
+			zmw_debug_in_zmw_loop(1,0,__LINE__,__FILE__)	\
+			;						\
+		      zmw_debug_in_zmw_loop(2,0,__LINE__,__FILE__),	\
+			(TYPE),						\
+			zmw_debug_in_zmw_loop(3,0,__LINE__,__FILE__),	\
+			zmw_debug_in_zmw_loop(4, (*ZMW_ACTION)(),__LINE__,__FILE__) \
+			;						\
+		      zmw_debug_in_zmw_loop(5,0,__LINE__,__FILE__),	\
+			zmw_state_pop()					\
+		       )
 
 /*
  * See zmw_viewport.c for example of use
  */
 
-#define ZMW_EXTERNAL_RESTART  if ( ZMW_CALL_NUMBER ) goto restart ; zmw.external_do_not_make_init = Zmw_True
+#define ZMW_PFE if (0) zmw_printf
+
+#define ZMW_EXTERNAL_RESTART						\
+  ZMW_PFE("ZMW_EXTERNAL_RESTART : begin\n") ;				\
+  if ( ZMW_CALL_NUMBER )						\
+     {									\
+       ZMW_PFE("ZMW_EXTERNAL_RESTART : restart internal loop\n") ;	\
+       goto restart ;							\
+     }									\
+ ZMW_PFE("ZMW_EXTERNAL_RESTART : first time\n") ;			\
+ zmw.external_do_not_make_init = Zmw_True
 
 
-#define ZMW_EXTERNAL_RETURNS(X) { ZMW_EXTERNAL_STATE = Zmw_External_Continue ; return X ; restart: ZMW_DO_NOT_EXECUTE_POP = Zmw_False ; }
+#define ZMW_EXTERNAL_RETURNS(X)				\
+{							\
+  ZMW_PFE("ZMW_EXTERNAL_RETURN\n") ;			\
+  ZMW_EXTERNAL_STATE = Zmw_External_Continue ;		\
+  return X ;						\
+ restart:						\
+  ZMW_PFE("ZMW_EXTERNAL_RETURN : restarted\n") ;	\
+  ZMW_DO_NOT_EXECUTE_POP = Zmw_False ;		\
+}
 
 #define ZMW_EXTERNAL ZMW_EXTERNAL_RETURNS( )
 
-#define ZMW_EXTERNAL_STOP  ZMW_EXTERNAL_STATE = Zmw_External_Stop ; zmw.external_do_not_make_init = Zmw_False ;
+#define ZMW_EXTERNAL_STOP			\
+ZMW_PFE("ZMW_EXTERNAL_STOP\n") ;		\
+ZMW_EXTERNAL_STATE = Zmw_External_Stop ;	\
+zmw.external_do_not_make_init = Zmw_False ;
 
 
 /* It is a macro because it contains a return.... */
 /* The children are not executed because they had been
    yet displayed by ZMW_EXTERNAL */
 #define ZMW_EXTERNAL_HANDLING					\
+  ZMW_PFE("ZMW_EXTERNAL_HANDLING\n") ;				\
   if ( ZMW_EXTERNAL_STATE != Zmw_External_No )			\
     {								\
       int zmw_i_ ;						\
       zmw_i_ = (ZMW_EXTERNAL_STATE == Zmw_External_Continue) ;	\
+      ZMW_PFE("ZMW_EXTERNAL_HANDLING : state = %d\n", zmw_i_) ;	\
       ZMW_EXTERNAL_STATE = Zmw_External_No ;			\
       if ( zmw_i_ )						\
                ZMW_DO_NOT_EXECUTE_POP = Zmw_True ;		\
       return( zmw_i_  ) ;					\
     }
 
-
 /*
  *
  */
 
 #define ZMW_MALLOC(P,N) P = malloc((N) * sizeof(*(P)))
+#define ZMW_MALLOC_0(P,N) P = calloc(N,sizeof(*(P)))
 #define ZMW_REALLOC(P,N) P = realloc(P, (N) * sizeof(*(P)))
 #define ZMW_FREE(P) ZMW1( free(P) ; (P)=NULL ; )
 #define ZMW_TABLE_SIZE(T) (sizeof(T)/sizeof((T)[0]))
@@ -469,11 +516,11 @@ extern Zmw zmw ;
 			&& (http_printf("<B><U>%s:%s:%d</U></B>", __FILE__, __FUNCTION__, __LINE__),1) )
 
 /*
- * zmw_run.c
+ * zmw_main.c
  */
 void zmw_init(gint *argc, gchar ***argv) ;
-void zmw_run(void (*fct)(void)) ;
-void zmw_exit(int r) ;
+void zmw_main(void (*fct)(void)) ;
+void zmw_main_quit(int r) ;
 void zmw_do_nothing(void) ;
 void zmw_need_repaint(void) ;
 void zmw_need_dispatch(void) ;
@@ -489,11 +536,14 @@ const char *zmw_action_name(void) ;
 const char *zmw_action_name_fct(void) ;
 void zmw_name(const char *s) ;
 void zmw_font_family(const char *s) ;
+void zmw_string_copy(char **to, const char *from) ;
+Zmw_Boolean zmw_font_description_equals(const Zmw_Font_Description*,const Zmw_Font_Description*) ;
+void zmw_font_description_copy(Zmw_Font_Description*,const Zmw_Font_Description*) ;
 #define zmw_font_size(s) ZMW_FONT_SIZE = s
 #define zmw_font_weight(w) ZMW_FONT_WEIGHT = w
 #define zmw_font_style(s) ZMW_FONT_STYLE = s
 #define zmw_color(T,P) ZMW_COLORS[T] = P
-void zmw_state_init(Zmw_State *s) ; /* Used only by zmw_run.c */
+void zmw_state_init(Zmw_State *s) ; /* Used only by zmw_main.c */
 void zmw_state_pop(void) ;
 Zmw_Hash zmw_hash(Zmw_Hash, const char*) ;
 Zmw_Size* zmw_widget_previous_size(void) ;
@@ -513,14 +563,6 @@ void zmw_debug_trace(void) ;
 void zmw_stack_print(void) ;
 int zmw_event_in(void) ;
 void zmw_focus(Zmw_Name *focus) ;
-
-
-static inline int zmw_debug_in_zmw_loop(int i)
-{
-  if ( i==0 && (zmw.debug & Zmw_Debug_Trace) )
-    zmw_debug_trace() ;
-  return 0 ;
-}
 
 
 
@@ -568,7 +610,6 @@ void zmw_resource_pointer_get(void **pointer_value, const char *resource
 /* void zmw_compute_box_size(int allocated) ; */
 Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
 void zmw_rectangle_void(Zmw_Rectangle *a) ;
-void zmw_swap_x_y(void) ;
 void zmw_padding_add(Zmw_Rectangle *r, int padding) ;
 void zmw_padding_remove(Zmw_Rectangle *r, int padding) ;
 
@@ -587,15 +628,18 @@ void zmw_draw_clip_pop() ;
 #define zmw_foreground(R,G,B) zmw_color(Zmw_Color_Foreground, zmw_rgb_to_int(R,G,B))
 #define zmw_background(R,G,B) zmw_color(Zmw_Color_Background_Normal, zmw_rgb_to_int(R,G,B))
 void zmw_text_init() ;
-void zmw_text_set_text(const char *text, const Zmw_Font_Description *fd) ;
+void zmw_text_exit() ;
+void zmw_text_set_text(char *text, const Zmw_Font_Description *fd) ;
 void zmw_text_render(Zmw_Color c, int xx, int yy) ;
 void zmw_text_get_size(int *width, int *height) ;
 int zmw_text_xy_to_index(int x, int y) ;
 void zmw_text_get_grapheme_rectangle(int index, Zmw_Rectangle *rect) ;
 void zmw_text_cursor_position(int cursor_pos, Zmw_Rectangle *r) ;
-int zmw_text_next_char(const char *text, int cursor) ;
-int zmw_text_previous_char(const char *text, int cursor) ;
-int zmw_text_delete_char(char *text, int cursor) ;
+int zmw_text_next_char(int cursor) ;
+int zmw_text_previous_char(int cursor) ;
+int zmw_text_delete_char(int cursor) ;
+int zmw_text_up_char(int cursor) ;
+int zmw_text_down_char(int cursor) ;
 
 /*
  * zmw_graphic.c
@@ -705,6 +749,153 @@ void zmw_cache_free(void) ;
 int zmw_cache_get_size(Zmw_Size *r) ;
 void zmw_cache_set_size(const Zmw_Size *r) ;
 int zmw_cache_size() ;
+
+
+/*
+ * This function is inline static to optimize time.
+ *
+ * A side effect is that there is a table per file to collect profiling.
+ * So only the line numbers are needed :-)
+ */
+
+
+static inline int zmw_debug_in_zmw_loop(int i, int j, int line, char *file)
+{
+  if ( i==2 )
+    {
+      if (ZMW_DEBUG & Zmw_Debug_Trace)
+	zmw_debug_trace() ;
+
+#if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
+	zmw.inside_zmw_parameter = Zmw_True ;
+#endif
+    }
+
+#if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
+  if ( i==4 )
+    zmw.inside_zmw_parameter = Zmw_False ;
+#endif
+
+#if ZMW_PROFILING 
+  if ( ZMW_DEBUG & Zmw_Debug_Profiling )
+    {
+      int k, n, m, s, total ;
+      long diff ;
+      struct timeval tv ;
+      static struct
+      {
+	int line ;
+	int nb_init, nb_loop ;
+	struct timeval tv ;
+	int microsec[3+Zmw_Subaction_Last] ;
+      } *stat = NULL ;
+      static int stat_nb = 0 ;
+      static Zmw_Boolean terminating = Zmw_False ;
+
+      for (k=0; k<stat_nb; k++)
+	if ( line == stat[k].line )
+	  break ;
+      if ( k == stat_nb )
+	{
+	  if ( terminating )
+	    return j ;
+
+	  ZMW_REALLOC(stat, stat_nb+1) ;
+	  memset(&stat[k], 0, sizeof(stat[k])) ;
+	  {
+	    int ii ;
+	    for(ii=0; ii<3+Zmw_Subaction_Last; ii++)
+	      stat[k].microsec[ii] = 0 ;
+	  }
+	  stat[k].line = line ;
+	  stat_nb++ ;
+	  ZMW_ASSERT( i == 0 ) ;
+	}
+
+      gettimeofday(&tv, NULL) ;
+      diff = (tv.tv_sec - stat[k].tv.tv_sec)*1000000
+	+  tv.tv_usec - stat[k].tv.tv_usec ;
+      switch(i)
+	{
+	case 1: // zmw_init_widget() time
+	  stat[k].microsec[0] += diff ;
+	  stat[k].nb_init++ ;
+	  break ;
+	case 3: // (TYPE) time
+	  if ( ZMW_EXTERNAL_STATE != Zmw_External_No )
+	    break ;
+
+	  stat[k].nb_loop++ ;
+	  stat[k].microsec[3+ZMW_SUBACTION] += diff ;
+	  break ;
+	case 4: // (*ZMW_ACTION)() time
+	  stat[k].microsec[1] += diff ;
+	  break ;
+	case 5: // loop time
+	  stat[k].microsec[2] += diff ;
+	  break ;
+	}
+      stat[k].tv = tv ;
+
+
+      if ( i == 4 && j == 0 && ZMW_ACTION == zmw_action_clean )
+	{
+	  terminating = Zmw_True ;
+	  if ( ! zmw.profiling_displayed )
+	    {
+	      zmw.profiling_displayed = 1 ;
+	      fprintf(stderr,
+		      "Time are in microseconds of real time (not CPU).\n"
+		      "LOOP time contains the children times.\n"
+		      ) ;
+	      fprintf(stderr,
+		      "  TOTAL ;In;Ac;Lo;In;Re;Al;Al;Po;In;No;Cl;Me;TY; #init  ; #loop  ;File name\n"
+		      "        ;it;ti;op;it;Si;Dr;Si;Dr;Ev;th;ea;ss;PE;        ;        ;\n"
+		      "        ;  ;on;  ;  ;ze;aw;ze;aw;en;in;n ;ag;  ;        ;        ;\n"
+			) ;
+	    }
+
+	  total = 0 ;
+	  for(m=0; m<3+Zmw_Subaction_Last; m++)
+	    {
+	      total += stat[k].microsec[m] ;
+	    }
+	  fprintf(stderr,"%8d;", total) ;
+
+	  for(n=0; n<4; n++)
+	    {
+	      if ( n == 3 )
+		{
+		  s = 0 ;
+		  for(m=0; m<Zmw_Subaction_Last; m++)
+		    {
+		      s += stat[k].microsec[n+m] ;
+		      fprintf(stderr, "%2d;"
+			      , (int)((100.*stat[k].microsec[n+m]) / total)) ;
+		    }
+		  fprintf(stderr, "%2d;", (int)((100.*s)/total)) ;
+		}
+	      else
+		fprintf(stderr, "%2d;", (int)((100.*stat[k].microsec[n])/total)) ;
+	    }
+	  fprintf(stderr, "%8d;%8d;"
+		  , stat[k].nb_init
+		  , stat[k].nb_loop
+		  ) ;
+	  fprintf(stderr, "%s:%d\n", file, line) ;
+
+	  memmove(&stat[k], &stat[k+1], (stat_nb-k-1)*sizeof(stat[k])) ;
+	  stat_nb-- ;
+	  if ( stat_nb == 0 )
+	    free(stat) ;
+	}
+    }
+#endif
+
+    
+
+  return j ;
+}
 
 
 #include "zmw/zmw_widgets.h"

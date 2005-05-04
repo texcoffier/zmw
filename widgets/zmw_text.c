@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -55,9 +55,9 @@ void zmw_text_insert(char **text, int *cursor_pos, int *start_pos
 void zmw_text_backspace(char **text, int *cursor_pos, int *start_pos)
 {
   if ( *start_pos != -1  && *start_pos > *cursor_pos )
-    *start_pos = zmw_text_previous_char(*text, *start_pos) ;
+    *start_pos = zmw_text_previous_char(*start_pos) ;
 
-  *cursor_pos = zmw_text_delete_char(*text, *cursor_pos) ;
+  *cursor_pos = zmw_text_delete_char(*cursor_pos) ;
 }
 
 void zmw_text_draw_selection(int start_pos, int cursor_pos)
@@ -269,11 +269,19 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	    }
 	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Left )
 	    {
-	      *cursor_pos = zmw_text_previous_char(*text, *cursor_pos) ;
+	      *cursor_pos = zmw_text_previous_char(*cursor_pos) ;
 	    }
 	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Right )
 	    {
-	      *cursor_pos = zmw_text_next_char(*text, *cursor_pos) ;
+	      *cursor_pos = zmw_text_next_char(*cursor_pos) ;
+	    }
+	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Up )
+	    {
+	      *cursor_pos = zmw_text_up_char(*cursor_pos) ;
+	    }
+	  else if ( cursor_pos && zmw.event->key.keyval == GDK_Down )
+	    {
+	      *cursor_pos = zmw_text_down_char(*cursor_pos) ;
 	    }
 	  else if ( 0 && zmw.event->key.string[0] == '\n' )
 	    {
@@ -317,7 +325,7 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
     }
 }
 
-void zmw_text(const char *text)
+void zmw_label(const char *text)
 {
   ZMW(zmw_text_simple( (char**)&text, Zmw_False, Zmw_False, NULL, NULL)) { }
 }
@@ -356,7 +364,7 @@ void zmw_text_editable_with_cursor(char **text, int *cursor_pos)
   zmw_text_editable_with_cursor_and_start(text, cursor_pos, NULL) ;
 }
 
-void zmw_text_editable(char **text)
+void zmw_entry(char **text)
 {
   zmw_text_editable_with_cursor(text, NULL) ;
 }
@@ -367,7 +375,7 @@ void zmw_int_editable(int *i)
   
   sprintf(buf, "%d", *i) ;
   text = strdup(buf) ;
-  zmw_text_editable(&text) ;
+  zmw_entry(&text) ;
   *i = atoi(text) ;
   free(text) ;
 }
@@ -377,5 +385,5 @@ void zmw_int(int i)
   char buf[20] ;
   
   sprintf(buf, "%d", i) ;
-  zmw_text(buf) ;
+  zmw_label(buf) ;
 }

@@ -22,19 +22,19 @@
 
 void horizontal_box(const char *title)
 {
-  static char *strings[] = { ".", "-", "X", "XÉj" } ;
+  static char *strings[] = { ".", "-", "X", "XÃ‰j" } ;
 
   int i ;
 
   ZMW(zmw_window(title))
     {
       zmw_name("Row") ;
-      ZMW(zmw_box_horizontal())
+      ZMW(zmw_hbox())
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(strings); i++)
 	    {
 	      zmw_name(strings[i]) ;
-	      zmw_text(strings[i]) ;
+	      zmw_label(strings[i]) ;
 	    }
 	}
     }

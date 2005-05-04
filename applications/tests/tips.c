@@ -27,14 +27,14 @@ static void tip(const char *t, int right)
   ZMW ( zmw_tip() )
     {
       ZMW(tip_in_place
-	  ? zmw_box_vertical()
+	  ? zmw_vbox()
 	     : ( right ? zmw_window_popup_right() : zmw_window_popup_bottom() )
 	     )
 	{  
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
-	      zmw_text("Tip:") ;
-	      zmw_text(t) ;
+	      zmw_label("Tip:") ;
+	      zmw_label(t) ;
 	    }
 	  zmw_border_embossed_in_draw() ;
 	}
@@ -46,19 +46,19 @@ void test_tips(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_name("Stack") ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
 	  zmw_name("?") ;
-	  zmw_text("Help will appear if the cursor") ;
-	  zmw_text("stay a moment in the same place") ;
+	  zmw_label("Help will appear if the cursor") ;
+	  zmw_label("stay a moment in the same place") ;
 	  zmw_button("Supercalifragilix....") ;
 	  tip("This button does really nothing",1) ;
 	  zmw_button("Button to pop a menu with help") ;
 	  tip("Try it!",1) ;
-	  ZMW( zmw_popup() )
+	  ZMW( zmw_menu() )
 	    ZMW(zmw_window_popup_right())
 	    {
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_tearoff() ;
 		  tip("Click here to detach the menu",1) ;
@@ -76,8 +76,8 @@ void test_tips(const char *title)
 	  zmw_button("Two tips on this button") ;
 	  tip("Right tip", 1) ;
 	  tip("Bottom tip", 0) ;
-	  zmw_text("Next to Last text in this window") ;
-	  zmw_text("Last text in this window") ;
+	  zmw_label("Next to Last text in this window") ;
+	  zmw_label("Last text in this window") ;
 	}
       tip("Generic window tip for items without tips",1) ;
     }

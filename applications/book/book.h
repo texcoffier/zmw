@@ -93,7 +93,8 @@ void prefs_load(Library_GUI *gui, const char *filename) ;
  */
 void menu_bar(Library_GUI *gui) ;
 int menu_approximation(Library_GUI *gui, Strings *choices) ;
-void menu_popup(float color[3], char *title, Position position) ;
+void menu_popup(float color[3], char *title, Position position
+		, Zmw_Boolean tearoff) ;
 
 #ifndef _
 #define _(S) gettext(S)

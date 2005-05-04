@@ -9,7 +9,7 @@ void hexa(int i, int nb_digits)
   char tmp[99] ;
 
   sprintf(tmp, "0x%0*X", nb_digits, i) ;
-  zmw_text(tmp) ;
+  zmw_label(tmp) ;
 }
 
 void appearance(void)
@@ -24,11 +24,11 @@ void appearance(void)
     {
       ZMW(zmw_table(5))
 	{
-	  zmw_text("Red") ;
-	  zmw_text("Green") ;
-	  zmw_text("Blue") ;
-	  zmw_text("Value") ;
-	  zmw_text("Sample") ;
+	  zmw_label("Red") ;
+	  zmw_label("Green") ;
+	  zmw_label("Blue") ;
+	  zmw_label("Value") ;
+	  zmw_label("Sample") ;
 	  i = 0 ;
 	  for(r = 0; r < 256; r += 255)
 	    for(g = 0; g < 256; g += 255)
@@ -40,16 +40,16 @@ void appearance(void)
 		  hexa(RGB(r, g, b), 6) ;
 		  // The color/font change is trapped by the box
 		  zmw_padding_width(0) ;
-		  ZMW(zmw_box_horizontal())
+		  ZMW(zmw_hbox())
 		    {
 		      zmw_color(Zmw_Color_Foreground, RGB(r, g, b)) ;
 		      zmw_font_family(fonts[i]) ;
 		      zmw_font_size(8) ;
-		      zmw_text(fonts[i]) ;
+		      zmw_label(fonts[i]) ;
 		      zmw_font_size(10) ;
-		      zmw_text(fonts[i]) ;
+		      zmw_label(fonts[i]) ;
 		      zmw_font_size(12) ;
-		      zmw_text(fonts[i]) ;
+		      zmw_label(fonts[i]) ;
 		    }
 		  i++ ;
 		}
@@ -60,7 +60,7 @@ void appearance(void)
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
-  zmw_run(appearance) ;
+  zmw_main(appearance) ;
   return 0 ;
 }
 /* DO NOT DISPLAY */

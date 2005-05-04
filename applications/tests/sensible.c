@@ -36,9 +36,9 @@ void test_sensible(const char *title)
     {
       zmw_border_width(2) ;
       zmw_padding_width(4) ;
-      ZMW(zmw_box_vertical())
+      ZMW(zmw_vbox())
 	{
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_toggle_int_with_label(&button, "Next button is sensible") ;
 	      zmw_button("A button") ;
@@ -48,7 +48,7 @@ void test_sensible(const char *title)
 	  zmw_border_embossed_in_draw() ;
 	      
 
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_toggle_int_with_label(&toggle, "Next toggle is sensible (doesn't work)") ;
 	      zmw_toggle_int(&a_toggle) ;
@@ -58,21 +58,21 @@ void test_sensible(const char *title)
 	  zmw_border_embossed_in_draw() ;
 
 	  
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_toggle_int_with_label(&text, "Next text is sensible (doesn't work)") ;
-	      zmw_text_editable(&a_text) ;
+	      zmw_entry(&a_text) ;
 	      if ( text && zmw_activated() )
 		fprintf(stderr, "text is activated\n") ;
 	    }
 	  zmw_border_embossed_in_draw() ;
 
-	  ZMW(zmw_box_vertical())
+	  ZMW(zmw_vbox())
 	    {
 	      zmw_toggle_int_with_label(&box, "Next box is sensible") ;
 
 	      zmw_sensible(box) ;
-	      ZMW(zmw_box_vertical())
+	      ZMW(zmw_vbox())
 		{
 		  zmw_button("A button in the box") ;
 		  if ( zmw_activated() )
@@ -80,7 +80,7 @@ void test_sensible(const char *title)
 		  zmw_toggle_int(&a_toggle2) ;
 		  if ( zmw_activated() )
 		fprintf(stderr, "Toggle in box change\n") ;
-		  zmw_text_editable(&a_text2) ;
+		  zmw_entry(&a_text2) ;
 		  if ( zmw_activated() )
 		    fprintf(stderr, "Text in box validated\n") ;
 		}

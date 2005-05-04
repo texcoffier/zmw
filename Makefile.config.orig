@@ -1,0 +1,91 @@
+# For a faster library, set these debug flags to 0 and recompile all.
+#
+# ZMW_DEBUG_NAME allows some checking in "zmw_name.c"
+# if it is disabled here, it is not enablable interactively
+#
+# ZMW_DEBUG_ASSERT is true, the assertion system is enabled
+#
+# ZMW_DEBUG_INSIDE_ZMW_PARAMETER allows to verify if only the good
+# functions are called inside the parameter of ZMW macro.
+#
+# ZMW_DEBUG_STORE_WIDGET_TYPE allows to have leaner executable
+# but you lose much information when web browsing the widget tree.
+#
+# ZMW_PROFILING displays real execution times (not cpu) per source ZMW bloc
+
+ZMW_DEBUG_OPTIONS_DEFAULT=1
+
+ZMW_DEBUG_NAME                 = $(ZMW_DEBUG_OPTIONS_DEFAULT)
+ZMW_DEBUG_ASSERT               = $(ZMW_DEBUG_OPTIONS_DEFAULT)
+ZMW_DEBUG_INSIDE_ZMW_PARAMETER = $(ZMW_DEBUG_OPTIONS_DEFAULT)
+ZMW_DEBUG_STORE_WIDGET_TYPE    = $(ZMW_DEBUG_OPTIONS_DEFAULT)
+ZMW_PROFILING                  = $(ZMW_DEBUG_OPTIONS_DEFAULT)
+
+ZMW_GPROF_PROFILING=
+ZMW_GPROF_PROFILING=-O6
+ZMW_GPROF_PROFILING=-pg
+ZMW_GPROF_PROFILING=-Os
+
+ZMW_VERSION_MAJOR=0
+ZMW_VERSION_MINOR=0
+ZMW_VERSION_MICRO=12
+
+ZMW_VERSION=$(ZMW_VERSION_MAJOR).$(ZMW_VERSION_MINOR).$(ZMW_VERSION_MICRO)
+
+
+# To use GTK1
+ZMW_CFLAGS=`gtk-config --cflags` `gdk-pixbuf-config --cflags`
+ZMW_LIBS=`gtk-config --libs` `gdk-pixbuf-config --libs`
+# To use GTK2
+ZMW_CFLAGS=`pkg-config gdk-2.0 --cflags` # -DGDK_DISABLE_DEPRECATED=1
+ZMW_LIBS=`pkg-config gdk-2.0 --libs`
+
+
+
+# No configuration option after this line
+
+
+ZMW_ROOT ?= `ZMWP=$$(pwd) ; while [ ! -d $$ZMWP/kernel ] ; do ZMWP=$$(dirname $$ZMWP) ; done ; echo -n $$ZMWP`
+ZMW_INCLUDES=$(ZMW_CFLAGS) -I$(ZMW_ROOT)/include
+
+ZMW_DEBUG=-DZMW_DEBUG_NAME=$(ZMW_DEBUG_NAME) \
+          -DZMW_DEBUG_ASSERT=$(ZMW_DEBUG_ASSERT) \
+	  -DZMW_DEBUG_INSIDE_ZMW_PARAMETER=$(ZMW_DEBUG_INSIDE_ZMW_PARAMETER) \
+          -DZMW_DEBUG_STORE_WIDGET_TYPE=$(ZMW_DEBUG_STORE_WIDGET_TYPE) \
+	  -DZMW_PROFILING=$(ZMW_PROFILING)
+
+CFLAGS=-Wall \
+       $(ZMW_GPROF_PROFILING) \
+       -g \
+       -DZMW_VERSION_MAJOR=$(ZMW_VERSION_MAJOR) \
+       -DZMW_VERSION_MINOR=$(ZMW_VERSION_MINOR) \
+       -DZMW_VERSION_MICRO=$(ZMW_VERSION_MICRO) \
+       $(ZMW_INCLUDES) \
+       $(ZMW_DEBUG) \
+       -shared
+
+ZMW_OBJS=$(ZMW_ROOT)/zmw.so $(ZMW_LIBS)
+
+ZMW_FOR=for I in */Makefile ; do if [ "$$I" != "*/Makefile" -a ! -h "`dirname $$I`" ] ; then ( cd `dirname $$I` ; echo "Make $@ `pwd`" ; $(MAKE) $@ ) ; else true ; fi ; done
+
+ZMW_LINK=zmwlink() { echo "Linking $@" ; $(CC) $$* $(ZMW_OBJS) -o $@ ; } ; zmwlink
+
+
+.SILENT:
+
+.c.o:
+	echo "Compiling $*.c"
+	$(CC) -c $(CFLAGS) `pwd`/$*.c -o $*.o
+	touch xxx.changed
+
+dep::
+	makedepend $(ZMW_INCLUDES) *.c 2>/dev/null
+	$(ZMW_FOR)
+
+clean::
+	rm -f *.o *~ *.bak *.a gmon.out a.out TAGS tags xxx* xvfb.pid 2>/dev/null
+	rm -rf .xvpics 2>/dev/null
+	$(ZMW_FOR)
+
+lib test exe doc::
+	$(ZMW_FOR)

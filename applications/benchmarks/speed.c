@@ -18,7 +18,15 @@ static int *global_nb ;
 static int global_depth ;
 static int global_children ;
 static int global_focus ;
+static char *global_text ;
 
+#ifndef ZMW_VERSION_MAJOR
+#define zmw_fixed zmw_box
+#define zmw_hbox zmw_box_horizontal
+#define zmw_vbox zmw_box_vertical
+#define zmw_main zmw_run
+#define zmw_label zmw_text
+#endif
  
 void leaf()
 {
@@ -27,10 +35,14 @@ void leaf()
   if ( global_focus )
     ZMW(zmw_decorator(Zmw_Decorator_Focusable))
     {
+      if ( global_text )
+	zmw_label(global_text) ;
     }
   else
-    ZMW(zmw_box())
+    ZMW(zmw_fixed())
     {
+      if ( global_text )
+	zmw_label(global_text) ;
     }
   (*global_nb)++ ;
 }
@@ -45,7 +57,7 @@ void horizontal(int depth)
       leaf() ;
     }
   else
-    ZMW(zmw_box_horizontal())
+    ZMW(zmw_hbox())
     {
       for(i=0; i<global_children; i++)
 	vertical(depth-1) ;
@@ -61,7 +73,7 @@ void vertical(int depth)
       leaf() ;
     }
   else
-    ZMW(zmw_box_vertical())
+    ZMW(zmw_vbox())
     {
       for(i=0; i<global_children; i++)
 	horizontal(depth-1) ;
@@ -207,7 +219,7 @@ void many()
 	}
       printf("\n") ;
       fflush(stdout) ;
-      exit(0) ; // Faster than zmw_exit(0) ;
+      exit(0) ; // Faster than zmw_main_quit(0) ;
     }
 
 }
@@ -242,6 +254,11 @@ int main(int argc, char *argv[])
   else
     global_focus = 0 ;
 
+  if ( argc > 4 )
+    global_text = argv[4] ;
+  else
+    global_text = NULL ;
+
   n = 1 << global_depth ;
   depth = global_depth / ( log(global_children) / log(2) ) ;
   epsilon = rint(depth) - depth ;
@@ -256,7 +273,7 @@ int main(int argc, char *argv[])
      
 
 
-  zmw_run(many) ;
+  zmw_main(many) ;
   return 0 ;
 }
 

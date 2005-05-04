@@ -24,7 +24,7 @@ void top()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ; // Take ZMW parameters
-  zmw_run(top) ; // Launch the infinite loop
+  zmw_main(top) ; // Launch the infinite loop
   return 0 ;
 }
 /* DO NOT DISPLAY */
