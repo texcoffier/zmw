@@ -219,6 +219,7 @@ void many()
 	}
       printf("\n") ;
       fflush(stdout) ;
+      creat("xxx.exit", 0700) ;
       exit(0) ; // Faster than zmw_main_quit(0) ;
     }
 
@@ -266,6 +267,7 @@ int main(int argc, char *argv[])
     {
       fprintf(stderr, "Epsilon = %g\n", epsilon) ; 
       creat("xxx.drawdone", 0700) ;
+      creat("xxx.exit", 0700) ;
       return 0 ;
     }
 

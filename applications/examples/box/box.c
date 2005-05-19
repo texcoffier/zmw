@@ -36,8 +36,8 @@ void box(void)
 		  zmw_label(tmp) ;
 		}
 
-	      zmw_horizontal_expand(i) ;
-	      zmw_vertical_expand(i) ;
+	      zmw_horizontal_expand(i!=0) ;
+	      zmw_vertical_expand(i!=0) ;
 
 	      ZMW(zmw_vbox())
 		{

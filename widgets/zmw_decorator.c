@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2003-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2003-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ void zmw_decorator(int options, ...)
 {
   int border, border_width ;
   int tx, ty ;
-  Zmw_Rectangle clip ;
   va_list ap;
+  Zmw_Rectangle r ;
 
   tx = ty = 0 ; /* to remove a compiler warning */
 
@@ -58,6 +58,14 @@ void zmw_decorator(int options, ...)
   if ( options & Zmw_Decorator_Focusable )
     zmw_focusable() ;
 
+  if ( options & Zmw_Decorator_Clip )
+    {
+      r.x = ZMW_SIZE_ALLOCATED.x + border_width ;
+      r.y = ZMW_SIZE_ALLOCATED.y + border_width ;
+      r.width = ZMW_SIZE_ALLOCATED.width - 2*border_width ;
+      r.height = ZMW_SIZE_ALLOCATED.height - 2*border_width ;
+      ZMW_CLIPPING = zmw_rectangle_min(&ZMW_CLIPPING, &r) ;
+    }
 
   switch( ZMW_SUBACTION )
     {
@@ -74,12 +82,6 @@ void zmw_decorator(int options, ...)
 	  ZMW_SIZE_MIN.width = 2 * border_width + 6 ;
 	  ZMW_SIZE_MIN.height = 2 * border_width + 6 ;
 	}
-
-      /* Used for focus on text ? */
-      /*
-      if ( options & (Zmw_Decorator_Focusable|Zmw_Decorator_Activable)  )
-	ZMW_SIZE_SENSIBLE = 1 ;
-      */
 
       break ;
 
@@ -120,21 +122,14 @@ void zmw_decorator(int options, ...)
 
 
       if ( options & Zmw_Decorator_Clip )
-	{
-	  clip.x = ZMW_SIZE_ALLOCATED.x + border_width ;
-	  clip.y = ZMW_SIZE_ALLOCATED.y + border_width ;
-	  clip.width = ZMW_SIZE_ALLOCATED.width - 2*border_width ;
-	  clip.height = ZMW_SIZE_ALLOCATED.height - 2*border_width ;
-
-	  zmw_draw_clip_push_inside(&clip) ;
-	}
+	zmw_draw_clip_set() ;
 
       /* fall thru */
 
     case Zmw_Compute_Children_Allocated_Size:
       if ( ZMW_NB_OF_CHILDREN )
 	{
-	  /* This case if for zmw_viewport, because in this
+	  /* This case is for zmw_viewport, because in this
 	   * case the decorator must not put its child where it want
 	   */
 	  if ( options & Zmw_Decorator_Translate )
@@ -154,7 +149,12 @@ void zmw_decorator(int options, ...)
 
     case Zmw_Post_Drawing:
       if ( options & Zmw_Decorator_Clip )
-	zmw_draw_clip_pop() ;
+	{
+	  /* Not clean to restore the clipping rectangle
+	   * before the next widget */
+	  ZMW_CLIPPING = zMw[-1].u.parent_to_child.clipping ;
+	  zmw_draw_clip_set() ;
+	}
       break ;
 
     case Zmw_Input_Event:
@@ -163,7 +163,8 @@ void zmw_decorator(int options, ...)
 	  zmw_activable() ;
 	}
       if ( options & Zmw_Decorator_Activable_By_Key )
-	if ( zmw_key_string_unsensitive() )
+	if ( zmw_key_string_unsensitive()
+	     && zmw.event->key.string[0] != '\033' )
 	  {
 	    ZMW_SIZE_ACTIVATED = Zmw_True ;
 	  }

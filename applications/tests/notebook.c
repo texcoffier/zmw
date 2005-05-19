@@ -24,19 +24,19 @@ static void toggle_page()
 {
   static int toggle_a=0, toggle_b=0 ;
 
-  zmw_label("Toggle") ;
+  zmw_button("Toggle") ;
 
   ZMW(zmw_vbox())
     {
       zmw_label("Toggle A") ;
-      zmw_toggle_int(&toggle_a) ;
+      zmw_check_button_int(&toggle_a) ;
       zmw_label("Toggle B") ;
-      zmw_toggle_int(&toggle_b) ;
+      zmw_check_button_int(&toggle_b) ;
     }
 }
 static void text_page()
 {
-  zmw_label("Text") ;
+  zmw_button("Text") ;
   zmw_label("Simple Text") ;
 }
 
@@ -47,15 +47,15 @@ static void editable_text_page()
   if ( editable_text == NULL )
     editable_text = strdup("Some text") ;
 
-  ZMW(zmw_vbox())
+  ZMW(zmw_vbox_activable())
     {
       zmw_label("Editable") ;
       zmw_label("Text") ;
     }
 
-  ZMW(zmw_hbox())
+  ZMW(zmw_hbox_activable())
     {
-      zmw_label("?dit: ") ;
+      zmw_label("Edit: ") ;
       zmw_entry(&editable_text) ;
     }
 }
@@ -65,7 +65,7 @@ void radio_page()
   int i ;
   static int radio = 2 ;
 
-  zmw_label("Radio") ;
+  zmw_button("Radio") ;
 
   ZMW(zmw_vbox())
     {
@@ -85,7 +85,7 @@ void notebook_page()
   char tmp[999] ;
 
   zmw_name("notebook label") ;
-  zmw_label("Notebook") ;
+  zmw_button("Notebook") ;
 
   ZMW(zmw_vbox())
     {
@@ -94,7 +94,7 @@ void notebook_page()
 	  for(i=0 ;i<4; i++)
 	    {
 	      sprintf(tmp, "Page %d", i) ;
-	      zmw_label(tmp) ;
+	      zmw_button(tmp) ;
 	      
 	      sprintf(tmp, "Page content : %*d", i*2+1,i) ;
 	      zmw_label(tmp) ;
@@ -106,7 +106,7 @@ void notebook_page()
 void window_page()
 {
   zmw_name("window page label") ;
-  zmw_label("Window") ;
+  zmw_button("Window") ;
   zmw_vertical_alignment(1) ;
   zmw_name("wp") ;
   ZMW(zmw_vbox())

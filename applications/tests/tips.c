@@ -71,7 +71,7 @@ void test_tips(const char *title)
 		  tip("Some other action",1) ;
 		}
 	    }
-	  zmw_toggle_int_with_label(&new_tip_in_place, "Tip opened in place") ;
+	  zmw_check_button_int_with_label(&new_tip_in_place, "Tip opened in place") ;
 	  tip("This toogle allows to not use a new window for the tip",1);
 	  zmw_button("Two tips on this button") ;
 	  tip("Right tip", 1) ;

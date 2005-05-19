@@ -55,6 +55,7 @@ typedef struct {
   Zmw_Boolean library_modified ;
   char *new_name ;
   int selected ;
+  Zmw_Boolean take_focus ;
 
   char *error_message[4] ;
 
@@ -83,6 +84,7 @@ typedef enum { Bottom, Right } Position ;
  * book.c
  */
 Columns column_name_to_index(ColDef *c, const char *name) ;
+void take_focus(Library_GUI*) ;
 /*
  * book-preferences.c
  */

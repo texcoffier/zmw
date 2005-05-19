@@ -25,6 +25,6 @@ void compose()
 
   ZMW(zmw_window("Hello World"))
     {
-      zmw_toggle_int_with_label(&b, "Label") ;
+      zmw_check_button_int_with_label(&b, "Label") ;
     }
 }

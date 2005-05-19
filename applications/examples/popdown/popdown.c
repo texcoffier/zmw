@@ -25,8 +25,8 @@ void popdown(void)
 		}
 	    }
 	  zmw_entry(&text) ;
-	  zmw_toggle_int_with_label(&toggle, "toggle with label") ;
-	  zmw_toggle_int(&toggle) ;
+	  zmw_check_button_int_with_label(&toggle, "toggle with label") ;
+	  zmw_check_button_int(&toggle) ;
 	  zmw_hscrollbar(&x, 0.1) ;
 	  zmw_button("button unsensible") ;
 	  zmw_button("button sensible") ;

@@ -10,20 +10,20 @@ void notebook2(void)
     {
       ZMW(zmw_notebook(&current_page))
 	{
-	  zmw_label("NB") ;
+	  zmw_button("NB") ;
 	  ZMW(zmw_notebook(&current_page_2))
 	    {
-	      zmw_label("p1") ;
+	      zmw_button("p1") ;
 	      zmw_label("c1") ;
-	      zmw_label("p2") ;
+	      zmw_button("p2") ;
 	      zmw_label("c2") ;
 	    }
 
-	  zmw_label("T1") ;
-	  zmw_toggle_int(&t1) ;
+	  zmw_button("T1") ;
+	  zmw_check_button_int(&t1) ;
 
-	  zmw_label("T2") ;
-	  zmw_toggle_int(&t2) ;
+	  zmw_button("T2") ;
+	  zmw_check_button_int(&t2) ;
 	}
     }
 }
@@ -37,29 +37,29 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 34 48 # p2
+zmw_move_cursor_to 54 65 # p2
 zmw_dump_screen 0
 
 zmw_button_click
 zmw_dump_screen 1
 
-zmw_move_cursor_to 34 32 # T1
+zmw_move_cursor_to 46 36 # T1
 zmw_button_click
 zmw_dump_screen 2
 
-zmw_move_cursor_to 17 47 # toggle 1
+zmw_move_cursor_to 49 71   # toggle 1
 zmw_button_click
 zmw_dump_screen 3
 
-zmw_move_cursor_to 51 33 # T2
+zmw_move_cursor_to 74 34 # T2
 zmw_button_click
 zmw_dump_screen 4
 
-zmw_move_cursor_to 17 47 # toggle 2
+zmw_move_cursor_to 49 71       # toggle 2
 zmw_button_click
 zmw_dump_screen 5
 
-zmw_move_cursor_to 15 31 # NB
+zmw_move_cursor_to 21 35 # NB
 zmw_button_click
 zmw_dump_screen 6
 

@@ -29,6 +29,10 @@ void rectangle(/* any parameter you may want */)
       /* Free ressources used by the widget class */ break ;
     case Zmw_Debug_Message:
       /* Displays some debugging messages in the web browser */  break ;
+    case Zmw_Subaction_Last:
+      /* Only here to remove a compiler warning, this case is never called */
+      /* You can replace this case and the other unused by "default:" */
+      break ;
     }
 }
 void rect() { ZMW(rectangle()) { /* no children */ } }

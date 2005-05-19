@@ -1,8 +1,8 @@
 
 ZMW_BOOK_OBJS=book.o book-preferences.o book-menubar.o loadsave.o filter.o sort.o utilities.o strings.o library.o
 
-ZMW_XML_INCLUDE=`pkg-config --cflags libxml`
-ZMW_XML_LIB=`pkg-config --libs libxml`
+ZMW_XML_INCLUDE=`pkg-config --cflags libxml-2.0`
+ZMW_XML_LIB=`pkg-config --libs libxml-2.0`
 
 run:exe
 	book --cache-size=10000 --pango-cache=10000

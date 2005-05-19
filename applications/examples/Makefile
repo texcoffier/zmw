@@ -18,18 +18,18 @@ ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; i
 .c.regtest:
 	../regression_test
 
-start_xvfb:
-	. utilities ; start_xvfb
+test::
+	. utilities ; \
+	start_xvfb ; \
+	$(MAKE) ask regtest ; \
+	stop_xvfb
 
-start_xvfb_big:
-	. utilities ; start_xvfb 2048x2048
+testwithoutquestion:
+	. utilities ; \
+	start_xvfb ; \
+	$(MAKE) noforall regtest ; \
+	stop_xvfb
 
-stop_xvfb:
-	. utilities ; stop_xvfb
-
-
-test::start_xvfb ask regtest stop_xvfb
-testwithoutquestion:start_xvfb noforall regtest stop_xvfb
 
 regtest:
 	$(ZMW_LOOP) $@

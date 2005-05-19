@@ -236,7 +236,7 @@ void ZMW_H(zmw_, box_activable)()
 
 
 
-void ZMW_HORIZONTAL(zmw_alignement_,_make)(Zmw_Size *s, int border_width)
+void ZMW_HORIZONTAL(zmw_alignement_,_make)(Zmw_Child *s, int border_width)
 {
   int free_space ;
 

@@ -16,8 +16,8 @@ void appearance(void)
 {
   int i, r, g, b ;
   static char *fonts[] = { "courier",
-			   "fixed", "utopia", "helvetica", "times",
-			   "terminal",  "monospace", "sans" } ;
+			   "fixed", "lucida", "helvetica", "times",
+			   "new century schoolbook",  "monospace", "sans" } ;
 
   zmw_vertical_expand(Zmw_False) ;
   ZMW(zmw_window("Boxes"))

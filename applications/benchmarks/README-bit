@@ -1,0 +1,17 @@
+Using bit record is not a big hit on performance
+and may be a winner if there is container
+with many children.
+
+GPROF_PROFILING;USE_BIT_RECORD;CPU  ;zmw.so
+O6             ;0             ;4.344;176484
+O6             ;1             ;4.283;176676
+Os             ;0             ;4.706;127428
+Os             ;1             ;4.900;129892
+               ;0             ;5.729;184368
+               ;1             ;6.090;184592
+
+
+
+
+
+

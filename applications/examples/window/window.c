@@ -32,7 +32,7 @@ void menu()
 	  ZMW ( zmw_menu() )
 	    submenu() ;
 	  zmw_button("An action") ;
-	  zmw_toggle_int_with_label(&boolean, "Toggle") ;
+	  zmw_check_button_int_with_label(&boolean, "Toggle") ;
 	  zmw_entry(&text) ;
 	}
     }

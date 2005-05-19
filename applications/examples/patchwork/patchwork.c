@@ -74,7 +74,7 @@ void patchwork(void)
 					    , GDK_CONTROL_MASK, 'S') ;
 
 	      ZMW(box("zmw_check_button_with_label"))
-		zmw_toggle_int_with_label(&toggle, "label") ;
+		zmw_check_button_int_with_label(&toggle, "label") ;
 
 	      ZMW(box("zmw_radio_button"))
 		{
@@ -95,20 +95,20 @@ void patchwork(void)
 		  zmw_vertical_expand(Zmw_True) ;
 		  ZMW(zmw_notebook(&page))
 		    {
-		      ZMW(zmw_vbox())
+		      ZMW(zmw_vbox_activable())
 			{
 			  zmw_horizontal_alignment(0) ;
 			  zmw_label("Page") ;
 			  zmw_label("1") ;
 			}
-		      zmw_label("Page 1 content") ;
+		      zmw_button("Page 1 content") ;
 		      zmw_label("Page 2") ;
-		      ZMW(zmw_vbox())
+		      ZMW(zmw_vbox_activable())
 			{
 			  zmw_label("Page label: any kind of widget") ;
 			  zmw_label("Page content: any kind of widget") ;
 			}
-		      ZMW(zmw_hbox())
+		      ZMW(zmw_hbox_activable())
 			{
 			  zmw_label("P 3") ;
 			  zmw_entry(&text) ;

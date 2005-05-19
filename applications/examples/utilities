@@ -5,9 +5,6 @@
 export SMALL1=0.1
 # Time to wait before making the dump
 export SMALL2=0.2
-# X server number for Xvfb
-export ZMW_XVFBN=9
-export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
 
 
 if false
@@ -45,6 +42,8 @@ export KEY_META=47
 export KEY_SHIFT=48
 export KEY_ESCAPE=49
 export KEY_TAB=50
+export KEY_DOWN=51
+export KEY_RIGHT=52
 
 
 start_xvfb() {
@@ -54,15 +53,33 @@ start_xvfb() {
   else
     RESOLUTION=$1
   fi
-  if true
-  then
-    # depth 32 does NOT work, the "xwd" command does not work correctly
-    Xvfb :$ZMW_XVFBN -ac -screen 0 ${RESOLUTION}x24 -noreset &
-  else
-    Xnest :$ZMW_XVFBN -ac -noreset &
-  fi
-  echo $! >xxx.xvfb.pid
-  sleep 1
+
+  # X server start number for Xvfb
+  # Will launch X server until one starts
+  export ZMW_XVFBN=9
+  while true
+  do
+    if true
+    then
+      # depth 32 does NOT work, the "xwd" command does not work correctly
+      Xvfb :$ZMW_XVFBN -ac -screen 0 ${RESOLUTION}x24 -noreset || touch xxx.bad &
+    else
+      Xnest :$ZMW_XVFBN -ac -noreset || touch xxx.bad &
+    fi
+    sleep 1
+    if [ -f xxx.bad ]
+    then
+      echo "Server X yet running on $ZMW_XVFBN, take the next" >&2
+      export ZMW_XVFBN=`expr $ZMW_XVFBN + 1`
+      rm xxx.bad
+    else
+      break
+    fi
+  done
+
+  export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
+  export ZMW_XVFB_PID=$!
+  trap stop_xvfb 0 1 2 3
   xsetroot -display $ZMW_XVFB -solid white
   # Clear the keyboard
   xmodmap -display $ZMW_XVFB -pke | sed 's/= .*/=/' |
@@ -82,6 +99,8 @@ start_xvfb() {
    -e "keycode $KEY_UP = Up" \
    -e "keycode $KEY_ESCAPE = Escape" \
    -e "keycode $KEY_TAB = Tab" \
+   -e "keycode $KEY_DOWN = Down" \
+   -e "keycode $KEY_RIGHT = Right" \
    -e "clear Lock" \
    -e "clear Shift" \
    -e "clear Mod1" \
@@ -98,10 +117,11 @@ start_xvfb() {
 }
 
 stop_xvfb() {
-  if [ -f xxx.xvfb.pid ]
+  if [ "" = "$ZMW_XVFB_PID" ]
   then
-    kill `cat xxx.xvfb.pid`
-    rm xxx.xvfb.pid || true
+    echo "Stoping a not started X11 server ?" >&2
+  else
+    kill "$ZMW_XVFB_PID" >/dev/null 2>&1
   fi
 }
 

@@ -15,7 +15,6 @@
 # It is stored in "xxx.replace" file.
 #
 # This script :
-#	- Verify if Xvfb is running
 #       - Loop on
 #               - Creates the application dumps (without cache)
 #               - Compare with the good files
@@ -75,14 +74,10 @@ fi
 
 . ../utilities
 
-if [ ! -f ../xxx.xvfb.pid ]
+if [ "" = "$ZMW_XVFBN" ]
 then
-  echo "Xvfb must be running, so I start it"
-  ( cd .. ; start_xvfb )
-  trap "pwd ; cd .. ; stop_xvfb" 0 1 2 # Stop X on exit
-  sleep 1
-else
-  trap "cd .. ; kill $PID ; stop_xvfb" 1 # Stop X on ^C
+  echo "Xvfb is not running" >&2
+  exit 1
 fi
 
 if fgrep -c "DO_NOT_MAKE_REGRESSION_TEST"  "$NAME.c" >/dev/null
@@ -232,8 +227,6 @@ do
   if [ "$ALL_RESULTS" = "ok" ]
   then
     break
-  else
-    (cd .. ; stop_xvfb ; start_xvfb)
   fi
 done
 
@@ -249,8 +242,6 @@ then
     if [ "$ALL_RESULTS" = "ok" ]
     then
       break
-    else
-      (cd .. ; stop_xvfb ; start_xvfb)
     fi
   done
 fi

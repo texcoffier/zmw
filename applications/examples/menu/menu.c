@@ -25,7 +25,7 @@ void window(void)
       ZMW(zmw_vbox())
 	{
 	  zmw_button("Menu") ;
-	  ZMW(zmw_popup_with_detached(&detached))
+	  ZMW(zmw_menu_with_detached(&detached))
 	    menu() ;
 	}
     }

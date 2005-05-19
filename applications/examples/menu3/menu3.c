@@ -17,7 +17,7 @@ void recursive_menu(int id)
 
   sprintf(buf, "#%d", id) ;
   zmw_button(buf) ;
-  ZMW( zmw_popup_with_detached(&detached_state[id]) )
+  ZMW( zmw_menu_with_detached(&detached_state[id]) )
     {
       ZMW(zmw_window_popup_right_with_title(buf))
 	{

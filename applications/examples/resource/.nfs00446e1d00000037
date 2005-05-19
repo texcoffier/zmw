@@ -1,0 +1,170 @@
+--cache-size=10000
+--pango-cache=1000
+socket = 10000
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xxx.resource.0.ppm is OK
+../regression_test: line 270: 23372 Terminated              $DISPLAY_IMAGE $*
+../regression_test: line 270: 23373 Terminated              $DISPLAY_IMAGE $*
+../regression_test: line 270: 23376 Terminated              $DISPLAY_IMAGE $*
+Failed test: xxx.resource.1.ppm
+xxx.resource.2.ppm is OK
+
+Fatal server error:
+Server is already active for display 9
+	If this server is no longer running, remove /tmp/.X9-lock
+	and start again.
+
+Server X yet running on 9, take the next
+Could not init font path element /usr/X11R6/lib/X11/fonts/CID/, removing from list!
+[FVWM][FvwmErrorHandler]: <<ERROR>> *** internal error ***
+[FVWM][FvwmErrorHandler]: <<ERROR>> Request 53, Error 2, EventType: 0
+[FVWM][FvwmErrorHandler]: <<ERROR>> *** internal error ***
+[FVWM][FvwmErrorHandler]: <<ERROR>> Request 60, Error 13, EventType: 0
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-eog.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from xawtv
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/xine/desktop/xine.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/pgaccess.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/postgresql.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kimagemapeditor.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kword.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/nano/nano-menu.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_template.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_web.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_writer.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/quanta.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/X11R6/include/X11/pixmaps/vim.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/keduca.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/keduca.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kiten.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/klatin.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/klettres.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ktouch.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kturtle.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kverbos.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kvoctrain.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kwordquiz.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gphotocoll.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from camera
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_draw.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_impress.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kbruch.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kig.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kmplot.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kpercentage.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_calc.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_math.xpm
+[FVWM][FvwmErrorHandler]: <<ERROR>> *** internal error ***
+[FVWM][FvwmErrorHandler]: <<ERROR>> Request 53, Error 2, EventType: 0
+[FVWM][FvwmErrorHandler]: <<ERROR>> *** internal error ***
+[FVWM][FvwmErrorHandler]: <<ERROR>> Request 60, Error 13, EventType: 0
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnomemeeting-logo-icon.png
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/klinkstatus.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kmail.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/knode.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/korn.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksig.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/mutt.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/python2.4-32.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kalzium.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kstars.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kwave.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/lilo-term.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/pppoeconf.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/fsview.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_setup.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/icons/hicolor/32x32/apps/ooo_setup.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/file-roller.png
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kaddressbook.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kalarm.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/karm.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/knotes.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kontact.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/korganizer.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kpalmdoc.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kpilot.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksync.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ktnef.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-eog.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-ghostview.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gthumb.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/images/gtkam/gtkam-camera.png
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-pdf.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/totem/media-player-48.png
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from xawtv
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/xine/desktop/xine.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/bomberclone.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/clanbomber.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/clanbomber.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnibbles.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kasteroids.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kbounce.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kolf.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksnake.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kspaceduel.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ktron.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kgoldrunner.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/madbomber-icon.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/atlantik.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/atlantikdesigner.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnect.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gataxx.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gtali.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/iagno.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/glines.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-mahjongg.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kbattleship.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kbackgammon.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kreversi.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kshisen.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kenolaba.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/klines.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kmahjongg.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kwin4.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/blackjack.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/freecell.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/aisleriot.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/lskat.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kpat.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kpoker.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnotski.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnobots2.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnome-stones.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnotravex.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnomine.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kblackbox.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/katomic.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksame.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksokoban.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/khangman.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kmessedwords.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kmines.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gsame.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kjumpingcube.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/konquest.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/gnometris.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kfouleggs.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksirtet.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ksmiletris.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/amor.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/ktuberling.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kodo.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kteatime.xpm
+[FVWM][scanForPixmap]: <<WARNING>> Couldn't load image from /usr/share/pixmaps/kworldclock.xpm
+--cache-size=10000
+--pango-cache=1000
+socket = 10000
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xxx.resource.0.ppm is OK
+xxx.resource.1.ppm is OK
+xxx.resource.2.ppm is OK
+socket = 10000
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xwdtopnm: writing PPM file
+xxx.resource.0.ppm is OK
+xxx.resource.1.ppm is OK
+xxx.resource.2.ppm is OK

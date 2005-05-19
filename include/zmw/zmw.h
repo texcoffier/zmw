@@ -74,7 +74,7 @@ typedef enum {
   Zmw_Font_Style_Italic,
 } Zmw_Font_Style ;
 
-#define ZMW_VALUE_UNDEFINED (-32767)
+#define ZMW_VALUE_UNDEFINED (32767)
 #define ZMW_MAX_NAME_LENGTH 1000
 
 #define Zmw_Debug_Window              1
@@ -89,6 +89,7 @@ typedef enum {
 #define Zmw_Debug_Cache_Slow         512
 #define Zmw_Debug_Name              1024
 #define Zmw_Debug_Profiling         2048
+#define Zmw_Debug_Navigation        4096
 
 #define ZMW_LEFT -1
 #define ZMW_CENTER 0
@@ -96,16 +97,27 @@ typedef enum {
 #define ZMW_TOP -1
 #define ZMW_BOTTOM 1
 
-typedef char Zmw_Boolean ;
+#if ZMW_USE_BIT_RECORD
+#define ZMW_BOOLEAN(X) unsigned int X:1
+#else
+#define ZMW_BOOLEAN(X) unsigned char X
+#endif
+
 enum zmw_boolean { Zmw_False, Zmw_True } ;
 
-typedef float Zmw_Float_0_1 ; /* float number between 0 and 1 included */
+typedef char           Zmw_Boolean ;
+typedef float          Zmw_Float_0_1 ; /* Number between 0 and 1 included */
+typedef unsigned int   Zmw_Hash ;
+typedef short          Zmw_Position ;
+typedef unsigned short Zmw_Size ;
+typedef unsigned char  Zmw_Width ;
+typedef unsigned short Zmw_Font_Family ;
 
-typedef unsigned int Zmw_Hash ;
 
 typedef struct zmw_rectangle
 {
-  int x, y, width, height ;
+  Zmw_Position x, y ;
+  Zmw_Size width, height ;
 } Zmw_Rectangle ;
 
 
@@ -129,52 +141,54 @@ typedef struct zmw_name
  *     Because if the user ask a fixed width, the widget can't expand.
  *     (see zmw.c "zmw_action_compute_required_size")
  */
-typedef struct zmw_size
+typedef struct zmw_child
 {
+  /*
+   * The values in zmw_child are stored for each widgets in the child list.
+   * But a subset of these values are the current state that
+   * must be passed to the next sibling or to the first child.
+   */
+  struct
+  {
+    char horizontal_alignment ;
+    char vertical_alignment ;
+    Zmw_Width padding_width ;
+    ZMW_BOOLEAN(horizontal_expand) ;
+    ZMW_BOOLEAN(vertical_expand) ;
+  } current_state ;
+
+
   Zmw_Hash hash ;             // Key of the full widget name
   Zmw_Rectangle min ;		// Size needed for correct display
   Zmw_Rectangle required ;	// It is : needed overrided by asked
   Zmw_Rectangle allocated ;   // Size usable (_padded less padding)
-  Zmw_Boolean used_to_compute_parent_size ;
-  Zmw_Boolean event_in_rectangle ;
-  Zmw_Boolean event_in_children ;
-  Zmw_Boolean invisible ;
-  Zmw_Boolean sensible ;
-  Zmw_Boolean do_not_map_window ; /* for menu containing detached window */
-  Zmw_Boolean activated ;
-  Zmw_Boolean changed ;	        /* True if the widget has changed */
-  Zmw_Boolean child_activated ; /* True if a child was activated */
-  Zmw_Boolean tip_visible ;	/* True if it is a displayed tip */
-  Zmw_Boolean horizontal_expand ;
-  Zmw_Boolean vertical_expand ;
-  Zmw_Boolean focused ;
+  ZMW_BOOLEAN(used_to_compute_parent_size) ;
+  ZMW_BOOLEAN(event_in_rectangle) ;
+  ZMW_BOOLEAN(event_in_children) ;
+  ZMW_BOOLEAN(invisible) ;
+  ZMW_BOOLEAN(sensible) ;
+  ZMW_BOOLEAN(do_not_map_window) ; /* for menu containing detached window */
+  ZMW_BOOLEAN(activated) ;
+  ZMW_BOOLEAN(changed) ;	        /* True if the widget has changed */
+  ZMW_BOOLEAN(child_activated) ; /* True if a child was activated */
+  ZMW_BOOLEAN(tip_visible) ;	/* True if it is a displayed tip */
+  ZMW_BOOLEAN(horizontal_expand) ;
+  ZMW_BOOLEAN(vertical_expand) ;
+  ZMW_BOOLEAN(focused) ;
   /*
    * If true, the widget is transparent for size, sensible, activate, ...
    * requests. Because it is not this widget we want to test
    * but the previous one.
    * It is used for "tip" for example.
    */
-  Zmw_Boolean pass_through ;
-  /*
-   * These values are stored for each widgets in the child list.
-   * But a subset of these values are the current state that
-   * must be passed to the next sibling or to the first child.
-   */
-  struct
-  {
-    Zmw_Boolean horizontal_expand ;
-    Zmw_Boolean vertical_expand ;
-    char horizontal_alignment ;
-    char vertical_alignment ;
-    int padding_width ;
-  } current_state ;
-} Zmw_Size ;
+  ZMW_BOOLEAN(pass_through) ;
+} Zmw_Child ;
 
 typedef struct zmw_font_description
 {
-  char *family ;
-  int weight ; // 0 .. 1000
-  int size ; // in point
+  Zmw_Font_Family family ;
+  unsigned short weight ; // 0 .. 1000
+  unsigned short size ; // in point
   Zmw_Font_Style style ;
 } Zmw_Font_Description ;
 
@@ -182,11 +196,11 @@ typedef struct zmw_stackable_inheritable
 {
   int (*action)(void) ;
   int debug ;
-  int border_width ;
-  int focus_width ;
-  Zmw_Name *focus ;
   int colors[Zmw_Color_Last] ;
   Zmw_Font_Description font ;
+  Zmw_Name *focus ;
+  Zmw_Width border_width ;
+  Zmw_Width focus_width ;
   Zmw_Boolean auto_resize ;
   Zmw_Boolean sensible ;
 } Zmw_Stackable_Inheritable ;
@@ -195,7 +209,7 @@ typedef struct zmw_stackable_uninheritable
 {
   int call_number ;		/* Number of call to zmw_begin */
   int nb_of_children, nb_of_children_max ;
-  Zmw_Size *children ;
+  Zmw_Child *children ;
   Zmw_Boolean do_not_execute_pop ;
   Zmw_Rectangle asked ;		// Size asked by the user
   char *name ;			/* Pointer on the last part of full_name */
@@ -208,12 +222,12 @@ typedef struct zmw_stackable_uninheritable
   Zmw_Subaction subaction ;	/* The action to process in the widget */
   int *menu_state ;		/* For zmw_window_is_popped_with_detached */
   int child_number ;            /* 0 if the first child, 1 the second, ... */
-  Zmw_Size *size ;		/* Fast access to size (-10% lib size) */
+  Zmw_Child *size ;		/* Fast access to size (-10% lib size) */
   /*
    * These values are inherited from parent to child.
    * But each time a widget is initialised, the value
    * is retrieved from the parent.
-   * So there is no propagation of value change between siblings 
+   * So there is no propagation of value change between siblings .
    */
   struct
   {
@@ -280,6 +294,16 @@ typedef struct zmw
    */
   Zmw_Name found ;		/* Widget found by "Zmw_Search"*/
   Zmw_Name *focus ;             /* Focus group with the cursor (Zmw_Search) */
+
+  struct
+  {
+    Zmw_Name name ;
+    Zmw_Rectangle rectangle ;
+    GdkWindow *window ;
+  } near[4] ;		/* Left, Right, Up, Down */
+
+  Zmw_Rectangle focused ;       /* The current focused widget position */  
+  GdkWindow *raised ;           /* Last window raised */
   Zmw_Name tip_displayed ;	/* Name of the widget with a tip displayed */
   Zmw_Name widget_to_trace ;
 #if ZMW_DEBUG_INSIDE_ZMW_PARAMETER
@@ -292,6 +316,11 @@ typedef struct zmw
 #if ZMW_PROFILING
   Zmw_Boolean profiling_displayed ;
 #endif
+  /*
+   * Misc
+   */
+  char **font_families ;
+  int nb_font_families ;
 } Zmw ;
 
 extern Zmw zmw ;
@@ -389,6 +418,12 @@ extern Zmw zmw ;
 #define          zmw_focus_width(B) ZMW_FOCUS_WIDTH           = B
 #define          zmw_auto_resize(B) ZMW_AUTO_RESIZE           = B
 #define             zmw_sensible(B) ZMW_SENSIBLE              = B
+#define          zmw_font_family(B) ZMW_FONT_FAMILY = zmw_font_family_get(B)
+#define zmw_font_description_copy(A,B) *(A) = *(B)
+#define            zmw_font_size(s) ZMW_FONT_SIZE = s
+#define          zmw_font_weight(w) ZMW_FONT_WEIGHT = w
+#define           zmw_font_style(s) ZMW_FONT_STYLE = s
+#define              zmw_color(T,P) ZMW_COLORS[T] = P
 
 #define  zmw_focused() ZMW_SIZE_FOCUSED
 
@@ -535,22 +570,17 @@ int zmw_printf(const char *format, ...) ;
 const char *zmw_action_name(void) ;
 const char *zmw_action_name_fct(void) ;
 void zmw_name(const char *s) ;
-void zmw_font_family(const char *s) ;
+Zmw_Font_Family zmw_font_family_get(const char *s) ;
 void zmw_string_copy(char **to, const char *from) ;
 Zmw_Boolean zmw_font_description_equals(const Zmw_Font_Description*,const Zmw_Font_Description*) ;
-void zmw_font_description_copy(Zmw_Font_Description*,const Zmw_Font_Description*) ;
-#define zmw_font_size(s) ZMW_FONT_SIZE = s
-#define zmw_font_weight(w) ZMW_FONT_WEIGHT = w
-#define zmw_font_style(s) ZMW_FONT_STYLE = s
-#define zmw_color(T,P) ZMW_COLORS[T] = P
 void zmw_state_init(Zmw_State *s) ; /* Used only by zmw_main.c */
 void zmw_state_pop(void) ;
 Zmw_Hash zmw_hash(Zmw_Hash, const char*) ;
-Zmw_Size* zmw_widget_previous_size(void) ;
+Zmw_Child* zmw_widget_previous_size(void) ;
 void zmw_state_push(void) ;
 void zmw_init_widget(void) ;
 const char *zmw_action_name_(Zmw_Subaction sa) ;
-const char* zmw_size_string(const Zmw_Size *s) ;
+const char* zmw_size_string(const Zmw_Child *s) ;
 int zmw_action_compute_required_size(void) ;
 int zmw_action_draw(void) ;
 int zmw_action_dispatch_event(void) ;
@@ -608,31 +638,31 @@ void zmw_resource_pointer_get(void **pointer_value, const char *resource
  * zmw_size.c
  */
 /* void zmw_compute_box_size(int allocated) ; */
-Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b) ;
+Zmw_Rectangle zmw_rectangle_max(const Zmw_Rectangle *a, const Zmw_Rectangle *b) ;
+Zmw_Rectangle zmw_rectangle_min(const Zmw_Rectangle *a, const Zmw_Rectangle *b) ;
 void zmw_rectangle_void(Zmw_Rectangle *a) ;
-void zmw_padding_add(Zmw_Rectangle *r, int padding) ;
-void zmw_padding_remove(Zmw_Rectangle *r, int padding) ;
+void zmw_padding_add(Zmw_Rectangle *r, Zmw_Width padding) ;
+void zmw_padding_remove(Zmw_Rectangle *r, Zmw_Width padding) ;
 
 /*
  * zmw_device.c
  */
 int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 void zmw_int_to_rgb(int c,Zmw_Float_0_1 *r, Zmw_Float_0_1 *g, Zmw_Float_0_1*b);
-void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2) ;
+void zmw_draw_line(Zmw_Color c, Zmw_Position x1, Zmw_Position y1, Zmw_Position x2, Zmw_Position y2) ;
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
-			, int x, int y, int width, int height) ;
-void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y) ;
+			, Zmw_Position x, Zmw_Position y, Zmw_Size width, Zmw_Size height) ;
+void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, Zmw_Position x, Zmw_Position y) ;
 
-void zmw_draw_clip_push_inside(const Zmw_Rectangle *r) ;
-void zmw_draw_clip_pop() ;
+void zmw_draw_clip_set() ;
 #define zmw_foreground(R,G,B) zmw_color(Zmw_Color_Foreground, zmw_rgb_to_int(R,G,B))
 #define zmw_background(R,G,B) zmw_color(Zmw_Color_Background_Normal, zmw_rgb_to_int(R,G,B))
 void zmw_text_init() ;
 void zmw_text_exit() ;
 void zmw_text_set_text(char *text, const Zmw_Font_Description *fd) ;
-void zmw_text_render(Zmw_Color c, int xx, int yy) ;
-void zmw_text_get_size(int *width, int *height) ;
-int zmw_text_xy_to_index(int x, int y) ;
+void zmw_text_render(Zmw_Color c, Zmw_Position xx, Zmw_Position yy) ;
+void zmw_text_get_size(Zmw_Size *width, Zmw_Size *height) ;
+int zmw_text_xy_to_index(Zmw_Position x, Zmw_Position y) ;
 void zmw_text_get_grapheme_rectangle(int index, Zmw_Rectangle *rect) ;
 void zmw_text_cursor_position(int cursor_pos, Zmw_Rectangle *r) ;
 int zmw_text_next_char(int cursor) ;
@@ -640,6 +670,8 @@ int zmw_text_previous_char(int cursor) ;
 int zmw_text_delete_char(int cursor) ;
 int zmw_text_up_char(int cursor) ;
 int zmw_text_down_char(int cursor) ;
+int zmw_text_home_char(int cursor) ;
+int zmw_text_end_char(int cursor) ;
 
 /*
  * zmw_graphic.c
@@ -664,7 +696,6 @@ void zmw_border_relief_out_draw(void) ;
 void zmw_border_embossed_in_draw(void) ;
 void zmw_border_embossed_out_draw(void) ;
 void zmw_cross_draw(void) ;
-void zmw_draw_clip_push(const Zmw_Rectangle *r) ;
 void zmw_rgb(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 /*
  * zmw_event.c
@@ -746,8 +777,8 @@ void zmw_drag_debug_window(void) ;
  */
 void zmw_cache_init(int size) ;
 void zmw_cache_free(void) ;
-int zmw_cache_get_size(Zmw_Size *r) ;
-void zmw_cache_set_size(const Zmw_Size *r) ;
+int zmw_cache_get_size(Zmw_Child *r) ;
+void zmw_cache_set_size(const Zmw_Child *r) ;
 int zmw_cache_size() ;
 
 

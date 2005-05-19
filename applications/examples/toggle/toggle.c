@@ -17,9 +17,9 @@ void toggle(void)
 	  if ( zmw_activated() )
 	    t1_change = 1 ;
 
-	  zmw_toggle_int_with_label(&t1, "Toggle 2 : same as 1") ;
+	  zmw_check_button_int_with_label(&t1, "Toggle 2 : same as 1") ;
 
-	  zmw_toggle_int_with_label(&t1_change, "Toggle 1 was activated") ;
+	  zmw_check_button_int_with_label(&t1_change, "Toggle 1 was activated") ;
 
 	  /* Editing the bits of an integer */
 	  ZMW(zmw_hbox())
@@ -29,7 +29,7 @@ void toggle(void)
 	      zmw_focus_width(1) ;
 	      zmw_border_width(1) ;
 	      for(i=0; i<32; i++)
-		zmw_toggle_bits_int(&bits, 1<<(31-i)) ;
+		zmw_check_button_bits_int(&bits, 1<<(31-i)) ;
 	    }
 	  zmw_int_editable(&bits) ;
 

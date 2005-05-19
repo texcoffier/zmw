@@ -13,12 +13,12 @@ void notebook(void)
 	  zmw_vertical_expand(Zmw_False) ;
 	  zmw_horizontal_expand(Zmw_False) ;
 
-	  zmw_label("Large content") ; // The page 0 label
+	  zmw_button("Large content") ; // The page 0 label
 	  ZMW(zmw_hbox())   // The page 0 content
 	    for(i=0; i<7; i++)
 	      zmw_label("Large") ;
 
-	  ZMW(zmw_vbox())  // The page 1 label is a box
+	  ZMW(zmw_vbox_activable())  // The page 1 label is a box
 	    {
 	      zmw_label("Very") ;
 	      zmw_label("tall") ;
@@ -29,7 +29,7 @@ void notebook(void)
 	      zmw_label("Tall") ;
 
 	  // The page 2 label is an image
-	  zmw_image_from_file("smallcontent.png") ;
+	  zmw_image_from_file_activable("smallcontent.png") ;
 	  // The page 2 content is not centered because
 	  // it is not in a box.
 	  zmw_label("Small content") ;

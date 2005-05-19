@@ -41,7 +41,9 @@ kernel/xxx.changed utilities/xxx.changed widgets/xxx.changed:
 
 clean::
 	find . \( -name "*~" \
+               -o -name ".*~" \
                -o -name "#*" \
+               -o -name ".#*" \
                -o -name "*.bak" \
                -o -name "*.old" \
                \) -exec rm {} \;
@@ -89,20 +91,18 @@ regteststatus:zmw.so test
 	done
 	echo "Regression test: `cat $@`"
 
-##############################################################################
-# Create the tar
-##############################################################################
-CREATE_TGZ=create_tgz() { (P=`pwd`; cd /tmp; ln -s $$P $$1; tar --exclude "*regteststatus" -cvf - $$1/* | gzip -9; rm $$1;) } ; create_tgz
 
 ##############################################################################
 # Create a nightly version if regtest passed
 ##############################################################################
+
 nightly_release:regteststatus makefile_clean clean
 	if [ `cat regteststatus` = "pass" -a \
 	     "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
 	then \
 	echo "Create a nightly release" ; \
-	F=`date '+WIDGET-%Y-%m-%d'` ; $(CREATE_TGZ) $$F >../$$F.tar.gz ; \
+	F=`date '+WIDGET-%Y-%m-%d'` ; \
+	scripts/zmw-tar $$F >../$$F.tar.gz ; \
 	rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
 	cp ../$$F.tar.gz /home/exco/public_html/ZMW ; \
 	sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
@@ -116,17 +116,20 @@ benchmarks:
 ##############################################################################
 # Create a new release
 ##############################################################################
-new_release:makefile_clean clean
-	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
+tar:makefile_clean clean
 	if [ `cat regteststatus` = "pass" ] ; \
 	then \
 	echo "Creating a new release" ; \
-	$(CREATE_TGZ) zmw-$(ZMW_VERSION) >~/public_html/ZMW/zmw-$(ZMW_VERSION).tgz ; \
+	scripts/zmw-tar zmw-$(ZMW_VERSION) >~/public_html/ZMW/zmw-$(ZMW_VERSION).tgz ; \
+	fi
+
+
+new_release:tar
+	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
 	if [ -d ~/public_html/ZMW/zmw-$(ZMW_VERSION) ] ; \
 	then rm -r ~/public_html/ZMW/zmw ; \
 	     mv ~/public_html/ZMW/zmw-$(ZMW_VERSION) ~/public_html/ZMW/zmw ; \
-        fi ; \
-	fi
+        fi
 
 ##############################################################################
 # Goals to execute each night
@@ -150,16 +153,7 @@ nightfilter:
 	      grep -v -e 'Dump' -e 'Clean' -e 'Using ' -e '[a-z0-9]* [[]1].*[0-9]$$' -e 'Compiling' -e 'Link' -e '^Make ' -e 'Terminated' -e 'font path' -e 'FVWM' -e ': 0' -e '^WIDGET_200'
 
 night:
-	echo "make nightfilter night" | at 07:00
-
-##############################################################################
-# Change the version number in some files
-##############################################################################
-versionchange:
-	echo "Update Changelog and zmw.xml for release history"
-	OLD="0.0.11" ; NEW="0.0.12" ; \
-	change "$$OLD" "$$NEW" README Makefile.config ; \
-	change "; $$OLD)<"  "; $$NEW)<" doc/zmw.xml
+	echo "make nightjob night" | at 07:00
 
 ##############################################################################
 # Search unused functions

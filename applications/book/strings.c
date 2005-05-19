@@ -119,10 +119,10 @@ int strings_convol(const char *ta, const char *tb)
   for( i=0;i<=l;i++ )
     {
       if ( c[i] >= 1 )
-	s += pow(c[i],1.7) ;
+	s += pow(c[i],2) ; // 1.7
     }
 
-  return( 10*rint(s) ) ;
+  return 10 * (s / la) / lb ;
 }
 
 int valued_compare(const void *a, const void *b)

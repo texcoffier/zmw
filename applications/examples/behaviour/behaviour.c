@@ -35,7 +35,7 @@ void behaviour(void)
 		  if ( zmw_activated() )
 		    sensible = Zmw_True ;
 
-		  zmw_toggle_int_with_label(&sensible, "Sensible state") ;
+		  zmw_check_button_int_with_label(&sensible, "Sensible state") ;
 
 		  zmw_entry(&text) ;
 		}

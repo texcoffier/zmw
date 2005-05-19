@@ -20,6 +20,7 @@
 */
 /* -*- outline-minor -*- */
 
+#include <gdk/gdkkeysyms.h>
 #include <ctype.h>
 #include "zmw/zmw.h"
 
@@ -30,27 +31,27 @@ static Zmw_Name global_zmw_selection = ZMW_NAME_UNREGISTERED("Selection") ;
 #define C(X) if ( (X) == zmw.event->type ) zmw_printf("%s\n", #X)
 void zmw_event_dump()
 {
-	zmw_printf("EVENT_DUMP\n") ;
-	zmw_debug_trace() ;
-	zmw_printf("%s\n", zmw_size_string(&ZMW_SIZE)) ;
-	zmw_printf("zmw.x = %d %d\n", zmw.x, zmw.y) ;
-	zmw_printf("ZMW_SIZE_EVENT_IN_RECTANGLE = %d\n", ZMW_SIZE_EVENT_IN_RECTANGLE) ;
-	zmw_printf("ZMW_SIZE_EVENT_IN_CHILDREN = %d\n", ZMW_SIZE_EVENT_IN_CHILDREN) ;
-	zmw_printf("ZMW_SIZE_SENSIBLE = %d\n", ZMW_SIZE_SENSIBLE) ;
-	zmw_printf("zmw_focus_in() = %d\n", zmw_focus_in()) ;
-	zmw_printf("zmw_key_pressed() = %d\n", zmw_key_pressed()) ;
-	if ( zmw_key_pressed() )
-	  zmw_printf("KEY = %c(%d)\n", zmw.event->key.string[0],
-		     zmw.event->key.string[0]) ;
-		  C(GDK_KEY_RELEASE) ;
-		  C(GDK_KEY_PRESS) ;
-		  C(GDK_MOTION_NOTIFY) ;
-		  C(GDK_EXPOSE) ;
-		  C(GDK_2BUTTON_PRESS) ;
-		  C(GDK_3BUTTON_PRESS) ;
-		  C(GDK_BUTTON_PRESS) ;
-		  C(GDK_BUTTON_RELEASE) ;
-	zmw_printf("\n") ;
+  zmw_printf("EVENT_DUMP\n") ;
+  zmw_debug_trace() ;
+  zmw_printf("%s\n", zmw_size_string(&ZMW_SIZE)) ;
+  zmw_printf("zmw.x = %d %d\n", zmw.x, zmw.y) ;
+  zmw_printf("ZMW_SIZE_EVENT_IN_RECTANGLE = %d\n", ZMW_SIZE_EVENT_IN_RECTANGLE) ;
+  zmw_printf("ZMW_SIZE_EVENT_IN_CHILDREN = %d\n", ZMW_SIZE_EVENT_IN_CHILDREN) ;
+  zmw_printf("ZMW_SIZE_SENSIBLE = %d\n", ZMW_SIZE_SENSIBLE) ;
+  zmw_printf("zmw_focus_in() = %d\n", zmw_focus_in()) ;
+  zmw_printf("zmw_key_pressed() = %d\n", zmw_key_pressed()) ;
+  if ( zmw_key_pressed() )
+    zmw_printf("KEY = %c(%d)\n", zmw.event->key.string[0],
+	       zmw.event->key.string[0]) ;
+  C(GDK_KEY_RELEASE) ;
+  C(GDK_KEY_PRESS) ;
+  C(GDK_MOTION_NOTIFY) ;
+  C(GDK_EXPOSE) ;
+  C(GDK_2BUTTON_PRESS) ;
+  C(GDK_3BUTTON_PRESS) ;
+  C(GDK_BUTTON_PRESS) ;
+  C(GDK_BUTTON_RELEASE) ;
+  zmw_printf("\n") ;
 }
 #undef C
 
@@ -163,6 +164,7 @@ Zmw_Boolean zmw_key_string_unsensitive()
 {
   return zmw_key_pressed_unsensitive() && zmw.event->key.string[0] ;
 }
+
 /*
  * True if the cursor is pressed in the widget
  */
@@ -186,9 +188,9 @@ Zmw_Boolean zmw_button_released()
 Zmw_Boolean zmw_button_released_anywhere()
 {
   return(  !zmw.event_removed
-	 && ZMW_ACTION == zmw_action_dispatch_event
-	 && ZMW_CALL_NUMBER > 0
-	 && zmw.event->type == GDK_BUTTON_RELEASE ) ;
+	   && ZMW_ACTION == zmw_action_dispatch_event
+	   && ZMW_CALL_NUMBER > 0
+	   && zmw.event->type == GDK_BUTTON_RELEASE ) ;
 }
 /*
  * True if the previous widget was activated
@@ -204,8 +206,8 @@ Zmw_Boolean zmw_activated()
 	return Zmw_True ;
       if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
 	{
-	zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
-	return Zmw_True ;
+	  zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
+	  return Zmw_True ;
 	}
     }
 
@@ -288,14 +290,14 @@ Zmw_Boolean zmw_cursor_leave()
       && zmw_name_contains(&global_zmw_cursor)
       && !ZMW_SIZE_EVENT_IN_RECTANGLE
       )
-  	 {
-	   if ( 0 )
-	     zmw_printf("LEAVE!\n") ;
-	   //	zmw.need_dispatch = Zmw_True ;
-	   return( Zmw_True ) ;
-  	 }
+    {
+      if ( 0 )
+	zmw_printf("LEAVE!\n") ;
+      //	zmw.need_dispatch = Zmw_True ;
+      return( Zmw_True ) ;
+    }
 
-   return( Zmw_False ) ;
+  return( Zmw_False ) ;
 }
        
  
@@ -314,7 +316,7 @@ Zmw_Boolean zmw_cursor_enter()
       return( Zmw_True ) ;
     }
 
-   return( Zmw_False ) ;
+  return( Zmw_False ) ;
 }
 
 void zmw_cursor_set(char *name)
@@ -323,7 +325,7 @@ void zmw_cursor_set(char *name)
        || (name != NULL && global_zmw_cursor.name == NULL)
        || (name && global_zmw_cursor.name && strcmp(name, global_zmw_cursor.name))
        )
-       zmw_need_repaint() ;
+    zmw_need_repaint() ;
 
   zmw_name_register_with_name(&global_zmw_cursor, name) ;
 }
@@ -468,29 +470,24 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
       /*
        * It is here BEFORE the event dispatch on children
        */
-      /*
-       * If the menu button was activated we do not
-       * want the unpop.
-       */
-      if ( zmw_activated_previous() )
+      if (
+	  /*
+	   * If the menu button was activated we do not
+	   * want the unpop.
+	   */
+	  zmw_activated_previous()
+	  /*
+	   * The inner visible menu is modified when the cursor
+	   * is over a button making it appear.
+	   */
+	  || (zmw_event_in_rectangle_previous() && zmw.button_pressed )
+	  )
 	{
 	  ZMW_PRINTF("Registered by Activation\n") ;
 	  zmw_name_register(&global_inner_visible_menu) ;
 	  action = Zmw_Menu_Is_Poped ;
 	  zmw_window_update_uppers(action) ;
-	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
-	}
-      /*
-       * The inner visible menu is modified when the cursor
-       * is over a button making it appear.
-       */
-      if ( zmw_event_in_rectangle_previous() && zmw.button_pressed )
-	{
-	  ZMW_PRINTF("Register\n") ;
-	  zmw_name_register(&global_inner_visible_menu) ;
-	  action = Zmw_Menu_Is_Poped ;
-	  zmw_window_update_uppers(action) ;
-	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
+	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;	  
 	}
     }
 
@@ -558,7 +555,7 @@ Zmw_Boolean zmw_focused_by_its_parents()
  */
 void zmw_focus_remove()
 {
-	zmw_name_unregister(ZMW_FOCUS) ;
+  zmw_name_unregister(ZMW_FOCUS) ;
 }
 /*
  * Remove the current event
@@ -577,21 +574,222 @@ void zmw_event_remove()
  * It is even possible that a widget has a different size
  * if it is focused.
  */
+static void zmw_update_distance(int direction, int distance
+				, const Zmw_Rectangle *current)
+{
+  int x, y, in ;
+
+  if ( distance >= (int)zmw.near[direction].name.value )
+    return ;
+
+  if ( 0 )
+    {
+      GdkRegion *r ;
+      int side_x, side_y ;
+
+      gdk_window_get_origin(*ZMW_WINDOW, &side_x, &side_y) ; 
+      x = current->x + current->width/2 - side_x ;
+      y = current->y + current->height/2 - side_y  ;
+      
+      r = gdk_drawable_get_visible_region(*ZMW_WINDOW) ;
+      in = gdk_region_point_in(r, x, y) ;
+      gdk_region_destroy(r) ;
+      
+      if ( !in )
+	{
+	  return ; // We don't focus on non visible widget
+	}
+    }
+  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+    {
+      zmw_printf("YES I am nearer on %c  %d ===> %d\n"
+		 , "LRUD"[direction], (int)zmw.near[direction].name.value
+		 , distance) ;
+    }
+
+  zmw_string_copy(&zmw.near[direction].name.name, zmw_name_full) ;
+
+  zmw.near[direction].name.value = (void*)distance ;	      
+  zmw.near[direction].name.hash = ZMW_SIZE_HASH ;
+  zmw.near[direction].window = *ZMW_WINDOW ;
+  zmw.near[direction].rectangle = *current ;
+}
+
+// 1 and 2 are not symetric
+// It is the distance from 2 to 1
+
+static void zmw_interval_distance(int pos1, int length1, int pos2, int length2
+				  , int *left_distance
+				  , int *right_distance
+				  , int *distance
+				  )
+{
+  int middle1, end2 ;
+
+  *left_distance  = 1000000000 ;
+  *right_distance = 1000000000 ;
+  *distance = 0 ;
+
+  end2 = pos2 + length2 ;
+  middle1 = pos1 + length1/2 ;
+
+  if ( pos2 > middle1 )
+    *distance = pos2 - middle1 ;
+  else if ( end2 < middle1  )
+    *distance = middle1 - end2 ;
+
+  // Compute non overlapping distance
+  if ( pos1 >= end2 )
+    *left_distance = pos1 - end2 + 1 ;
+  else if ( pos2 >= pos1 + length1 )
+    *right_distance  = pos2 - (pos1 + length1) + 1 ;
+}
+
+static void zmw_interval_distance_debug()
+{
+  int i, pos1, length1, pos2, length2, left, right, distance ;
+  char buf[50] ;
+
+  pos1 = 14 ;
+
+  for(length1=6; length1<=12; length1 += 6)
+    for(length2=6; length2<=12; length2 += 6)
+      for(pos2=pos1-length2-2; pos2<pos1+length1+3; pos2++)
+	{
+	  for(i=0; i<sizeof(buf); i++)
+	    {
+	      buf[i] = ' ' ;
+	      if ( i>=pos1 && i<pos1+length1)
+		buf[i] = '1' ;
+	      if ( i>=pos2 && i<pos2+length2)
+		{
+		  if ( buf[i] == '1' )
+		    buf[i] = '#' ;
+		  else
+		    buf[i] = '2' ;
+		}
+	    }
+	  buf[i-1] = '\0' ;
+
+	  zmw_interval_distance(pos1, length1, pos2, length2
+				, &left, &right, &distance);
+	  fprintf(stderr, "%s %10d %10d %6d\n", buf, left, right, distance) ;
+	}
+  exit(1) ;
+}
+
+
 void zmw_focusable()
 {
+  int left_x, right_x, left_y, right_y, dx, dy ;
+  int change_window ;
+  Zmw_Rectangle current ;
+
+  //zmw_interval_distance_debug() ;
+
+  /* Search if I am just left/up/down/right to the focused widget */
+  if ( ZMW_FOCUS == zmw.focus /* Cursor in the current focus group */
+       && ZMW_SIZE_SENSIBLE
+       && !zmw_name_is(ZMW_FOCUS) /* Not me */
+       )
+    {
+      if ( ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size
+	   || ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing)
+	{
+	  /* My position is known, I look if I am near to zmw.focus */
+	  current = zmw_rectangle_min(&ZMW_SIZE_ALLOCATED, &ZMW_CLIPPING) ;
+	  if ( current.width != 0 && current.height != 0 )
+	    {
+	      gdk_window_get_origin(*ZMW_WINDOW, &dx, &dy) ; 
+	      current.x += dx ;
+	      current.y += dy ;
+
+	      zmw_interval_distance(
+				    zmw.focused.x, zmw.focused.width
+				    , current.x, current.width
+				    , &left_x, &right_x, &dx) ;
+	      zmw_interval_distance(
+				    zmw.focused.y, zmw.focused.height
+				    , current.y, current.height
+				    , &left_y, &right_y, &dy) ;
+	      change_window = (*ZMW_WINDOW != zmw.raised) ;
+	      if ( gdk_window_get_window_type(*ZMW_WINDOW) == GDK_WINDOW_TEMP)
+		change_window = -1 ;
+	      
+
+	      if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+		{
+		  zmw_printf("me : %d,%d %dx%d window=%p\n"
+			     , current.x, current.y
+			     , current.width, current.height
+			     , *ZMW_WINDOW
+			     ) ;
+		  zmw_printf("focus : %d,%d %dx%d raised=%p\n"
+			     , zmw.focused.x, zmw.focused.y
+			     , zmw.focused.width, zmw.focused.height
+			     , zmw.raised
+			     ) ;
+		  zmw_printf("rx%d lx%d dx%d  ry%d ly%d dy%d\n"
+			     , right_x, left_x, dx,right_y, left_y, dy ) ;
+		  zmw_printf("Change window = %d\n", change_window) ;
+		}
+
+
+	      if ( right_x != 1000000000 )
+		zmw_update_distance(1, 3*right_x + dy + change_window*10000
+				    , &current
+				    ) ;
+	      if ( left_x != 1000000000 )
+		zmw_update_distance(0, 3*left_x + dy + change_window*10000
+				    , &current
+				    ) ;
+	      if ( right_y != 1000000000 )
+		zmw_update_distance(3, dx + 3*right_y + change_window*10000
+				    , &current
+				    ) ;
+	      if ( left_y != 1000000000 )
+		zmw_update_distance(2, dx + 3*left_y + change_window*10000
+				    , &current
+				    ) ;
+	    }
+	}
+    }
+
   if ( zmw_event_to_process() )
     {
       if ( zmw.event->type == GDK_BUTTON_PRESS
 	   || zmw.event->type == GDK_BUTTON_RELEASE )
-	zmw_name_register(ZMW_FOCUS) ;
+	{
+	  zmw_name_register(ZMW_FOCUS) ;
+	}
 
       if ( zmw.event->type == GDK_BUTTON_PRESS )
 	zmw_need_repaint() ;
       // zmw_event_remove() ; // Removed the 2004-1-4
-     }
+    }
   if ( zmw_name_is(ZMW_FOCUS) )
     {
       ZMW_SIZE_FOCUSED = Zmw_True ;
+
+      /* Always recomputed because window may move or be resized */
+      if ( ZMW_FOCUS == zmw.focus &&
+	   ( ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size
+	     || ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing
+	     )
+	   )
+	{
+	  zmw.focused = zmw_rectangle_min(&ZMW_SIZE_ALLOCATED, &ZMW_CLIPPING) ;
+	  gdk_window_get_origin(*ZMW_WINDOW, &dx, &dy) ; 
+	  zmw.focused.x += dx ;
+	  zmw.focused.y += dy ;
+
+	  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+	    {
+	      zmw_printf("Set Focus to %d,%d %dx%d\n"
+			 , zmw.focused.x    , zmw.focused.y
+			 , zmw.focused.width, zmw.focused.height);
+	    }
+	}
     }
 }
 /*
@@ -668,7 +866,7 @@ Zmw_Boolean zmw_accelerator(GdkModifierType state, int character)
     {
       zmw_need_repaint() ;
       zmw_event_remove() ;
-       return(1) ;
+      return(1) ;
     }
   return(0) ;
 }
@@ -693,9 +891,9 @@ Zmw_Boolean zmw_tip_visible()
    * In the other cases, test if the tip is displayed
    */
   
-   if ( zmw.zmw_table[1].i.action == zmw_action_search )
+  if ( zmw.zmw_table[1].i.action == zmw_action_search )
     {
-    	/* Set tip on the first inner most widget containing "found" */
+      /* Set tip on the first inner most widget containing "found" */
       if ( ! zmw_name_registered(&zmw.tip_displayed) )
 	{
 	  if ( zmw_event_in_rectangle_previous() )
@@ -704,7 +902,7 @@ Zmw_Boolean zmw_tip_visible()
 	    }
 	}
     }
-    else
+  else
     {
       if ( zmw.tips_yet_displayed && zmw_name_registered(&zmw.tip_displayed) )
 	{
@@ -744,12 +942,13 @@ void zmw_event_debug_window()
   static int display_zmw = 0 ;
   char *found ;
   char buf[9999] ;
+  int dir ;
   
   found = zmw_name_registered(&zmw.found) ;
 
   ZMW(zmw_vbox())
     {
-      zmw_toggle_int_with_label(&display_zmw, "zmw") ;
+      zmw_check_button_int_with_label(&display_zmw, "zmw") ;
       if ( display_zmw )
 	{
 	  sprintf(buf, "event=%p", zmw.event) ;
@@ -759,27 +958,27 @@ void zmw_event_debug_window()
 	    switch(zmw.event->type)
 	      {
 		C(GDK_KEY_PRESS) ;
-		  C(GDK_KEY_RELEASE) ;
-		  sprintf(buf, "state=%d code=%x string=\"%s\""
-			  , zmw.event->key.state
-			  , zmw.event->key.keyval
-			  , zmw.event->key.string
-			  ) ;
-		  zmw_label(buf) ;
-		  break ;
+		C(GDK_KEY_RELEASE) ;
+		sprintf(buf, "state=%d code=%x string=\"%s\""
+			, zmw.event->key.state
+			, zmw.event->key.keyval
+			, zmw.event->key.string
+			) ;
+		zmw_label(buf) ;
+		break ;
 
-		  C(GDK_MOTION_NOTIFY) ; break ;
-		  C(GDK_EXPOSE) ; break ;
-		  C(GDK_2BUTTON_PRESS) ; break ;
-		  C(GDK_3BUTTON_PRESS) ; break ;
-		  C(GDK_BUTTON_PRESS) ; break ;
-		  C(GDK_BUTTON_RELEASE) ; break ;
+		C(GDK_MOTION_NOTIFY) ; break ;
+		C(GDK_EXPOSE) ; break ;
+		C(GDK_2BUTTON_PRESS) ; break ;
+		C(GDK_3BUTTON_PRESS) ; break ;
+		C(GDK_BUTTON_PRESS) ; break ;
+		C(GDK_BUTTON_RELEASE) ; break ;
 
-		default:
-		  sprintf(buf, "type=%d", zmw.event->type) ;
-		  zmw_label(buf) ;
+	      default:
+		sprintf(buf, "type=%d", zmw.event->type) ;
+		zmw_label(buf) ;
 		  
-		}
+	      }
 
 	  sprintf(buf, "x=%d y=%d "
 		  , zmw.x
@@ -802,6 +1001,21 @@ void zmw_event_debug_window()
 	  sprintf(buf,"SELECTED=%s",zmw_name_registered(&global_zmw_selected));
 	  zmw_label(buf) ;
 	  sprintf(buf, "FOUND=%s", found) ;
+	  zmw_label(buf) ;
+
+	  for(dir=0; dir<4; dir++)
+	    {
+	      sprintf(buf, "%c name=%s distance=%d window=%p"
+		      , "LRUD"[dir]
+		      , zmw.near[dir].name.name
+		      , (int)zmw.near[dir].name.value
+		      , zmw.near[dir].window
+		      ) ;
+	      zmw_label(buf) ;
+	    }
+	  sprintf(buf, "focused: (%d,%d %dx%d)"
+		  , zmw.focused.x, zmw.focused.y
+		  , zmw.focused.width, zmw.focused.height) ;
 	  zmw_label(buf) ;
 	}
     }

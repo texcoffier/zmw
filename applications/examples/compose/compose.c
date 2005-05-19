@@ -5,7 +5,7 @@ void toggle_with_label(int *value, const char *label)
 {
   ZMW(zmw_hbox_activable())
     {
-      zmw_toggle_int(value) ;
+      zmw_check_button_int(value) ;
       zmw_label(label) ;
     }
   if ( zmw_activated() ) 

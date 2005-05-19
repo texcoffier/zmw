@@ -126,7 +126,7 @@ void zmw_menu_without_accelerators()
   zmw_if(zmw_window_is_popped()) ;
 }
 
-void zmw_popup_with_detached(int *detached)
+void zmw_menu_with_detached(int *detached)
 {
   zmw_if(zmw_window_is_popped_with_detached(detached)) ;
 }

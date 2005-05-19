@@ -31,7 +31,7 @@ void test_toggle_()
       for(i=0; i<5; i++)
 	{
 	  sprintf(toggle_name, "Toggle %d", i) ;
-	  zmw_toggle_int_with_label(&toggle_state[i], toggle_name) ;
+	  zmw_check_button_int_with_label(&toggle_state[i], toggle_name) ;
 	}
     }
 }

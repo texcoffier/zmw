@@ -31,7 +31,7 @@ void text_selection(void)
 		{
 		  zmw_focus(&focus[i]) ;
 		  zmw_entry(&text[i]) ;
-		  zmw_text_editable_with_cursor(&text[i], &cursors[i]) ;
+		  zmw_entry_with_cursor(&text[i], &cursors[i]) ;
 		}
 	    }
 	}

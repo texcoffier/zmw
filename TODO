@@ -2,18 +2,48 @@ Many things are missing in the current library.
 The ones with a "*" are priorities.
 
 WIDGETS:
+	* kill selection in text entry
 	* Input of composed characters in text entry : Input method
 	- Alignement left/right in an horizontal widget
-	* Focus navigation with keyboard
 	- Framing (border + name) : decorator enhancement
 	- zmw_table : border are too small to be draggable
 	* zmw_window_drag(): Choose the window position relative to cursor
 	  with values in current state.
 	* Semantic Lens (move the code from book example to the library)
-	- Button with accelerators and menu with a table to align
-	  the button text and the accelerator name.
+	* For the menu item with accelerators and the file browser,
+	  the table lines must be focusable.
+	    - It is not possible to put the widgets in the line inside
+	      a widget focusable because the table can't compute the
+	      alignment on grand children.
+            - It is possible to replace the table by something like :
+	          for(...)
+			ZMW(zmw_hbox_activable())
+				{
+				zmw_x(..) ;
+				zmw_label() ;
+				zmw_x(..) ;
+				zmw_label() ;
+				}
+	      But the optimal size computing is lost.			
+	   - Or create a tabuled widget.
+		zmw_htab_init(nb_widths, width, width_min, width_max) ;
+	        for(...)
+			ZMW(zmw_htab_activable(widths))
+				{
+				zmw_label() ;
+				zmw_label() ;
+				...
+				}
+	     "zmw_htab_activable" compute the maximum widths of the widgets
+	     when they are not yet fixed by "zmw_htab_init"
+	     "zmw_htab_init" set widths to the min and clamp to the max
+	     This API allows to split table in multiple part.
+		
 
 LIBRARY CORE:
+	- Store the default value in the resource so it is possible
+	  to sometime purge the resources list from resources
+	  equals to their default value.
 	- Make a pile by attribute with a bit vector to indicate
 	  which attributes where pushed.
 	  So in the most current case, there only one 'int' to push
@@ -21,7 +51,6 @@ LIBRARY CORE:
 	  Define the attributes in current state dynamicly
 	- Use OpenGL
 	- zmw_name must not be called with the same name for sibling.
-	* Cursor shape change when it enters in a widget
 	- animation: Specify the next frame time
 	* Remove "zmw_pass_through" function (should be used everywhere)
 	* event_in_(masked/focus) put in the correct place.
@@ -31,15 +60,19 @@ LIBRARY CORE:
 		- function calls outside user top level widgets
 		  are no more a special case.
 	  It is not a small change.
-	* Use bit record to store booleans in the structures,
 	- Hide references to gdk inside zmw_device (apply also to widgets)
+	* Currently, any change in "zmw" data structure imply a recompilation
+	  of the applications : it is bad.
+	  zmw-fast.h will allow fast and slim executable
+	  zmw-slow.h will allow portable executable
+	  Or better: a compilation option
 
 MISC:
-	* Debug book.c
 	* Append menu3.c example in the documentation
 
 BUGS:
-	* X window is locked (grab?) when debugging info is printed
+	- X window is locked (grab?) when debugging info is printed
+	  (This is no more the case, I don't know why)
 	* zmw_text(): the selection must be cleared on button 1 press
 	- Window content has not the correct size a little time when the window
 	  is mapped the first time. It is because gdk_window_resize

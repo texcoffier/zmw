@@ -1,0 +1,22 @@
+#!/bin/sh
+# -*- ksh -*-
+
+# Create a tar file on stdout of the current directory
+# In the tar file, it is name with the parameter of this script :
+
+P=`pwd`
+cd /tmp
+
+if [ -f "$1" -o -d "$1" -o "" = "$1" ]
+	then
+	echo "Problem in $0" >&2
+	exit 1
+	fi
+
+ln -s $P $1
+
+tar --exclude "*regteststatus" -cvf - "$1"/* |
+	gzip -9
+
+rm $1
+

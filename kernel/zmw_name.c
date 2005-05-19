@@ -287,7 +287,7 @@ void zmw_name_debug_window()
 
   ZMW( zmw_vbox() )
     {
-      zmw_toggle_int_with_label(&display_name_state, "Ressources and Registration") ;
+      zmw_check_button_int_with_label(&display_name_state, "Ressources and Registration") ;
       if ( display_name_state )
 	{
 	  ZMW( zmw_vbox() )

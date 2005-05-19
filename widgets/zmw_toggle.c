@@ -45,12 +45,12 @@ int zmw_check_button_bits(int value, int bits, int options)
   return value ;
 }
 
-void zmw_toggle_bits_int(int *value, int bits)
+void zmw_check_button_bits_int(int *value, int bits)
 {
   *value = zmw_check_button_bits(*value, bits, Zmw_Decorator_Focusable) ;
 }
 
-void zmw_toggle_bits_char(char *value, int bits)
+void zmw_check_button_bits_char(char *value, int bits)
 {
   *value = zmw_check_button_bits(*value, bits, Zmw_Decorator_Focusable) ;
 }
@@ -60,12 +60,12 @@ int zmw_check_button(int value)
   return zmw_check_button_bits(value, 1, Zmw_Decorator_Focusable) ;
 }
 
-void zmw_toggle_int(int *value)
+void zmw_check_button_int(int *value)
 {
   *value = zmw_check_button_bits(*value, 1, Zmw_Decorator_Focusable) ;
 }
 
-void zmw_toggle_char(char *value)
+void zmw_check_button_char(char *value)
 {
   *value = zmw_check_button_bits(*value, 1, Zmw_Decorator_Focusable) ;
 }
@@ -99,12 +99,12 @@ int zmw_check_button_bits_with_label(int value, int bits, const char *label)
   return value ;
 }
 
-void zmw_toggle_bits_int_with_label(int *value, int bits, const char *label)
+void zmw_check_button_bits_int_with_label(int *value, int bits, const char *label)
 {
   *value = zmw_check_button_bits_with_label(*value, bits, label) ;
 }
 
-void zmw_toggle_bits_char_with_label(char *value, int bits, const char *label)
+void zmw_check_button_bits_char_with_label(char *value, int bits, const char *label)
 {
   *value = zmw_check_button_bits_with_label(*value, bits, label) ;
 }
@@ -114,12 +114,12 @@ int zmw_check_button_with_label(int value, const char *label)
   return zmw_check_button_bits_with_label(value, 1, label) ;
 }
 
-void zmw_toggle_int_with_label(int *value, const char *label)
+void zmw_check_button_int_with_label(int *value, const char *label)
 {
   *value = zmw_check_button_bits_with_label(*value, 1, label) ;
 }
 
-void zmw_toggle_char_with_label(char *value, const char *label)
+void zmw_check_button_char_with_label(char *value, const char *label)
 {
   *value = zmw_check_button_bits_with_label(*value, 1, label) ;
 }

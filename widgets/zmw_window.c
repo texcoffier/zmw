@@ -65,16 +65,21 @@ static void zmw_compute_window_size()
     }
   else
     {
-      gdk_window_get_size(*ZMW_WINDOW
-			  , &ZMW_SIZE_ALLOCATED.width
-			  , &ZMW_SIZE_ALLOCATED.height
-			  ) ;
+      int w, h ;
+      gdk_window_get_size(*ZMW_WINDOW, &w, &h) ;
+      ZMW_SIZE_ALLOCATED.width = w ;
+      ZMW_SIZE_ALLOCATED.height = h ;
     }
   ZMW_SIZE_ALLOCATED.x = 0 ;
   ZMW_SIZE_ALLOCATED.y = 0 ;
   ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
   ZMW_CHILDREN[the_child].allocated = ZMW_SIZE_ALLOCATED ;
   zmw_padding_remove(&ZMW_CHILDREN[the_child].allocated, ZMW_CHILDREN[the_child].current_state.padding_width) ;
+
+  ZMW_CLIPPING.x = 0 ;
+  ZMW_CLIPPING.y = 0 ;
+  ZMW_CLIPPING.width = ZMW_SIZE_ALLOCATED.width ;
+  ZMW_CLIPPING.height = ZMW_SIZE_ALLOCATED.height ;
 }
 
 
@@ -83,8 +88,8 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 			, const char *title, GdkGC **gc)
 {
   GdkWindowAttr wa ;
-  gint x, y ;
-  Zmw_Size *s ;
+  gint x, y, width, height ;
+  Zmw_Child *s ;
   GdkRectangle rect ;
 
   switch( ZMW_SUBACTION )
@@ -157,13 +162,23 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       ZMW_SIZE_ALLOCATED.x = 0 ;
       ZMW_SIZE_ALLOCATED.y = 0 ;
       gdk_window_get_size(*ZMW_WINDOW
-			  , &ZMW_SIZE_ALLOCATED.width
-			  , &ZMW_SIZE_ALLOCATED.height
+			  , &width
+			  , &height
 			  ) ;
+      gdk_window_get_size(*ZMW_WINDOW, &width, &height) ;
+      ZMW_SIZE_ALLOCATED.width = width ;
+      ZMW_SIZE_ALLOCATED.height = height ;
 
-      break ;
-
-    case Zmw_Compute_Required_Size:
+      // Keyboard navigation
+      /*
+      if ( zmw.raised != *ZMW_WINDOW && zmw.update_raised )
+	{
+	  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+	    zmw_printf("zmw.raised is updated to %p\n", *ZMW_WINDOW) ;
+	  zmw.raised = *ZMW_WINDOW ;
+	  zmw.update_raised = Zmw_False ;
+	}
+      */
       break ;
 
     case Zmw_Compute_Children_Allocated_Size:
@@ -173,13 +188,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
       zmw_compute_window_size() ;
 
-      /* Remove the clipping rectangle */
-      
-      ZMW_CLIPPING.x = 0 ;
-      ZMW_CLIPPING.y = 0 ;
-      ZMW_CLIPPING.width = ZMW_SIZE_ALLOCATED.width ;
-      ZMW_CLIPPING.height = ZMW_SIZE_ALLOCATED.height ;
-      zmw_draw_clip_push(&ZMW_CLIPPING) ;
+      // zmw_draw_clip_set() ;
 
 #if GLIB_MAJOR_VERSION > 1
       rect.x = ZMW_CLIPPING.x ;
@@ -234,7 +243,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	}
       break ;
     case Zmw_Post_Drawing:
-      zmw_draw_clip_pop() ;
+      // zmw_draw_clip_pop() ;
       if ( follow_mouse && gdk_window_is_visible(*ZMW_WINDOW) )
 	{	
 	  /* the -10 is not required.

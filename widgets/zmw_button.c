@@ -147,8 +147,10 @@ void zmw_accelerators_window(GdkModifierType filter)
     {
       ZMW(zmw_vbox())
 	{
-	  zmw_label("Accelerators") ;
-	  zmw_label("-----------------------") ;
+	  zmw_label("Accelerators\n"
+		    "-----------------------\n"
+		    "Move focus: Ctrl+Cursor\n"
+		    ) ;
 	  for(i=0;i<global_zmw_accelerators_nb; i++)
 	    {
 	      if ( (global_zmw_accelerators[i].state & filter) == filter )

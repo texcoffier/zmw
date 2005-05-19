@@ -193,19 +193,6 @@ void zmw_cross_draw()
   cross_draw(&ZMW_SIZE_ALLOCATED, Zmw_Color_Foreground) ;
 }
 
-void zmw_draw_clip_push_inside(const Zmw_Rectangle *r)
-{
-  Zmw_Rectangle c ;
-
-  c.x = ZMW_MAX(r->x, ZMW_CLIPPING.x) ;
-  c.y = ZMW_MAX(r->y, ZMW_CLIPPING.y) ;
-  c.width = ZMW_MIN(r->x + r->width, ZMW_CLIPPING.x + ZMW_CLIPPING.width)
-    - c.x ;
-  c.height= ZMW_MIN(r->y + r->height, ZMW_CLIPPING.y + ZMW_CLIPPING.height)
-    - c.y ;
-  zmw_draw_clip_push(&c) ;
-}
-
 int zmw_rgb_scale_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b,
 			 Zmw_Float_0_1 s)
 {

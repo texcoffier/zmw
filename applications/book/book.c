@@ -53,11 +53,11 @@ void book_filter(Library_GUI *gui, int *start)
 	
 
       zmw_horizontal_expand(Zmw_False) ;
-      zmw_toggle_int_with_label(&gui->only_borrowed
+      zmw_check_button_int_with_label(&gui->only_borrowed
 				, _("Display only borrowed books")) ;
       tip(gui, _("Display book borrowed and not yet given back")) ;
       gui->need_filter |= zmw_activated() ;
-      zmw_toggle_int_with_label(&gui->only_modified
+      zmw_check_button_int_with_label(&gui->only_modified
 				, _("Display only modified books")) ;
       tip(gui, _("If true only modified books are displayed, it disables other filters"));
       gui->need_filter |= zmw_activated() ;
@@ -186,7 +186,16 @@ void table_filter(Library_GUI *gui)
 
 void title(Library_GUI *gui, int i)
 {
-  zmw_entry( library_book_title_pointer_get(gui->lib, i) ) ;
+  zmw_entry(library_book_title_pointer_get(gui->lib, i)) ;
+}
+
+void take_focus(Library_GUI *gui)
+{
+  if ( gui->take_focus )
+    {
+      zmw_name_register(ZMW_FOCUS) ;
+      gui->take_focus = Zmw_False ;
+    }
 }
 
 void author(Library_GUI *gui, int i)
@@ -194,6 +203,7 @@ void author(Library_GUI *gui, int i)
   if ( gui->book == i && gui->action == Author_Name )
     {
       zmw_entry( library_book_author_pointer_get(gui->lib, i) ) ;
+      take_focus(gui) ;
     }
   else if ( gui->book == i && gui->action == Author_Name_For_Book )
     {
@@ -209,12 +219,6 @@ void author(Library_GUI *gui, int i)
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom, Zmw_False))
 	    {
-	      zmw_button(_("Change author name for all the books")) ;
-	      if ( zmw_activated() )
-		{
-		  gui->book = i ;
-		  gui->action = Author_Name ;
-		}
 	      zmw_button(_("Change book author")) ;
 	      if ( zmw_activated() )
 		{
@@ -223,6 +227,15 @@ void author(Library_GUI *gui, int i)
 		  if ( gui->new_name ) free(gui->new_name) ;
 		  gui->new_name
 		    = strdup(library_book_author_get(gui->lib, i)) ;
+		  gui->take_focus = Zmw_True ;
+		}
+
+	      zmw_button(_("Change author name for all the books")) ;
+	      if ( zmw_activated() )
+		{
+		  gui->book = i ;
+		  gui->action = Author_Name ;
+		  gui->take_focus = Zmw_True ;
 		}
 	    }
 	}
@@ -234,6 +247,7 @@ void borrowers_menu(Library_GUI *gui, int i)
   if ( gui->book == i && gui->action == Borrower_Name )
     {
       zmw_entry( library_book_borrower_pointer_get(gui->lib, i, -1) ) ;
+      take_focus(gui) ;
     }
   else if ( gui->book == i && gui->action == Borrower_New )
     {
@@ -249,15 +263,6 @@ void borrowers_menu(Library_GUI *gui, int i)
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom, Zmw_False))
 	    {
-	      if ( library_book_borrower_get(gui->lib, i, -1)[0] )
-		{
-		  zmw_button(_("Change borrower name for all books")) ;
-		  if ( zmw_activated() )
-		    {
-		      gui->book = i ;
-		      gui->action = Borrower_Name ;
-		    }
-		}
 	      if ( library_book_borrower_have_it(gui->lib, i, -1) )
 		{
 		  zmw_button(_("Last borrower give back the book")) ;
@@ -275,6 +280,17 @@ void borrowers_menu(Library_GUI *gui, int i)
 		      gui->new_name = strdup("") ;
 		      gui->book = i ;
 		      gui->action = Borrower_New ;
+		      gui->take_focus = Zmw_True ;
+		    }
+		}
+	      if ( library_book_borrower_get(gui->lib, i, -1)[0] )
+		{
+		  zmw_button(_("Change borrower name for all books")) ;
+		  if ( zmw_activated() )
+		    {
+		      gui->book = i ;
+		      gui->action = Borrower_Name ;
+		      gui->take_focus = Zmw_True ;
 		    }
 		}
 	    }
@@ -302,6 +318,7 @@ void collection(Library_GUI *gui, int i)
   if ( gui->book == i && gui->action == Collection_Name )
     {
       zmw_entry( library_book_collection_pointer_get(gui->lib, i) ) ;
+      take_focus(gui) ;
     }
   else if ( gui->book == i && gui->action == Collection_New )
     {
@@ -317,13 +334,6 @@ void collection(Library_GUI *gui, int i)
 	{
 	  ZMW(menu_popup(gui->prefs.menu_color, "notitle", Bottom, Zmw_False))
 	    {
-	      zmw_button(_("Change collection name for all books")) ;
-	      if ( zmw_activated() )
-		{
-		  gui->book = i ;
-		  gui->action = Collection_Name ;
-		}
-	      
 	      zmw_button(_("Change collection")) ;
 	      if ( zmw_activated() )
 		{
@@ -331,7 +341,16 @@ void collection(Library_GUI *gui, int i)
 		  gui->new_name = strdup("") ;
 		  gui->book = i ;
 		  gui->action = Collection_New ;
+		  gui->take_focus = Zmw_True ;
 		}
+
+	      zmw_button(_("Change collection name for all books")) ;
+	      if ( zmw_activated() )
+		{
+		  gui->book = i ;
+		  gui->action = Collection_Name ;
+		  gui->take_focus = Zmw_True ;
+		}	      
 	    }
 	}
     }
@@ -499,7 +518,7 @@ void debug_window(Library_GUI *gui)
 	      for(i=0; i<Column_Last; i++)
 		{
 		  zmw_label(_(gui->prefs.cols[i].id)) ;
-		  zmw_toggle_int(&gui->prefs.cols[i].visible) ;
+		  zmw_check_button_int(&gui->prefs.cols[i].visible) ;
 		  zmw_int_editable(&gui->prefs.cols[i].width) ;
 		  zmw_label(_(gui->prefs.cols[gui->prefs.cols[i].order].id));
 		}
@@ -562,29 +581,31 @@ void library_top_level(Library_GUI *gui)
     }
 }
 
-void library()
-{
-  static Library_GUI gui =
+static Library_GUI gui =
+  {
     {
       {
-	{
-	  { Column_Title     , 1, 400, gettext_noop("Title"     ), "" , ""},
-	  { Column_Author    , 1, 200, gettext_noop("Author"    ), "?", ""},
-	  { Column_Borrower  , 1, 200, gettext_noop("Borrower"  ), "" , ""},
-	  { Column_Collection, 1, 200, gettext_noop("Collection"), "?", ""},
-	  { Column_Number    , 1,  50, gettext_noop("Number"    ), "0", ""},
-	  { Column_Rate      , 1,  30, gettext_noop("Rate"      ), "9", ""},
-	},
-	{ 0.75, 0.75, 0.75},
-	{ 0.75, 0.75, 0   },
-	{ 0   , 0.75, 0   },
-	{ 0.75, 0.5 , 0.75},
-        { 0.9 , 0.9 , 0.9 },
-	.language = "C",
-	.new_language = NULL,
+	{ Column_Title     , 1, 400, gettext_noop("Title"     ), "" , ""},
+	{ Column_Author    , 1, 200, gettext_noop("Author"    ), "?", ""},
+	{ Column_Borrower  , 1, 200, gettext_noop("Borrower"  ), "" , ""},
+	{ Column_Collection, 1, 200, gettext_noop("Collection"), "?", ""},
+	{ Column_Number    , 1,  50, gettext_noop("Number"    ), "0", ""},
+	{ Column_Rate      , 1,  30, gettext_noop("Rate"      ), "9", ""},
       },
-      NULL
-    } ;
+      { 0.75, 0.75, 0.75},
+      { 0.75, 0.75, 0   },
+      { 0   , 0.75, 0   },
+      { 0.75, 0.5 , 0.75},
+      { 0.9 , 0.9 , 0.9 },
+      .language = "C",
+      .new_language = NULL,
+    },
+    NULL
+  } ;
+
+
+void library()
+{
   char buf[999] ;
   int i ;
 
@@ -593,7 +614,6 @@ void library()
       bindtextdomain("zmwbook","locale") ;
       textdomain("zmwbook") ;
 
-      gui.filename_load = strdup("./exco.lib") ;
       gui.filename_save = strdup(".") ;
       gui.filechooser_load = Zmw_False ;
       gui.action = Nothing ;
@@ -614,6 +634,7 @@ void library()
       gui.nb = 10 ;
       gui.debug_window = 0 ;
       gui.error_message[0] = NULL ;
+      gui.take_focus = Zmw_False ;
 
       gui.prefs.language = getenv("LANGUAGE") ? getenv("LANGUAGE") : "C" ;
 
@@ -664,6 +685,12 @@ void library()
 int main(int argc, char *argv[])
 {
   zmw_init(&argc, &argv) ;
+
+  if (argc == 2)
+    gui.filename_load = strdup(argv[1]) ;
+  else
+    gui.filename_load = strdup("./exco.lib") ;
+
   zmw_main(library) ;
   return 0 ;
 }

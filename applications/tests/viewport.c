@@ -40,7 +40,7 @@ void test_viewport(const char *title)
 	      for(i=0; i<10; i++)
 		{
 		  sprintf(buf, "Hello %d terrible world!", i) ;
-		  zmw_toggle_int_with_label(&toggle[i], buf) ;
+		  zmw_check_button_int_with_label(&toggle[i], buf) ;
 		}
 	      zmw_width(100) ;
 	      zmw_height(50) ;

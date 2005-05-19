@@ -70,8 +70,8 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 		     , int *cursor_pos, int *start_pos) ;
 void zmw_label(const char *) ;
 void zmw_entry(char **text) ;
-void zmw_text_editable_with_cursor(char **text, int *cursor_pos) ;
-void zmw_text_editable_with_cursor_and_start(char **text, int *cursor_pos
+void zmw_entry_with_cursor(char **text, int *cursor_pos) ;
+void zmw_entry_with_cursor_and_start(char **text, int *cursor_pos
 			, int *start_pos) ;
 void zmw_button(const char *text) ;
 void zmw_button_with_accelerator(const char *text
@@ -89,20 +89,20 @@ void zmw_int(int i) ;
  * zmw_check_button.c
  */
 int zmw_check_button(int value) ;
-void zmw_toggle_int(int *value) ;
-void zmw_toggle_char(char *value) ;
+void zmw_check_button_int(int *value) ;
+void zmw_check_button_char(char *value) ;
 
 int zmw_check_button_with_label(int value, const char *label) ;
-void zmw_toggle_int_with_label(int *value, const char *label) ;
-void zmw_toggle_char_with_label(char *value, const char *label) ;
+void zmw_check_button_int_with_label(int *value, const char *label) ;
+void zmw_check_button_char_with_label(char *value, const char *label) ;
 
 int zmw_check_button_bits(int value, int bits, int options) ;
-void zmw_toggle_bits_int(int *value, int bits) ;
-void zmw_toggle_bits_char(char *value, int bits) ;
+void zmw_check_button_bits_int(int *value, int bits) ;
+void zmw_check_button_bits_char(char *value, int bits) ;
 
 int zmw_check_button_bits_with_label(int value, int bits, const char *label) ;
-void zmw_toggle_bits_int_with_label(int *value, int bits, const char *label) ;
-void zmw_toggle_bits_char_with_label(char *value, int bits, const char *label);
+void zmw_check_button_bits_int_with_label(int *value, int bits, const char *label) ;
+void zmw_check_button_bits_char_with_label(char *value, int bits, const char *label);
 
 
 void zmw_radio_button(int *value, int number) ;
@@ -199,7 +199,7 @@ void zmw_if_with_accelerators(Zmw_Boolean visible) ;
 void zmw_tip(void) ;
 void zmw_menu(void) ;
 void zmw_menu_without_accelerators(void) ;
-void zmw_popup_with_detached(int *detached) ;
+void zmw_menu_with_detached(int *detached) ;
 /*
  * zmw_decorator.c
  */
@@ -225,8 +225,8 @@ void zmw_popup_with_detached(int *detached) ;
 #define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)
 
 void zmw_decorator(int options, ...) ;
-void zmw_alignement_horizontal_make(Zmw_Size *s, int border_width) ;
-void zmw_alignement_vertical_make(Zmw_Size *s, int border_width) ;
+void zmw_alignement_horizontal_make(Zmw_Child *s, int border_width) ;
+void zmw_alignement_vertical_make(Zmw_Child *s, int border_width) ;
 
 
 

@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2003 Thierry EXCOFFIER
+  Copyright (C) 2003-2005 Thierry EXCOFFIER
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include <parser.h>
+#include <libxml/parser.h>
 #include <errno.h>
 #include "book.h"
 
@@ -157,6 +157,9 @@ void prefs_load(Library_GUI *gui, const char *filename)
 		  i++ ;
 		}
 	    }
+	}
+      else if ( strcmp("text", n->name) == 0 )
+	{
 	}
       else
 	fprintf(stderr, _("XML TAG UNKNOWN: %s\n"), n->name) ;

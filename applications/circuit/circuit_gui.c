@@ -328,7 +328,7 @@ void circuit_menu_bar(Circuit *c)
 	      zmw_button_with_accelerator("Redo",GDK_CONTROL_MASK, 'R') ;
 	      if ( c->history_position < c->history_size && zmw_activated() )
 		circuit_do(c, 1) ;
-	      zmw_toggle_int_with_label(&display_history, "Undo/Redo Logs") ;
+	      zmw_check_button_int_with_label(&display_history, "Undo/Redo Logs") ;
 	    }
 	}
     }

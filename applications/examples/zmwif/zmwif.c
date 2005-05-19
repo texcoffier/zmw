@@ -12,10 +12,10 @@ void zmwif(void)
     {
       ZMW(zmw_vbox())
 	{
-	  zmw_toggle_int_with_label(&visible1, "Next text visible") ;
+	  zmw_check_button_int_with_label(&visible1, "Next text visible") ;
 	  ZMW( zmw_if(visible1) )
 	    zmw_label("I am the text") ;
-	  zmw_toggle_int_with_label(&visible2, "Window visible") ;
+	  zmw_check_button_int_with_label(&visible2, "Window visible") ;
 	  ZMW( zmw_if(visible2) )
 	    ZMW(zmw_window("Title"))
 	    {
@@ -23,7 +23,7 @@ void zmwif(void)
 	      zmw_label("Content") ;
 	    }
 	  zmw_int(v) ;
-	  zmw_toggle_int_with_label(&visible3, "Next void is visible") ;
+	  zmw_check_button_int_with_label(&visible3, "Next void is visible") ;
 	  ZMW( zmw_if(visible3) )
 	    ZMW(zmw_void())
 	        zmw_label("text in void") ;

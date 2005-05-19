@@ -42,6 +42,8 @@ struct zmw_main
    */
   Zmw_Boolean use_window_from_button_press ;
 
+  Zmw_Boolean accelerator_window_allowed ;
+
   float frame_per_sec ;
   float frame_per_sec_cpu ;
   int cache_size ;
@@ -81,36 +83,36 @@ void zmw_debug_flags()
   zmw_name("DebugFlags") ;
   ZMW(zmw_vbox())
     {
-      zmw_toggle_int_with_label(&display_zmw, "Debug flags") ;
+      zmw_check_button_int_with_label(&display_zmw, "Debug flags") ;
       ZMW( zmw_if(display_zmw) )
 	{
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Draw_Cross
 					     , "Draw a cross on widget with event") ;
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Trace
 					     , "Trace all calls") ;
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Event
 					     , "Trace events") ;
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Drag
 					     , "Trace drag and drop") ;
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Cache_Fast
 					     , "Fast checking on cache") ;
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Cache_Slow
 					     , "Slow checking on cache") ;
 #if ZMW_PROFILING
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Profiling
 					     , "Widget profiling") ;
 #endif
 #if ZMW_DEBUG_NAME
-	      zmw_toggle_bits_int_with_label(&zmw.run->top_level_debug
+	      zmw_check_button_bits_int_with_label(&zmw.run->top_level_debug
 					     , Zmw_Debug_Name
 					     , "Some checking on name handling") ;
 #endif
@@ -164,7 +166,8 @@ static void debug_window()
 
 void zmw_display_accelerator_window()
 {
-  if ( zmw.still_yet_displayed && zmw.key_pressed && zmw.event_key.key.state )
+  if ( zmw.still_yet_displayed && zmw.key_pressed && zmw.event_key.key.state
+       && zmw.run->accelerator_window_allowed )
     {
       zmw_accelerators_window(zmw.event_key.key.state
 			      &(GDK_SHIFT_MASK
@@ -181,6 +184,7 @@ void zmw_display_accelerator_window()
 void zmw_call_widget(void (*fct)(), int (*action)())
 {
   static Zmw_Boolean in_redispatch = 0 ;
+  int i ;
 
   zmw.external_do_not_make_init = Zmw_False ;
   zmw.event_removed = Zmw_False ;
@@ -197,12 +201,25 @@ void zmw_call_widget(void (*fct)(), int (*action)())
 		   , zmw.event->any.window, zmw.x ,zmw.y, in_redispatch) ;
     }
 
+
   zmw_cache_init(zmw.run->cache_size) ;
   if ( zmw.run->top_level_debug & Zmw_Debug_Window )
     {
       zmw_name("DebugWindow") ;
       debug_window() ;
     }
+  /* Reinitialize the search for close widgets */
+  if ( action != zmw_action_dispatch_accelerator )
+    {
+      if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+	zmw_printf("Reset left/right/up/down\n") ;
+      for(i=0; i<4; i++)
+	{
+	  zmw.near[i].name.value = (void*)2000000000 ;
+	  ZMW_FREE(zmw.near[i].name.name) ;
+	}
+    }
+
   zmw_name("") ;
   (*fct)() ;
   zmw_display_accelerator_window() ;
@@ -272,6 +289,8 @@ void zmw_draw(void (*fct)())
   if ( clk == 0 )
     clk = sysconf(_SC_CLK_TCK);
 
+
+
  // zmw_name_unregister(&zmw.tip_displayed) ;
   zmw.nb_windows = 0 ;
   gettimeofday(&begin_time,NULL) ;
@@ -317,9 +336,9 @@ static void zmw_search(void (*fct)())
 }
 
 /*
- * The search is needed before dispatching and event:
+ * The search is needed before dispatching an event:
  *    - Enter/Leave widgets
- *    - Find the focu group
+ *    - Find the focus group
  */
 static void zmw_dispatch_event(void (*fct)())
 {
@@ -417,8 +436,12 @@ void user_action()
 void zmw_unpop(GdkEvent *e)
 {
   if ( e->any.window!=NULL 
-       && gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP )
+       && gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP
+       // && ! zmw.event_removed
+       )
     {
+      if ( zmw_key_string_unsensitive() )
+	return ;
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	{
 	  zmw_printf("Unpop because event on non-popup window\n") ;
@@ -426,6 +449,46 @@ void zmw_unpop(GdkEvent *e)
       zmw_window_unpop_all() ;
     }
 }  
+
+Zmw_Boolean zmw_keyboard_navigation()
+{
+  int d ;
+  
+  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+    ZMW_HERE ;
+  d = -1 ;
+  if ( zmw.event_key.key.keyval == GDK_Left  ) d = 0 ;
+  if ( zmw.event_key.key.keyval == GDK_Right ) d = 1 ;
+  if ( zmw.event_key.key.keyval == GDK_Up    ) d = 2 ;
+  if ( zmw.event_key.key.keyval == GDK_Down  ) d = 3 ;
+
+  if ( d>=0 && zmw.near[d].name.name )
+    {
+      zmw.focused = zmw.near[d].rectangle ;
+      zmw_name_register_with_name(zmw.focus, zmw.near[d].name.name) ;
+      zmw_need_repaint() ;
+      zmw.event_removed = Zmw_True ;
+      /*
+       * Very very bad behaviour.
+       * The correct way is not to raise window but to verify
+       * is a widget is visible before letting it have the focus.
+       * But GDK/X11 do not allow such question to be asked.
+       * I would like the function :
+       *    GdkWindow *gdk_window_at_position(int x, int y)
+       * It would return the top level window visible at x,y.
+       *
+       * I don't want to move visualy the cursor here in order to use :
+       *    GdkWindow*    gdk_window_at_pointer(gint *win_x, gint *y)
+       * Even this is bad because it does not take into account
+       * windows not created by the application.
+       */
+      gdk_window_raise(zmw.near[d].window) ;
+      zmw.raised = zmw.near[d].window ;
+
+      return Zmw_True ;
+    }
+  return Zmw_False ;
+}
 
 
 void event_handler(GdkEvent *e, gpointer o)
@@ -468,61 +531,16 @@ void event_handler(GdkEvent *e, gpointer o)
    	zmw_selection_clear() ;
   	zmw_need_repaint() ;
   }
-  switch( e->type )
-    {
-    case GDK_MOTION_NOTIFY:
-      zmw.x = e->motion.x ;
-      zmw.y = e->motion.y ;
-      zmw.x_root = e->motion.x_root ;
-      zmw.y_root = e->motion.y_root ;
-      zmw.window = e->motion.window ;
-      break ;
-    case GDK_2BUTTON_PRESS:
-    case GDK_3BUTTON_PRESS:
-    case GDK_BUTTON_PRESS:
-    case GDK_BUTTON_RELEASE:
-      zmw.x = e->button.x ;
-      zmw.y = e->button.y ;
-      zmw.x_root = e->button.x_root ;
-      zmw.y_root = e->button.y_root ;
-      zmw.window = e->button.window ;
-      break ;
-    case GDK_ENTER_NOTIFY:
-    case GDK_LEAVE_NOTIFY:
-      zmw.x = e->crossing.x ;
-      zmw.y = e->crossing.y ;
-      zmw.x_root = e->crossing.x_root ;
-      zmw.y_root = e->crossing.y_root ;
-      break ;
-    case GDK_KEY_PRESS:
-      zmw.key_pressed = Zmw_True ;
-      zmw.still_yet_displayed = Zmw_False ;
-      zmw.event_key = *e ;
-      if ( zmw.event_key.key.keyval == GDK_Control_L
-      	|| zmw.event_key.key.keyval == GDK_Control_R )
-      	zmw.event_key.key.state |= GDK_CONTROL_MASK ;
-      if ( zmw.event_key.key.keyval == GDK_Shift_L
-      	|| zmw.event_key.key.keyval == GDK_Shift_R )
-      	zmw.event_key.key.state |= GDK_SHIFT_MASK ;
-       if ( zmw.event_key.key.keyval == GDK_Alt_L
-      	|| zmw.event_key.key.keyval == GDK_Alt_R )
-      	zmw.event_key.key.state |= GDK_MOD1_MASK ;
-       if ( zmw.event_key.key.keyval == GDK_Meta_L
-      	|| zmw.event_key.key.keyval == GDK_Meta_R )
-      	zmw.event_key.key.state |= GDK_MOD2_MASK ;
-      zmw.window = e->key.window ;
-      break ;
-    case GDK_KEY_RELEASE:
-      zmw.key_pressed = Zmw_False ;
-      zmw.still_yet_displayed = Zmw_False ;
-      break ;
-    default:
-      break ;
-    }
+
+
+#define ZMW_GET_XY(T) zmw.x = T.x ; zmw.y = T.y ; zmw.x_root = T.x_root ; zmw.y_root = T.y_root
+#define ZMW_GET_XYW(T) ZMW_GET_XY(T) ; zmw.window = T.window
 
   switch( e->type )
     {
     case GDK_MOTION_NOTIFY:
+      ZMW_GET_XYW(e->motion) ;
+
       gettimeofday(&zmw.run->last_cursor_move,NULL) ;
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** GDK_MOTION_NOTIFY\n") ;
@@ -538,13 +556,63 @@ void event_handler(GdkEvent *e, gpointer o)
 
       user_action() ;
       break ;
+
     case GDK_EXPOSE:
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** GDK_EXPOSE\n") ;
       zmw_need_repaint() ;
       return ; /* 8/10/2003 do waste less CPU and see less debug garbage */
       break ;
+
+    case GDK_VISIBILITY_NOTIFY:
+      if ( zmw.run->top_level_debug & Zmw_Debug_Event )
+	zmw_printf("**** EVENT **** GDK_VISIBILITY_NOTIFY\n") ;
+      /*
+      if ( e->visibility.state == GDK_VISIBILITY_UNOBSCURED )
+	zmw.raised = e->visibility.window ;
+      */
+      zmw_need_repaint() ;
+      return ;
+      break ;
+
     case GDK_KEY_PRESS:
+      zmw.run->accelerator_window_allowed = Zmw_False ;
+
+      zmw.key_pressed = Zmw_True ;
+      zmw.still_yet_displayed = Zmw_False ;
+      zmw.event_key = *e ;
+      if ( zmw.event_key.key.keyval == GDK_Control_L
+      	|| zmw.event_key.key.keyval == GDK_Control_R )
+	{
+	  zmw.event_key.key.state |= GDK_CONTROL_MASK ;
+	  zmw.run->accelerator_window_allowed = Zmw_True ;
+	}
+      if ( zmw.event_key.key.keyval == GDK_Shift_L
+      	|| zmw.event_key.key.keyval == GDK_Shift_R )
+	{
+	  zmw.event_key.key.state |= GDK_SHIFT_MASK ;
+	  zmw.run->accelerator_window_allowed = Zmw_True ;
+	}
+       if ( zmw.event_key.key.keyval == GDK_Alt_L
+      	|| zmw.event_key.key.keyval == GDK_Alt_R )
+	 {
+	   zmw.event_key.key.state |= GDK_MOD1_MASK ;
+	   zmw.run->accelerator_window_allowed = Zmw_True ;
+	 }
+       if ( zmw.event_key.key.keyval == GDK_Meta_L
+      	|| zmw.event_key.key.keyval == GDK_Meta_R )
+	 {
+	   zmw.event_key.key.state |= GDK_MOD2_MASK ;
+	   zmw.run->accelerator_window_allowed = Zmw_True ;
+	 }
+
+      zmw.window = e->key.window ;
+
+      // Keyboard navigation
+      if ( zmw.event_key.key.state & GDK_CONTROL_MASK )
+	if ( zmw_keyboard_navigation() )
+	  break ;
+      
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** KEY_PRESS\n") ;
       e->any.window = gdk_window_at_pointer(&zmw.x, &zmw.y) ;      
@@ -556,25 +624,38 @@ void event_handler(GdkEvent *e, gpointer o)
 		zmw.run->top_level_debug ^= Zmw_Debug_Window ;	
 		zmw_need_repaint() ;
 	   }
-      zmw_unpop(e) ;
+      // zmw_unpop(e) ;
       zmw_accelerator_init() ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
       if ( zmw.event_removed )
 	break ;
 
-      /* fall thru */
+      if ( zmw.event->key.string[0] == '\033' )
+	zmw_window_unpop_all() ;
+      
+      user_action() ;
+      // zmw_unpop(e) ;
+      zmw_dispatch_event(fct) ;
+      // Keyboard navigation, No control if cursor key unused by any widget
+      if ( !zmw.event_removed )
+	zmw_keyboard_navigation() ;
+      zmw_need_repaint() ;
+
+      break ;
 
     case GDK_2BUTTON_PRESS:
     case GDK_3BUTTON_PRESS:
     case GDK_BUTTON_PRESS:
     case GDK_BUTTON_RELEASE:
+      ZMW_GET_XYW(e->button) ;
+
       user_action() ;
       if ( e->type == GDK_BUTTON_RELEASE )
 	zmw.button_pressed = Zmw_False ;
       if ( e->type == GDK_BUTTON_PRESS )
 	zmw.button_pressed = Zmw_True ;
 
-      if ( (zmw.run->top_level_debug & Zmw_Debug_Event) && e->type != GDK_KEY_PRESS )
+      if (zmw.run->top_level_debug & Zmw_Debug_Event)
 	zmw_printf("**** EVENT **** BUTTON! %s on window %p\n"
 		   , e->type == GDK_BUTTON_RELEASE ? "release" : "press"
 		   , e->any.window
@@ -598,12 +679,18 @@ void event_handler(GdkEvent *e, gpointer o)
       if ( saved.type == GDK_BUTTON_RELEASE )
 	zmw_drag_cancel() ; // In order to stop drag when nobody accept it
       break ;
+
     case GDK_ENTER_NOTIFY:
+      ZMW_GET_XY(e->crossing) ;
+
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** ENTER!\n") ;
       return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
       break ;
+
     case GDK_LEAVE_NOTIFY:
+      ZMW_GET_XY(e->crossing) ;
+
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** LEAVE!\n") ;
       /* Needed by "cursor_leave" */
@@ -613,12 +700,19 @@ void event_handler(GdkEvent *e, gpointer o)
       *e = saved ;
       return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
       break ;
+
+    case GDK_KEY_RELEASE:
+      zmw.key_pressed = Zmw_False ;
+      zmw.still_yet_displayed = Zmw_False ;
+      break ;
+
     default:
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** ???? = %d\n", e->type) ;
       return ; /* 2003/10/8 to waste less CPU and see less debug garbage */
       break ;
     }
+
     /* Compute the accelerator list */
    if ( gdk_event_peek() == NULL )
    {
@@ -698,7 +792,6 @@ void zmw_main(void (*fct)())
   ZMW_SIZE_ALLOCATED.y = 0 ;
   */
 
-  ZMW_FONT_FAMILY = strdup("") ;
   zmw_font_family("fixed") ;
   zmw_font_size(8) ;
   zmw_font_weight(500) ;

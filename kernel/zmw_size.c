@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include "zmw/zmw.h"
 
-Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b)
+Zmw_Rectangle zmw_rectangle_max(const Zmw_Rectangle *a, const Zmw_Rectangle *b)
 {
   Zmw_Rectangle c ;
 
@@ -48,6 +48,26 @@ Zmw_Rectangle zmw_rectangle_max(Zmw_Rectangle *a, Zmw_Rectangle *b)
   return(c) ;
 }
 
+Zmw_Rectangle zmw_rectangle_min(const Zmw_Rectangle *a, const Zmw_Rectangle *b)
+{
+  Zmw_Rectangle r ;
+  int w, h ;
+
+  r.x = ZMW_MAX(a->x, b->x) ;
+  r.y = ZMW_MAX(a->y, b->y) ;
+  w = ZMW_MIN(a->x+a->width, b->x+b->width) - r.x ;
+  h = ZMW_MIN(a->y+a->height, b->y+b->height) - r.y ;
+  if ( w <= 0 || h <= 0 )
+    w = h = 0 ;
+
+  r.width = w ;
+  r.height = h ;
+
+  return r ;
+}
+
+
+
 void zmw_rectangle_void(Zmw_Rectangle *a)
 {
   memset(a, 0, sizeof(*a)) ;
@@ -57,7 +77,7 @@ void zmw_rectangle_void(Zmw_Rectangle *a)
  *
  */
 
-void zmw_padding_add(Zmw_Rectangle *r, int padding)
+void zmw_padding_add(Zmw_Rectangle *r, Zmw_Width padding)
 {
  r->width  += 2*padding ;
  r->height += 2*padding ;
@@ -67,7 +87,7 @@ void zmw_padding_add(Zmw_Rectangle *r, int padding)
    r->y -= padding ;
 }
 
-void zmw_padding_remove(Zmw_Rectangle *r, int padding)
+void zmw_padding_remove(Zmw_Rectangle *r, Zmw_Width padding)
 {
  r->width  -= 2*padding ;
  r->height -= 2*padding ;

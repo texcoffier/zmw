@@ -49,8 +49,8 @@ void editable_text_2(const char *title)
     {
     	ZMW(zmw_vbox())
     	{
-      zmw_text_editable_with_cursor_and_start(&text1, &cursor, &start) ;
-      zmw_text_editable_with_cursor_and_start(&text2, &cursor, &start) ;
+      zmw_entry_with_cursor_and_start(&text1, &cursor, &start) ;
+      zmw_entry_with_cursor_and_start(&text2, &cursor, &start) ;
     	}
     }
   if ( strlen(text1) < strlen(text2) )

@@ -117,7 +117,11 @@ def runtime_test():
 int main(int argc, char *argv[])
 {
     printf("%d %d %d\\n"
+#ifdef ZMW_USE_BIT_RECORD
+          , sizeof(Zmw_Child)
+#else
           , sizeof(Zmw_Size)
+#endif
           , sizeof(Zmw_Stackable_Uninheritable)
           , sizeof(Zmw_Stackable_Inheritable)
           );
@@ -131,7 +135,7 @@ int main(int argc, char *argv[])
     f.close()
     return [int(t) for t in numbers]
 
-def runtime_speed_test(text="",pango_cache=0):
+def runtime_speed_test(zmw_xvfbn, text="",pango_cache=0):
     if not os.path.exists("Makefile.config"):
         return [0,0,0,0,0,0,0]
 
@@ -144,14 +148,14 @@ def runtime_speed_test(text="",pango_cache=0):
     else:
         depth = 18
     
-    f = os.popen("./xxx %d 8 0 %s --debug=0 --pango-cache=%d --display=:9" \
-                 % (depth, text, pango_cache), "r")
+    f = os.popen("./xxx %d 8 0 %s --debug=0 --pango-cache=%d --display=%s" \
+                 % (depth, text, pango_cache, zmw_xvfbn), "r")
     while 1:
         time.sleep(1)
         if os.path.exists("xxx.drawdone"):
             break
     print "Drawing done"
-    os.system(". ~/HOME/WIDGET/applications/examples/utilities ; export DISPLAY=:9 ; zmw_move_cursor_to 10 10 ; zmw_key $KEY_A")
+    os.system(". ~/HOME/WIDGET/applications/examples/utilities ; export DISPLAY=%s ; zmw_move_cursor_to 10 10 ; zmw_key $KEY_A" % zmw_xvfbn)
     
     numbers = f.readlines()
     print numbers
@@ -170,7 +174,7 @@ stats = [('name'                    , 'Kernel (C)',
           'Widgets (C)'             , 'Regtest (C)',
           'Headers (C)'             , 'Number of regtests',
           'Documentation (Docbook)' , 'Library size (Kb)',
-          'Patch size (diff)'       , 'Zmw_Size (Byte)',
+          'Patch size (diff)'       , 'Zmw_Child (Byte)',
           'Zmw_Uninheritable (Byte)', 'Zmw_Stackable_Inheritable (Byte)',
           'Display time (Second)'   , 'VmData(Kb) ',
           'VmStk(Kb)'               , 'VmExe (Kb)',
@@ -183,7 +187,10 @@ titles = [ [i, stats[0][i]] for i in range(len(stats[0])) ]
 
 
 def create_stats():
-    os.system("cd ~/HOME/WIDGET/applications/examples ; make start_xvfb_big ; export DISPLAY=$ZMW_XVFB ; zmw_move_cursor_to 100 100")
+    f = os.popen("cd ~/HOME/WIDGET/applications/examples ; . ./utilities ; start_xvfb 2048x2048 >/dev/null ; export DISPLAY=$ZMW_XVFB ; zmw_move_cursor_to 100 100 ; echo ${ZMW_XVFBN=9}", "r")
+    zmw_xvfbn = ":" + f.readlines()[-1][:-1]
+    print "=========", zmw_xvfbn
+    f.close()
     name = None
     for archive in tgz:
         old_name = name
@@ -208,9 +215,9 @@ def create_stats():
             diff_size(old_name, name),
             ]
                       + runtime_test()
-                      + runtime_speed_test() 
-                      + [runtime_speed_test("X")[0]]
-                      + [runtime_speed_test("X",10)[0]]
+                      + runtime_speed_test(zmw_xvfbn) 
+                      + [runtime_speed_test(zmw_xvfbn,"X")[0]]
+                      + [runtime_speed_test(zmw_xvfbn,"X",10)[0]]
                       )
         # os.system("rm -r /tmp/%s" % name)
 

@@ -411,7 +411,7 @@ void zmw_drag_debug_window()
   
   ZMW(zmw_vbox())
     {
-      zmw_toggle_int_with_label(&display_drag_state, "drag state") ;
+      zmw_check_button_int_with_label(&display_drag_state, "drag state") ;
       if ( display_drag_state )
 	{
 	  sprintf(buf, "FROM=%s", zmw_name_registered(&global_zmw_drag_from)) ;

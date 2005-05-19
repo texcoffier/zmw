@@ -80,14 +80,14 @@ struct menu
 void page_test(const char *label, struct menu *tests)
 {
   int i ;
-  zmw_label(label) ;
+  zmw_button(label) ;
 
   ZMW(zmw_vbox())
     {
       zmw_vertical_alignment(0) ;
       
       for(i=0; tests[i].text; i++)
-	  zmw_toggle_int_with_label(&tests[i].on_screen, tests[i].text) ;
+	  zmw_check_button_int_with_label(&tests[i].on_screen, tests[i].text) ;
     }
 }
 
@@ -109,7 +109,7 @@ void page_test_windows(struct menu *tests, int auto_resize)
 void page_option(int *box, int *border_width, int *padding_width
 		 , char **font_name, int *auto_resize, int *size)
 {
-  zmw_label("Option") ;
+  zmw_button("Option") ;
 
   ZMW(zmw_vbox())
     {
@@ -181,7 +181,7 @@ void page_option(int *box, int *border_width, int *padding_width
       
       
       zmw_label("Misc") ;
-      zmw_toggle_int_with_label(auto_resize, "Window auto resize") ;
+      zmw_check_button_int_with_label(auto_resize, "Window auto resize") ;
     }
 }
 

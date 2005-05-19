@@ -98,7 +98,7 @@ const char *zmw_action_name()
   return zmw_action_name_( ZMW_SUBACTION ) ;
 }
 
-const char* zmw_size_string(const Zmw_Size *s)
+const char* zmw_size_string(const Zmw_Child *s)
 {
   static char buf[200] ;
 
@@ -273,9 +273,6 @@ void zmw_state_pop()
       return ;
     }
   
-  if ( zMw[-1].i.font.family != ZMW_FONT_FAMILY )
-    free(ZMW_FONT_FAMILY) ;
- 
   ZMW_NAME[-1] = '\0' ; // Truncate last child name
   zMw-- ;
 }
@@ -299,17 +296,20 @@ Zmw_Hash zmw_hash(Zmw_Hash start, const char *string)
   return start ;
 }
 
-
-void zmw_font_family(const char *family)
+Zmw_Font_Family zmw_font_family_get(const char *family)
 {
-  if ( strcmp(family, ZMW_FONT_FAMILY) )
-    {
-      /* Do not use zmw_string_copy */
-      if ( zMw[-1].i.font.family != ZMW_FONT_FAMILY )
-	free(ZMW_FONT_FAMILY) ;
-      ZMW_FONT_FAMILY = strdup(family) ;
-    }
-}
+  Zmw_Font_Family i ;
+
+  for(i=0; i<zmw.nb_font_families; i++)
+    if ( strcmp(family, zmw.font_families[i]) == 0 )
+      return i ;
+
+  zmw.nb_font_families++ ;
+
+  ZMW_REALLOC(zmw.font_families, zmw.nb_font_families) ;
+  zmw.font_families[i] = strdup(family) ;
+  return i ;
+}  
 
 Zmw_Boolean zmw_font_description_equals(const Zmw_Font_Description *f1
 					, const Zmw_Font_Description *f2)
@@ -317,7 +317,7 @@ Zmw_Boolean zmw_font_description_equals(const Zmw_Font_Description *f1
   return f1->size == f2->size
     && f1->weight == f2->weight
     && f1->style == f2->style
-    && strcmp(f1->family, f2->family) == 0 ;
+    && f1->family == f2->family ;
 }
 
 /*
@@ -361,19 +361,6 @@ void zmw_string_copy(char **to, const char *from)
   strcpy(*to + i, from) ;
 }
 
-void zmw_font_description_copy(Zmw_Font_Description *f1
-					, const Zmw_Font_Description *f2)
-{
-
-  if ( f1->family == NULL || strcmp(f1->family, f2->family) )
-    {
-      zmw_string_copy(&f1->family, f2->family) ;
-    }
-
-  f1->size   = f2->size ;
-  f1->weight = f2->weight ;
-  f1->style  = f2->style ;
-}
 
 void zmw_init_widget()
 {
@@ -494,10 +481,10 @@ void zmw_init_widget()
  * The invariant is that it is called to display a popup window,
  * So it CAN NOT be the first child. We go up until it is not the case
  */
-Zmw_Size* zmw_widget_previous_size()
+Zmw_Child* zmw_widget_previous_size()
 {
   int i ;
-  Zmw_Size *s ;
+  Zmw_Child *s ;
   Zmw_State *state ;
   
   state = zMw ;

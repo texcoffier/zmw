@@ -72,7 +72,7 @@ static void popup_node()
 	    }
 	  zmw_horizontal_expand(0) ;
 	  zmw_name("ToggleBox") ;
-	  zmw_toggle_int_with_label(&v, "Toggle in menu") ;
+	  zmw_check_button_int_with_label(&v, "Toggle in menu") ;
 	  zmw_entry(&text) ;
 	  
 	  zmw_button("Print a message") ;
@@ -126,13 +126,13 @@ void test_basic_menu(const char *title)
 	{
 	  zmw_name("But") ;
 	  zmw_button("Menu") ;
-	  ZMW( zmw_popup_with_detached(&detached0) )
+	  ZMW( zmw_menu_with_detached(&detached0) )
 	    {
 	      ZMW(zmw_window_popup_right())
 		{
 		  zmw_name("But1") ;
 		  zmw_button("But1") ;
-		  ZMW( zmw_popup_with_detached(&detached1) )
+		  ZMW( zmw_menu_with_detached(&detached1) )
 		    {
 		      ZMW(zmw_window_popup_right())
 			{
@@ -212,7 +212,7 @@ void test_menu_tearoff_simple_orig(const char *title)
   ZMW(zmw_window(title))
     {
       zmw_button("Menu") ;
-      ZMW( zmw_popup_with_detached(&detached) )
+      ZMW( zmw_menu_with_detached(&detached) )
 	{
 	  ZMW(zmw_window_popup_right_with_id_and_title(&w, "pop"))
 	    {

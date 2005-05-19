@@ -167,13 +167,13 @@ void zmw_table_compute_allocated_size(int nb_cols, int *col_width, int **wi, int
     }
 }
 
-static Zmw_Size *global_children = NULL ;
+static Zmw_Child *global_children = NULL ;
 static int global_nb_children ;
 
 void zmw_children_remove_not_used()
 {
   int i, j ;
-  Zmw_Size *s ;
+  Zmw_Child *s ;
   static int size = 0 ;
 
   if ( ZMW_NB_OF_CHILDREN > size )
@@ -194,7 +194,7 @@ void zmw_children_remove_not_used()
 
 void zmw_children_restore_not_used()
 {
-  Zmw_Size *s ;
+  Zmw_Child *s ;
   int i, j ;
 	
   s = ZMW_CHILDREN ;

@@ -70,20 +70,23 @@ Zmw_Boolean zmw_draw_set_gc(Zmw_Color c)
 }
 
 
-void zmw_draw_line(Zmw_Color c, int x1, int y1, int x2, int y2)
+void zmw_draw_line(Zmw_Color c, Zmw_Position x1, Zmw_Position y1
+		   , Zmw_Position x2, Zmw_Position y2)
 {
   if ( zmw_draw_set_gc(c) )
     gdk_draw_line(*ZMW_WINDOW, ZMW_GC, x1, y1, x2, y2) ;
 }
 
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
-			, int x, int y, int width, int height)
+			, Zmw_Position x, Zmw_Position y
+			, Zmw_Size width, Zmw_Size height)
 {
   if ( zmw_draw_set_gc(c) )
     gdk_draw_rectangle(*ZMW_WINDOW, ZMW_GC, filled, x, y, width, height) ;
 }
 
-void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y)
+void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb
+				   , Zmw_Position x, Zmw_Position y)
 {
   if ( ZMW_ACTION == zmw_action_draw )
     gdk_pixbuf_render_to_drawable(pb, *ZMW_WINDOW, ZMW_GC, 0, 0
@@ -96,25 +99,16 @@ void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb, int x, int y)
 
 
 
-void zmw_draw_clip_push(const Zmw_Rectangle *r)
+void zmw_draw_clip_set()
 {
   GdkRectangle clipping ;
 
-  ZMW_CLIPPING = *r ;
-
-  clipping.x = r->x ;
-  clipping.y = r->y ;
-  clipping.width = r->width ;
-  clipping.height = r->height ;
+  clipping.x = ZMW_CLIPPING.x ;
+  clipping.y = ZMW_CLIPPING.y ;
+  clipping.width = ZMW_CLIPPING.width ;
+  clipping.height = ZMW_CLIPPING.height ;
   gdk_gc_set_clip_rectangle(ZMW_GC, &clipping) ;
 }
-
-void zmw_draw_clip_pop()
-{
-  zmw_draw_clip_push(&zMw[-1].u.parent_to_child.clipping) ; // also restore ZMW_CLIPPING
-}
-
-
 
 /*
  *
@@ -130,7 +124,7 @@ static PangoLayout *zmw_g_layout ;
 
 static char *zmw_g_text_old = NULL ;
 static char *zmw_g_text_new = NULL ;
-static Zmw_Font_Description zmw_g_font_description_old ;
+static Zmw_Font_Description zmw_g_font_description_old = {family: 2005} ;
 static Zmw_Font_Description zmw_g_font_description_new ;
 
 static void zmw_text_family_list()
@@ -150,10 +144,7 @@ static void zmw_text_family_list()
 void zmw_text_set_text(char *text, const Zmw_Font_Description *fd)
 {
   zmw_g_text_new = text ;
-  zmw_string_copy(&zmw_g_font_description_new.family, fd->family) ;
-  zmw_g_font_description_new.weight = fd->weight ;
-  zmw_g_font_description_new.size = fd->size ;
-  zmw_g_font_description_new.style = fd->style ;
+  zmw_g_font_description_new = *fd ;
 }
 
 static void zmw_text_update_values()
@@ -162,14 +153,12 @@ static void zmw_text_update_values()
 
   change = 0 ;
 
-  if ( zmw_g_font_description_old.family == NULL
-       || strcmp(zmw_g_font_description_old.family
-		 ,zmw_g_font_description_new.family) )
+  if ( zmw_g_font_description_old.family
+       != zmw_g_font_description_new.family )
     {
       pango_font_description_set_family(zmw_g_font_description
-					, zmw_g_font_description_new.family) ;
-      zmw_string_copy(&zmw_g_font_description_old.family
-		      , zmw_g_font_description_new.family) ;
+					, zmw.font_families[zmw_g_font_description_new.family]) ;
+      zmw_g_font_description_old.family = zmw_g_font_description_new.family ;
       change = 1 ;
     }
 
@@ -212,39 +201,42 @@ static void zmw_text_update_values()
 
 }
 
-long zmw_hash_key(Zmw_Font_Description *fd, const char * text)
+unsigned long zmw_hash_key(Zmw_Font_Description *fd, const char * text)
 {
   unsigned long k ;
   const char *c ;
 
-  k = fd->weight + 10 * ( fd->style + 3 * fd->size ) ;
-  for(c=fd->family; *c; c++)
-    k = k * 1053707 + *c ;
+  k = fd->family + 100 * (fd->weight + 10 * ( fd->style + 3 * fd->size )) ;
   for(c=text; *c; c++)
     k = k * 1053707 + *c ;
 
   return k ;
 }
 
+/* Use a bigger hash key and get rid of "text" and "fd" ?
+*/
+
 static struct hash_cell {
   unsigned long hash_key ;
   char *text ;
   Zmw_Font_Description fd ;
-  unsigned short width ;
-  unsigned short height ;
+  Zmw_Size width, height ;
 } *zmw_g_cache = NULL ;
 static int zmw_g_table_size ;
 
 
-void zmw_text_get_size(int *width, int *height)
+void zmw_text_get_size(Zmw_Size *width, Zmw_Size *height)
 {
   unsigned long k ;
   int i ;
+  int w, h ;
 
   if ( zmw_g_table_size == 0 ) /* Work without font size cache */
     {
       zmw_text_update_values() ;
-      pango_layout_get_pixel_size(zmw_g_layout, width, height) ;
+      pango_layout_get_pixel_size(zmw_g_layout, &w, &h) ;
+      *width = w ;
+      *height = h ;
       return ;
     }
   
@@ -264,16 +256,16 @@ void zmw_text_get_size(int *width, int *height)
   else
     {
       zmw_text_update_values() ;
-      pango_layout_get_pixel_size(zmw_g_layout, width, height) ;
+      pango_layout_get_pixel_size(zmw_g_layout, &w, &h) ;
 
       zmw_string_copy(&zmw_g_cache[i].text, zmw_g_text_new) ;
 
-      zmw_font_description_copy(&zmw_g_cache[i].fd
-				, &zmw_g_font_description_new) ;
-
-      zmw_g_cache[i].width = *width ;
-      zmw_g_cache[i].height = *height ;
+      zmw_g_cache[i].fd = zmw_g_font_description_new ;
+      zmw_g_cache[i].width = w ;
+      zmw_g_cache[i].height = h ;
       zmw_g_cache[i].hash_key = k ;
+      *width = w ;
+      *height = h ;
     }
 }
 
@@ -323,13 +315,11 @@ void zmw_text_exit()
   // static PangoLayout *zmw_g_layout ;
   pango_font_description_free(zmw_g_font_description) ;
   free(zmw_g_text_old) ;
-  free(zmw_g_font_description_new.family) ;
-  free(zmw_g_font_description_old.family) ;
 }
 
 
 
-void zmw_text_render(Zmw_Color c, int xx, int yy)
+void zmw_text_render(Zmw_Color c, Zmw_Position xx, Zmw_Position yy)
 {
   GdkDrawable *d ;
   gint x, y ;
@@ -351,7 +341,7 @@ void zmw_text_render(Zmw_Color c, int xx, int yy)
 
 
 
-int zmw_text_xy_to_index(int x, int y)
+int zmw_text_xy_to_index(Zmw_Position x, Zmw_Position y)
 {
   int index, trailing ;
 
@@ -397,6 +387,8 @@ void zmw_text_get_grapheme_rectangle(int index, Zmw_Rectangle *rect)
 
 int zmw_text_next_char(int cursor)
 {
+  if ( zmw_g_text_new[cursor] == '\0' )
+    return cursor ;
   return g_utf8_next_char( &zmw_g_text_new[cursor] ) - zmw_g_text_new ; 
 }
 
@@ -444,15 +436,48 @@ void zmw_text_cursor_position(int cursor_pos, Zmw_Rectangle *r)
 int zmw_text_up_char(int cursor)
 {
   Zmw_Rectangle c, r ;
+  int i ;
+
+  // Do not move the cursor if there is no line up
+  for(i=0; i<cursor-1; i++)
+    if ( zmw_g_text_new[i] == '\n' )
+      break ;
+  if ( i == cursor-1 )
+    return cursor ;
 
   zmw_text_cursor_position(cursor, &c) ;
   zmw_text_get_grapheme_rectangle(cursor, &r) ;
   return zmw_text_xy_to_index(c.x + r.width/2, c.y - r.height) ;
 }
 
+int zmw_text_home_char(int cursor)
+{
+  while(--cursor>0)
+    if ( zmw_g_text_new[cursor] == '\n' )
+      return cursor + 1 ;
+
+  return 0 ;
+}
+
+int zmw_text_end_char(int cursor)
+{
+  while(zmw_g_text_new[cursor] && zmw_g_text_new[cursor] != '\n' )
+    cursor++ ;
+
+  return cursor ;
+}
+
 int zmw_text_down_char(int cursor)
 {
   Zmw_Rectangle c, r ;
+  int i ;
+
+  // Do not move the cursor if there is no line down
+  for(i=cursor; zmw_g_text_new[i]; i++)
+    if ( zmw_g_text_new[i] == '\n' )
+      break ;
+  if ( zmw_g_text_new[i] == '\0' )
+    return cursor ;
 
   zmw_text_cursor_position(cursor, &c) ;
   zmw_text_get_grapheme_rectangle(cursor, &r) ;

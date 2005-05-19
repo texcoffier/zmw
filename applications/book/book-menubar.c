@@ -140,9 +140,9 @@ static void menu_bar_view(Library_GUI *gui)
       ZMW(menu_popup(gui->prefs.menu_color,_("View"),Bottom, Zmw_True))
 	{
 	  for(i=0; i<Column_Last; i++)
-	    zmw_toggle_int_with_label(&gui->prefs.cols[i].visible, _(gui->prefs.cols[i].id)) ;
+	    zmw_check_button_int_with_label(&gui->prefs.cols[i].visible, _(gui->prefs.cols[i].id)) ;
 	  zmw_label("") ;
-	  zmw_toggle_int_with_label(&gui->debug_window, _("Debug window")) ;
+	  zmw_check_button_int_with_label(&gui->debug_window, _("Debug window")) ;
 	}
     }
 }
@@ -331,6 +331,7 @@ int menu_approximation(Library_GUI *gui, Strings *choices)
   result = 0 ;
 
   zmw_entry(&gui->new_name) ;
+  take_focus(gui) ;
   if ( zmw_changed() || nb == 0 )
     {
       nb = strings_search(gui->new_name, choices, v, TABLE_SIZE(v)) ;

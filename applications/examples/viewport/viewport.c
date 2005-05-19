@@ -23,7 +23,7 @@ void viewport(void)
 		  for(i=0; i<sizeof(toggle)/sizeof(toggle[0]); i++)
 		    {
 		      sprintf(tmp, "i is equal to %d", i) ;
-		      zmw_toggle_int_with_label(&toggle[i], tmp) ;
+		      zmw_check_button_int_with_label(&toggle[i], tmp) ;
 		    }
 		}
 	    }

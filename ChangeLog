@@ -1,3 +1,24 @@
+2005-05-19 (0.1.0)
+	BEWARE : notebook page label should now be ACTIVABLE widget
+	Some function renaming
+	Zmw_Size renamed Zmw_Child, it is more accurate
+	typedef Zmw_Size     is now a width or height of a screen rectangle
+	typedef Zmw_Position is the x or y on the screen
+	typedef Zmw_Width    is the focus or padding or border width
+	ZMW_VALUE_UNDEFINED is now 32767 (could be stored in an unsigned int)
+	Use bit record where it is possible to reduce widget-stack memory usage
+	"zmw_main.c:event_handler" cleanup
+	Focus navigation with keyboard [control +] up down left right
+	The focus navigation can intuitively jump from window to another
+	Add regression tests on focus navigation
+	The window with accelerators list is less obstructive
+	The Xvfb process uses now a dynamicaly allocated DISPLAY number
+	Clipping code clean up, clipping computed not only for display action
+	Escape-key unpop all popups windows
+	Font families are now stored as a table index
+	The text cursor no more move on cursor up/down if it is not possible
+	Add Home/End/Delete key action for the text entry
+	
 2005-05-04 (0.0.12)
 	The file chooser set activated to false if it is not visible
 	The book managing application "load" menu now works

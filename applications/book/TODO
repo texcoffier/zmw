@@ -1,3 +1,7 @@
+- Automatic Focus on "new book"
+- segfault when a not valid author is set
+- segfault when no visible column
+- BEWARE of newline in title/author/...
 - Multiple language support :
 	- Diacritics not accepted in window title?
 - Semantic lens: not yet clean

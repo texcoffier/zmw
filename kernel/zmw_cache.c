@@ -26,7 +26,7 @@ static int global_cache_miss = 0 ;
 
 static struct cached_data {
   Zmw_Hash hash ;
-  Zmw_Size r ;
+  Zmw_Child r ;
   char *name ;
   int age ;
 } *global_cache_table = NULL ;
@@ -83,7 +83,7 @@ void zmw_cache_free()
 /*
  * Returns 0 if the size is in the cache
  */
-int zmw_cache_get_size_real(Zmw_Size *r)
+int zmw_cache_get_size_real(Zmw_Child *r)
 {
   struct cached_data *cd ;
 
@@ -107,7 +107,7 @@ int zmw_cache_get_size_real(Zmw_Size *r)
   return(1) ;
 }
 
-int zmw_cache_get_size(Zmw_Size *r)
+int zmw_cache_get_size(Zmw_Child *r)
 {
   if ( ZMW_DEBUG & Zmw_Debug_Cache_Slow )
     return 1 ;
@@ -115,7 +115,7 @@ int zmw_cache_get_size(Zmw_Size *r)
   return zmw_cache_get_size_real(r) ;
 }
 
-void zmw_cache_set_size_real(const Zmw_Size *r)
+void zmw_cache_set_size_real(const Zmw_Child *r)
 {
   struct cached_data *cd ;
 
@@ -132,9 +132,9 @@ void zmw_cache_set_size_real(const Zmw_Size *r)
     }
 }
 
-static void zmw_cache_check(const Zmw_Size *s)
+static void zmw_cache_check(const Zmw_Child *s)
 {
-  Zmw_Size ss ;
+  Zmw_Child ss ;
   char *p ;
 
   if ( zmw_cache_get_size_real(&ss) )
@@ -178,7 +178,7 @@ static void zmw_cache_check(const Zmw_Size *s)
     }		
 }
 
-void zmw_cache_set_size(const Zmw_Size *r)
+void zmw_cache_set_size(const Zmw_Child *r)
 {
   ZMW_PRINTF("set size of %s to %s\n", zmw_name_full, zmw_size_string(r)) ;
 

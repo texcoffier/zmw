@@ -21,8 +21,8 @@ CACHES=0 1 10 100 1000 10000 100000 # 1000000 10000000
 CHILDRENS=2 4 8 16 32 # 64 (window height = 4096)
 
 xxx.speed: speed ../../zmw.so Makefile
-	cd ../examples ; $(MAKE) start_xvfb_big
 	. ../examples/utilities ; \
+	start_xvfb 2048x2048 ; \
 	export DISPLAY="$$ZMW_XVFB" ; \
 	zmw_move_cursor_to 10 25 ; \
 	for DEPTH in $(DEPTHS) ; \
@@ -31,7 +31,7 @@ xxx.speed: speed ../../zmw.so Makefile
 	   do \
 		for CHILDREN in $(CHILDRENS) ; \
 		do \
-			rm -f "xxx.drawdone" ; \
+			rm -f "xxx.drawdone" "xxx.exit" ; \
 			echo "Before $$CACHE $$DEPTH $$CHILDREN" >/dev/tty ; \
 			./speed --display=$$ZMW_XVFB \
 		      		--debug=0 \
@@ -41,18 +41,18 @@ xxx.speed: speed ../../zmw.so Makefile
 			while true ; do sleep 1; if [ -f "xxx.drawdone" ] ; then break ; fi ; done ; \
 			echo "drawdone" >/dev/tty ; \
 			zmw_key $$KEY_A ; \
-			wait ; \
+			while true ; do sleep 0.1; if [ -f "xxx.exit" ] ; then break ; fi ; done ; \
 			echo "program terminated" >/dev/tty ; \
 		done ; \
 	   done ; \
-        done >$@ 2>/dev/null
-	cd ../examples ; $(MAKE) stop_xvfb
+        done >$@ 2>/dev/null ; \
+	stop_xvfb
 
 # Remove debug option, add profiling. compile and launch tests.
 
 profiling:
 	cd ../.. ; $(MAKE) clean
-	sed <../../Makefile.config >xxx -e 's/ZMW_DEBUG_OPTIONS_DEFAULT=1/ZMW_DEBUG_OPTIONS_DEFAULT=0/' -e 's/^ZMW_PROFILING=.*/ZMW_PROFILING=-pg/'
+	sed <../../Makefile.config >xxx -e 's/ZMW_DEBUG_OPTIONS_DEFAULT=1/ZMW_DEBUG_OPTIONS_DEFAULT=0/' -e 's/^ZMW_GPROF_PROFILING=.*/ZMW_GPROF_PROFILING=-pg/'
 	[ ! -f ../../Makefile.config.orig ] && mv ../../Makefile.config ../../Makefile.config.orig || true
 	mv xxx ../../Makefile.config
 	cd ../.. ; $(MAKE) lib
@@ -63,11 +63,11 @@ profiling:
 
 
 gmon.out: speed.o Makefile
-	cd ../examples ; $(MAKE) start_xvfb_big
 	. ../examples/utilities ; \
+	start_xvfb 2048x2048 ; \
 	export DISPLAY="$$ZMW_XVFB" ; \
 	zmw_move_cursor_to 50 50 ; \
-	rm -f "xxx.drawdone" ; \
+	rm -f "xxx.drawdone" "xxx.exit" ; \
 	$(CC) speed.o $(ZMW_GPROF_PROFILING) ../../*/*.o $(ZMW_LIBS) -o speed ; \
 	./speed --display=$$ZMW_XVFB \
 		      		--debug=0 \
@@ -75,13 +75,12 @@ gmon.out: speed.o Makefile
 		      		18 8 & \
 	while true ; do sleep 1; if [ -f "xxx.drawdone" ] ; then break ; fi ; done ; \
 	zmw_key $$KEY_A ; \
-	wait
+	stop_xvfb ; \
+	while true ; do sleep 0.1; if [ -f "xxx.exit" ] ; then break ; fi ; done
 	gprof ./speed >xxx
 	gprof -l ./speed >> xxx
 	mv xxx $@
 	rm speed
-	cd ../examples ; $(MAKE) stop_xvfb
-
 
 
 exe:: speed

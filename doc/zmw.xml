@@ -47,7 +47,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.0.12)</title>
+    <title>Using the &zmw; library (&ZMW; 0.1.0)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -424,7 +424,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_text_editable_with_cursor_and_start</function>
+	    <function>zmw_entry_with_cursor_and_start</function>
 	    (<type>char **</type><parameter>text</parameter>,
 	    <type>int *</type><parameter>cursor_pos</parameter>,
 	    <type>int *</type><parameter>start_pos</parameter>) ;
@@ -457,13 +457,13 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_text_editable_with_cursor</function>
+	    <function>zmw_entry_with_cursor</function>
 	    (<type>char **</type><parameter>text</parameter>,
 	    <type>int *</type><parameter>cursor_pos</parameter>,
 	    ) ;</term>
 	  <listitem>
 	    <para>
-	      As <function>zmw_text_editable_with_cursor_and_start</function>
+	      As <function>zmw_entry_with_cursor_and_start</function>
 	      but the <parameter>start_pos</parameter> is stored as a resource.
 	    </para>
 	  </listitem>
@@ -477,7 +477,7 @@
 	    (<type>char **</type><parameter>text</parameter>) ;</term>
 	  <listitem>
 	    <para>
-	      As <function>zmw_text_editable_with_cursor</function>
+	      As <function>zmw_entry_with_cursor</function>
 	      but the <parameter>cursor_pos</parameter> is stored as a resource.
 	    </para>
 	  </listitem>
@@ -1529,7 +1529,7 @@
 	<varlistentry>
 	  <term>
 	    <type>void</type>
-	    <function>zmw_popup_with_detached</function>
+	    <function>zmw_menu_with_detached</function>
 	    (<type>const int *</type><parameter>detached</parameter>) ;
 	  </term>
 	  <listitem>
@@ -2087,7 +2087,13 @@
 	The children of the notebook are the label of the page
 	and the content of the page.
 	So the number of children is even.
-	The children can be of any widget kind.
+	The children can be of any widget kind,
+        but the page label should be activable,
+for example:
+        <function>zmw_button</function>,
+         <function>zmw_vbox_activable</function>,
+         <function>zmw_decorator(Zmw_Decorator_Activable|Zmw_Decorator_Activable_By_Key|Zmw_Decorator_Focusable)</function>,
+         ...
       </para>
 
       <variablelist>
@@ -3653,6 +3659,8 @@
 	  <listitem>
 	    <para>
 	      <emphasis>The library is exiting, free the resources</emphasis>.
+              It is useful to free local static variables allocated
+              in the widget definition.              
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -4373,7 +4381,8 @@
 	  Hopefully <userinput>Control-Alt-F1</userinput> works.
 	  The application should be killed in order
 	  to release <acronym>X11</acronym>.
-	  I see no answer to this problem.
+	  I see no answer to this problem, but it is not longer here with
+          Debian Sarge (bug in GDK or X11?).
 	</para>
       </sect2>
 

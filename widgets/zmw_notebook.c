@@ -37,7 +37,7 @@
  */
 
 /* The returned rectangle take into account padding */
-static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Size *ws)
+static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Child *ws)
 {
   int i ;
   Zmw_Rectangle save, res ;
@@ -54,7 +54,7 @@ static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Size *ws)
 }
  
 
-static void zmw_notebook_compute_required_size(Zmw_Size *ws)
+static void zmw_notebook_compute_required_size(Zmw_Child *ws)
 {
   Zmw_Rectangle r, name, d ;
   int i ;
@@ -78,7 +78,7 @@ static void zmw_notebook_compute_required_size(Zmw_Size *ws)
   ZMW_SIZE_MIN.height = name.height + r.height + 2*ZMW_NOTEBOOK_BORDER ;
 }
 
-static void zmw_notebook_children_allocated_size(Zmw_Size *ws)
+static void zmw_notebook_children_allocated_size(Zmw_Child *ws)
 {
   Zmw_Rectangle r, name ;
   int i ;
@@ -217,12 +217,12 @@ void zmw_notebook_draw(int *page)
  */
 void zmw_notebook(int *page)
 {
-  static Zmw_Size *ws = NULL ;
+  static Zmw_Child *ws = NULL ;
   Zmw_Subaction a ;
   int i ;
-  int label_height ;
 
   a = ZMW_SUBACTION ;
+
   switch( a )
     {
     case Zmw_Compute_Required_Size:
@@ -234,6 +234,10 @@ void zmw_notebook(int *page)
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
+
+      for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
+	ZMW_CHILDREN[i].sensible = Zmw_True ;
+
 
       ZMW_REALLOC(ws, ZMW_NB_OF_CHILDREN) ;
       memcpy(ws, ZMW_CHILDREN, sizeof(*ws)*ZMW_NB_OF_CHILDREN) ;
@@ -255,32 +259,17 @@ void zmw_notebook(int *page)
       ZMW_NB_OF_CHILDREN *= 2 ;
       memcpy(ZMW_CHILDREN, ws, sizeof(*ws)*ZMW_NB_OF_CHILDREN) ;
 
+
       if ( a == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing )
 	zmw_notebook_draw(page) ;
 
       break ;
     case Zmw_Input_Event:
 
-      if ( zmw_button_pressed() )
+      for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
 	{
-	  label_height = 0 ;
-	  for(i=0; i<ZMW_NB_OF_CHILDREN; i+=2)
-	    label_height = ZMW_MAX(label_height
-			       , ZMW_CHILDREN[i].allocated.height) ;
-	  for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
-	    {
-	      if (
-		  zmw.event->any.window == *ZMW_WINDOW
-		  && zmw.x >= ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].current_state.padding_width
-		  && zmw.x < ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
-		             + ZMW_CHILDREN[i].allocated.width
-		  && zmw.y >= ZMW_SIZE_ALLOCATED.y
-		  && zmw.y  < ZMW_SIZE_ALLOCATED.y + label_height
-		  )
-		*page = i/2 ;
-	    }
-	  zmw_need_repaint() ;
-	  zmw_event_remove() ;
+	  if ( ZMW_CHILDREN[i].activated )
+	    *page = i/2 ;
 	}
       break ;
     case Zmw_Clean:
