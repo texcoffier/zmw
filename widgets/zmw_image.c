@@ -20,27 +20,28 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 #define PRINTF if(0) zmw_printf
 
 static void zmw_image_general(GdkPixbuf *pb)
 {
   PRINTF("Image general pb=%p\n", pb) ;
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = gdk_pixbuf_get_width(pb) ;
-      ZMW_SIZE_MIN.height = gdk_pixbuf_get_height(pb) ;
+      zmw_min_width_set(gdk_pixbuf_get_width(pb)) ;
+      zmw_min_height_set(gdk_pixbuf_get_height(pb)) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
       PRINTF("win %p %d %d %dx%d\n"
-	     , *ZMW_WINDOW
-	     , ZMW_SIZE_ALLOCATED.x, ZMW_SIZE_ALLOCATED.y
+	     , *zmw_window_get()
+	     , zmw_allocated_x_get(), zmw_allocated_y_get()
 	     , gdk_pixbuf_get_width(pb), gdk_pixbuf_get_height(pb)) ;
 
-      zmw_pixbuf_render_to_drawable(pb, ZMW_SIZE_ALLOCATED.x
-				    , ZMW_SIZE_ALLOCATED.y) ;
+      zmw_pixbuf_render_to_drawable(pb, zmw_allocated_x_get()
+				    , zmw_allocated_y_get()) ;
       break ;
 
     default:

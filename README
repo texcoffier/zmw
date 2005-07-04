@@ -1,5 +1,5 @@
 ===================================================================
-The API changed with release 0.0.12
+The API changed with release 0.0.12, 0.1.0, 0.2.0
 If you have developped some code using ZMW library
 you need to run "scripts/zmw-upgrade.py" to rename some functions
 in your programs.

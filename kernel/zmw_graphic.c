@@ -57,34 +57,35 @@ static void rectangle_draw(const Zmw_Rectangle *r, int i
 }
 
 
-void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
+void zmw_border_draw_with_rectangle(int options, const Zmw_Rectangle *rr)
 {
   Zmw_Color ul, rd, b ;
   int i ;
+  Zmw_Rectangle r = *rr ;
 
-  if ( ZMW_ACTION != zmw_action_draw )
+  if ( zmw_action_get() != zmw_action_draw )
     return ;
 
 
   if ( options & Zmw_Border_Draw_Focus )
     {
-      for(i=0; i<ZMW_FOCUS_WIDTH; i++)
+      for(i=0; i<zmw_focus_width_get(); i++)
 	{
 	  zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_False
-			     , r->x + i
-			     , r->y + i
-			     , r->width - 1 - 2*i
-			     , r->height - 1 - 2*i
+			     , r.x + i
+			     , r.y + i
+			     , r.width - 1 - 2*i
+			     , r.height - 1 - 2*i
 			     ) ;
 	}
     }
   
   if ( options & Zmw_Border_Focusable )
     {
-      r->x += ZMW_FOCUS_WIDTH ;
-      r->y += ZMW_FOCUS_WIDTH ;
-      r->width -= 2 * ZMW_FOCUS_WIDTH ;
-      r->height -= 2 * ZMW_FOCUS_WIDTH ;
+      r.x += zmw_focus_width_get() ;
+      r.y += zmw_focus_width_get() ;
+      r.width -= 2 * zmw_focus_width_get() ;
+      r.height -= 2 * zmw_focus_width_get() ;
     }
 
   if ( options & Zmw_Border_Background )
@@ -97,10 +98,10 @@ void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
 	b = Zmw_Color_Background_Normal ;
 
       zmw_draw_rectangle(b, Zmw_True
-			 , r->x // +ZMW_BORDER_WIDTH
-			 , r->y // +ZMW_BORDER_WIDTH
-			 , r->width // -2*ZMW_BORDER_WIDTH
-			 , r->height // -2*ZMW_BORDER_WIDTH
+			 , r.x // +zmw_border_width_get()
+			 , r.y // +zmw_border_width_get()
+			 , r.width // -2*zmw_border_width_get()
+			 , r.height // -2*zmw_border_width_get()
 			 ) ;
     }
 
@@ -117,38 +118,35 @@ void zmw_border_draw_with_rectangle(int options, Zmw_Rectangle *r)
   
   if( options & Zmw_Border_Solid )
     {
-      for(i=0; i<ZMW_BORDER_WIDTH; i++)
+      for(i=0; i<zmw_border_width_get(); i++)
 	{
 	  zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_False
-			     , r->x + i
-			     , r->y + i
-			     , r->width - 1 - 2*i
-			     , r->height - 1 - 2*i
+			     , r.x + i
+			     , r.y + i
+			     , r.width - 1 - 2*i
+			     , r.height - 1 - 2*i
 			     ) ;
 	}
     }
   else if ( options & Zmw_Border_Relief )
     {
-      for(i=0; i<ZMW_BORDER_WIDTH; i++)
-	rectangle_draw(r, i, ul, rd) ;
+      for(i=0; i<zmw_border_width_get(); i++)
+	rectangle_draw(&r, i, ul, rd) ;
     }
   else if ( options & Zmw_Border_Embossed )
     {
-      for(i=0; i<ZMW_BORDER_WIDTH/2; i++)
-	rectangle_draw(r, i, ul, rd) ;
-      for(; i<ZMW_BORDER_WIDTH; i++)
-	rectangle_draw(r, i, rd, ul) ;
+      for(i=0; i<zmw_border_width_get()/2; i++)
+	rectangle_draw(&r, i, ul, rd) ;
+      for(; i<zmw_border_width_get(); i++)
+	rectangle_draw(&r, i, rd, ul) ;
     }
 }
 void zmw_border_draw(int options)
 {
-  Zmw_Rectangle r ;
-
-  if ( ZMW_ACTION != zmw_action_draw )
+  if ( zmw_action_get() != zmw_action_draw )
     return ;
 
-  r = ZMW_SIZE_ALLOCATED ;
-  zmw_border_draw_with_rectangle(options, &r) ;
+  zmw_border_draw_with_rectangle(options, zmw_allocated_get()) ;
 }
 
 void zmw_border_solid_draw()
@@ -190,7 +188,7 @@ static void cross_draw(Zmw_Rectangle *r, Zmw_Color c)
 
 void zmw_cross_draw()
 {
-  cross_draw(&ZMW_SIZE_ALLOCATED, Zmw_Color_Foreground) ;
+  cross_draw(zmw_allocated_get(), Zmw_Color_Foreground) ;
 }
 
 int zmw_rgb_scale_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b,

@@ -61,16 +61,16 @@ void test_table(const char *title)
 	      	   		sprintf(tip, "Text=%s", buf) ;
 	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Horizontal alignment = %d"
-	      	   			, ZMW_SIZE_HORIZONTAL_ALIGNMENT) ;
+	      	   			,zmw_cs_horizontal_alignment_get()) ;
 	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Horizontal expand = %d"
-	      	   			, ZMW_SIZE_HORIZONTAL_EXPAND) ;
+	      	   			,zmw_horizontaly_expanded_get()) ;
 	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Vertical alignment = %d"
-	      	   			, ZMW_SIZE_VERTICAL_ALIGNMENT) ;
+	      	   			, zmw_cs_vertical_alignment_get()) ;
 	      	   		zmw_label(tip) ;
 	      	   		sprintf(tip, "Vertical expand = %d"
-	      	   			, ZMW_SIZE_VERTICAL_EXPAND) ;
+	      	   			, zmw_verticaly_expanded_get()) ;
 	      	   		zmw_label(tip) ;
 	      	   		if ( ! (i&1) )
 	      	   			zmw_label("With 'under' and 'over'") ;

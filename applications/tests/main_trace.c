@@ -28,9 +28,9 @@ static int what ;
 
 void main_sb()
 {
-  if ( ZMW_ACTION == zmw_action_draw )
+  if ( zmw_action_get() == zmw_action_draw )
   	{
-	    ZMW_DEBUG |= Zmw_Debug_Trace ;
+	    *zmw_debug_get_ptr() |= Zmw_Debug_Trace ;
   	}
 
   switch(what)
@@ -49,7 +49,7 @@ void main_sb()
 	break ;
     }
 
-  if ( ZMW_DEBUG )
+  if ( zmw_debug_get() )
     exit(0) ;
 }
 

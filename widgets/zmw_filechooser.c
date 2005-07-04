@@ -20,6 +20,8 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
+
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -147,9 +149,9 @@ void zmw_file_selection(Zmw_Boolean *visible
   static Zmw_Float_0_1 x, y ; // XXX only one file chooser at a time...
   static Zmw_Boolean take_focus = Zmw_False ;
 
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_subaction_get() == Zmw_Input_Event )
     {
-      ZMW_SIZE_ACTIVATED = Zmw_False ;
+      zmw_activated_set(Zmw_False) ;
     }
   activated = Zmw_False ;
 
@@ -167,8 +169,8 @@ void zmw_file_selection(Zmw_Boolean *visible
   err = 0 ;
   /* These lines are here (and not in the 'if') to remove compiler warnings */ 
   end_of_dir = -1 ;
-  width = ZMW_ASKED.width ;
-  height = ZMW_ASKED.height ;
+  width = zmw_asked_width_get() ;
+  height = zmw_asked_height_get() ;
 
   if ( *visible )
     {
@@ -264,7 +266,7 @@ void zmw_file_selection(Zmw_Boolean *visible
 	      zmw_entry(filename) ;
 	      if ( take_focus )
 		{
-		  zmw_name_register(ZMW_FOCUS) ;
+		  zmw_name_register(zmw_focus_get()) ;
 		  take_focus = Zmw_False ;
 		}
 	      /* XXX Not nice, but effective.
@@ -311,10 +313,10 @@ void zmw_file_selection(Zmw_Boolean *visible
 	    }
 	}
     }
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_subaction_get() == Zmw_Input_Event )
     {
       if ( activated )
-	ZMW_SIZE_ACTIVATED = Zmw_True ;
+	zmw_activated_set(Zmw_True) ;
     }
   if ( *visible )
     {

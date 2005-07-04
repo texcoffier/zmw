@@ -24,6 +24,7 @@
 
 #include <ctype.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 #include "zmw/socket.h"
 
 static FILE *global_http ;
@@ -35,8 +36,13 @@ static int global_x, global_y, global_window, global_event ;
 
 static void append_string(char **s, const char *t)
 {
-  ZMW_REALLOC(*s, strlen(*s)+strlen(t)+1) ;
-  strcat(*s, t) ;
+  if ( *s )
+    {
+      ZMW_REALLOC(*s, strlen(*s)+strlen(t)+1) ;
+      strcat(*s, t) ;
+    }
+  else
+    *s = strdup(t) ; 
 }
 
 static char* get_string(const char *t)
@@ -88,12 +94,12 @@ static char* get_children()
   char *name, *value, *v ;
   char tmp[999] ;
 
-  if ( zMw->u.nb_of_children == 0 )
+  if ( zmw_nb_of_children_get() == 0 )
     return strdup("") ;
 
   v = strdup("<TABLE border><TR>") ;
 
-  zMw++ ;
+  (*zmw_state_get_ptr())++ ;
 
   for(i=0; evaluate(i, &new_col, &name, &visible, &in_size, NULL); i++)
     if ( in_size && *visible )
@@ -104,11 +110,11 @@ static char* get_children()
 
   append_string(&v, "</TR>") ;
 
-  for(j=0; j<zMw[-1].u.nb_of_children; j++)
+  for(j=0; j<zmw_parent__nb_of_children_get(); j++)
     {
       append_string(&v, "<TR>") ;
 
-      zMw->u.size = &zMw[-1].u.children[j] ;
+      zmw_size_set(&zmw_parent__children_get()[j]) ;
       for(i=0; evaluate(i, &new_col, &name, &visible, &in_size, &value); i++)
 	if ( in_size && *visible )
 	  {
@@ -120,7 +126,7 @@ static char* get_children()
       append_string(&v, "</TR>") ;
     }
   append_string(&v, "</TABLE>") ;
-  zMw-- ;
+  (*zmw_state_get_ptr())-- ;
     
   return v ;
 }
@@ -154,6 +160,7 @@ static char* get_rectangle(const Zmw_Rectangle *ws)
     sprintf(tmp,"x%d", ws->height) ;
   else
     sprintf(tmp,"x?") ;
+
   append_string(&v, tmp) ;
 
   return v ;
@@ -257,46 +264,46 @@ static char *get_zmw()
   v = NULL ;
 
 
-  if ( zmw.external_do_not_make_init )
+  if ( zmw_zmw_external_do_not_make_init_get() )
     append_string(&v, " external_do_not_make_init") ;
-  if ( zmw.event )
+  if ( zmw_zmw_event_get() )
     {
-      sprintf(tmp, " event:%p", zmw.event) ;
+      sprintf(tmp, " event:%p", zmw_zmw_event_get()) ;
       append_string(&v, tmp) ;
-      if ( zmw.event->any.window )
+      if ( zmw_zmw_event_get()->any.window )
 	{
-	  sprintf(tmp, " event.window:%p", zmw.event->any.window) ;
+	  sprintf(tmp, " event.window:%p", zmw_zmw_event_get()->any.window) ;
 	  append_string(&v, tmp) ;
 	}
     }
-  if ( zmw.event_removed )
+  if ( zmw_zmw_event_removed_get() )
     append_string(&v, " event_removed") ;
 
-  sprintf(tmp, " %d[%d]%d[%d]", zmw.x, zmw.x_root, zmw.y, zmw.y_root) ;
+  sprintf(tmp, " %d[%d]%d[%d]", zmw_zmw_x_get(), zmw_zmw_x_root_get(), zmw_zmw_y_get(), zmw_zmw_y_root_get()) ;
   append_string(&v, tmp) ;
-  if ( zmw.window )
+  if ( zmw_zmw_window_get() )
     {
-      sprintf(tmp, " window:%p", zmw.window) ;
+      sprintf(tmp, " window:%p", zmw_zmw_window_get()) ;
       append_string(&v, tmp) ;
     }
 
-  if ( zmw.key_pressed )
+  if ( zmw_zmw_key_pressed_get() )
     append_string(&v, " key_pressed") ;
-  if ( zmw.button_pressed )
+  if ( zmw_zmw_button_pressed_get() )
     append_string(&v, " button_pressed") ;
-  if ( zmw.still_yet_displayed )
+  if ( zmw_zmw_still_yet_displayed_get() )
     append_string(&v, " still_yet_displayed") ;
-  if ( zmw.tips_yet_displayed )
+  if ( zmw_zmw_tips_yet_displayed_get() )
     append_string(&v, " tips_yet_displayed") ;
-  if ( zmw_name_registered(&zmw.found) )
+  if ( zmw_name_registered(zmw_zmw_found_get()) )
     {
       append_string(&v, " found:") ;
-      append_string(&v, zmw.found.name) ;
+      append_string(&v, zmw_zmw_found_get()->name) ;
     }
-  if ( zmw_name_registered(&zmw.tip_displayed) )
+  if ( zmw_name_registered(zmw_zmw_tip_displayed_get()) )
     {
       append_string(&v, " tip_displayed:") ;
-      append_string(&v, zmw.found.name) ;
+      append_string(&v, zmw_zmw_found_get()->name) ;
     }
 
   return v ;
@@ -318,18 +325,18 @@ if ( item == i++ )						\
 else
 
 
-#define       ITEM_INT(NC, N) ITEM(NC, N, get_int      		  (zMw->N))
-#define    ITEM_STRING(NC, N) ITEM(NC, N, get_string		  (zMw->N))
-#define      ITEM_RECT(NC, N) ITEM(NC, N, get_rectangle		  (&zMw->N))
-#define      ITEM_BOOL(NC, N) ITEM(NC, N, get_boolean  		  (zMw->N))
-#define    ITEM_VALIGN(NC, N) ITEM(NC, N, get_vertical_alignment  (zMw->N))
-#define    ITEM_HALIGN(NC, N) ITEM(NC, N, get_horizontal_alignment(zMw->N))
-#define      ITEM_NAME(NC, N) ITEM(NC, N, get_name                (zMw->N))
-#define     ITEM_COLOR(NC, N) ITEM(NC, N, get_color               (zMw->N))
-#define    ITEM_PTRPTR(NC, N) ITEM(NC, N, get_pointer_pointer((void**)zMw->N))
-#define       ITEM_PTR(NC, N) ITEM(NC, N, get_pointer             (zMw->N))
-#define      ITEM_MENU(NC, N) ITEM(NC, N, get_menu_state          (zMw->N))
-#define    ITEM_FAMILY(NC, N) ITEM(NC, N, get_family              (zMw->N))
+#define       ITEM_INT(NC, N) ITEM(NC, N, get_int      		  (zmw_state_get()->N))
+#define    ITEM_STRING(NC, N) ITEM(NC, N, get_string		  (zmw_state_get()->N))
+#define      ITEM_RECT(NC, N) ITEM(NC, N, get_rectangle		  (&zmw_state_get()->N))
+#define      ITEM_BOOL(NC, N) ITEM(NC, N, get_boolean  		  (zmw_state_get()->N))
+#define    ITEM_VALIGN(NC, N) ITEM(NC, N, get_vertical_alignment  (zmw_state_get()->N))
+#define    ITEM_HALIGN(NC, N) ITEM(NC, N, get_horizontal_alignment(zmw_state_get()->N))
+#define      ITEM_NAME(NC, N) ITEM(NC, N, get_name                (zmw_state_get()->N))
+#define     ITEM_COLOR(NC, N) ITEM(NC, N, get_color               (zmw_state_get()->N))
+#define    ITEM_PTRPTR(NC, N) ITEM(NC, N, get_pointer_pointer((void**)zmw_state_get()->N))
+#define       ITEM_PTR(NC, N) ITEM(NC, N, get_pointer             (zmw_state_get()->N))
+#define      ITEM_MENU(NC, N) ITEM(NC, N, get_menu_state          (zmw_state_get()->N))
+#define    ITEM_FAMILY(NC, N) ITEM(NC, N, get_family              (zmw_state_get()->N))
 
 
  int evaluate(int item, int *new_column, char **name, int **visible, int *in_size,
@@ -343,7 +350,7 @@ else
   i = 0 ;
   ITEM         (1,namefull     	           , get_string(zmw_name_full))
     ITEM_STRING(0,u.type)
-    ITEM       (0,short_type   	           , get_function_name(zMw->u.type))
+    ITEM       (0,short_type   	           , get_function_name(zmw_type_get()))
     ITEM_STRING(0,u.file)
     ITEM_INT   (0,u.line)
     ITEM_STRING(0,u.name)
@@ -359,21 +366,21 @@ else
     ITEM_RECT  (0,u.size->min )
     ITEM_RECT  (0,u.size->required)
     ITEM_RECT  (0,u.size->allocated)
-    ITEM_BOOL  (0,u.size->used_to_compute_parent_size)
-    ITEM_INT   (0,u.size->hash)
+    ITEM_BOOL  (0,u.size->used_by_parent)
+    ITEM_INT   (0,u.size->hash_key)
     ITEM_BOOL  (0,u.size->current_state.horizontal_expand)
     ITEM_BOOL  (0,u.size->current_state.vertical_expand)
     ITEM_HALIGN(0,u.size->current_state.horizontal_alignment)
     ITEM_VALIGN(0,u.size->current_state.vertical_alignment)
-    ITEM_BOOL  (0,u.size->horizontal_expand)
-    ITEM_BOOL  (0,u.size->vertical_expand)
+    ITEM_BOOL  (0,u.size->horizontaly_expanded)
+    ITEM_BOOL  (0,u.size->verticaly_expanded)
     ITEM_BOOL  (0,u.size->event_in_rectangle)
     ITEM_BOOL  (0,u.size->event_in_children)
     ITEM_BOOL  (0,u.size->invisible)
-    ITEM_BOOL  (0,u.size->sensible)
+    ITEM_BOOL  (0,u.size->sensitived)
     ITEM_BOOL  (0,u.size->focused)
     ITEM_BOOL  (0,u.size->activated)
-    ITEM_BOOL  (0,u.size->child_activated)
+    ITEM_BOOL  (0,u.size->children_activated)
     ITEM_BOOL  (0,u.size->changed)
     ITEM_BOOL  (0,u.size->tip_visible)
     ITEM_BOOL  (0,u.size->do_not_map_window)
@@ -390,7 +397,7 @@ else
     ITEM_COLOR (0,i.colors[Zmw_Color_Border_Dark])
     ITEM_COLOR (0,i.colors[Zmw_Color_Foreground])
     ITEM_BOOL  (0,i.auto_resize)
-    ITEM_BOOL  (0,i.sensible)
+    ITEM_BOOL  (0,i.sensitive)
     ITEM_FAMILY(1,i.font.family)
     ITEM_INT   (0,i.font.size)
     ITEM_INT   (0,i.font.style)
@@ -473,7 +480,7 @@ int http_printf(const char *format, ...)
     int i ;
 
     va_start(ap, format);
-    i = vfprintf(global_http, format, ap );
+    i = vfprintf(global_http, format, ap) ;
     va_end(ap);
     return(i) ;
 }
@@ -517,47 +524,47 @@ static void http_size_display(Zmw_Child *ws)
 
   http_printf(
 	  "<TD>%s</TD><TD>%s</TD><TD>%s %s %s</TD>"
-	  , ZMW_SIZE_HORIZONTAL_ALIGNMENT < 0
-	  ? "Left" : (ZMW_SIZE_HORIZONTAL_ALIGNMENT > 0 ? "Right" : "Center")
-	  , ZMW_SIZE_VERTICAL_ALIGNMENT < 0
-	  ? "Up" : (ZMW_SIZE_VERTICAL_ALIGNMENT > 0 ? "Down" : "Center")
-	  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : ""
-	  , ZMW_VERTICAL_EXPAND ? "Vertical" : ""
-	  , ZMW_USED_TO_COMPUTE_PARENT_SIZE ? "" :"NotUsedToComputeParentSize"
+	  , zmw_horizontal_alignment_get() < 0
+	  ? "Left" : (zmw_horizontal_alignment_get() > 0 ? "Right" : "Center")
+	  , zmw_vertical_alignment_get() < 0
+	  ? "Up" : (zmw_vertical_alignment_get() > 0 ? "Down" : "Center")
+	  , zmw_horizontal_expand_get() ? "Horizontal" : ""
+	  , zmw_vertical_expand_get() ? "Vertical" : ""
+	  , zmw_used_by_parent_get() ? "" :"NotUsedToComputeParentSize"
 	  ) ;
-  http_printf("<TD>%s</TD>\n", ZMW_SIZE_SENSIBLE ? "Sensible" : "") ;
+  http_printf("<TD>%s</TD>\n", zmw_sensitived_get() ? "Sensible" : "") ;
 }
 
 int http_node()
 {
   ZMW_EXTERNAL_HANDLING ;
   
-  switch ( ZMW_CALL_NUMBER++ )
+  switch ( (*zmw_call_number_get_ptr())++ )
     {
     case 0:
-      ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
+      zmw_subaction_set(Zmw_Compute_Children_Allocated_Size) ;
       return( zmw_action_first_pass() ) ;
 
     case 1:
-      ZMW_SUBACTION = Zmw_Nothing ;
+      zmw_subaction_set(Zmw_Nothing) ;
 
       if ( strcmp(global_name, zmw_name_full) == 0 )
 	{
 	  http_printf("<TABLE BORDER>\n") ;
-	  http_printf("<TR><TH>Type</TH><TD>%s</TD></TR>", ZMW_TYPE) ;
+	  http_printf("<TR><TH>Type</TH><TD>%s</TD></TR>", zmw_type_get()) ;
 	  http_printf("<TR><TH>Declaration</TH><TD>%s:%d</TD></TR>"
-		      , ZMW_FILE, ZMW_LINE) ;
+		      , zmw_file_get(), zmw_line_get()) ;
 	  http_printf("<TR><TH>Asked Size</TH><TD>") ;
-	  http_rectangle_display(&ZMW_ASKED) ;
+	  http_rectangle_display(zmw_asked_get()) ;
 	  http_printf("</TD></TR>") ;
 	  http_printf("<TR><TH>Required Size</TH><TD>") ;
-	  http_rectangle_display(&ZMW_SIZE_REQUIRED) ;
+	  http_rectangle_display(zmw_required_get()) ;
 	  http_printf("</TD></TR>") ;
 	  http_printf("<TR><TH>Min Size</TH><TD>") ;
-	  http_rectangle_display(&ZMW_SIZE_MIN) ;
+	  http_rectangle_display(zmw_min_get()) ;
 	  http_printf("</TD></TR>") ;
 	  http_printf("<TR><TH>Allocated Size</TH><TD>") ;
-	  http_rectangle_display(&ZMW_SIZE_ALLOCATED) ;
+	  http_rectangle_display(zmw_allocated_get()) ;
 	  http_printf("</TD></TR>") ;
 
 	  http_printf(
@@ -565,57 +572,57 @@ int http_node()
 		  "<TH>Expand</TH>"
 		  "<TD>%s%s</TD>"
 		  "</TR>\n"
-		  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : "&nbsp;"
-		  , ZMW_VERTICAL_EXPAND ? "Vertical" : "&nbsp;"
+		  , zmw_horizontal_expand_get() ? "Horizontal" : "&nbsp;"
+		  , zmw_vertical_expand_get() ? "Vertical" : "&nbsp;"
 	  ) ;
 
 	  http_printf("<TR><TH>Debug</TH><TD>%d</TD></TR>\n"
-		  , ZMW_DEBUG) ;
+		  , zmw_debug_get()) ;
 	  http_printf("<TR><TH>Padding Width</TH><TD>%d</TD></TR>\n"
-		  , ZMW_SIZE_PADDING_WIDTH) ;
+		  , zmw_padding_width_get()) ;
 	  http_printf("<TR><TH>Border Width</TH><TD>%d</TD></TR>\n"
-		  , ZMW_BORDER_WIDTH) ;
+		  , zmw_border_width_get()) ;
 	  http_printf("<TR><TH>Focus Width</TH><TD>%d</TD></TR>\n"
-		  , ZMW_FOCUS_WIDTH) ;
+		  , zmw_focus_width_get()) ;
 	  http_printf("<TR><TH>Focus</TH><TD>%s</TD></TR>\n"
-		  , ZMW_FOCUS
-		  ? ( zmw_name_registered(ZMW_FOCUS)
-		      ? zmw_name_registered(ZMW_FOCUS) : "*focus=NULL" ) :
+		  , zmw_focus_get()
+		  ? ( zmw_name_registered(zmw_focus_get())
+		      ? zmw_name_registered(zmw_focus_get()) : "*focus=NULL" ) :
 		  "focus = NULL"
 		  ) ;
 	  http_printf("<TR><TH>Font family</TH><TD>%s</TD></TR>\n"
-		      , ZMW_FONT_FAMILY) ;
+		      , zmw_font_family_get()) ;
 	  http_printf("<TR><TH>Font size</TH><TD>%d</TD></TR>\n"
-		      , ZMW_FONT_SIZE) ;
+		      , zmw_font_size_get()) ;
 	  http_printf("<TR><TH>Font weight</TH><TD>%d</TD></TR>\n"
-		      , ZMW_FONT_WEIGHT) ;
+		      , zmw_font_weight_get()) ;
 	  http_printf("<TR><TH>Font style</TH><TD>%d</TD></TR>\n"
-		      , ZMW_FONT_STYLE) ;
+		      , zmw_font_style_get()) ;
 	  http_printf("<TR><TH>Window</TH><TD>%p</TD></TR>\n"
-		  , *ZMW_WINDOW) ;
+		  , *zmw_window_get()) ;
 	  http_printf("<TR><TH>GC</TH><TD>") ;
 	  http_printf("</TD></TR>") ;
 
 	  http_printf("<TR><TH>Auto resize</TH><TD>%d</TD></TR>\n"
-		  , ZMW_AUTO_RESIZE) ;
+		      , zmw_auto_resize_get()) ;
 	  http_printf("<TR><TH>Sensible</TH><TD>%d</TD></TR>\n"
-		  , ZMW_SENSIBLE) ;
+		      , zmw_sensitive_get()) ;
 	  http_printf("<TR><TH>Focused</TH><TD>%d</TD></TR>\n"
-		  , ZMW_SIZE_FOCUSED) ;
+		      , zmw_focused_get()) ;
 	  
 	  http_printf("<TR><TH>Alignment</TH><TD>%s%s</TD></TR>\n"
-		  , ZMW_SIZE_HORIZONTAL_ALIGNMENT<0 ? "Left" :
-		  ( ZMW_SIZE_HORIZONTAL_ALIGNMENT>0 ? "Right" : "Centered" )
-		  , ZMW_SIZE_VERTICAL_ALIGNMENT<0 ? "Top" :
-		  ( ZMW_SIZE_VERTICAL_ALIGNMENT>0 ? "Down" : "Centered" )
+		  , zmw_horizontal_alignment_get()<0 ? "Left" :
+		  ( zmw_horizontal_alignment_get()>0 ? "Right" : "Centered" )
+		  , zmw_vertical_alignment_get()<0 ? "Top" :
+		  ( zmw_vertical_alignment_get()>0 ? "Down" : "Centered" )
 		  ) ;
 	  http_printf("<TR><TH>Expension</TH><TD>%s %s</TD></TR>\n"
-		  , ZMW_HORIZONTAL_EXPAND ? "Horizontal" : ""
-		  , ZMW_VERTICAL_EXPAND ? "Vertical" : ""
+		  , zmw_horizontal_expand_get() ? "Horizontal" : ""
+		  , zmw_vertical_expand_get() ? "Vertical" : ""
 		  ) ;
 	  
 	  http_printf("<TR><TH># of children</TH><TD>%d</TD></TR>\n"
-		  , ZMW_NB_OF_CHILDREN) ;
+		  , zmw_nb_of_children_get()) ;
 
 	  http_printf("</TABLE>\n") ;
 
@@ -639,10 +646,10 @@ int http_node()
 	  {
 	    http_printf("<TR><TH><A HREF=\"%s/\">%s</A></TH>\n"
 		    , http_encode_url(zmw_name_full)
-		    , ZMW_NAME
+		    , zmw_name_get()
 		    ) ;
 
-	    http_size_display(&ZMW_SIZE) ;
+	    http_size_display(zmw_size_get()) ;
 	  }
 	  
 	  
@@ -660,21 +667,20 @@ int http_tree()
 {
   ZMW_EXTERNAL_HANDLING ;
   
-  switch ( ZMW_CALL_NUMBER++ )
+  switch ( (*zmw_call_number_get_ptr())++ )
     {
     case 0:
-      ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
+      zmw_subaction_set(Zmw_Compute_Children_Allocated_Size) ;
       return(zmw_action_first_pass()) ;
 
     case 1:
-      ZMW_SUBACTION = Zmw_Nothing ;
-      ZMW_SUBACTION = Zmw_Debug_Message ;
+      zmw_subaction_set(Zmw_Debug_Message) ;
       http_printf("<LI> <A HREF=\"%s\">%s</A> %s:%d %s"
 		  , http_encode_url(zmw_name_full)
-		  , ZMW_NAME
-		  , ZMW_FILE
-		  , ZMW_LINE
-		  , ZMW_TYPE
+		  , zmw_name_get()
+		  , zmw_file_get()
+		  , zmw_line_get()
+		  , zmw_type_get()
 	      ) ;
       http_printf("\n<UL>") ;
       zmw_state_push() ;
@@ -694,14 +700,14 @@ int http_table()
 
   ZMW_EXTERNAL_HANDLING ;
   
-  switch ( ZMW_CALL_NUMBER++ )
+  switch ( (*zmw_call_number_get_ptr())++ )
     {
     case 0:
-      ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
+      zmw_subaction_set(Zmw_Compute_Children_Allocated_Size) ;
       return(zmw_action_first_pass()) ;
 
     case 1:
-      ZMW_SUBACTION = Zmw_Input_Event ;
+      zmw_subaction_set(Zmw_Input_Event) ;
       zmw_state_push() ;
       return(1) ;
 
@@ -723,10 +729,10 @@ int http_debug()
   ZMW_EXTERNAL_HANDLING ;
   
 
-  switch ( ZMW_CALL_NUMBER++ )
+  switch ( (*zmw_call_number_get_ptr())++ )
     {
     case 0:
-      ZMW_SUBACTION = Zmw_Compute_Children_Allocated_Size ;
+      zmw_subaction_set(Zmw_Compute_Children_Allocated_Size) ;
       return(zmw_action_first_pass()) ;
 
     case 1:
@@ -900,27 +906,27 @@ void http_connection(gpointer o, int socket, GdkInputCondition condition)
       /*
        * False Event construction
        */
-      zmw.event = &e ;
+      zmw_zmw_event_set(&e) ;
       switch(global_event)
 	{
-	case 0 : zmw.event->any.type = GDK_MOTION_NOTIFY ; break ;
-	case 1 : zmw.event->any.type = GDK_BUTTON_PRESS ;
-	  zmw.button_pressed = Zmw_True ;
+	case 0 : zmw_zmw_event_get()->any.type = GDK_MOTION_NOTIFY ; break ;
+	case 1 : zmw_zmw_event_get()->any.type = GDK_BUTTON_PRESS ;
+	  zmw_zmw_button_pressed_set(Zmw_True) ;
 	  break ;
-	case 2 : zmw.event->any.type = GDK_BUTTON_RELEASE ;
-	  zmw.button_pressed = Zmw_False ;
+	case 2 : zmw_zmw_event_get()->any.type = GDK_BUTTON_RELEASE ;
+	  zmw_zmw_button_pressed_set(Zmw_False) ;
 	  break ;
 	}
-      zmw.event->motion.x = global_x ;
-      zmw.event->motion.y = global_y ;
-      zmw.event->any.window = (GdkWindow*)global_window ;
-      zmw.window = zmw.event->any.window ;
-      zmw.x = zmw.event->motion.x ;
-      zmw.y = zmw.event->motion.y ;
-      ZMW_SIZE_SENSIBLE = Zmw_True ;
-      ZMW_SIZE_EVENT_IN_RECTANGLE = Zmw_True ;
-      ZMW_SIZE_EVENT_IN_CHILDREN = Zmw_True ;
-      ZMW_WINDOW = NULL ;
+      zmw_zmw_event_get()->motion.x = global_x ;
+      zmw_zmw_event_get()->motion.y = global_y ;
+      zmw_zmw_event_get()->any.window = (GdkWindow*)global_window ;
+      zmw_zmw_window_set(zmw_zmw_event_get()->any.window) ;
+      zmw_zmw_x_set(zmw_zmw_event_get()->motion.x) ;
+      zmw_zmw_y_set(zmw_zmw_event_get()->motion.y) ;
+      zmw_sensitived_set(Zmw_True) ;
+      zmw_event_in_rectangle_set(Zmw_True) ;
+      zmw_event_in_children_set(Zmw_True) ;
+      zmw_window_set(NULL) ;
 
       http_printf("<H1>Widget table</H1>") ;
       http_printf("<p>The displayed table is from the event:\n") ;

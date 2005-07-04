@@ -1,6 +1,8 @@
 # Executables are relinked only if you make a "make clean"
 # Most of the time it is not necessary to relink them.
 
+d:exe
+
 default: test
 
 include ../../Makefile.config
@@ -21,14 +23,12 @@ ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; i
 test::
 	. utilities ; \
 	start_xvfb ; \
-	$(MAKE) ask regtest ; \
-	stop_xvfb
+	$(MAKE) ask regtest
 
 testwithoutquestion:
 	. utilities ; \
 	start_xvfb ; \
-	$(MAKE) noforall regtest ; \
-	stop_xvfb
+	$(MAKE) noforall regtest
 
 
 regtest:

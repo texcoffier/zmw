@@ -5,15 +5,18 @@
 /* Minimal focus test where the user redefine focus */
 void focus(void)
 {
-  static Zmw_Name focus = ZMW_NAME_UNREGISTERED("var") ;
+  static Zmw_Name *focus = NULL ;
   static char *text = NULL ;
 
   if ( text == NULL )
-    text = strdup("?") ;
+    {
+      text = strdup("?") ;
+      zmw_name_initialize(&focus, "var") ;
+    }
 
   ZMW(zmw_window("Focus"))
     {
-      zmw_focus(&focus) ;
+      zmw_focus(focus) ;
       zmw_entry(&text) ;
     }
 }

@@ -10,8 +10,11 @@ O=	zmw.o \
 	zmw_main.o \
 	zmw_name.o \
 	zmw_device.o \
-	zmw_cache.o \
-	zmw_size.o
+	zmw_state.o \
+	zmw_child_cache.o \
+	zmw_generated.o \
+	zmw_font.o \
+	zmw_rectangle.o
 
 
 lib:: $(O)

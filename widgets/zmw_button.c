@@ -21,6 +21,7 @@
 
 // #include <gdk/gdkkeysyms.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 
 void zmw_button_name(const char *text
@@ -95,7 +96,7 @@ void zmw_button_general(const char *text
   char buf[strlen(text)+20] ;
 
   zmw_button_name(text, state, character, buf) ;
-  if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+  if ( zmw_action_get() == zmw_action_dispatch_accelerator )
     zmw_accelerator_add(buf, state) ;      
 
   if ( display )
@@ -103,9 +104,9 @@ void zmw_button_general(const char *text
   else
     zmw_button(text) ;
 
-  if ( !ZMW_SIZE_ACTIVATED && zmw_accelerator(state, character) )
+  if ( !zmw_activated_get() && zmw_accelerator(state, character) )
     {
-      ZMW_SIZE_ACTIVATED = Zmw_True ;
+      zmw_activated_set(Zmw_True) ;
     }
 }
 
@@ -141,8 +142,8 @@ void zmw_accelerators_window(GdkModifierType filter)
 	return ;
     }
 	
-  save_auto_resize = ZMW_AUTO_RESIZE ;
-  ZMW_AUTO_RESIZE = Zmw_True ;	
+  save_auto_resize = zmw_auto_resize_get() ;
+  zmw_auto_resize_set(Zmw_True) ;	
   ZMW(zmw_window_drag())
     {
       ZMW(zmw_vbox())
@@ -160,7 +161,7 @@ void zmw_accelerators_window(GdkModifierType filter)
 	    }
 	}
     }
-  ZMW_AUTO_RESIZE = save_auto_resize ;
+  zmw_auto_resize_set(save_auto_resize) ;
 }
 
 /*
@@ -177,9 +178,9 @@ void zmw_tearoff()
     zmw_button("--- detach --->>") ;
   if ( zmw_activated() )
     {
-      gdk_window_destroy(*ZMW_WINDOW) ;
-      zmw.window = NULL ;
-      *ZMW_WINDOW = NULL ;
+      gdk_window_destroy(*zmw_window_get()) ;
+      zmw_zmw_window_set(NULL) ;
+      *zmw_window_get() = NULL ;
       zmw_window_detached_toggle() ;
     }
 }

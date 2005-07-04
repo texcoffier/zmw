@@ -5,7 +5,7 @@
 
 void f1(void)
 {
-  ZMW_DEBUG |= Zmw_Debug_Window_Auto_Resize ;
+  *zmw_debug_get_ptr() |= Zmw_Debug_Window_Auto_Resize ;
   ZMW(zmw_window("F1"))
     {
       zmw_label("My application") ;

@@ -225,8 +225,8 @@ void zmw_menu_with_detached(int *detached) ;
 #define Zmw_Decorator_Focus_Any (Zmw_Decorator_Focusable|Zmw_Decorator_Border_Focus)
 
 void zmw_decorator(int options, ...) ;
-void zmw_alignement_horizontal_make(Zmw_Child *s, int border_width) ;
-void zmw_alignement_vertical_make(Zmw_Child *s, int border_width) ;
+void zmw_alignment_horizontal_make(int i, int border_width) ;
+void zmw_alignment_vertical_make(int i, int border_width) ;
 
 
 

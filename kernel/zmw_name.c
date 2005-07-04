@@ -36,6 +36,7 @@ Zmw_Name      is allocated if it is not a Registration
 
 #include <ctype.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 
 #define PRINTF if(0) fprintf(stderr,"%-25s ", __FUNCTION__),zmw_printf
 
@@ -100,8 +101,8 @@ static Zmw_Boolean zmw_name_equals(const Zmw_Name *n, Zmw_Hash h, const char *na
 static Zmw_Hash zmw_name_hash(const char *name)
 {
   PRINTF("name=%s\n", name) ;
-  if ( name == zmw_name_full && ZMW_CHILD_NUMBER >= 0 )
-    return ZMW_SIZE_HASH ;
+  if ( name == zmw_name_full && zmw_child_number_get() >= 0 )
+    return zmw_hash_key_get() ;
   else
     return zmw_hash(0, name) ;
 }
@@ -179,7 +180,7 @@ Zmw_Boolean zmw_name_is(const Zmw_Name *n)
   if ( n->name == NULL )
     return( Zmw_False ) ;
 
-  return zmw_name_equals(n, ZMW_SIZE_HASH, zmw_name_full) ;
+  return zmw_name_equals(n, zmw_hash_key_get(), zmw_name_full) ;
 }
 /*
  * Current widget is inside "n" ?
@@ -278,6 +279,16 @@ void zmw_name_dump(FILE *f)
     }
   fprintf(f, "</TABLE>\n") ;
 }
+
+void zmw_name_initialize(Zmw_Name **name, char *why)
+{
+  if ( *name == NULL )
+    {
+      ZMW_MALLOC_0(*name, 1) ;
+      (*name)->why = why ;
+    }
+}
+
 
 void zmw_name_debug_window()
 {
@@ -495,6 +506,11 @@ void zmw_name_register(Zmw_Name *n)
   zmw_name_register_with_name(n, zmw_name_full) ;
 }
 
+#undef zmw_name_registered
+char* zmw_name_registered(const Zmw_Name *n)
+{
+  return n->name ;
+}
 
 void zmw_name_unregister(Zmw_Name *n)
 {

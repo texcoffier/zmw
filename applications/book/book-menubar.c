@@ -295,7 +295,7 @@ void semantic_len(Library_GUI *gui)
 	  ZMW(zmw_decorator(Zmw_Decorator_Border_Solid
 			    | Zmw_Decorator_Clip
 			    | Zmw_Decorator_Translate
-			    , -zmw.x + 110, -zmw.y + 112))
+			    , -zmw_zmw_x_get() + 110, -zmw_zmw_y_get() + 112))
 	    {
 	      library_top_level(gui) ;
 	    }

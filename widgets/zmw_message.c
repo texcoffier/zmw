@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 int zmw_message(int visible, const char *title, const char *button_name)
 {

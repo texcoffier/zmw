@@ -2,18 +2,18 @@
 #include "zmw/zmw.h"
 void rectangle(/* any parameter you may want */)
 {
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
       /* Compute its minimum size from its children sizes */
-      ZMW_SIZE_MIN.width = ZMW_SIZE_MIN.height = 5 ; break ;
+      zmw_min_width_set(5) ;
+      zmw_min_height_set(5) ;
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
       /* Compute its children sizes and placement and draw the background */
       zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_True
-			 , ZMW_SIZE_ALLOCATED.x    
-			 , ZMW_SIZE_ALLOCATED.y
-			 , ZMW_SIZE_ALLOCATED.width
-			 , ZMW_SIZE_ALLOCATED.height) ;
+			 ,zmw_allocated_x_get(), zmw_allocated_y_get()
+			 ,zmw_allocated_width_get(), zmw_allocated_height_get()
+			 ) ;
       break ;
     case Zmw_Compute_Children_Allocated_Size:
       /* Compute the children size and placement */ break ;
@@ -39,10 +39,10 @@ void rect() { ZMW(rectangle()) { /* no children */ } }
 /* DO NOT DISPLAY */
 void rectangle_activable(void)
 {
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_subaction_get() == Zmw_Input_Event )
     {
       if ( zmw_button_pressed() ) // Button pressed inside the rectangle
-	ZMW_SIZE_ACTIVATED = Zmw_True ; // Widget is activated
+	zmw_activated_set(Zmw_True) ; // Widget is activated
     }
   else
     rectangle() ;

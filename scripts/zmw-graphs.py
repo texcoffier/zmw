@@ -3,6 +3,10 @@
 """
 This script works only for 'exco'
 It creates the ZMW release graphs.
+
+Old packages are needed :
+   gtklib1.2-dev
+   libgdk-pixbuf-dev
 """
 
 import glob
@@ -37,8 +41,8 @@ def count(filename):
     f = open(filename)
     c = f.readlines()
     f.close()
-    c = filter( lambda line: line_of_code(line), c)
-    if (c[0]+c[1]).find("ZMW: A Zero Memory Widget Library"):
+    c = filter( lambda line: line_of_code(line), c)    
+    if len(c)>1 and (c[0]+c[1]).find("ZMW: A Zero Memory Widget Library"):
         remove = 14
     else:
         remove = 0
@@ -85,6 +89,18 @@ xxx:xxx.o
 
     f.close()
 
+    try:
+        f = open("include/zmw/zmw.h", "r")
+        c = f.read()
+        f.close()
+        c = c.replace("ZMW_DEBUG_OPTIONS_DEFAULT 1",
+                      "ZMW_DEBUG_OPTIONS_DEFAULT 0")
+        f =  open("include/zmw/zmw.h", "w")
+        f.write(c)
+        f.close()
+    except IOError:
+        pass
+
 
 
 def diff_size(old, new):
@@ -97,7 +113,7 @@ def diff_size(old, new):
         return n
 
 def compile():
-    os.system("rm -f xxx xxx.o ; make xxx.o xxx")
+    os.system("rm -f xxx xxx.o ; export CC='gcc -Iinclude' ; make xxx.o xxx")
 
 def get_number(lines, key):
     for x in lines:
@@ -109,11 +125,9 @@ def runtime_test():
     
     f = open("xxx.c", "w")
     f.write("""
-#ifdef ZMW_DEBUG_NAME
 #include "zmw/zmw.h"
-#else
-#include "kernel/zmw.h"
-#endif
+#include "zmw/zmw_private.h"
+
 int main(int argc, char *argv[])
 {
     printf("%d %d %d\\n"
@@ -140,7 +154,7 @@ def runtime_speed_test(zmw_xvfbn, text="",pango_cache=0):
         return [0,0,0,0,0,0,0]
 
 
-    os.system("rm -f xxx.drawdone ; fgrep -v <~/HOME/WIDGET/applications/benchmarks/speed.c >xxx.c zmw_cache_size")
+    os.system("rm -f xxx.drawdone ; fgrep -v <~/HOME/WIDGET/applications/benchmarks/speed.c -e zmw_cache_size -e zmw_child_cache_size >xxx.c")
     compile()
     print "Launch"
     if text == "":
@@ -155,7 +169,7 @@ def runtime_speed_test(zmw_xvfbn, text="",pango_cache=0):
         if os.path.exists("xxx.drawdone"):
             break
     print "Drawing done"
-    os.system(". ~/HOME/WIDGET/applications/examples/utilities ; export DISPLAY=%s ; zmw_move_cursor_to 10 10 ; zmw_key $KEY_A" % zmw_xvfbn)
+    os.system(". ~/HOME/WIDGET/applications/examples/utilities ; export DISPLAY=%s ; zmw_move_cursor_to 10 10 ; zmw_key $KEY_A ; export ZMW_XVFB_PID=111111111" % zmw_xvfbn)
     
     numbers = f.readlines()
     print numbers
@@ -176,7 +190,7 @@ stats = [('name'                    , 'Kernel (C)',
           'Documentation (Docbook)' , 'Library size (Kb)',
           'Patch size (diff)'       , 'Zmw_Child (Byte)',
           'Zmw_Uninheritable (Byte)', 'Zmw_Stackable_Inheritable (Byte)',
-          'Display time (Second)'   , 'VmData(Kb) ',
+          'Display time (Second)'   , 'VmData (Kb)',
           'VmStk(Kb)'               , 'VmExe (Kb)',
           'Dispatch event (Second)' , 'Search widget (Second)',
           'Dispatch accelerator (Second)',
@@ -187,8 +201,8 @@ titles = [ [i, stats[0][i]] for i in range(len(stats[0])) ]
 
 
 def create_stats():
-    f = os.popen("cd ~/HOME/WIDGET/applications/examples ; . ./utilities ; start_xvfb 2048x2048 >/dev/null ; export DISPLAY=$ZMW_XVFB ; zmw_move_cursor_to 100 100 ; echo ${ZMW_XVFBN=9}", "r")
-    zmw_xvfbn = ":" + f.readlines()[-1][:-1]
+    f = os.popen("cd ~/HOME/WIDGET/applications/examples ; . ./utilities ; start_xvfb 2048x2048 >/dev/null ; export DISPLAY=$ZMW_XVFB ; zmw_move_cursor_to 100 100 ; echo ${ZMW_XVFBN=9} ; export ZMW_XVFB_PID=111111111", "r")
+    zmw_xvfbn = ":" + f.readlines()[-2][:-1]
     print "=========", zmw_xvfbn
     f.close()
     name = None
@@ -199,6 +213,17 @@ def create_stats():
         os.chdir("/tmp")
         os.system("zcat %s | tar -xf -" % archive)
         os.chdir(name)
+        os.system("""
+        if [ ! -f include/zmw/zmw.h ]
+        then
+            mkdir -p include/zmw
+            ln -s ../../kernel/zmw.h include/zmw
+        fi
+        if [ ! -f include/zmw/zmw_private.h ]
+        then
+            touch include/zmw/zmw_private.h
+        fi
+        """)
         remove_debug_options()
         os.system("make lib || make ; strip zmw.so")
         
@@ -240,7 +265,7 @@ def create_plot(titles, output_file, y_label):
     c += "set xlabel 'ZMW version'\n" 
     c += "set ylabel '%s'\n" % y_label
 
-    c += "set terminal png xFFFFFF x000000 x000000 x000000 xFF0000 x00FF00 x0000FF xFFFF00 xFF00FF x00FFFF\n"
+    c += "set terminal png small size 800,600 xFFFFFF x000000 x000000 x000000 xFF0000 x00FF00 x0000FF x00A0FF xA000FF xFFA000 xFF00A0\n"
     c += "set output '%s'\n" % output_file
     c += "set logscale y\n"
     # Set xtics
@@ -270,7 +295,7 @@ if not os.path.exists("/tmp/xxx"):
     create_stats()
 
 create_plot(
-    filter( lambda x: x[0]==7 or 8 < x[0] < 12 or 12< x[0] < 14, titles)
+    filter( lambda x: x[0]==7 or 8 < x[0] < 12 or 12< x[0] < 14 or x[0]==15, titles)
     , "size.png"
     , "Sizes"
     )

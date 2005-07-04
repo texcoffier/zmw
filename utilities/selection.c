@@ -205,7 +205,7 @@ int zmw_handle_selection(GdkEvent *e)
 			   GDK_PROP_MODE_REPLACE,
 			   text_to_send,
 			   strlen(text_to_send)
-			   );
+			  ) ;
        */
 		       
        XChangeProperty(GDK_DISPLAY(),
@@ -216,7 +216,7 @@ int zmw_handle_selection(GdkEvent *e)
 		       PropModeReplace,
 		       text_to_send,
 		       strlen(text_to_send)
-		       );
+		      ) ;
      }
    else
      s->property = 0 ;
@@ -226,7 +226,7 @@ int zmw_handle_selection(GdkEvent *e)
 			      s->target,
 			      s->property ,
 			      s->time
-			      );	
+			     ) ;	
    
    gdk_flush() ;
    return 0 ;

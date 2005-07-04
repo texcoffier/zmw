@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 #include <stdarg.h>
 
 static int zmw_decorator_border(int options)
@@ -28,9 +29,9 @@ static int zmw_decorator_border(int options)
 
   border_width = 0 ;
   if ( options & Zmw_Decorator_Focus_Any )
-    border_width += ZMW_FOCUS_WIDTH ;
+    border_width += zmw_focus_width_get() ;
   if ( options & Zmw_Decorator_Border_Any )
-    border_width += ZMW_BORDER_WIDTH ;
+    border_width += zmw_border_width_get() ;
 
   return( border_width ) ;
 }
@@ -60,27 +61,27 @@ void zmw_decorator(int options, ...)
 
   if ( options & Zmw_Decorator_Clip )
     {
-      r.x = ZMW_SIZE_ALLOCATED.x + border_width ;
-      r.y = ZMW_SIZE_ALLOCATED.y + border_width ;
-      r.width = ZMW_SIZE_ALLOCATED.width - 2*border_width ;
-      r.height = ZMW_SIZE_ALLOCATED.height - 2*border_width ;
-      ZMW_CLIPPING = zmw_rectangle_min(&ZMW_CLIPPING, &r) ;
+      r.x = zmw_allocated_x_get() + border_width ;
+      r.y = zmw_allocated_y_get() + border_width ;
+      r.width = zmw_allocated_width_get() - 2*border_width ;
+      r.height = zmw_allocated_height_get() - 2*border_width ;
+      *zmw_clipping_get() = zmw_rectangle_min(zmw_clipping_get(), &r) ;
     }
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      if ( ZMW_NB_OF_CHILDREN )
+      if ( zmw_nb_of_children_get() )
 	{
-	  ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
-	  ZMW_SIZE_MIN.width += 2 * border_width ;
-	  ZMW_SIZE_MIN.height += 2 * border_width ;
-	  zmw_padding_add(&ZMW_SIZE_MIN, ZMW_CHILDREN[0].current_state.padding_width) ;
+	  zmw_min_set(zmw_child__required_get(0)) ;
+	  *zmw_min_width_get_ptr() += 2 * border_width ;
+	  *zmw_min_height_get_ptr() += 2 * border_width ;
+	  zmw_padding_add(zmw_min_get(), zmw_child__padding_width_get(0)) ;
 	}
       else
 	{
-	  ZMW_SIZE_MIN.width = 2 * border_width + 6 ;
-	  ZMW_SIZE_MIN.height = 2 * border_width + 6 ;
+	  zmw_min_width_set(2 * border_width + 6) ;
+	  zmw_min_height_set(2 * border_width + 6) ;
 	}
 
       break ;
@@ -115,8 +116,8 @@ void zmw_decorator(int options, ...)
       if ( options & Zmw_Decorator_Interior )
 	border |= Zmw_Border_Background ;
       if ( (options & Zmw_Decorator_Feedback)
-	   && ZMW_SIZE_SENSIBLE
-	   && ZMW_SIZE_EVENT_IN_RECTANGLE )
+	   && zmw_sensitived_get()
+	   && zmw_event_in_rectangle_get() )
 	border |= Zmw_Border_In ;
       zmw_border_draw(border) ;
 
@@ -127,22 +128,22 @@ void zmw_decorator(int options, ...)
       /* fall thru */
 
     case Zmw_Compute_Children_Allocated_Size:
-      if ( ZMW_NB_OF_CHILDREN )
+      if ( zmw_nb_of_children_get() )
 	{
 	  /* This case is for zmw_viewport, because in this
 	   * case the decorator must not put its child where it want
 	   */
 	  if ( options & Zmw_Decorator_Translate )
 	    {
-	      ZMW_CHILDREN[0].allocated.x = ZMW_SIZE_ALLOCATED.x + tx + ZMW_CHILDREN[0].current_state.padding_width ;
-	      ZMW_CHILDREN[0].allocated.y = ZMW_SIZE_ALLOCATED.y + ty + ZMW_CHILDREN[0].current_state.padding_width ;
-	      ZMW_CHILDREN[0].allocated.width =ZMW_CHILDREN[0].required.width;
-	      ZMW_CHILDREN[0].allocated.height=ZMW_CHILDREN[0].required.height;
+	      zmw_child__allocated_x_set(0,zmw_allocated_x_get() + tx + zmw_child__padding_width_get(0)) ;
+	      zmw_child__allocated_y_set(0,zmw_allocated_y_get() + ty + zmw_child__padding_width_get(0)) ;
+	      zmw_child__allocated_width_set(0,zmw_child__required_width_get(0));
+	      zmw_child__allocated_height_set(0,zmw_child__required_height_get(0));
 	    }
 	  else
 	    {
-	      zmw_alignement_vertical_make(&ZMW_CHILDREN[0], border_width) ;
-	      zmw_alignement_horizontal_make(&ZMW_CHILDREN[0], border_width) ;
+	      zmw_alignment_vertical_make(0, border_width) ;
+	      zmw_alignment_horizontal_make(0, border_width) ;
 	    }
 	}
       break ;
@@ -152,7 +153,7 @@ void zmw_decorator(int options, ...)
 	{
 	  /* Not clean to restore the clipping rectangle
 	   * before the next widget */
-	  ZMW_CLIPPING = zMw[-1].u.parent_to_child.clipping ;
+	  zmw_clipping_set(zmw_parent__clipping_get()) ;
 	  zmw_draw_clip_set() ;
 	}
       break ;
@@ -164,12 +165,12 @@ void zmw_decorator(int options, ...)
 	}
       if ( options & Zmw_Decorator_Activable_By_Key )
 	if ( zmw_key_string_unsensitive()
-	     && zmw.event->key.string[0] != '\033' )
+	     && zmw_zmw_event_get()->key.string[0] != '\033' )
 	  {
-	    ZMW_SIZE_ACTIVATED = Zmw_True ;
+	    zmw_activated_set(Zmw_True) ;
 	  }
 
-      if ( ZMW_SIZE_ACTIVATED )
+      if ( zmw_activated_get() )
 	{
 	  zmw_window_unpop_all() ;
 	}

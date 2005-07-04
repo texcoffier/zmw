@@ -9,7 +9,7 @@ cd /tmp
 
 if [ -f "$1" -o -d "$1" -o "" = "$1" ]
 	then
-	echo "Problem in $0" >&2
+	echo "Problem in $0 (maybe some files in /tmp)" >&2
 	exit 1
 	fi
 

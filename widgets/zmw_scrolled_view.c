@@ -20,21 +20,22 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 Zmw_Boolean zmw_child_visible(int child)
 {
-  if ( !ZMW_CHILDREN[child].used_to_compute_parent_size )
+  if ( !zmw_child__used_by_parent_get(child) )
     return Zmw_False ;
-  return ZMW_CHILDREN[child].allocated.y + ZMW_CHILDREN[child].allocated.height
-    < ZMW_PARENT_SIZE.allocated.y + ZMW_PARENT_SIZE.allocated.height ;
+  return zmw_child__allocated_y_get(child) + zmw_child__allocated_height_get(child)
+    < zmw_parent__allocated_y_get() + zmw_parent__allocated_height_get() ;
 }
 
 /* Assume that the height of the next child is the same */
 Zmw_Boolean zmw_child_next_visible(int child)
 {
-  return ZMW_CHILDREN[child].allocated.y
-    + 2*ZMW_CHILDREN[child].allocated.height
-    < ZMW_PARENT_SIZE.allocated.y + ZMW_PARENT_SIZE.allocated.height ;
+  return zmw_child__allocated_y_get(child)
+    + 2*zmw_child__allocated_height_get(child)
+    < zmw_parent__allocated_y_get() + zmw_parent__allocated_height_get() ;
 }
 
 void zmw_scrolled_view_clamp(int *start, int *nb, int max)
@@ -66,35 +67,35 @@ void zmw_scrolled_view_with_columns(int *start, int *nb, int max, int nb_cols)
       
       ZMW_EXTERNAL ;
 
-      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+      if ( zmw_action_get() == zmw_action_dispatch_accelerator )
 	continue ;
 
 
       if ( max>*nb && zmw_drawing() )
 	{
-	  if (  *nb * nb_cols > ZMW_NB_OF_CHILDREN )
+	  if (  *nb * nb_cols > zmw_nb_of_children_get() )
 	    {
 	      ZMW_HERE ;
 	      zmw_debug_trace() ;
 	      zmw_printf("zmw_scrolled_view does not contains "
 			 "the good number of children (%d) *nb=%d\n"
-			 , ZMW_NB_OF_CHILDREN, *nb);
+			 , zmw_nb_of_children_get(), *nb);
 	      continue ;
 	    }
 
 	  /* Trim number of item displayed */
-	  for(i=ZMW_NB_OF_CHILDREN-1; i>=0; i--)
+	  for(i=zmw_nb_of_children_get()-1; i>=0; i--)
 	    if ( zmw_child_visible(i) )
 	      {
 		*nb = 0 ;
 		for(j=0; j<i+1; j++)
-		  if ( ZMW_CHILDREN[j].used_to_compute_parent_size )
+		  if ( zmw_child__used_by_parent_get(j) )
 		    (*nb)++ ;
 		*nb /= nb_cols ;
 		break ;
 	      }
 	  /* Increase the number of items displayed */
-	  if ( zmw_child_next_visible(ZMW_NB_OF_CHILDREN-1) )
+	  if ( zmw_child_next_visible(zmw_nb_of_children_get()-1) )
 	    *nb = *nb * 1.5 + 10 ; // Replace this by a better one
 	  zmw_scrolled_view_clamp(start, nb, max) ;
 	}

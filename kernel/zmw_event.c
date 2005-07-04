@@ -23,26 +23,27 @@
 #include <gdk/gdkkeysyms.h>
 #include <ctype.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 
 
-static Zmw_Name global_zmw_selected = ZMW_NAME_UNREGISTERED("Selected") ;
-static Zmw_Name global_zmw_selection = ZMW_NAME_UNREGISTERED("Selection") ;
+static Zmw_Name *global_zmw_selected = NULL ;
+static Zmw_Name *global_zmw_selection = NULL ;
 
-#define C(X) if ( (X) == zmw.event->type ) zmw_printf("%s\n", #X)
+#define C(X) if ( (X) == zmw_zmw_event_get()->type ) zmw_printf("%s\n", #X)
 void zmw_event_dump()
 {
   zmw_printf("EVENT_DUMP\n") ;
   zmw_debug_trace() ;
-  zmw_printf("%s\n", zmw_size_string(&ZMW_SIZE)) ;
-  zmw_printf("zmw.x = %d %d\n", zmw.x, zmw.y) ;
-  zmw_printf("ZMW_SIZE_EVENT_IN_RECTANGLE = %d\n", ZMW_SIZE_EVENT_IN_RECTANGLE) ;
-  zmw_printf("ZMW_SIZE_EVENT_IN_CHILDREN = %d\n", ZMW_SIZE_EVENT_IN_CHILDREN) ;
-  zmw_printf("ZMW_SIZE_SENSIBLE = %d\n", ZMW_SIZE_SENSIBLE) ;
+  zmw_printf("%s\n", zmw_child_string(zmw_size_get())) ;
+  zmw_printf("zmw_x y = %d %d\n", zmw_zmw_x_get(), zmw_zmw_y_get()) ;
+  zmw_printf("zmw_event_in_rectangle=%d\n", zmw_event_in_rectangle_get()) ;
+  zmw_printf("zmw_event_in_children=%d\n", zmw_event_in_children_get()) ;
+  zmw_printf("zmw_sensitived_set=%d\n", zmw_sensitived_get()) ;
   zmw_printf("zmw_focus_in() = %d\n", zmw_focus_in()) ;
   zmw_printf("zmw_key_pressed() = %d\n", zmw_key_pressed()) ;
   if ( zmw_key_pressed() )
-    zmw_printf("KEY = %c(%d)\n", zmw.event->key.string[0],
-	       zmw.event->key.string[0]) ;
+    zmw_printf("KEY = %c(%d)\n", zmw_zmw_event_get()->key.string[0],
+	       zmw_zmw_event_get()->key.string[0]) ;
   C(GDK_KEY_RELEASE) ;
   C(GDK_KEY_PRESS) ;
   C(GDK_MOTION_NOTIFY) ;
@@ -61,7 +62,7 @@ void zmw_event_dump()
 Zmw_Boolean zmw_cursor_in()
 {
   ZMW_FUNCTION_CALLED_OUTSIDE_ZMW_PARAMETER ;
-  return( ZMW_SIZE_EVENT_IN_RECTANGLE ) ;
+  return( zmw_event_in_rectangle_get() ) ;
 }
 
 /*
@@ -69,19 +70,19 @@ Zmw_Boolean zmw_cursor_in()
  */
 Zmw_Boolean zmw_event_to_process()
 {
-  return( ZMW_SUBACTION == Zmw_Input_Event
-	  && !zmw.event_removed
-	  && ZMW_CALL_NUMBER > 0
-	  && ZMW_SIZE_EVENT_IN_RECTANGLE
-	  && ZMW_SIZE_SENSIBLE
+  return( zmw_subaction_get() == Zmw_Input_Event
+	  && !zmw_zmw_event_removed_get()
+	  && zmw_call_number_get() > 0
+	  && zmw_event_in_rectangle_get()
+	  && zmw_sensitived_get()
 	  ) ;
 }
 
 Zmw_Boolean zmw_state_change_allowed()
 {
-  return( ZMW_SUBACTION == Zmw_Input_Event
-	  || ZMW_WINDOW == NULL
-	  || *ZMW_WINDOW == NULL
+  return( zmw_subaction_get() == Zmw_Input_Event
+	  || zmw_window_get() == NULL
+	  || *zmw_window_get() == NULL
 	  ) ;
 }
 /*
@@ -90,25 +91,25 @@ Zmw_Boolean zmw_state_change_allowed()
 Zmw_Boolean zmw_focus_in()
 {
   return(
-	 ZMW_SIZE_SENSIBLE
-	 && ZMW_FOCUS->value
-	 && zmw_name_is(ZMW_FOCUS)
+	 zmw_sensitived_get()
+	 && zmw_focus_value_get()
+	 && zmw_name_is(zmw_focus_get())
 	 ) ;
 }
 Zmw_Boolean zmw_focus_in_by_its_parents()
 {
   return(
-	 // && *ZMW_WINDOW == zmw.event->any.window // No cross-window focus
-	 ZMW_FOCUS->value
-	 && zmw_name_is_inside(ZMW_FOCUS)
-	 && ZMW_SIZE_SENSIBLE
+	 // && *zmw_window_get() == zmw_zmw_event_get()->any.window // No cross-window focus
+	 zmw_focus_value_get()
+	 && zmw_name_is_inside(zmw_focus_get())
+	 && zmw_sensitived_get()
 	 ) ;
 }
 static int zmw_pass_through(int n)
 {
   int i ;
 
-  for(i = n ; i>0 && zMw[-1].u.children[i].pass_through ; i--)
+  for(i = n ; i>0 && zmw_parent__children_get()[i].pass_through ; i--)
     {
     }
   return i>=0 ? i : 0 ;
@@ -118,14 +119,14 @@ static void zmw_widget_is_tested_(int n)
 {
   int i ;
 
-  if ( zMw[-1].u.nb_of_children == 0 )
+  if ( zmw_parent__nb_of_children_get() == 0 )
     return ;
 
-  i = zmw_pass_through(ZMW_CHILD_NUMBER - n) ;
+  i = zmw_pass_through(zmw_child_number_get() - n) ;
 
   if ( i >= 0 )
     {
-      zMw[-1].u.children[i].sensible = Zmw_True ;
+      zmw_parent__children_get()[i].sensitived = Zmw_True ;
     }
 }
 
@@ -147,9 +148,9 @@ void zmw_widget_previous_is_tested()
  */
 Zmw_Boolean zmw_key_pressed_unsensitive()
 {
-  return !zmw.event_removed
+  return !zmw_zmw_event_removed_get()
     && zmw_focus_in_by_its_parents()
-    && zmw.event->type == GDK_KEY_PRESS
+    && zmw_zmw_event_get()->type == GDK_KEY_PRESS
     ;
 }
 Zmw_Boolean zmw_key_pressed()
@@ -162,7 +163,7 @@ Zmw_Boolean zmw_key_pressed()
  */
 Zmw_Boolean zmw_key_string_unsensitive()
 {
-  return zmw_key_pressed_unsensitive() && zmw.event->key.string[0] ;
+  return zmw_key_pressed_unsensitive() && zmw_zmw_event_get()->key.string[0] ;
 }
 
 /*
@@ -172,7 +173,7 @@ Zmw_Boolean zmw_button_pressed()
 {
   zmw_widget_is_tested() ;
   return( zmw_event_to_process()
-	  && zmw.event->type == GDK_BUTTON_PRESS
+	  && zmw_zmw_event_get()->type == GDK_BUTTON_PRESS
 	  ) ;
 }
 
@@ -182,15 +183,15 @@ Zmw_Boolean zmw_button_pressed()
 Zmw_Boolean zmw_button_released()
 {
   return( zmw_event_to_process()
-	  && zmw.event->type == GDK_BUTTON_RELEASE
+	  && zmw_zmw_event_get()->type == GDK_BUTTON_RELEASE
 	  ) ;
 }
 Zmw_Boolean zmw_button_released_anywhere()
 {
-  return(  !zmw.event_removed
-	   && ZMW_ACTION == zmw_action_dispatch_event
-	   && ZMW_CALL_NUMBER > 0
-	   && zmw.event->type == GDK_BUTTON_RELEASE ) ;
+  return(  !zmw_zmw_event_removed_get()
+	   && zmw_action_get() == zmw_action_dispatch_event
+	   && zmw_call_number_get() > 0
+	   && zmw_zmw_event_get()->type == GDK_BUTTON_RELEASE ) ;
 }
 /*
  * True if the previous widget was activated
@@ -200,18 +201,18 @@ Zmw_Boolean zmw_activated()
 {
   zmw_widget_is_tested() ;
 
-  if( ZMW_SIZE_ACTIVATED )
+  if( zmw_activated_get() )
     {
-      if ( ZMW_ACTION == zmw_action_dispatch_event )
+      if ( zmw_action_get() == zmw_action_dispatch_event )
 	return Zmw_True ;
-      if ( ZMW_ACTION == zmw_action_dispatch_accelerator )
+      if ( zmw_action_get() == zmw_action_dispatch_accelerator )
 	{
 	  zmw_event_remove() ; /* 2004-23-06 in order to no change widget tree */
 	  return Zmw_True ;
 	}
     }
 
-  if ( ZMW_SIZE_PASS_THROUGH )
+  if ( zmw_pass_through_get() )
     return zmw_activated_previous() ;
 
   return Zmw_False ;
@@ -224,10 +225,10 @@ Zmw_Boolean zmw_activated_previous()
 {
   int i ;
 
-  i = zmw_pass_through(ZMW_CHILD_NUMBER - 1) ;
-  return zMw[-1].u.children[i].activated 
-    &&  ( ZMW_ACTION == zmw_action_dispatch_event
-	  || ZMW_ACTION == zmw_action_dispatch_accelerator) ;
+  i = zmw_pass_through(zmw_child_number_get() - 1) ;
+  return zmw_parent__children_get()[i].activated 
+    &&  ( zmw_action_get() == zmw_action_dispatch_event
+	  || zmw_action_get() == zmw_action_dispatch_accelerator) ;
 }
 
 /*
@@ -237,8 +238,8 @@ Zmw_Boolean zmw_event_in_rectangle_previous()
 {
   int i ;
 
-  i = zmw_pass_through(ZMW_CHILD_NUMBER - 1) ;
-  return zMw[-1].u.children[i].event_in_rectangle  ;
+  i = zmw_pass_through(zmw_child_number_get() - 1) ;
+  return zmw_parent__children_get()[i].event_in_rectangle  ;
 }
 
 /*
@@ -247,9 +248,9 @@ Zmw_Boolean zmw_event_in_rectangle_previous()
 Zmw_Boolean zmw_changed()
 {
   zmw_widget_is_tested() ;
-  return( (ZMW_SIZE_CHANGED || ZMW_SIZE_ACTIVATED)
-	  && ( ZMW_ACTION == zmw_action_dispatch_event
-	       || ZMW_ACTION == zmw_action_dispatch_accelerator) ) ;
+  return( (zmw_changed_get() || zmw_activated_get())
+	  && ( zmw_action_get() == zmw_action_dispatch_event
+	       || zmw_action_get() == zmw_action_dispatch_accelerator) ) ;
 }
 /*
  * True is cursor in the zmw and the button pressed
@@ -257,9 +258,9 @@ Zmw_Boolean zmw_changed()
 Zmw_Boolean zmw_cursor_in_and_pressed()
 {
   zmw_widget_is_tested() ;
-  return( ZMW_SUBACTION == Zmw_Input_Event
-	  && global_zmw_selected.name && zmw_cursor_in()
-	  && zmw.event->type != GDK_NOTHING
+  return( zmw_subaction_get() == Zmw_Input_Event
+	  && zmw_name_registered(global_zmw_selected) && zmw_cursor_in()
+	  && zmw_zmw_event_get()->type != GDK_NOTHING
 	  ) ;
 }
 /*
@@ -272,23 +273,23 @@ Zmw_Boolean zmw_cursor_in_and_pressed()
  * We enter now all the widgets.
  */
  
-static Zmw_Name global_zmw_cursor = ZMW_NAME_UNREGISTERED("Cursor") ;
+static Zmw_Name *global_zmw_cursor ;
 
 Zmw_Boolean zmw_cursor_leave()
 {
   if ( 0 )
     zmw_printf("cursor_in %s %d %d %d %s/%d\n"
-	       , global_zmw_cursor.name
-	       , ZMW_SUBACTION == Zmw_Input_Event
-	       , zmw_name_contains(&global_zmw_cursor)
-	       , !ZMW_SIZE_EVENT_IN_RECTANGLE
+	       , zmw_name_registered(global_zmw_cursor)
+	       , zmw_subaction_get() == Zmw_Input_Event
+	       , zmw_name_contains(global_zmw_cursor)
+	       , !zmw_event_in_rectangle_get()
 	       , zmw_action_name_fct()+11
-	       , ZMW_CALL_NUMBER
+	       , zmw_call_number_get()
 	       ) ;
 
-  if( ZMW_SUBACTION == Zmw_Input_Event
-      && zmw_name_contains(&global_zmw_cursor)
-      && !ZMW_SIZE_EVENT_IN_RECTANGLE
+  if( zmw_subaction_get() == Zmw_Input_Event
+      && zmw_name_contains(global_zmw_cursor)
+      && !zmw_event_in_rectangle_get()
       )
     {
       if ( 0 )
@@ -304,11 +305,11 @@ Zmw_Boolean zmw_cursor_leave()
 Zmw_Boolean zmw_cursor_enter()
 {
   if ( 0 )
-    zmw_printf("cursor_in %s\n", global_zmw_cursor.name) ;
+    zmw_printf("cursor_in %s\n", zmw_name_registered(global_zmw_cursor)) ;
   
-  if( ZMW_SUBACTION == Zmw_Input_Event
-      && ZMW_SIZE_EVENT_IN_RECTANGLE
-      && !zmw_name_contains(&global_zmw_cursor)
+  if( zmw_subaction_get() == Zmw_Input_Event
+      && zmw_event_in_rectangle_get()
+      && !zmw_name_contains(global_zmw_cursor)
       )
     {
       if ( 0 )
@@ -321,13 +322,15 @@ Zmw_Boolean zmw_cursor_enter()
 
 void zmw_cursor_set(char *name)
 {
-  if ( (name == NULL && global_zmw_cursor.name != NULL)
-       || (name != NULL && global_zmw_cursor.name == NULL)
-       || (name && global_zmw_cursor.name && strcmp(name, global_zmw_cursor.name))
+  if ( (name == NULL && zmw_name_registered(global_zmw_cursor))
+       || (name != NULL && !zmw_name_registered(global_zmw_cursor))
+       || (name
+	   && zmw_name_registered(global_zmw_cursor)
+	   && strcmp(name, zmw_name_registered(global_zmw_cursor)))
        )
     zmw_need_repaint() ;
 
-  zmw_name_register_with_name(&global_zmw_cursor, name) ;
+  zmw_name_register_with_name(global_zmw_cursor, name) ;
 }
 
 /*
@@ -341,7 +344,7 @@ void zmw_cursor_set(char *name)
  */
 
 
-#define ZMW_PRINTF if (0) printf("%25s %25s/%d ", zmw_name_full, zmw_action_name_fct()+11, ZMW_CALL_NUMBER), printf
+#define ZMW_PRINTF if (0) printf("%25s %25s/%d ", zmw_name_full, zmw_action_name_fct()+11, zmw_call_number_get()), printf
 
 void zmw_window_update_uppers(int action)
 {
@@ -349,7 +352,7 @@ void zmw_window_update_uppers(int action)
 
   action *= Zmw_Menu_State_New ;
   
-  for(s=zMw-1; s >= zmw.zmw_table; s--)
+  for(s=zmw_state_get()-1; s >= zmw_zmw_table_get(); s--)
     if ( s->u.menu_state )
       {
 	*s->u.menu_state |= action ;
@@ -360,7 +363,7 @@ void zmw_window_update_uppers(int action)
 	if ( *s->u.menu_state & Zmw_Menu_Is_Detached )
 	  break ;
 	
-	ZMW_PRINTF("Update %d\n", zMw - s) ;
+	ZMW_PRINTF("Update %d\n", zmw_state_get() - s) ;
       }
 }
 /*
@@ -368,7 +371,7 @@ void zmw_window_update_uppers(int action)
  * the registered name is the zmw_if one.
  */
 
-static Zmw_Name global_inner_visible_menu = ZMW_NAME_UNREGISTERED("Menu") ;
+static Zmw_Name *global_inner_visible_menu = NULL ;
 
 Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
 {
@@ -378,24 +381,24 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
   /*
    * So a tip can be defined after the popup window
    */
-  ZMW_SIZE_PASS_THROUGH = Zmw_True ;
+  zmw_pass_through_set(Zmw_True) ;
 
   /*
    * Get a pointer on the menu state.
    * It could be a user pointer or a resource pointer.
    * If a menu is called, a ressource is automaticaly created.
-   * ZMW_MENU_STATE is never NULL after a call to this function.
-   * This function is the only one to initialize ZMW_MENU_STATE
+   * zmw_menu_state_get() is never NULL after a call to this function.
+   * This function is the only one to initialize zmw_menu_state_get()
    *
    * Could be a better idea to store the state in ZMW_SIZE_MENU_STATE
    * to not use resource system so much.
    */
-  if ( ZMW_MENU_STATE == NULL )
+  if ( zmw_menu_state_get() == NULL )
     {
       if ( detached )
-	ZMW_MENU_STATE= detached ;
+	zmw_menu_state_set(detached) ;
       else
-	ZMW_MENU_STATE= zmw_name_get_pointer_on_int_resource("WindowDetached");
+	zmw_menu_state_set(zmw_name_get_pointer_on_int_resource("WindowDetached"));
     }
   zmw_widget_previous_is_tested() ;
 
@@ -405,18 +408,18 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
    * so it is done before the widget drawing or event dispatching.
    */
 
-  if ( ZMW_ACTION == zmw_action_compute_required_size
-       && ZMW_CALL_NUMBER == 1
-       && !zmw_name_contains(&global_inner_visible_menu)
-       && ! (*ZMW_MENU_STATE & (Zmw_Menu_Contains_A_Detached|Zmw_Menu_Is_Detached))
+  if ( zmw_action_get() == zmw_action_compute_required_size
+       && zmw_call_number_get() == 1
+       && !zmw_name_contains(global_inner_visible_menu)
+       && ! (*zmw_menu_state_get() & (Zmw_Menu_Contains_A_Detached|Zmw_Menu_Is_Detached))
        )
     {
       ZMW_PRINTF("Unpop before\n") ;
-      *ZMW_MENU_STATE &= ~Zmw_Menu_Is_Poped ;
+      *zmw_menu_state_get() &= ~Zmw_Menu_Is_Poped ;
     }
 
 
-  if ( ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_subaction_get() == Zmw_Input_Event )
     {
       /*
        * It is here AFTER the event dispatch on children
@@ -425,23 +428,23 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
       /*
        * Update state
        */
-      ZMW_PRINTF("COMPUTE STATE current=%d\n", *ZMW_MENU_STATE) ;
-      *ZMW_MENU_STATE = *ZMW_MENU_STATE/Zmw_Menu_State_New
-	| (*ZMW_MENU_STATE & Zmw_Menu_Is_Detached);
-      ZMW_PRINTF("COMPUTE STATE new=%d\n", *ZMW_MENU_STATE) ;
+      ZMW_PRINTF("COMPUTE STATE current=%d\n", *zmw_menu_state_get()) ;
+      *zmw_menu_state_get() = *zmw_menu_state_get()/Zmw_Menu_State_New
+	| (*zmw_menu_state_get() & Zmw_Menu_Is_Detached) ;
+      ZMW_PRINTF("COMPUTE STATE new=%d\n", *zmw_menu_state_get()) ;
       /*
        * Need to be made only once for all widget.
        * This should not be here.
        */
-      if ( zmw.button_pressed
-	   && zmw_name_registered(&global_inner_visible_menu))
+      if ( zmw_zmw_button_pressed_get()
+	   && zmw_name_registered(global_inner_visible_menu))
 	{
 	  zmw_use_window_from_button_press(Zmw_False) ;
 	}
       /*
        *
        */
-      if ( *ZMW_MENU_STATE & Zmw_Menu_Is_Detached )
+      if ( *zmw_menu_state_get() & Zmw_Menu_Is_Detached )
 	{
 	  ZMW_PRINTF("I am detached\n") ;
 	  action = Zmw_Menu_Contains_A_Detached ;
@@ -450,7 +453,7 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
       /*
        *
        */
-      if ( zmw_name_is(&global_inner_visible_menu) )
+      if ( zmw_name_is(global_inner_visible_menu) )
 	{
 	  ZMW_PRINTF("poped\n") ;
 	  action = Zmw_Menu_Is_Poped ;
@@ -460,12 +463,12 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
        */
       if ( action )
 	{
-	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;
+	  *zmw_menu_state_get() |= Zmw_Menu_Is_Poped ;
 	  zmw_window_update_uppers(action) ;
 	}
     }
 
-  if ( ZMW_ACTION == zmw_action_dispatch_event && ZMW_SUBACTION == Zmw_Init)
+  if ( zmw_action_get() == zmw_action_dispatch_event && zmw_subaction_get() == Zmw_Init)
     {
       /*
        * It is here BEFORE the event dispatch on children
@@ -480,31 +483,31 @@ Zmw_Boolean zmw_window_is_popped_with_detached(int *detached)
 	   * The inner visible menu is modified when the cursor
 	   * is over a button making it appear.
 	   */
-	  || (zmw_event_in_rectangle_previous() && zmw.button_pressed )
+	  || (zmw_event_in_rectangle_previous() && zmw_zmw_button_pressed_get() )
 	  )
 	{
 	  ZMW_PRINTF("Registered by Activation\n") ;
-	  zmw_name_register(&global_inner_visible_menu) ;
+	  zmw_name_register(global_inner_visible_menu) ;
 	  action = Zmw_Menu_Is_Poped ;
 	  zmw_window_update_uppers(action) ;
-	  *ZMW_MENU_STATE |= Zmw_Menu_Is_Poped ;	  
+	  *zmw_menu_state_get() |= Zmw_Menu_Is_Poped ;	  
 	}
     }
 
-  visible = *ZMW_MENU_STATE & ( Zmw_Menu_Is_Poped | Zmw_Menu_Is_Detached ) ;
+  visible = *zmw_menu_state_get() & ( Zmw_Menu_Is_Poped | Zmw_Menu_Is_Detached ) ;
 
   continue_recursion = visible
-    || ZMW_SIZE_EVENT_IN_CHILDREN
-    || ( *ZMW_MENU_STATE & Zmw_Menu_Contains_A_Detached ) ;
+    || zmw_event_in_children_get()
+    || ( *zmw_menu_state_get() & Zmw_Menu_Contains_A_Detached ) ;
 
   if ( !visible && continue_recursion )
     {
-      ZMW_SIZE_DO_NOT_MAP_WINDOW = Zmw_True ;
+      zmw_do_not_map_window_set(Zmw_True) ;
     }
 
   ZMW_PRINTF("v=%d c=%d p=%d %s\n"
 	     , visible, continue_recursion,zmw_event_in_rectangle_previous()
-	     , zmw_name_is(&global_inner_visible_menu) ? "***" : ""
+	     , zmw_name_is(global_inner_visible_menu) ? "***" : ""
 	     ) ;
 
   return continue_recursion ;
@@ -519,13 +522,14 @@ void zmw_window_unpop_all()
 {
   ZMW_PRINTF("Unpop all\n") ;
 
-  if ( zmw_name_registered(&global_inner_visible_menu) )
+  if ( zmw_name_registered(global_inner_visible_menu) )
     {
-      ZMW_PRINTF("Unpop all YES %s\n", global_inner_visible_menu.name) ;
-      zmw_name_unregister(&global_inner_visible_menu) ;
+      ZMW_PRINTF("Unpop all YES %s\n"
+		 , zmw_name_registered(global_inner_visible_menu)) ;
+      zmw_name_unregister(global_inner_visible_menu) ;
       zmw_need_repaint() ;
     }
-  if ( ZMW_DEBUG & Zmw_Debug_Event )
+  if ( zmw_debug_get() & Zmw_Debug_Event )
     zmw_printf("Unpop all popup window\n") ;
 
   zmw_use_window_from_button_press(Zmw_True) ;
@@ -536,11 +540,11 @@ void zmw_window_unpop_all()
  */
 Zmw_Boolean zmw_selected()
 {
-  return( zmw_name_is(&global_zmw_selected) ) ;
+  return( zmw_name_is(global_zmw_selected) ) ;
 }
 Zmw_Boolean zmw_selected_by_its_parents()
 {
-  return( zmw_name_is_inside(&global_zmw_selected) ) ;
+  return( zmw_name_is_inside(global_zmw_selected) ) ;
 }
 /*
  * True if the widget is selected button pressed on itself or an ancestor
@@ -548,24 +552,24 @@ Zmw_Boolean zmw_selected_by_its_parents()
 
 Zmw_Boolean zmw_focused_by_its_parents()
 {
-  return ( zmw_name_is_inside(ZMW_FOCUS) ) ;
+  return ( zmw_name_is_inside(zmw_focus_get()) ) ;
 }
 /*
  * Focus remove
  */
 void zmw_focus_remove()
 {
-  zmw_name_unregister(ZMW_FOCUS) ;
+  zmw_name_unregister(zmw_focus_get()) ;
 }
 /*
  * Remove the current event
  */
 void zmw_event_remove()
 {	
-  if ( ZMW_DEBUG & Zmw_Debug_Event )
+  if ( zmw_debug_get() & Zmw_Debug_Event )
     zmw_printf("**** EVENT **** REMOVE of %s\n", zmw_name_full) ;
   
-  zmw.event_removed = Zmw_True ;
+  zmw_zmw_event_removed_set(Zmw_True) ;
 }
 /*
  * If your widget can have the focus, call this function
@@ -587,11 +591,11 @@ static void zmw_update_distance(int direction, int distance
       GdkRegion *r ;
       int side_x, side_y ;
 
-      gdk_window_get_origin(*ZMW_WINDOW, &side_x, &side_y) ; 
+      gdk_window_get_origin(*zmw_window_get(), &side_x, &side_y) ; 
       x = current->x + current->width/2 - side_x ;
       y = current->y + current->height/2 - side_y  ;
       
-      r = gdk_drawable_get_visible_region(*ZMW_WINDOW) ;
+      r = gdk_drawable_get_visible_region(*zmw_window_get()) ;
       in = gdk_region_point_in(r, x, y) ;
       gdk_region_destroy(r) ;
       
@@ -600,7 +604,7 @@ static void zmw_update_distance(int direction, int distance
 	  return ; // We don't focus on non visible widget
 	}
     }
-  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+  if ( zmw_debug_get() & Zmw_Debug_Navigation )
     {
       zmw_printf("YES I am nearer on %c  %d ===> %d\n"
 		 , "LRUD"[direction], (int)zmw.near[direction].name.value
@@ -610,8 +614,8 @@ static void zmw_update_distance(int direction, int distance
   zmw_string_copy(&zmw.near[direction].name.name, zmw_name_full) ;
 
   zmw.near[direction].name.value = (void*)distance ;	      
-  zmw.near[direction].name.hash = ZMW_SIZE_HASH ;
-  zmw.near[direction].window = *ZMW_WINDOW ;
+  zmw.near[direction].name.hash = zmw_hash_key_get() ;
+  zmw.near[direction].window = *zmw_window_get() ;
   zmw.near[direction].rectangle = *current ;
 }
 
@@ -688,46 +692,46 @@ void zmw_focusable()
   //zmw_interval_distance_debug() ;
 
   /* Search if I am just left/up/down/right to the focused widget */
-  if ( ZMW_FOCUS == zmw.focus /* Cursor in the current focus group */
-       && ZMW_SIZE_SENSIBLE
-       && !zmw_name_is(ZMW_FOCUS) /* Not me */
+  if ( zmw_focus_get() == zmw_zmw_focus_with_cursor_get() /* Cursor in the current focus group */
+       && zmw_sensitived_get()
+       && !zmw_name_is(zmw_focus_get()) /* Not me */
        )
     {
-      if ( ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size
-	   || ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing)
+      if ( zmw_subaction_get() == Zmw_Compute_Children_Allocated_Size
+	   || zmw_subaction_get() == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing)
 	{
-	  /* My position is known, I look if I am near to zmw.focus */
-	  current = zmw_rectangle_min(&ZMW_SIZE_ALLOCATED, &ZMW_CLIPPING) ;
+	  /* My position is known, I look if I am near to zmw_zmw_focus_with_cursor_get() */
+	  current = zmw_rectangle_min(zmw_allocated_get(), zmw_clipping_get()) ;
 	  if ( current.width != 0 && current.height != 0 )
 	    {
-	      gdk_window_get_origin(*ZMW_WINDOW, &dx, &dy) ; 
+	      gdk_window_get_origin(*zmw_window_get(), &dx, &dy) ; 
 	      current.x += dx ;
 	      current.y += dy ;
 
 	      zmw_interval_distance(
-				    zmw.focused.x, zmw.focused.width
+				    zmw_zmw_focused_get()->x
+				    , zmw_zmw_focused_get()->width
 				    , current.x, current.width
 				    , &left_x, &right_x, &dx) ;
 	      zmw_interval_distance(
-				    zmw.focused.y, zmw.focused.height
+				    zmw_zmw_focused_get()->y
+				    , zmw_zmw_focused_get()->height
 				    , current.y, current.height
 				    , &left_y, &right_y, &dy) ;
-	      change_window = (*ZMW_WINDOW != zmw.raised) ;
-	      if ( gdk_window_get_window_type(*ZMW_WINDOW) == GDK_WINDOW_TEMP)
+	      change_window = (*zmw_window_get() != zmw_zmw_raised_get()) ;
+	      if ( gdk_window_get_window_type(*zmw_window_get()) == GDK_WINDOW_TEMP)
 		change_window = -1 ;
 	      
 
-	      if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+	      if ( zmw_debug_get() & Zmw_Debug_Navigation )
 		{
-		  zmw_printf("me : %d,%d %dx%d window=%p\n"
-			     , current.x, current.y
-			     , current.width, current.height
-			     , *ZMW_WINDOW
+		  zmw_printf("me : %s window=%p\n"
+			     , zmw_rectangle_string(&current)
+			     , *zmw_window_get()
 			     ) ;
-		  zmw_printf("focus : %d,%d %dx%d raised=%p\n"
-			     , zmw.focused.x, zmw.focused.y
-			     , zmw.focused.width, zmw.focused.height
-			     , zmw.raised
+		  zmw_printf("focus : %s raised=%p\n"
+			     , zmw_rectangle_string(zmw_zmw_focused_get())
+			     , zmw_zmw_raised_get()
 			     ) ;
 		  zmw_printf("rx%d lx%d dx%d  ry%d ly%d dy%d\n"
 			     , right_x, left_x, dx,right_y, left_y, dy ) ;
@@ -757,37 +761,36 @@ void zmw_focusable()
 
   if ( zmw_event_to_process() )
     {
-      if ( zmw.event->type == GDK_BUTTON_PRESS
-	   || zmw.event->type == GDK_BUTTON_RELEASE )
+      if ( zmw_zmw_event_get()->type == GDK_BUTTON_PRESS
+	   || zmw_zmw_event_get()->type == GDK_BUTTON_RELEASE )
 	{
-	  zmw_name_register(ZMW_FOCUS) ;
+	  zmw_name_register(zmw_focus_get()) ;
 	}
 
-      if ( zmw.event->type == GDK_BUTTON_PRESS )
+      if ( zmw_zmw_event_get()->type == GDK_BUTTON_PRESS )
 	zmw_need_repaint() ;
       // zmw_event_remove() ; // Removed the 2004-1-4
     }
-  if ( zmw_name_is(ZMW_FOCUS) )
+  if ( zmw_name_is(zmw_focus_get()) )
     {
-      ZMW_SIZE_FOCUSED = Zmw_True ;
+      zmw_focused_set(Zmw_True) ;
 
       /* Always recomputed because window may move or be resized */
-      if ( ZMW_FOCUS == zmw.focus &&
-	   ( ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size
-	     || ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing
+      if ( zmw_focus_get() == zmw_zmw_focus_with_cursor_get() &&
+	   ( zmw_subaction_get() == Zmw_Compute_Children_Allocated_Size
+	     || zmw_subaction_get() == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing
 	     )
 	   )
 	{
-	  zmw.focused = zmw_rectangle_min(&ZMW_SIZE_ALLOCATED, &ZMW_CLIPPING) ;
-	  gdk_window_get_origin(*ZMW_WINDOW, &dx, &dy) ; 
-	  zmw.focused.x += dx ;
-	  zmw.focused.y += dy ;
+	  *zmw_zmw_focused_get() = zmw_rectangle_min(zmw_allocated_get(), zmw_clipping_get()) ;
+	  gdk_window_get_origin(*zmw_window_get(), &dx, &dy) ; 
+	  *zmw_zmw_focused_x_get_ptr() += dx ;
+	  *zmw_zmw_focused_y_get_ptr() += dy ;
 
-	  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+	  if ( zmw_debug_get() & Zmw_Debug_Navigation )
 	    {
-	      zmw_printf("Set Focus to %d,%d %dx%d\n"
-			 , zmw.focused.x    , zmw.focused.y
-			 , zmw.focused.width, zmw.focused.height);
+	      zmw_printf("Set Focus to %s\n"
+			 , zmw_rectangle_string(zmw_zmw_focused_get())) ;
 	    }
 	}
     }
@@ -797,17 +800,17 @@ void zmw_focusable()
  */
 Zmw_Boolean zmw_selection_have()
 {
-  return ( zmw_name_is(&global_zmw_selection) ) ;
+  return ( zmw_name_is(global_zmw_selection) ) ;
 }
 
 void zmw_selection_take()
 {
-  zmw_name_register(&global_zmw_selection) ;
+  zmw_name_register(global_zmw_selection) ;
 }
 
 void zmw_selection_clear()
 {
-  zmw_name_unregister(&global_zmw_selection) ;
+  zmw_name_unregister(global_zmw_selection) ;
 }
 
 
@@ -817,33 +820,33 @@ void zmw_selection_clear()
 
 void zmw_event_button_release()
 {
-  zmw_name_unregister(&global_zmw_selected) ;
+  zmw_name_unregister(global_zmw_selected) ;
 }
 
 void zmw_activable()
 {
-  if (  zmw_event_to_process() && zmw.event->type == GDK_BUTTON_PRESS )
+  if (  zmw_event_to_process() && zmw_zmw_event_get()->type == GDK_BUTTON_PRESS )
     {
-      if ( zmw_name_registered(&global_zmw_selected) )
+      if ( zmw_name_registered(global_zmw_selected) )
 	{
 	  /* A children has been selected */
 	  return ;
 	}
-      zmw_name_register(&global_zmw_selected) ;
+      zmw_name_register(global_zmw_selected) ;
     }
   else
     {
       if ( 
-	  ZMW_SUBACTION == Zmw_Input_Event
-	  && !zmw.event_removed
-	  && zmw.event
-	  && zmw.event->type == GDK_BUTTON_RELEASE
-	  && (zmw_name_is_inside(&global_inner_visible_menu) || zmw_selected())
+	  zmw_subaction_get() == Zmw_Input_Event
+	  && !zmw_zmw_event_removed_get()
+	  && zmw_zmw_event_get()
+	  && zmw_zmw_event_get()->type == GDK_BUTTON_RELEASE
+	  && (zmw_name_is_inside(global_inner_visible_menu) || zmw_selected())
 	  )
 	{
-	  if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
+	  if ( zmw_event_in_rectangle_get() )
 	    {
-	      ZMW_SIZE_ACTIVATED = Zmw_True ;
+	      zmw_activated_set(Zmw_True) ;
 	      zmw_need_repaint() ;
 	    }
 	}
@@ -857,11 +860,11 @@ void zmw_activable()
 Zmw_Boolean zmw_accelerator(GdkModifierType state, int character)
 {
   if (
-      ZMW_ACTION == zmw_action_dispatch_accelerator
-      && !zmw.event_removed
-      && zmw.event->type == GDK_KEY_PRESS
-      && toupper(zmw.event->key.keyval) == toupper(character)
-      && zmw.event->key.state == state
+      zmw_action_get() == zmw_action_dispatch_accelerator
+      && !zmw_zmw_event_removed_get()
+      && zmw_zmw_event_get()->type == GDK_KEY_PRESS
+      && toupper(zmw_zmw_event_get()->key.keyval) == toupper(character)
+      && zmw_zmw_event_get()->key.state == state
       )
     {
       zmw_need_repaint() ;
@@ -885,38 +888,39 @@ Zmw_Boolean zmw_tip_visible()
 
   v = 0 ;
 
-  ZMW_SIZE_PASS_THROUGH = Zmw_True ;
+  zmw_pass_through_set(Zmw_True) ;
   
   /* When searching, the tip_displayed is updated
    * In the other cases, test if the tip is displayed
    */
   
-  if ( zmw.zmw_table[1].i.action == zmw_action_search )
+  if ( zmw_zmw_table_get()[1].i.action == zmw_action_search )
     {
       /* Set tip on the first inner most widget containing "found" */
-      if ( ! zmw_name_registered(&zmw.tip_displayed) )
+      if ( ! zmw_name_registered(zmw_zmw_tip_displayed_get()) )
 	{
 	  if ( zmw_event_in_rectangle_previous() )
 	    {
-	      zmw_name_register(& zmw.tip_displayed) ;
+	      zmw_name_register(zmw_zmw_tip_displayed_get()) ;
 	    }
 	}
     }
   else
     {
-      if ( zmw.tips_yet_displayed && zmw_name_registered(&zmw.tip_displayed) )
+      if ( zmw_zmw_tips_yet_displayed_get() && zmw_name_registered(zmw_zmw_tip_displayed_get()) )
 	{
-	  if ( zmw_name_is(&zmw.tip_displayed) )
+	  if ( zmw_name_is(zmw_zmw_tip_displayed_get()) )
 	    {
-	      v = ZMW_SIZE_TIP_VISIBLE = Zmw_True ;
+	      v = Zmw_True ;
+	      zmw_tip_visible_set(v) ;
 	    }
 	  else
 	    {
 	      /* Search another tip before */
-	      for(i = ZMW_CHILD_NUMBER - 1 ;
-		  i>0 && zMw[-1].u.children[i].pass_through ; i--)
+	      for(i = zmw_child_number_get() - 1 ;
+		  i>0 && zmw_parent__children_get()[i].pass_through ; i--)
 		{
-		  if ( zMw[-1].u.children[i].tip_visible )
+		  if ( zmw_parent__children_get()[i].tip_visible )
 		    {
 		      v = Zmw_True ;
 		      break ;
@@ -929,6 +933,17 @@ Zmw_Boolean zmw_tip_visible()
   return(v) ;
 }
 
+/*
+ *
+ */
+
+void zmw_event_initialize()
+{
+  zmw_name_initialize(&global_zmw_selected      , "Selected" ) ;
+  zmw_name_initialize(&global_zmw_selection     , "Selection") ;
+  zmw_name_initialize(&global_zmw_cursor        , "Cursor"   ) ;
+  zmw_name_initialize(&global_inner_visible_menu, "Menu"     ) ;
+}
 
 
 /*
@@ -944,25 +959,25 @@ void zmw_event_debug_window()
   char buf[9999] ;
   int dir ;
   
-  found = zmw_name_registered(&zmw.found) ;
+  found = zmw_name_registered(zmw_zmw_found_get()) ;
 
   ZMW(zmw_vbox())
     {
       zmw_check_button_int_with_label(&display_zmw, "zmw") ;
       if ( display_zmw )
 	{
-	  sprintf(buf, "event=%p", zmw.event) ;
+	  sprintf(buf, "event=%p", zmw_zmw_event_get()) ;
 	  zmw_label(buf) ;	  
 
-	  if ( zmw.event )
-	    switch(zmw.event->type)
+	  if ( zmw_zmw_event_get() )
+	    switch(zmw_zmw_event_get()->type)
 	      {
 		C(GDK_KEY_PRESS) ;
 		C(GDK_KEY_RELEASE) ;
 		sprintf(buf, "state=%d code=%x string=\"%s\""
-			, zmw.event->key.state
-			, zmw.event->key.keyval
-			, zmw.event->key.string
+			, zmw_zmw_event_get()->key.state
+			, zmw_zmw_event_get()->key.keyval
+			, zmw_zmw_event_get()->key.string
 			) ;
 		zmw_label(buf) ;
 		break ;
@@ -975,30 +990,30 @@ void zmw_event_debug_window()
 		C(GDK_BUTTON_RELEASE) ; break ;
 
 	      default:
-		sprintf(buf, "type=%d", zmw.event->type) ;
+		sprintf(buf, "type=%d", zmw_zmw_event_get()->type) ;
 		zmw_label(buf) ;
 		  
 	      }
 
 	  sprintf(buf, "x=%d y=%d "
-		  , zmw.x
-		  , zmw.y
+		  , zmw_zmw_x_get()
+		  , zmw_zmw_y_get()
 		  ) ;
 	  zmw_label(buf) ;
 
-	  if ( zmw_name_registered(&zmw.tip_displayed) )
+	  if ( zmw_name_registered(zmw_zmw_tip_displayed_get()) )
 	    {
-	      sprintf(buf, "TIP=%s",  zmw_name_registered(&zmw.tip_displayed));
+	      sprintf(buf, "TIP=%s",  zmw_name_registered(zmw_zmw_tip_displayed_get()));
 	      zmw_label(buf) ;
 	    }
-	  sprintf(buf, "inner_menu = %s", global_inner_visible_menu.name) ;
+	  sprintf(buf, "inner_menu = %s", zmw_name_registered(global_inner_visible_menu)) ;
 	  zmw_label(buf) ;
-	  sprintf(buf, "zmw.tips_yet_displayed = %d", zmw.tips_yet_displayed) ;
+	  sprintf(buf, "zmw_tips_yet_displayed = %d", zmw_zmw_tips_yet_displayed_get()) ;
 	  zmw_label(buf) ;
-	  sprintf(buf, "zmw.still_yet_displayed = %d",zmw.still_yet_displayed);
+	  sprintf(buf, "zmw_still_yet_displayed = %d",zmw_zmw_still_yet_displayed_get());
 	  zmw_label(buf) ;
 
-	  sprintf(buf,"SELECTED=%s",zmw_name_registered(&global_zmw_selected));
+	  sprintf(buf,"SELECTED=%s",zmw_name_registered(global_zmw_selected));
 	  zmw_label(buf) ;
 	  sprintf(buf, "FOUND=%s", found) ;
 	  zmw_label(buf) ;
@@ -1013,9 +1028,8 @@ void zmw_event_debug_window()
 		      ) ;
 	      zmw_label(buf) ;
 	    }
-	  sprintf(buf, "focused: (%d,%d %dx%d)"
-		  , zmw.focused.x, zmw.focused.y
-		  , zmw.focused.width, zmw.focused.height) ;
+	  sprintf(buf, "focused: %s"
+		  , zmw_rectangle_string(zmw_zmw_focused_get())) ;
 	  zmw_label(buf) ;
 	}
     }

@@ -62,12 +62,12 @@ start_xvfb() {
     if true
     then
       # depth 32 does NOT work, the "xwd" command does not work correctly
-      Xvfb :$ZMW_XVFBN -ac -screen 0 ${RESOLUTION}x24 -noreset || touch xxx.bad &
+      Xvfb :$ZMW_XVFBN -ac -screen 0 ${RESOLUTION}x24 -noreset &
     else
-      Xnest :$ZMW_XVFBN -ac -noreset || touch xxx.bad &
-    fi
+      Xnest :$ZMW_XVFBN -ac -noreset &
+    fi >xxx.bad
     sleep 1
-    if [ -f xxx.bad ]
+    if [ `fgrep -c "Fatal server error" xxx.bad` = "1" ]
     then
       echo "Server X yet running on $ZMW_XVFBN, take the next" >&2
       export ZMW_XVFBN=`expr $ZMW_XVFBN + 1`
@@ -79,6 +79,7 @@ start_xvfb() {
 
   export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
   export ZMW_XVFB_PID=$!
+  echo "Starting X11 server: $ZMW_XVFB_PID"
   trap stop_xvfb 0 1 2 3
   xsetroot -display $ZMW_XVFB -solid white
   # Clear the keyboard
@@ -114,13 +115,15 @@ start_xvfb() {
    -e "add Mod2 = Meta_L" \
    -e "add Control = Control_L"
   fvwm2 -display $ZMW_XVFB -f `pwd`/.fvwm2rc &
+  sleep 1
 }
 
 stop_xvfb() {
   if [ "" = "$ZMW_XVFB_PID" ]
   then
-    echo "Stoping a not started X11 server ?" >&2
+    echo "Stopping a not started X11 server ?" >&2
   else
+    echo "Stopping X11 server: $ZMW_XVFB_PID"
     kill "$ZMW_XVFB_PID" >/dev/null 2>&1
   fi
 }

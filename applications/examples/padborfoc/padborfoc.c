@@ -4,15 +4,16 @@
 
 void rectangle(/* any parameter you may want */)
 {
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = ZMW_SIZE_MIN.height = 1 ; break ;
+      zmw_min_width_set(1) ;
+      zmw_min_height_set(1) ;
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
       zmw_draw_rectangle(Zmw_Color_Foreground, Zmw_True
-	 , ZMW_SIZE_ALLOCATED.x    , ZMW_SIZE_ALLOCATED.y
-	 , ZMW_SIZE_ALLOCATED.width, ZMW_SIZE_ALLOCATED.height
-	 ) ;
+			 ,zmw_allocated_x_get(), zmw_allocated_y_get()
+			 ,zmw_allocated_width_get(), zmw_allocated_height_get()
+			 ) ;
       break ;
     default:
       break ;

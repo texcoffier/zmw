@@ -84,7 +84,7 @@ void test_image(const char *title)
       images = popen("find / '(' -name '*.gif' -o -name '*.jpg' -o -name '*.png' ')'"
 		     , "r") ;
     }
-  if ( ZMW_SUBACTION == Zmw_Input_Event && nb_images < 100 )
+  if ( zmw_subaction_get() == Zmw_Input_Event && nb_images < 100 )
     while ( something_to_read(images) )
       {
 	ZMW_REALLOC(image_names, nb_images+1) ;

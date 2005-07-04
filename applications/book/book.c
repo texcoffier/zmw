@@ -193,7 +193,7 @@ void take_focus(Library_GUI *gui)
 {
   if ( gui->take_focus )
     {
-      zmw_name_register(ZMW_FOCUS) ;
+      zmw_name_register(zmw_focus_get()) ;
       gui->take_focus = Zmw_False ;
     }
 }

@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 
 #define P 18
@@ -33,7 +34,7 @@ Zmw_Float_0_1 zmw_scrollbar_size(int sb_size, int vp_size)
 {
   Zmw_Float_0_1 size ;
 
-  sb_size -= 2 * ZMW_BORDER_WIDTH ;	
+  sb_size -= 2 * zmw_border_width_get() ;	
   size = sb_size / (float)vp_size ;
   if ( size > 1 )
     size = 1 ;
@@ -46,16 +47,16 @@ void zmw_viewport_get_children(int *v_sb, int *h_sb, int *vp)
 {
   int i ;
   
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+  for(i=0; i<zmw_nb_of_children_get(); i++)
+    if ( zmw_child__used_by_parent_get(i) )
       {
 	*v_sb = i++ ;
-	for(; i<ZMW_NB_OF_CHILDREN; i++)
-	  if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+	for(; i<zmw_nb_of_children_get(); i++)
+	  if ( zmw_child__used_by_parent_get(i) )
 	    {
 	      *h_sb = i++ ;
-	      for(; i<ZMW_NB_OF_CHILDREN; i++)
-		if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+	      for(; i<zmw_nb_of_children_get(); i++)
+		if ( zmw_child__used_by_parent_get(i) )
 		  {
 		    *vp = i++ ;
 		    return ;
@@ -68,15 +69,15 @@ void zmw_viewport_get_children(int *v_sb, int *h_sb, int *vp)
 void zmw_scrollbar_needed(Zmw_Boolean *x, Zmw_Boolean *y,
 		int v_sb, int h_sb, int vp)
 {
-  *x = ZMW_SIZE_ALLOCATED.width
-    < ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width + P ;
-  *y = ZMW_SIZE_ALLOCATED.height
-    < ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width + P ;
+  *x = zmw_allocated_width_get()
+    < zmw_child__required_width_get(vp) + 2*zmw_child__padding_width_get(vp) + P ;
+  *y = zmw_allocated_height_get()
+    < zmw_child__required_height_get(vp) + 2*zmw_child__padding_width_get(vp) + P ;
 
   if ( ! *x )
-    ZMW_CHILDREN[h_sb].invisible = Zmw_True ;
+    zmw_child__invisible_set(h_sb,Zmw_True) ;
   if ( ! *y )
-    ZMW_CHILDREN[v_sb].invisible = Zmw_True ;	
+    zmw_child__invisible_set(v_sb,Zmw_True) ;	
 }	
  
 
@@ -85,22 +86,22 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
   Zmw_Boolean x_sb, y_sb ;
   int v_sb, h_sb, vp ; // Indexes in CHILDREN list
 
-  if ( ZMW_NB_OF_CHILDREN == 3 )
+  if ( zmw_nb_of_children_get() == 3 )
     zmw_viewport_get_children(&v_sb, &h_sb, &vp) ;
   else
     {
-      if ( ZMW_CALL_NUMBER != 0 )
+      if ( zmw_call_number_get() != 0 )
 	{
-	  zmw_printf("nb=%d\n", ZMW_NB_OF_CHILDREN) ;
+	  zmw_printf("nb=%d\n", zmw_nb_of_children_get()) ;
 	  zmw_debug_trace() ;
 	}
     }
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = 4*P ;
-      ZMW_SIZE_MIN.height = 4*P ;
+      zmw_min_width_set(4*P) ;
+      zmw_min_height_set(4*P) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size:
@@ -108,47 +109,47 @@ void zmw_viewport(Zmw_Float_0_1 x, Zmw_Float_0_1 y, Zmw_Float_0_1 *x_size, Zmw_F
 
       zmw_scrollbar_needed(&x_sb, &y_sb, v_sb, h_sb, vp) ;
 
-      if ( ZMW_NB_OF_CHILDREN != 3 )
+      if ( zmw_nb_of_children_get() != 3 )
 	ZMW_ABORT ;
 	
 
-      ZMW_CHILDREN[v_sb].allocated.x = ZMW_SIZE_ALLOCATED.x
-	+ ZMW_SIZE_ALLOCATED.width
-	+ ZMW_CHILDREN[v_sb].current_state.padding_width
-	- P ;
-      ZMW_CHILDREN[v_sb].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[v_sb].current_state.padding_width ;
-      ZMW_CHILDREN[v_sb].allocated.width = P - 2*ZMW_CHILDREN[v_sb].current_state.padding_width ;
-      ZMW_CHILDREN[v_sb].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[v_sb].current_state.padding_width ;
+      zmw_child__allocated_x_set(v_sb,zmw_allocated_x_get()
+	+ zmw_allocated_width_get()
+	+ zmw_child__padding_width_get(v_sb)
+	- P) ;
+      zmw_child__allocated_y_set(v_sb,zmw_allocated_y_get() + zmw_child__padding_width_get(v_sb)) ;
+      zmw_child__allocated_width_set(v_sb,P - 2*zmw_child__padding_width_get(v_sb)) ;
+      zmw_child__allocated_height_set(v_sb,zmw_allocated_height_get() - P*x_sb - 2*zmw_child__padding_width_get(v_sb)) ;
       
-      ZMW_CHILDREN[h_sb].allocated.y = ZMW_SIZE_ALLOCATED.y
-	+ ZMW_SIZE_ALLOCATED.height
-	+ ZMW_CHILDREN[h_sb].current_state.padding_width
-	- P ;
-      ZMW_CHILDREN[h_sb].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[h_sb].current_state.padding_width ;
-      ZMW_CHILDREN[h_sb].allocated.height = P - 2*ZMW_CHILDREN[h_sb].current_state.padding_width ;
-      ZMW_CHILDREN[h_sb].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[h_sb].current_state.padding_width ;
+      zmw_child__allocated_y_set(h_sb,zmw_allocated_y_get()
+	+ zmw_allocated_height_get()
+	+ zmw_child__padding_width_get(h_sb)
+	- P) ;
+      zmw_child__allocated_x_set(h_sb,zmw_allocated_x_get() + zmw_child__padding_width_get(h_sb)) ;
+      zmw_child__allocated_height_set(h_sb,P - 2*zmw_child__padding_width_get(h_sb)) ;
+      zmw_child__allocated_width_set(h_sb,zmw_allocated_width_get() - P*y_sb - 2*zmw_child__padding_width_get(h_sb)) ;
 
            
 
-      ZMW_CHILDREN[vp].allocated.width = ZMW_SIZE_ALLOCATED.width - P*y_sb - 2*ZMW_CHILDREN[vp].current_state.padding_width ;
-      ZMW_CHILDREN[vp].allocated.height = ZMW_SIZE_ALLOCATED.height - P*x_sb - 2*ZMW_CHILDREN[vp].current_state.padding_width ;
-      ZMW_CHILDREN[vp].allocated.x = ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[vp].current_state.padding_width ;
-      ZMW_CHILDREN[vp].allocated.y = ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[vp].current_state.padding_width ;
+      zmw_child__allocated_width_set(vp,zmw_allocated_width_get() - P*y_sb - 2*zmw_child__padding_width_get(vp)) ;
+      zmw_child__allocated_height_set(vp,zmw_allocated_height_get() - P*x_sb - 2*zmw_child__padding_width_get(vp)) ;
+      zmw_child__allocated_x_set(vp,zmw_allocated_x_get() + zmw_child__padding_width_get(vp)) ;
+      zmw_child__allocated_y_set(vp,zmw_allocated_y_get() + zmw_child__padding_width_get(vp)) ;
 
-      *x_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.width - P*y_sb
-				   , ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
-      *y_size = zmw_scrollbar_size(ZMW_SIZE_ALLOCATED.height - P*x_sb
-				   , ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
+      *x_size = zmw_scrollbar_size(zmw_allocated_width_get() - P*y_sb
+				   , zmw_child__required_width_get(vp) + 2*zmw_child__padding_width_get(vp)) ;
+      *y_size = zmw_scrollbar_size(zmw_allocated_height_get() - P*x_sb
+				   , zmw_child__required_height_get(vp) + 2*zmw_child__padding_width_get(vp)) ;
       
       r->x =
 	- zmw_scrollbar_2_viewport(x
-				   ,ZMW_CHILDREN[h_sb].required.width + 2*ZMW_CHILDREN[h_sb].current_state.padding_width
-				   ,ZMW_CHILDREN[vp].required.width + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
+				   ,zmw_child__required_width_get(h_sb) + 2*zmw_child__padding_width_get(h_sb)
+				   ,zmw_child__required_width_get(vp) + 2*zmw_child__padding_width_get(vp)) ;
       
       r->y =
 	- zmw_scrollbar_2_viewport(y
-				   ,ZMW_CHILDREN[v_sb].required.height + 2*ZMW_CHILDREN[v_sb].current_state.padding_width
-				   ,ZMW_CHILDREN[vp].required.height + 2*ZMW_CHILDREN[vp].current_state.padding_width) ;
+				   ,zmw_child__required_height_get(v_sb) + 2*zmw_child__padding_width_get(v_sb)
+				   ,zmw_child__required_height_get(vp) + 2*zmw_child__padding_width_get(vp)) ;
 
       break ;
     case Zmw_Input_Event:
@@ -195,7 +196,7 @@ void zmw_viewport_with_scrollbar(Zmw_Float_0_1 *x, Zmw_Float_0_1 *y)
 	  depth-- ;
 	}
     }   
-  ZMW_SIZE_ACTIVATED = activated[depth] ;
+  zmw_activated_set(activated[depth]) ;
   ZMW_EXTERNAL_STOP ;
 }
 

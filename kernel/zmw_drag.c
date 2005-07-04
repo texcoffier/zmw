@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 
 /*
  *
@@ -44,8 +45,8 @@ typedef enum zmw_drag_to
 
 
 
-static Zmw_Name global_zmw_drag_from = ZMW_NAME_UNREGISTERED("Drag From") ;
-static Zmw_Name global_zmw_drag_to = ZMW_NAME_UNREGISTERED("Drag To") ;
+static Zmw_Name *global_zmw_drag_from = NULL ;
+static Zmw_Name *global_zmw_drag_to = NULL ;
 static char * global_zmw_drag_data = NULL ;
 static Zmw_Boolean global_zmw_drag_accepted = Zmw_False;
 static Zmw_Boolean global_zmw_drag_drop = Zmw_False ;
@@ -54,23 +55,23 @@ void zmw_drag_printf(char *format, ...)
 {
   va_list ap;
 
-  if ( ZMW_DEBUG & Zmw_Debug_Drag )
+  if ( zmw_debug_get() & Zmw_Debug_Drag )
     {
       fprintf(stderr,"%10s->%-10s %10s acpt=%d dd=%d data=%p cn=%s/%d uw=%d\t"
-	      , global_zmw_drag_from.name
-	      , global_zmw_drag_to.name
+	      , zmw_name_registered(global_zmw_drag_from)
+	      , zmw_name_registered(global_zmw_drag_to)
 	      , zmw_name_full
 	      , global_zmw_drag_accepted
 	      , global_zmw_drag_drop
 	      , global_zmw_drag_data
 	      , zmw_action_name_fct()+11
-	      , ZMW_CALL_NUMBER
+	      , zmw_call_number_get()
 	      , zmw_use_window_from_button_press_get()
 	      ) ;
       // zmw_debug_trace() ;
       
       va_start(ap, format);
-      vfprintf(stderr, format, ap );
+      vfprintf(stderr, format, ap) ;
       va_end(ap);
     }
 }
@@ -79,9 +80,9 @@ void zmw_drag_printf(char *format, ...)
 
 void zmw_drag_debug(FILE *f)
 {
-  fprintf(f, "action  : %p\n", ZMW_ACTION) ;
-  fprintf(f, "from    : %s\n", zmw_name_registered(&global_zmw_drag_from)) ;
-  fprintf(f, "to      : %s\n", zmw_name_registered(&global_zmw_drag_to)) ;
+  fprintf(f, "action  : %p\n", zmw_action_get()) ;
+  fprintf(f, "from    : %s\n", zmw_name_registered(global_zmw_drag_from)) ;
+  fprintf(f, "to      : %s\n", zmw_name_registered(global_zmw_drag_to)) ;
   fprintf(f, "accepted: %d\n", global_zmw_drag_accepted) ;
   fprintf(f, "data    : %s\n", global_zmw_drag_data) ;
 }
@@ -89,11 +90,11 @@ void zmw_drag_debug(FILE *f)
 void zmw_drag_cancel()
 {
   zmw_drag_printf("drag_cancel\n") ;
-  if ( zmw_name_registered(&global_zmw_drag_from) )
+  if ( zmw_name_registered(global_zmw_drag_from) )
     {
       zmw_drag_printf("drag_cancel in\n") ;
-      zmw_name_unregister(&global_zmw_drag_from) ;
-      zmw_name_unregister(&global_zmw_drag_to) ;
+      zmw_name_unregister(global_zmw_drag_from) ;
+      zmw_name_unregister(global_zmw_drag_to) ;
 
       zmw_use_window_from_button_press(Zmw_True) ;
       
@@ -125,21 +126,23 @@ Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
    * Attention: drag_from_started/drag_from_stopped mus be called
    * before drag_from_running.
    */
-  static Zmw_Name last = ZMW_NAME_UNREGISTERED("private: drag_from") ;
+  static Zmw_Name *last = NULL ;
   static Zmw_Drag_From computed ;
   static int last_call_number = -1 ;
 
+  zmw_name_initialize(&last, "private: drag_from") ;
+
   if ( in_zmw_parameter 
-       || (zmw_name_is(&last) && ZMW_CALL_NUMBER == last_call_number )
+       || (zmw_name_is(last) && zmw_call_number_get() == last_call_number )
        )
     return computed ;
   
-  zmw_name_register(&last) ;
-  last_call_number = ZMW_CALL_NUMBER ;
+  zmw_name_register(last) ;
+  last_call_number = zmw_call_number_get() ;
   
  if ( global_zmw_drag_drop
-      && ZMW_SUBACTION == Zmw_Input_Event
-      && zmw_name_is(&global_zmw_drag_from)
+      && zmw_subaction_get() == Zmw_Input_Event
+      && zmw_name_is(global_zmw_drag_from)
       )
     {
       /*
@@ -158,7 +161,7 @@ Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
 	*/
        zmw_drag_printf("start of drag IN\n") ;
        ZMW_ASSERT( global_zmw_drag_drop == Zmw_False ) ;
-       zmw_name_register(&global_zmw_drag_from) ;
+       zmw_name_register(global_zmw_drag_from) ;
        zmw_event_remove() ;
        zmw_need_dispatch() ;
        zmw_need_repaint() ;
@@ -166,7 +169,7 @@ Zmw_Drag_From zmw_drag_from_state_compute(Zmw_Boolean in_zmw_parameter)
        computed = Zmw_Drag_From_Begin ;
        zmw_drag_printf("start of drag OUT\n") ;
      }
-   else if ( zmw_name_is(&global_zmw_drag_from) )
+   else if ( zmw_name_is(global_zmw_drag_from) )
      {
        /*
 	* Running drag
@@ -223,12 +226,14 @@ void zmw_drag_data_set(const char *data)
 
 Zmw_Drag_To zmw_drag_to_state_compute()
 {
-  static Zmw_Name last = ZMW_NAME_UNREGISTERED("private: drag_to") ;
+  static Zmw_Name *last = NULL ;
   static Zmw_Drag_To computed ;
   static int last_call_number = -1 ;
 
-  if ( ZMW_SUBACTION != Zmw_Input_Event
-       || !zmw_name_registered(&global_zmw_drag_from)
+  zmw_name_initialize(&last, "private: drag_to") ;
+
+  if ( zmw_subaction_get() != Zmw_Input_Event
+       || !zmw_name_registered(global_zmw_drag_from)
        )
     {
       zmw_drag_printf("zmw_drag_to_state_compute : Zmw_Drag_To_No_Change\n") ;
@@ -236,15 +241,15 @@ Zmw_Drag_To zmw_drag_to_state_compute()
       return Zmw_Drag_To_No_Change ;
     }
 
-  if ( zmw_name_is(&last) && last_call_number == ZMW_CALL_NUMBER )
+  if ( zmw_name_is(last) && last_call_number == zmw_call_number_get() )
     {
       zmw_drag_printf("zmw_drag_to_state_compute : return cached %d\n",
 		      computed) ;
       return computed ;
     }
 
-  last_call_number = ZMW_CALL_NUMBER ;
-  zmw_name_register(&last) ;
+  last_call_number = zmw_call_number_get() ;
+  zmw_name_register(last) ;
 
   zmw_widget_is_tested() ;
   /*
@@ -262,30 +267,30 @@ Zmw_Drag_To zmw_drag_to_state_compute()
     }
   else
     {
-      zmw_drag_printf("%s eir=%d\n", zmw_name_full,ZMW_SIZE_EVENT_IN_RECTANGLE) ;
+      zmw_drag_printf("%s eir=%d\n", zmw_name_full,zmw_event_in_rectangle_get()) ;
 
-      if ( ZMW_SIZE_EVENT_IN_RECTANGLE )
+      if ( zmw_event_in_rectangle_get() )
 	{
 	  /*
-	   * ZMW_SIZE_EVENT_IN_RECTANGLE value is incorrect on dispatch_event/3
+	   * zmw_event_in_rectangle_get() value is incorrect on dispatch_event/3
 	   * The bug bug should diseapear in the future
-	   * when zMw->u.size will be removed.
+	   * when zmw_size_get() will be removed.
 	   * It is this bug that give randomness to regression test draganddrop
 	   */
 	  /* The drag area contains the cursor */
-	  if ( zmw_name_is(&global_zmw_drag_to) )
+	  if ( zmw_name_is(global_zmw_drag_to) )
 	    computed = Zmw_Drag_To_No_Change ;
 	  else
 	    {
-	      if ( zmw_name_contains(&global_zmw_drag_to) )
+	      if ( zmw_name_contains(global_zmw_drag_to) )
 		computed = Zmw_Drag_To_No_Change ;
-	      else if ( zmw_name_registered(&global_zmw_drag_to) )
+	      else if ( zmw_name_registered(global_zmw_drag_to) )
 		computed = Zmw_Drag_To_No_Change ;
 	      else
 		{
 		  zmw_drag_printf("drag to enter IN\n") ;
 		  zmw_event_remove() ;
-		  zmw_name_register(&global_zmw_drag_to) ;
+		  zmw_name_register(global_zmw_drag_to) ;
 		  zmw_need_dispatch() ;
 		  zmw_drag_printf("drag to enter OUT\n") ;
 		  computed = Zmw_Drag_To_Enter ;
@@ -296,11 +301,11 @@ Zmw_Drag_To zmw_drag_to_state_compute()
 	{
 	  
 	  /* The drag area does not contains cursor */
-	  if ( zmw_name_is(&global_zmw_drag_to) )
+	  if ( zmw_name_is(global_zmw_drag_to) )
 	    {
 	      zmw_drag_printf("drag to leave IN\n") ;
 	      zmw_event_remove() ;
-	      zmw_name_unregister(&global_zmw_drag_to) ;
+	      zmw_name_unregister(global_zmw_drag_to) ;
 	      global_zmw_drag_accepted = Zmw_False ;
 	      zmw_need_dispatch() ;
 	      zmw_drag_printf("drag to leave OUT\n") ;
@@ -330,9 +335,9 @@ Zmw_Boolean zmw_drag_to_dropped()
 
 void zmw_drag_to_nothing()
 {
-  if ( zmw_name_registered(&global_zmw_drag_to) )
+  if ( zmw_name_registered(global_zmw_drag_to) )
     {
-      zmw_name_unregister(&global_zmw_drag_to) ;
+      zmw_name_unregister(global_zmw_drag_to) ;
       zmw_need_dispatch() ;
       // global_zmw_drag_accepted = Zmw_False ;
     }
@@ -414,9 +419,9 @@ void zmw_drag_debug_window()
       zmw_check_button_int_with_label(&display_drag_state, "drag state") ;
       if ( display_drag_state )
 	{
-	  sprintf(buf, "FROM=%s", zmw_name_registered(&global_zmw_drag_from)) ;
+	  sprintf(buf, "FROM=%s", zmw_name_registered(global_zmw_drag_from)) ;
 	  zmw_label(buf) ;
-	  sprintf(buf, "TO=%s", zmw_name_registered(&global_zmw_drag_to)) ;
+	  sprintf(buf, "TO=%s", zmw_name_registered(global_zmw_drag_to)) ;
 	  zmw_label(buf) ;
 	  sprintf(buf, "accepted=%d", global_zmw_drag_accepted) ;
 	  zmw_label(buf) ;
@@ -427,4 +432,10 @@ void zmw_drag_debug_window()
 	}
     }
   zmw_border_embossed_in_draw() ;
+}
+
+void zmw_drag_initialize()
+{
+  zmw_name_initialize(&global_zmw_drag_to  , "Drag to"  ) ;
+  zmw_name_initialize(&global_zmw_drag_from, "Drag from") ;
 }

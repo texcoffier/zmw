@@ -19,98 +19,57 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include "zmw/zmw.h"
+#include <zmw/zmw.h>
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
-/*
- * The following lines define the vertical and horizontal boxes
- */
-
-#define C3(A,B,C) A ## B ## C
-
-#define ZMW_HORIZONTAL(A,C) C3(A,horizontal,C)
-#define ZMW_VERTICAL(A,C) C3(A,vertical,C)
-#define ZMW_H(A,C) C3(A,h,C)
-#define ZMW_V(A,C) C3(A,v,C)
-#define X x
-#define Y y
-#define WIDTH width
-#define HEIGHT height
-#include "zmw_box_hv.h"
-
-
-#undef ZMW_HORIZONTAL
-#undef ZMW_VERTICAL
-#undef ZMW_H
-#undef ZMW_V
-#undef X
-#undef Y
-#undef WIDTH
-#undef HEIGHT
-
-#define ZMW_HORIZONTAL(A,C) C3(A,vertical,C)
-#define ZMW_VERTICAL(A,C) C3(A,horizontal,C)
-#define ZMW_H(A,C) C3(A,v,C)
-#define ZMW_V(A,C) C3(A,h,C)
-#define X y
-#define Y x
-#define WIDTH height
-#define HEIGHT width
-#include "zmw_box_hv.h"
-
-
-
-/*
- *
- */
 
 void zmw_box_compute_required_size()
 {
   Zmw_Rectangle c, d ;
   int i ;
 
-  c = ZMW_CHILDREN[0].required ;
-  zmw_padding_add(&c, ZMW_CHILDREN[0].current_state.padding_width) ;
-  for(i=1; i<ZMW_NB_OF_CHILDREN; i++)
-      if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+  c = *zmw_child__required_get(0) ;
+  zmw_padding_add(&c, zmw_child__padding_width_get(0)) ;
+  for(i=1; i<zmw_nb_of_children_get(); i++)
+      if ( zmw_child__used_by_parent_get(i) )
 	{
-	  d = ZMW_CHILDREN[i].required ;
-	  zmw_padding_add(&d, ZMW_CHILDREN[i].current_state.padding_width) ;
+	  d = *zmw_child__required_get(i) ;
+	  zmw_padding_add(&d, zmw_child__padding_width_get(i)) ;
 	  c = zmw_rectangle_max(&d, &c) ;
 	}
 
-  ZMW_SIZE_MIN.width = c.width ;
-  ZMW_SIZE_MIN.height = c.height ;
+  zmw_min_width_set(c.width) ;
+  zmw_min_height_set(c.height) ;
 }
-
 
 void zmw_fixed()
 {
   int i ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      if ( ZMW_NB_OF_CHILDREN )
+      if ( zmw_nb_of_children_get() )
 	{
 	  zmw_box_compute_required_size() ;
 	}
       else
 	{
-	  ZMW_SIZE_MIN.width = 10 ;
-	  ZMW_SIZE_MIN.height = 10 ;
+	  zmw_min_width_set(10) ;
+	  zmw_min_height_set(10) ;
 	}
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
+      for(i=0; i<zmw_nb_of_children_get(); i++)
 	{
-	  if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
+	  if ( !zmw_child__used_by_parent_get(i) )
 	    continue ;
 
-	  ZMW_CHILDREN[i].allocated = ZMW_CHILDREN[i].required ;
-	  ZMW_CHILDREN[i].allocated.x += ZMW_SIZE_ALLOCATED.x + ZMW_CHILDREN[i].current_state.padding_width ;
-	  ZMW_CHILDREN[i].allocated.y += ZMW_SIZE_ALLOCATED.y + ZMW_CHILDREN[i].current_state.padding_width ;
+	  zmw_child__allocated_set(i, zmw_child__required_get(i)) ;
+	  *zmw_child__allocated_x_get_ptr(i) += zmw_allocated_x_get() + zmw_child__padding_width_get(i) ;
+	  *zmw_child__allocated_y_get_ptr(i) += zmw_allocated_y_get() + zmw_child__padding_width_get(i) ;
 	}
       break ;
 

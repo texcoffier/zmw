@@ -19,8 +19,10 @@
     Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-#include <math.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
+
+#include <math.h>
 #include <gdk/gdkkeysyms.h>
 
 static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_1 x_delta, Zmw_Float_0_1 *y, Zmw_Float_0_1 y_size, Zmw_Float_0_1 y_delta)
@@ -29,14 +31,14 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
   int border ;
   Zmw_Float_0_1 new_x, new_y ;
   
-  border = ZMW_BORDER_WIDTH + ZMW_FOCUS_WIDTH ;
+  border = zmw_border_width_get() + zmw_focus_width_get() ;
   zmw_focusable() ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = 16  ;
-      ZMW_SIZE_MIN.height = 16 ;
+      zmw_min_width_set(16 ) ;
+      zmw_min_height_set(16) ;
      break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
@@ -45,24 +47,24 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 		      | (zmw_focused() ? Zmw_Border_Draw_Focus:0)
 		      ) ;
 
-      r.x = ZMW_SIZE_ALLOCATED.x + border +
-	(int)rint((ZMW_SIZE_ALLOCATED.width - 2*border) * *x + 0.5) ;
-      r.y = ZMW_SIZE_ALLOCATED.y + border +
-	(int)rint((ZMW_SIZE_ALLOCATED.height - 2*border) * *y + 0.5) ;
+      r.x = zmw_allocated_x_get() + border +
+	(int)rint((zmw_allocated_width_get() - 2*border) * *x + 0.5) ;
+      r.y = zmw_allocated_y_get() + border +
+	(int)rint((zmw_allocated_height_get() - 2*border) * *y + 0.5) ;
 
-      r.width  = x_size * (ZMW_SIZE_ALLOCATED.width - 2*border) ;
-      r.height = y_size * (ZMW_SIZE_ALLOCATED.height - 2*border) ;   
-      if ( r.width < 2*ZMW_BORDER_WIDTH )
+      r.width  = x_size * (zmw_allocated_width_get() - 2*border) ;
+      r.height = y_size * (zmw_allocated_height_get() - 2*border) ;   
+      if ( r.width < 2*zmw_border_width_get() )
 	{
 	  if ( *x > 0.5 )
-	    r.x -= 2*ZMW_BORDER_WIDTH - r.width ;
-	  r.width = 2*ZMW_BORDER_WIDTH ;
+	    r.x -= 2*zmw_border_width_get() - r.width ;
+	  r.width = 2*zmw_border_width_get() ;
 	}
-      if ( r.height < 2*ZMW_BORDER_WIDTH )
+      if ( r.height < 2*zmw_border_width_get() )
 	{
 	  if ( *y > 0.5 )
-	    r.y -= 2*ZMW_BORDER_WIDTH - r.height ;
-	  r.height = 2*ZMW_BORDER_WIDTH ;
+	    r.y -= 2*zmw_border_width_get() - r.height ;
+	  r.height = 2*zmw_border_width_get() ;
 	}
 
 
@@ -75,11 +77,11 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 
       if ( zmw_selected() )
 	{
-	  new_x = (zmw.x - ZMW_SIZE_ALLOCATED.x - border)
-	    / (float)(ZMW_SIZE_ALLOCATED.width - 2*border) - x_size/2 ;
-	  new_y = (zmw.y - ZMW_SIZE_ALLOCATED.y -border)
-	    / (float)(ZMW_SIZE_ALLOCATED.height - 2*border) - y_size/2 ;
-	  ZMW_SIZE_CHANGED = Zmw_True ;
+	  new_x = (zmw_zmw_x_get() - zmw_allocated_x_get() - border)
+	    / (float)(zmw_allocated_width_get() - 2*border) - x_size/2 ;
+	  new_y = (zmw_zmw_y_get() - zmw_allocated_y_get() -border)
+	    / (float)(zmw_allocated_height_get() - 2*border) - y_size/2 ;
+	  zmw_changed_set(Zmw_True) ;
 	}
       else
 	{
@@ -88,17 +90,17 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
 	}
       if ( zmw_key_pressed() )
 	{	    
-	  if ( zmw.event->key.keyval == GDK_Right )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Right )
 	    new_x += x_delta*x_size ;
-	  if ( zmw.event->key.keyval == GDK_Left )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Left )
 	    new_x -= x_delta*x_size ;
-	  if ( zmw.event->key.keyval == GDK_Up )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Up )
 	    new_y -= y_delta*y_size ;
-	  if ( zmw.event->key.keyval == GDK_Page_Up )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Page_Up )
 	    new_y -= y_size ;
-	  if ( zmw.event->key.keyval == GDK_Down )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Down )
 	    new_y += y_delta*y_size ;
-	  if ( zmw.event->key.keyval == GDK_Page_Down )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_Page_Down )
 	    new_y += y_size ;
 	}
 
@@ -107,11 +109,11 @@ static void zmw_scrollbar2_(Zmw_Float_0_1 *x, Zmw_Float_0_1 x_size, Zmw_Float_0_
       
       if ( new_x != *x || new_y != *y )
 	{
-	  ZMW_SIZE_CHANGED = Zmw_True ;
+	  zmw_changed_set(Zmw_True) ;
 	  *x = new_x ;
 	  *y = new_y ;
 	  if ( zmw_key_pressed() )
-	    ZMW_SIZE_ACTIVATED = Zmw_True ;
+	    zmw_activated_set(Zmw_True) ;
 	}
       break ;
 

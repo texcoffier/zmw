@@ -36,22 +36,14 @@ void expand(const char *title)
 	{
 	  for(i=0; i<ZMW_TABLE_SIZE(hexpand); i++)
 	    {
-	      zmw_horizontal_expand(hexpand[i]) ;
 	      zmw_vertical_expand(vexpand[i]) ;
-	      zmw_horizontal_alignment(halign[i]) ;
+	      zmw_horizontal_expand(hexpand[i]) ;
 	      zmw_vertical_alignment(valign[i]) ;
+	      zmw_horizontal_alignment(halign[i]) ;
 	      ZMW(zmw_vbox())
 		{
 		  zmw_horizontal_expand(0) ;
 		  zmw_vertical_expand(0) ;
-		  zmw_check_button_int_with_label(&hexpand[i], "Horizontal Expand") ;
-		  zmw_label("Horizontal Alignment") ;
-		  ZMW(zmw_hbox())
-		    {
-		      zmw_radio_button(&halign[i], -1) ;
-		      zmw_radio_button(&halign[i], 0) ;
-		      zmw_radio_button(&halign[i], 1) ;
-		    }
 		  zmw_check_button_int_with_label(&vexpand[i], "Vertical Expand") ;
 		  zmw_label("Vertical Alignment") ;
 		  ZMW(zmw_hbox())
@@ -59,6 +51,15 @@ void expand(const char *title)
 		      zmw_radio_button(&valign[i], -1) ;
 		      zmw_radio_button(&valign[i], 0) ;
 		      zmw_radio_button(&valign[i], 1) ;
+		    }
+
+		  zmw_check_button_int_with_label(&hexpand[i], "Horizontal Expand") ;
+		  zmw_label("Horizontal Alignment") ;
+		  ZMW(zmw_hbox())
+		    {
+		      zmw_radio_button(&halign[i], -1) ;
+		      zmw_radio_button(&halign[i], 0) ;
+		      zmw_radio_button(&halign[i], 1) ;
 		    }
 
 		}

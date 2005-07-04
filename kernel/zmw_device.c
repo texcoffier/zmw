@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 
 static GdkVisual *global_visual = NULL ;
 
@@ -60,10 +61,10 @@ Zmw_Boolean zmw_draw_set_gc(Zmw_Color c)
 {
   GdkColor color ;
 
-  if ( ZMW_ACTION == zmw_action_draw )
+  if ( zmw_action_get() == zmw_action_draw )
     {
-      color.pixel = ZMW_COLORS[c] ;
-      gdk_gc_set_foreground(ZMW_GC, &color) ;
+      color.pixel = zmw_colors_get()[c] ;
+      gdk_gc_set_foreground(zmw_gc_get(), &color) ;
       return Zmw_True ;
     }
   return Zmw_False ;
@@ -74,7 +75,7 @@ void zmw_draw_line(Zmw_Color c, Zmw_Position x1, Zmw_Position y1
 		   , Zmw_Position x2, Zmw_Position y2)
 {
   if ( zmw_draw_set_gc(c) )
-    gdk_draw_line(*ZMW_WINDOW, ZMW_GC, x1, y1, x2, y2) ;
+    gdk_draw_line(*zmw_window_get(), zmw_gc_get(), x1, y1, x2, y2) ;
 }
 
 void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
@@ -82,14 +83,14 @@ void zmw_draw_rectangle(Zmw_Color c, Zmw_Boolean filled
 			, Zmw_Size width, Zmw_Size height)
 {
   if ( zmw_draw_set_gc(c) )
-    gdk_draw_rectangle(*ZMW_WINDOW, ZMW_GC, filled, x, y, width, height) ;
+    gdk_draw_rectangle(*zmw_window_get(), zmw_gc_get(), filled, x, y, width, height) ;
 }
 
 void zmw_pixbuf_render_to_drawable(GdkPixbuf *pb
 				   , Zmw_Position x, Zmw_Position y)
 {
-  if ( ZMW_ACTION == zmw_action_draw )
-    gdk_pixbuf_render_to_drawable(pb, *ZMW_WINDOW, ZMW_GC, 0, 0
+  if ( zmw_action_get() == zmw_action_draw )
+    gdk_pixbuf_render_to_drawable(pb, *zmw_window_get(), zmw_gc_get(), 0, 0
 				  , x
 				  , y
 				  , gdk_pixbuf_get_width(pb)
@@ -103,11 +104,11 @@ void zmw_draw_clip_set()
 {
   GdkRectangle clipping ;
 
-  clipping.x = ZMW_CLIPPING.x ;
-  clipping.y = ZMW_CLIPPING.y ;
-  clipping.width = ZMW_CLIPPING.width ;
-  clipping.height = ZMW_CLIPPING.height ;
-  gdk_gc_set_clip_rectangle(ZMW_GC, &clipping) ;
+  clipping.x = zmw_clipping_get()->x ;
+  clipping.y = zmw_clipping_get()->y ;
+  clipping.width = zmw_clipping_get()->width ;
+  clipping.height = zmw_clipping_get()->height ;
+  gdk_gc_set_clip_rectangle(zmw_gc_get(), &clipping) ;
 }
 
 /*
@@ -281,7 +282,7 @@ void zmw_text_init(int pango_cache)
 
   pango_context_set_language(zmw_g_context
 			     , pango_language_from_string("en_US")
-			     );
+			    ) ;
   pango_context_set_base_dir(zmw_g_context, PANGO_DIRECTION_LTR);
 
   zmw_g_font_description = pango_font_description_new() ;
@@ -327,10 +328,10 @@ void zmw_text_render(Zmw_Color c, Zmw_Position xx, Zmw_Position yy)
   if ( zmw_draw_set_gc(c) )
     {
       zmw_text_update_values() ;
-      gdk_window_get_internal_paint_info(*ZMW_WINDOW, &d, &x, &y) ;
+      gdk_window_get_internal_paint_info(*zmw_window_get(), &d, &x, &y) ;
       pango_x_render_layout(GDK_DISPLAY()
 			    , GDK_WINDOW_XWINDOW(d)
-			    , GDK_GC_XGC(ZMW_GC)
+			    , GDK_GC_XGC(zmw_gc_get())
 			    , zmw_g_layout
 			    , xx
 			    , yy

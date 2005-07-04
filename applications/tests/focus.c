@@ -22,15 +22,16 @@
 
 void test_focus(const char *title)
 {
-  static Zmw_Name
-    focus = ZMW_NAME_UNREGISTERED("Focus")
-    , focus2 = ZMW_NAME_UNREGISTERED("Focus2")
-    , focus3 = ZMW_NAME_UNREGISTERED("Focus3")
-    ;
+  static Zmw_Name *focus=NULL, *focus2=NULL, *focus3=NULL ;
   static char *text[12] = { NULL } ;
   static int t0 = 0, t1 = 0, t2 = 0, t3 = 0 ;
 
   int i ;
+
+  /* These initialization can go before zmw_main */
+  zmw_name_initialize(&focus, "Focus") ;
+  zmw_name_initialize(&focus2, "Focus2") ;
+  zmw_name_initialize(&focus3, "Focus3") ;
 
   if ( text[0] == NULL )
     {
@@ -48,7 +49,7 @@ void test_focus(const char *title)
 	  zmw_name("Group 1") ;
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_focus(&focus) ;
+	      zmw_focus(focus) ;
 
 	      zmw_label("Focus Group 1") ;
 	      zmw_entry(&text[0]) ;
@@ -60,7 +61,7 @@ void test_focus(const char *title)
 	  zmw_name("Group 2") ;
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_focus(&focus2) ;
+	      zmw_focus(focus2) ;
 
 	      zmw_label("Focus Group 2") ;
 	      zmw_entry(&text[3]) ;
@@ -69,7 +70,7 @@ void test_focus(const char *title)
 	      zmw_name("Group 3") ;
 	      ZMW(zmw_vbox())
 		{
-		  zmw_focus(&focus3) ;
+		  zmw_focus(focus3) ;
 
 		  zmw_label("Focus Group 3") ;
 		  zmw_entry(&text[6]) ;
@@ -87,11 +88,12 @@ void test_focus(const char *title)
 
 void test_focus2(const char *title)
 {
-  static Zmw_Name focus = ZMW_NAME_UNREGISTERED("Focus test") ;
+  static Zmw_Name *focus = NULL ;
   static char *text1 = NULL, *text2 ;
 
   if ( text1 == NULL )
     {
+      zmw_name_initialize(&focus, "Focus test") ;
       text1 = strdup("Text 1") ;
       text2 = strdup("Text 2") ;
     }
@@ -101,7 +103,7 @@ void test_focus2(const char *title)
       zmw_name("Box Vertical") ;
       ZMW(zmw_vbox())
 	{
-	  zmw_focus(&focus) ;
+	  zmw_focus(focus) ;
 	  zmw_name("Text1") ;
 	  zmw_entry(&text1) ;
 	  zmw_name("Text2") ;
@@ -113,12 +115,13 @@ void test_focus2(const char *title)
 
 void test_focus3(const char *title)
 {
-  static Zmw_Name focus = ZMW_NAME_UNREGISTERED("Focus test") ;
-  static Zmw_Name focus2 = ZMW_NAME_UNREGISTERED("Focus test 2") ;
+  static Zmw_Name *focus = NULL, *focus2 = NULL ;
   static char *text1 = NULL, *text2 ;
 
   if ( text1 == NULL )
     {
+      zmw_name_initialize(&focus, "Focus test") ;
+      zmw_name_initialize(&focus2, "Focus test 2") ;
       text1 = strdup("Text 1") ;
       text2 = strdup("Text 2") ;
     }
@@ -131,7 +134,7 @@ void test_focus3(const char *title)
 	  zmw_name("Box 1") ;
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_focus(&focus) ;
+	      zmw_focus(focus) ;
 	      zmw_name("Text1") ;
 	      zmw_entry(&text1) ;
 	      zmw_name("Text2") ;
@@ -141,7 +144,7 @@ void test_focus3(const char *title)
 	  zmw_name("Box 2") ;
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_focus(&focus2) ;
+	      zmw_focus(focus2) ;
 	      zmw_name("Text3") ;
 	      zmw_entry(&text1) ;
 	      zmw_name("Text4") ;
@@ -153,11 +156,12 @@ void test_focus3(const char *title)
 
 void test_focus4(const char *title)
 {
-  static Zmw_Name focus = ZMW_NAME_UNREGISTERED("Focus test 4") ;
+  static Zmw_Name *focus = NULL ;
   static char *text1 = NULL, *text2 ;
 
   if ( text1 == NULL )
     {
+      zmw_name_initialize(&focus, "Focus test 4") ;
       text1 = strdup("Text 1") ;
       text2 = strdup("Text 2") ;
     }
@@ -181,7 +185,7 @@ void test_focus4(const char *title)
 
   ZMW(zmw_window(title))
     {
-	      zmw_focus(&focus) ;
+	      zmw_focus(focus) ;
 	      zmw_name("Text2") ;
 	      zmw_entry(&text2) ;
     }

@@ -6,11 +6,8 @@
 #include <fcntl.h>
 
 
-#ifdef ZMW_DEBUG_NAME
 #include "zmw/zmw.h"
-#else
-#include "kernel/zmw.h"
-#endif
+#include "zmw/zmw_private.h"
 
 void vertical(int depth) ;
 
@@ -26,8 +23,25 @@ static char *global_text ;
 #define zmw_vbox zmw_box_vertical
 #define zmw_main zmw_run
 #define zmw_label zmw_text
+#define zmw_child_cache_size zmw_cache_size
+
+#else
+
+#if ZMW_VERSION_MAJOR == 0 && ZMW_VERSION_MINOR < 2
+#define zmw_child_cache_size zmw_cache_size
 #endif
- 
+
+#endif
+
+#ifndef zmw_action_get
+#define zmw_action_get() ZMW_ACTION
+#endif
+#ifndef zmw_focus_get
+#define zmw_focus_get() ZMW_FOCUS
+#endif
+
+
+
 void leaf()
 {
   zmw_width(1) ;
@@ -147,14 +161,14 @@ void many()
 	    sprintf(tmp+strlen(tmp), "/.%d", rand()%10) ;
 	  zmw_name_set_value_int_with_name(tmp, "?", 0) ;
 	}
-      zmw_name_register_with_name(ZMW_FOCUS, "/.0/.0/.0/.0") ;
+      zmw_name_register_with_name(zmw_focus_get(), "/.0/.0/.0/.0") ;
     }
 
   if ( clk == 0 )
     clk = sysconf(_SC_CLK_TCK);
 
   i=0 ;
-  while ( actions[i].action != ZMW_ACTION )
+  while ( actions[i].action != zmw_action_get() )
     i++ ;
   global_nb = &actions[i].nb_text_eval ;
 
@@ -171,14 +185,14 @@ void many()
   actions[i].nb++ ;
 
 
-  if ( ZMW_ACTION == zmw_action_draw )
+  if ( zmw_action_get() == zmw_action_draw )
     {
       creat("xxx.drawdone", 0700) ;
     }
 
 
   
-  if ( ZMW_ACTION == zmw_action_dispatch_event )
+  if ( zmw_action_get() == zmw_action_dispatch_event )
     {
       if ( exiting )
 	return ;
@@ -186,7 +200,7 @@ void many()
 
       nb_text = rint(pow(global_children, global_depth)) ;
 
-      printf("cache size=%d\n", zmw_cache_size()) ;
+      printf("cache size=%d\n", zmw_child_cache_size()) ;
 
 #ifdef ZMW_DEBUG_INSIDE_ZMW_PARAMETER
       printf("ZMW_DEBUG_INSIDE_ZMW_PARAMETER=%d\n", ZMW_DEBUG_INSIDE_ZMW_PARAMETER) ;

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@
 
 #include <ctype.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" // The code must on not depends on this line
 
 typedef enum { Zmw_Popup_None, Zmw_Popup_Right, Zmw_Popup_Bottom } Zmw_Popup ;
 
 /*
  * This function is not called on the first pass.
  * A window contains only ONE zmw.
- * So we can use zMw[1] without problems.
+ * So we can use zmw_state_get()[1] without problems.
  */
 static void zmw_compute_window_size()
 {
@@ -36,8 +37,8 @@ static void zmw_compute_window_size()
 
   nb = 0 ;
   the_child = 0 ;  /* To avoid a compiler warning */
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
-    if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+  for(i=0; i<zmw_nb_of_children_get(); i++)
+    if ( zmw_child__used_by_parent_get(i) )
       {
 	nb++ ;
 	the_child = i ;
@@ -54,32 +55,32 @@ static void zmw_compute_window_size()
       zmw_stack_print() ;
     }
 
-  if ( ZMW_AUTO_RESIZE || !gdk_window_is_visible(*ZMW_WINDOW) )
+  if ( zmw_auto_resize_get() || !gdk_window_is_visible(*zmw_window_get()) )
     {
-      gdk_window_resize(*ZMW_WINDOW
-			, ZMW_CHILD_REQUIRED_PADDED_WIDTH(the_child)
-			, ZMW_CHILD_REQUIRED_PADDED_HEIGHT(the_child)
+      gdk_window_resize(*zmw_window_get()
+			, zmw_child__required_padded_width(the_child)
+			, zmw_child__required_padded_height(the_child)
 			) ;
-      ZMW_SIZE_ALLOCATED.width = ZMW_CHILD_REQUIRED_PADDED_WIDTH(the_child) ;
-      ZMW_SIZE_ALLOCATED.height = ZMW_CHILD_REQUIRED_PADDED_HEIGHT(the_child) ;
+      zmw_allocated_width_set(zmw_child__required_padded_width(the_child)) ;
+      zmw_allocated_height_set(zmw_child__required_padded_height(the_child)) ;
     }
   else
     {
       int w, h ;
-      gdk_window_get_size(*ZMW_WINDOW, &w, &h) ;
-      ZMW_SIZE_ALLOCATED.width = w ;
-      ZMW_SIZE_ALLOCATED.height = h ;
+      gdk_window_get_size(*zmw_window_get(), &w, &h) ;
+      zmw_allocated_width_set(w) ;
+      zmw_allocated_height_set(h) ;
     }
-  ZMW_SIZE_ALLOCATED.x = 0 ;
-  ZMW_SIZE_ALLOCATED.y = 0 ;
-  ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
-  ZMW_CHILDREN[the_child].allocated = ZMW_SIZE_ALLOCATED ;
-  zmw_padding_remove(&ZMW_CHILDREN[the_child].allocated, ZMW_CHILDREN[the_child].current_state.padding_width) ;
+  zmw_allocated_x_set(0) ;
+  zmw_allocated_y_set(0) ;
+  zmw_used_by_parent_set(Zmw_False) ;
+  zmw_child__allocated_set(the_child,zmw_allocated_get()) ;
+  zmw_padding_remove(zmw_child__allocated_get(the_child), zmw_child__padding_width_get(the_child)) ;
 
-  ZMW_CLIPPING.x = 0 ;
-  ZMW_CLIPPING.y = 0 ;
-  ZMW_CLIPPING.width = ZMW_SIZE_ALLOCATED.width ;
-  ZMW_CLIPPING.height = ZMW_SIZE_ALLOCATED.height ;
+  zmw_clipping_x_set(0) ;
+  zmw_clipping_y_set(0) ;
+  zmw_clipping_width_set(zmw_allocated_width_get()) ;
+  zmw_clipping_height_set(zmw_allocated_height_get()) ;
 }
 
 
@@ -92,7 +93,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
   Zmw_Child *s ;
   GdkRectangle rect ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Init:
       zmw_resource_pointer_get((void**)&w, "WindowID", NULL) ;
@@ -134,19 +135,19 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 
 	  {
 	    GdkColor c ;
-	    c.pixel = ZMW_COLORS[Zmw_Color_Background_Normal] ;
+	    c.pixel = zmw_colors_get()[Zmw_Color_Background_Normal] ;
 	    gdk_window_set_background(*w, &c) ;
 	  }
 	}
-      ZMW_WINDOW = w ;
-      ZMW_GC = *gc ;
-      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
+      zmw_window_set(w) ;
+      zmw_gc_set(*gc) ;
+      zmw_used_by_parent_set(Zmw_False) ;
 
       /* If the cursor is in a popped window, the window shouldstay popped */
       if ( pop
 	   && !zmw_window_is_detached()
-	   && zmw.event
-	   && *ZMW_WINDOW == zmw.event->any.window
+	   && zmw_zmw_event_get()
+	   && *zmw_window_get() == zmw_zmw_event_get()->any.window
 	   )
 	zmw_window_update_uppers(Zmw_Menu_Is_Poped) ;
 
@@ -154,28 +155,28 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       /* Here because top level widgets are called only once */
       /* Not nice, may be we should enclose all the application
 	 in a special widget */
-      ZMW_SIZE_MIN.width = 0 ;
-      ZMW_SIZE_MIN.height = 0 ;
-      ZMW_SIZE_REQUIRED = ZMW_SIZE_MIN ;
+      zmw_min_width_set(0) ;
+      zmw_min_height_set(0) ;
+      zmw_required_set(zmw_min_get()) ;
 
       /* Really not nice */
-      ZMW_SIZE_ALLOCATED.x = 0 ;
-      ZMW_SIZE_ALLOCATED.y = 0 ;
-      gdk_window_get_size(*ZMW_WINDOW
+      zmw_allocated_x_set(0) ;
+      zmw_allocated_y_set(0) ;
+      gdk_window_get_size(*zmw_window_get()
 			  , &width
 			  , &height
 			  ) ;
-      gdk_window_get_size(*ZMW_WINDOW, &width, &height) ;
-      ZMW_SIZE_ALLOCATED.width = width ;
-      ZMW_SIZE_ALLOCATED.height = height ;
+      gdk_window_get_size(*zmw_window_get(), &width, &height) ;
+      zmw_allocated_width_set(width) ;
+      zmw_allocated_height_set(height) ;
 
       // Keyboard navigation
       /*
-      if ( zmw.raised != *ZMW_WINDOW && zmw.update_raised )
+      if ( zmw_zmw_raised_get() != *zmw_window_get() && zmw.update_raised )
 	{
-	  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
-	    zmw_printf("zmw.raised is updated to %p\n", *ZMW_WINDOW) ;
-	  zmw.raised = *ZMW_WINDOW ;
+	  if ( zmw_debug_get() & Zmw_Debug_Navigation )
+	    zmw_printf("zmw_zmw_raised_get() is updated to %p\n", *zmw_window_get()) ;
+	  zmw_zmw_raised_set(*zmw_window_get()) ;
 	  zmw.update_raised = Zmw_False ;
 	}
       */
@@ -191,24 +192,24 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       // zmw_draw_clip_set() ;
 
 #if GLIB_MAJOR_VERSION > 1
-      rect.x = ZMW_CLIPPING.x ;
-      rect.y = ZMW_CLIPPING.y ;
-      rect.width = ZMW_CLIPPING.width ;
-      rect.height = ZMW_CLIPPING.height ;
+      rect.x = zmw_clipping_x_get() ;
+      rect.y = zmw_clipping_y_get() ;
+      rect.width = zmw_clipping_width_get() ;
+      rect.height = zmw_clipping_height_get() ;
 
-      gdk_window_begin_paint_rect(*ZMW_WINDOW, &rect) ;
+      gdk_window_begin_paint_rect(*zmw_window_get(), &rect) ;
 #endif
       
       zmw_draw_rectangle(Zmw_Color_Background_Normal, Zmw_True,
 			 0,0,9999,9999) ;
       
-      if ( pop && zMw[-1].u.parent_to_child.window
-	   && gdk_window_get_type(*ZMW_WINDOW) == GDK_WINDOW_TEMP
+      if ( pop && zmw_parent__window_get()
+	   && gdk_window_get_type(*zmw_window_get()) == GDK_WINDOW_TEMP
 	   && !follow_mouse )
 	{
-	  gdk_window_get_origin(*zMw[-1].u.parent_to_child.window, &x, &y) ;
+	  gdk_window_get_origin(*zmw_parent__window_get(), &x, &y) ;
 	  s = zmw_widget_previous_size() ;
-	  gdk_window_move(*ZMW_WINDOW
+	  gdk_window_move(*zmw_window_get()
 			  , x
 			  + s->allocated.x - s->current_state.padding_width
 			  + (pop==Zmw_Popup_Right ? s->allocated.width + 2*s->current_state.padding_width  : 0 )
@@ -219,7 +220,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
 	}
       if ( title
 	   && ( !pop || zmw_window_is_detached() ) )
-	gdk_window_set_title(*ZMW_WINDOW, title) ;
+	gdk_window_set_title(*zmw_window_get(), title) ;
 
 
       /*
@@ -227,37 +228,37 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
        * The do_not_map window should be set in the parent
        * and not by a grand parent.
        */
-      if ( !ZMW_WIDGET_TOP && ZMW_PARENT_SIZE.do_not_map_window )
+      if ( !zmw_is_widget_top() && zmw_parent__do_not_map_window_get() )
 	{
-	  //	  if ( gdk_window_is_visible(*ZMW_WINDOW) )
-	    gdk_window_hide(*ZMW_WINDOW) ;	  
+	  //	  if ( gdk_window_is_visible(*zmw_window_get()) )
+	    gdk_window_hide(*zmw_window_get()) ;	  
 	}
       else
 	{
-	  if ( !gdk_window_is_visible(*ZMW_WINDOW) )
-	    gdk_window_show(*ZMW_WINDOW) ;
+	  if ( !gdk_window_is_visible(*zmw_window_get()) )
+	    gdk_window_show(*zmw_window_get()) ;
 	  
-	  zmw.nb_windows++ ;
-	  ZMW_REALLOC(zmw.windows, zmw.nb_windows ) ;
-	  zmw.windows[zmw.nb_windows-1].window = *ZMW_WINDOW;
+	  (*zmw_zmw_nb_windows_get_ptr())++ ;
+	  ZMW_REALLOC(*zmw_zmw_windows_get_ptr(), zmw_zmw_nb_windows_get() ) ;
+	  zmw_zmw_windows_get()[zmw_zmw_nb_windows_get()-1] = *zmw_window_get();
 	}
       break ;
     case Zmw_Post_Drawing:
       // zmw_draw_clip_pop() ;
-      if ( follow_mouse && gdk_window_is_visible(*ZMW_WINDOW) )
+      if ( follow_mouse && gdk_window_is_visible(*zmw_window_get()) )
 	{	
 	  /* the -10 is not required.
 	   * It should be a parameter (in current state?)
 	   */
-	  gdk_window_move(*ZMW_WINDOW
-			  , zmw.x_root - ZMW_SIZE_ALLOCATED.width - 10
-			  , zmw.y_root - ZMW_SIZE_ALLOCATED.height - 10
+	  gdk_window_move(*zmw_window_get()
+			  , zmw_zmw_x_root_get() - zmw_allocated_width_get() - 10
+			  , zmw_zmw_y_root_get() - zmw_allocated_height_get() - 10
 			  ) ;
 			  
 
 	}
 #if GLIB_MAJOR_VERSION > 1
-      gdk_window_end_paint(*ZMW_WINDOW) ;
+      gdk_window_end_paint(*zmw_window_get()) ;
 #endif
       break ;
     default:
@@ -271,7 +272,7 @@ Zmw_Boolean zmw_window_is_detached()
   /*
    * Search a state up
    */
-  for(s=zMw-1; s >= zmw.zmw_table; s--)
+  for(s=zmw_state_get()-1; s >= zmw_zmw_table_get(); s--)
     {
       if ( s->u.menu_state )
 	{
@@ -289,7 +290,7 @@ void zmw_window_detached_toggle()
 {
   Zmw_State *s ;
 
-  for(s=zMw; s >= zmw.zmw_table; s--)
+  for(s=zmw_state_get(); s >= zmw_zmw_table_get(); s--)
       if ( s->u.menu_state )
 	{
 	  *s->u.menu_state ^= Zmw_Menu_Is_Detached ;
@@ -299,7 +300,7 @@ void zmw_window_detached_toggle()
 	      // Just detached : unpop all
 	      zmw_window_unpop_all() ;
 
-	      while( --s >= zmw.zmw_table )
+	      while( --s >= zmw_zmw_table_get() )
 		if ( s->u.menu_state )
 		  *s->u.menu_state &= ~(Zmw_Menu_Is_Poped*(1+Zmw_Menu_State_New)) ;
 	    }

@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 void zmw_alert(char **message)
 {
@@ -27,7 +28,7 @@ void zmw_alert(char **message)
 
   ZMW( zmw_if( *message != NULL) )
     {
-      ar = ZMW_AUTO_RESIZE ;
+      ar = zmw_auto_resize_get() ;
       zmw_auto_resize(1) ;
       ZMW(zmw_window("Alert"))
 	{
@@ -45,7 +46,7 @@ void zmw_alert(char **message)
 		*message = NULL ;
 	    }
 	}
-      ZMW_AUTO_RESIZE = ar ;
+      zmw_auto_resize_set(ar) ;
     }
 }
 

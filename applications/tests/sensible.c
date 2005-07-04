@@ -71,7 +71,7 @@ void test_sensible(const char *title)
 	    {
 	      zmw_check_button_int_with_label(&box, "Next box is sensible") ;
 
-	      zmw_sensible(box) ;
+	      zmw_sensitive(box) ;
 	      ZMW(zmw_vbox())
 		{
 		  zmw_button("A button in the box") ;
@@ -88,7 +88,7 @@ void test_sensible(const char *title)
 	    }
 	  zmw_border_embossed_in_draw() ;
 
-	  zmw_sensible(self) ;
+	  zmw_sensitive(self) ;
 	  zmw_check_button_int_with_label(&self, "This toggle is sensible") ;
 	}
     }

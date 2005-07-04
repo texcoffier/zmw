@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h"
 #include "zmw/socket.h"
 #include "zmw/http.h"
 #include "zmw/selection.h"
@@ -53,8 +54,6 @@ struct zmw_main
   void (*fct)() ;
 } ;
 
-
-
 void zmw_need_repaint()
 {
   zmw.run->need_repaint = Zmw_True ;
@@ -64,6 +63,9 @@ void zmw_need_dispatch()
 {
   zmw.run->need_dispatch = Zmw_True ;
 }
+
+
+
 
 void zmw_use_window_from_button_press(Zmw_Boolean b)
 {
@@ -186,23 +188,23 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   static Zmw_Boolean in_redispatch = 0 ;
   int i ;
 
-  zmw.external_do_not_make_init = Zmw_False ;
-  zmw.event_removed = Zmw_False ;
+  zmw_zmw_external_do_not_make_init_set(Zmw_False) ;
+  zmw_zmw_event_removed_set(Zmw_False) ;
   zmw.run->need_dispatch = Zmw_False ;
-  ZMW_ACTION = action ;
-  ZMW_CHILD_NUMBER = -1 ;
-  ZMW_DEBUG = zmw.run->top_level_debug ;
+  zmw_action_set(action) ;
+  zmw_child_number_set(-1) ;
+  zmw_debug_set(zmw.run->top_level_debug) ;
 
   if ( zmw.run->top_level_debug & Zmw_Debug_Event )
     {
       zmw_printf("CALL %s\n", zmw_action_name_fct()) ;
-      if ( ZMW_ACTION == zmw_action_dispatch_event )
+      if ( zmw_action_get() == zmw_action_dispatch_event )
 	zmw_printf("w=%p x=%d y=%d r=%d\n"
-		   , zmw.event->any.window, zmw.x ,zmw.y, in_redispatch) ;
+		   , zmw_zmw_event_get()->any.window, zmw_zmw_x_get() ,zmw_zmw_y_get(), in_redispatch) ;
     }
 
 
-  zmw_cache_init(zmw.run->cache_size) ;
+  zmw_child_cache_init(zmw.run->cache_size) ;
   if ( zmw.run->top_level_debug & Zmw_Debug_Window )
     {
       zmw_name("DebugWindow") ;
@@ -211,7 +213,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   /* Reinitialize the search for close widgets */
   if ( action != zmw_action_dispatch_accelerator )
     {
-      if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+      if ( zmw_debug_get() & Zmw_Debug_Navigation )
 	zmw_printf("Reset left/right/up/down\n") ;
       for(i=0; i<4; i++)
 	{
@@ -225,9 +227,9 @@ void zmw_call_widget(void (*fct)(), int (*action)())
   zmw_display_accelerator_window() ;
   
   if ( zmw.run->top_level_debug & Zmw_Debug_Event )
-    zmw_printf("ENDCALL nb_childn=%d\n", zMw->u.nb_of_children) ;
+    zmw_printf("ENDCALL nb_childn=%d\n", zmw_state_get()->u.nb_of_children) ;
 
-  if ( ZMW_ACTION == zmw_action_dispatch_event )
+  if ( zmw_action_get() == zmw_action_dispatch_event )
     {
       /*
        * for zmw_cursor_leave/enter
@@ -237,7 +239,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
        * The redispatch is here only for the drag and drop.
        * Two passes are needed because two event are received.
        */	
-      if ( zmw.run->need_dispatch && zmw.event->any.type != GDK_MOTION_NOTIFY )
+      if ( zmw.run->need_dispatch && zmw_zmw_event_get()->any.type != GDK_MOTION_NOTIFY )
       	{
 	  if ( in_redispatch )
 	    {
@@ -247,7 +249,7 @@ void zmw_call_widget(void (*fct)(), int (*action)())
 	    {
 	      if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 		zmw_printf("BEGIN redispatch\n") ;
-	      zmw.event->any.type = GDK_MOTION_NOTIFY ;
+	      zmw_zmw_event_get()->any.type = GDK_MOTION_NOTIFY ;
 	      in_redispatch = Zmw_True ;
 	      zmw_call_widget(fct, action) ;
 	      in_redispatch = Zmw_False ;
@@ -261,9 +263,9 @@ void zmw_call_widget(void (*fct)(), int (*action)())
     if ( zmw.run->top_level_debug & Zmw_Debug_Event )
       {
     	zmw_printf("ENDCALL REAL\n") ;
-	if ( ZMW_ACTION == zmw_action_dispatch_event )
+	if ( zmw_action_get() == zmw_action_dispatch_event )
 	  zmw_printf("w=%p x=%d y=%d r=%d OUT\n"
-		     , zmw.event->any.window, zmw.x ,zmw.y, in_redispatch) ;
+		     , zmw_zmw_event_get()->any.window, zmw_zmw_x_get() ,zmw_zmw_y_get(), in_redispatch) ;
       }
 }
 
@@ -291,7 +293,7 @@ void zmw_draw(void (*fct)())
 
 
 
- // zmw_name_unregister(&zmw.tip_displayed) ;
+ // zmw_name_unregister(&zmw_zmw_tip_displayed_get()) ;
   zmw.nb_windows = 0 ;
   gettimeofday(&begin_time,NULL) ;
   times(&begin_tms) ;
@@ -306,7 +308,7 @@ void zmw_draw(void (*fct)())
     {
       for(i=0; i<zmw.nb_windows; i++)
 	{
-	  if ( tlw->data == zmw.windows[i].window )
+	  if ( tlw->data == zmw.windows[i] )
 	    break ;
 	}
       if ( i == zmw.nb_windows )
@@ -331,7 +333,7 @@ void zmw_draw(void (*fct)())
 
 static void zmw_search(void (*fct)())
 {
-  zmw_name_unregister(&zmw.found) ;
+  zmw_name_unregister(zmw_zmw_found_get()) ;
   zmw_call_widget(fct, zmw_action_search) ;
 }
 
@@ -365,8 +367,8 @@ static gboolean timeout(gpointer data)
       ly = 0 ;
       return(TRUE) ;
     }
-  gdk_window_get_pointer(zmw.window, &x, &y, NULL) ;
-  if ( ! zmw.run->use_window_from_button_press || !zmw.button_pressed )
+  gdk_window_get_pointer(zmw_zmw_window_get(), &x, &y, NULL) ;
+  if ( ! zmw.run->use_window_from_button_press || !zmw_zmw_button_pressed_get() )
     e.any.window = gdk_window_at_pointer(&x, &y) ;
   else
     e.any.window = NULL ;
@@ -424,9 +426,9 @@ void user_action()
 {
   gettimeofday(&zmw.run->last_user_action,NULL) ;
   
-  if ( zmw_name_registered(&zmw.tip_displayed) )
+  if ( zmw_name_registered(zmw_zmw_tip_displayed_get()) )
     {
-      zmw_name_unregister(&zmw.tip_displayed) ;
+      zmw_name_unregister(zmw_zmw_tip_displayed_get()) ;
       zmw_need_repaint() ;
     }
   zmw.tips_yet_displayed = Zmw_False ;
@@ -437,7 +439,7 @@ void zmw_unpop(GdkEvent *e)
 {
   if ( e->any.window!=NULL 
        && gdk_window_get_type(e->any.window) != GDK_WINDOW_TEMP
-       // && ! zmw.event_removed
+       // && ! zmw_zmw_event_removed_get()
        )
     {
       if ( zmw_key_string_unsensitive() )
@@ -454,7 +456,7 @@ Zmw_Boolean zmw_keyboard_navigation()
 {
   int d ;
   
-  if ( ZMW_DEBUG & Zmw_Debug_Navigation )
+  if ( zmw_debug_get() & Zmw_Debug_Navigation )
     ZMW_HERE ;
   d = -1 ;
   if ( zmw.event_key.key.keyval == GDK_Left  ) d = 0 ;
@@ -465,9 +467,9 @@ Zmw_Boolean zmw_keyboard_navigation()
   if ( d>=0 && zmw.near[d].name.name )
     {
       zmw.focused = zmw.near[d].rectangle ;
-      zmw_name_register_with_name(zmw.focus, zmw.near[d].name.name) ;
+      zmw_name_register_with_name(zmw_zmw_focus_with_cursor_get(), zmw.near[d].name.name) ;
       zmw_need_repaint() ;
-      zmw.event_removed = Zmw_True ;
+      zmw_zmw_event_removed_get() = Zmw_True ;
       /*
        * Very very bad behaviour.
        * The correct way is not to raise window but to verify
@@ -524,7 +526,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	    }
 	}
     }
-  zmw.event = e ;
+  zmw_zmw_event_set(e) ;
   
   if ( zmw_handle_selection(e) )
   {
@@ -533,8 +535,8 @@ void event_handler(GdkEvent *e, gpointer o)
   }
 
 
-#define ZMW_GET_XY(T) zmw.x = T.x ; zmw.y = T.y ; zmw.x_root = T.x_root ; zmw.y_root = T.y_root
-#define ZMW_GET_XYW(T) ZMW_GET_XY(T) ; zmw.window = T.window
+#define ZMW_GET_XY(T) zmw_zmw_x_set(T.x) ; zmw_zmw_y_set(T.y) ; zmw_zmw_x_root_set(T.x_root) ; zmw_zmw_y_root_set(T.y_root)
+#define ZMW_GET_XYW(T) ZMW_GET_XY(T) ; zmw_zmw_window_set(T.window)
 
   switch( e->type )
     {
@@ -606,7 +608,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	   zmw.run->accelerator_window_allowed = Zmw_True ;
 	 }
 
-      zmw.window = e->key.window ;
+      zmw_zmw_window_set(e->key.window) ;
 
       // Keyboard navigation
       if ( zmw.event_key.key.state & GDK_CONTROL_MASK )
@@ -615,10 +617,15 @@ void event_handler(GdkEvent *e, gpointer o)
       
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
 	zmw_printf("**** EVENT **** KEY_PRESS\n") ;
-      e->any.window = gdk_window_at_pointer(&zmw.x, &zmw.y) ;      
-      if ( zmw.event->type == GDK_KEY_PRESS
-	   && ( zmw.event->key.state & GDK_CONTROL_MASK )
-	   &&  zmw.event->key.keyval == GDK_F1
+      {
+	gint x, y ;
+	e->any.window = gdk_window_at_pointer(&x, &y) ;
+	zmw_zmw_x_set(x) ;
+	zmw_zmw_y_set(y) ;
+      }
+      if ( zmw_zmw_event_get()->type == GDK_KEY_PRESS
+	   && ( zmw_zmw_event_get()->key.state & GDK_CONTROL_MASK )
+	   &&  zmw_zmw_event_get()->key.keyval == GDK_F1
 	   )
 	   {
 		zmw.run->top_level_debug ^= Zmw_Debug_Window ;	
@@ -627,17 +634,17 @@ void event_handler(GdkEvent *e, gpointer o)
       // zmw_unpop(e) ;
       zmw_accelerator_init() ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
-      if ( zmw.event_removed )
+      if ( zmw_zmw_event_removed_get() )
 	break ;
 
-      if ( zmw.event->key.string[0] == '\033' )
+      if ( zmw_zmw_event_get()->key.string[0] == '\033' )
 	zmw_window_unpop_all() ;
       
       user_action() ;
       // zmw_unpop(e) ;
       zmw_dispatch_event(fct) ;
       // Keyboard navigation, No control if cursor key unused by any widget
-      if ( !zmw.event_removed )
+      if ( !zmw_zmw_event_removed_get() )
 	zmw_keyboard_navigation() ;
       zmw_need_repaint() ;
 
@@ -651,9 +658,9 @@ void event_handler(GdkEvent *e, gpointer o)
 
       user_action() ;
       if ( e->type == GDK_BUTTON_RELEASE )
-	zmw.button_pressed = Zmw_False ;
+	zmw_zmw_button_pressed_set(Zmw_False) ;
       if ( e->type == GDK_BUTTON_PRESS )
-	zmw.button_pressed = Zmw_True ;
+	zmw_zmw_button_pressed_set(Zmw_True) ;
 
       if (zmw.run->top_level_debug & Zmw_Debug_Event)
 	zmw_printf("**** EVENT **** BUTTON! %s on window %p\n"
@@ -668,7 +675,7 @@ void event_handler(GdkEvent *e, gpointer o)
        * menu button and release on a menu item.
        * The menu item may be a sub menu and so it is not activated...
        */
-      // if ( zmw.event->type == GDK_NOTHING ) commented 2003/10/27
+      // if ( zmw_zmw_event_get()->type == GDK_NOTHING ) commented 2003/10/27
       zmw_need_repaint() ;
       
       if ( e->type == GDK_BUTTON_RELEASE )
@@ -695,7 +702,7 @@ void event_handler(GdkEvent *e, gpointer o)
 	zmw_printf("**** EVENT **** LEAVE!\n") ;
       /* Needed by "cursor_leave" */
       zmw_name_unregister(&zmw.found) ;
-      zmw.event->any.type = GDK_MOTION_NOTIFY ;
+      zmw_zmw_event_get()->any.type = GDK_MOTION_NOTIFY ;
       zmw_call_widget(fct, zmw_action_dispatch_event) ;
       *e = saved ;
       return ; /* 2003/10/27 to waste less CPU and see less debug garbage */
@@ -717,7 +724,7 @@ void event_handler(GdkEvent *e, gpointer o)
    if ( gdk_event_peek() == NULL )
    {
       zmw_accelerator_init() ;
-      zmw.event->any.type = GDK_MOTION_NOTIFY ;
+      zmw_zmw_event_get()->any.type = GDK_MOTION_NOTIFY ;
       zmw_call_widget(fct, zmw_action_dispatch_accelerator) ;
    }
 
@@ -773,7 +780,10 @@ void zmw_main(void (*fct)())
 {
   int i ;
   int socket ;
-  Zmw_Name top_level_focus = ZMW_NAME_UNREGISTERED("Top level Focus") ;
+  Zmw_Name *top_level_focus = NULL ;
+
+  zmw_name_initialize(&top_level_focus, "Top level Focus") ;
+
 
   zmw.run->fct = fct ;
   gettimeofday(&zmw.run->last_cursor_move,NULL) ;
@@ -782,14 +792,16 @@ void zmw_main(void (*fct)())
   zmw_use_window_from_button_press(Zmw_True) ;
 
   zmw.zmw_table_depth = 2 ;
-  ZMW_REALLOC(zmw.zmw_table, zmw.zmw_table_depth) ;
-  zmw_state_init(zmw.zmw_table) ;
-  zmw_state_init(zmw.zmw_table + 1) ;
-  zMw = zmw.zmw_table ;
-  // ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_True ;
+  ZMW_REALLOC(zmw_zmw_table_get(), zmw.zmw_table_depth) ;
+  zmw_state_init(zmw_zmw_table_get()) ;
+  zmw_state_init(zmw_zmw_table_get() + 1) ;
+  zmw_state_set(zmw_zmw_table_get()) ;
+  zmw_event_initialize() ;
+  zmw_drag_initialize() ;
+  // zmw_used_by_parent_set(Zmw_True) ;
   /*
-  ZMW_SIZE_ALLOCATED.x = 0 ;
-  ZMW_SIZE_ALLOCATED.y = 0 ;
+  zmw_allocated_x_set(0) ;
+  zmw_allocated_y_set(0) ;
   */
 
   zmw_font_family("fixed") ;
@@ -800,37 +812,37 @@ void zmw_main(void (*fct)())
   //zmw_y(ZMW_VALUE_UNDEFINED) ;
   //zmw_width(ZMW_VALUE_UNDEFINED) ;
   //zmw_height(ZMW_VALUE_UNDEFINED) ;
-  ZMW_NAME = zmw.full_name ;
-  ZMW_NAME[0] = '\0' ;
-  ZMW_NAME_INDEX = ZMW_NAME ;
-  ZMW_CALL_NUMBER = 0 ;
+  zmw_name_set(zmw.full_name) ;
+  zmw_name_get()[0] = '\0' ;
+  zmw_name_index_set(zmw_name_get()) ;
+  zmw_call_number_set(0) ;
   zmw_border_width(2) ;
   zmw_focus_width(2) ;
-  ZMW_FOCUS = &top_level_focus ;
-  top_level_focus.value = (void*)Zmw_True ; // Always cursor in
+  zmw_focus_set(top_level_focus) ;
+  top_level_focus->value = (void*)Zmw_True ; // Always cursor in
   zmw_debug( !!(zmw.run->top_level_debug & Zmw_Debug_Widget) ) ;
   zmw_auto_resize(0) ;
-  zmw_sensible(1) ;
+  zmw_sensitive(1) ;
   zmw_rgb(0.75, 0.75, 0.75) ;
-  ZMW_NB_OF_CHILDREN = zMw->u.nb_of_children_max = 1 ;
-  ZMW_MALLOC(ZMW_CHILDREN, zMw->u.nb_of_children_max) ;
-  memset(ZMW_CHILDREN, 0, sizeof(*ZMW_CHILDREN)) ;
-  ZMW_WINDOW = NULL ;
+  zmw_nb_of_children_set(zmw_state_get()->u.nb_of_children_max = 1) ;
+  ZMW_MALLOC(zmw_state_get()->u.children, zmw_state_get()->u.nb_of_children_max) ;
+  memset(zmw_children_get(), 0, sizeof(Zmw_Child)) ;
+  zmw_window_set(NULL) ;
 
   zmw_state_push() ;
 
+  zmw_size_get() = &zmw_parent__children_get()[-1];
   zmw_horizontal_expand(1) ;
-  zmw_vertical_expand(1) ;
-  zmw_horizontal_expand(1) ;
-  zmw_vertical_alignment(0) ;
   zmw_horizontal_alignment(0) ;
+  zmw_vertical_expand(1) ;
+  zmw_vertical_alignment(0) ;
   zmw_padding_width(2) ;
 
   zmw_draw(fct) ;
 
-  zmw.tip_displayed.why = "Tip displayed" ;
-  zmw.found.why = "Found" ;
-  zmw.widget_to_trace.why = "Widget to Trace" ;
+  zmw_zmw_tip_displayed_get()->why = "Tip displayed" ;
+  zmw_zmw_found_get()->why = "Found" ;
+  zmw_zmw_widget_to_trace_get()->why = "Widget to Trace" ;
 
   i = 10000 ;
   do
@@ -864,24 +876,24 @@ void zmw_main_quit(int r)
 
   g_idle_remove_by_data(zmw.run->fct) ;
 
- // for(i=0; i<ZMW_TABLE_SIZE(zmw.zmw_table[1].i.gc); i++)
- //   gdk_gc_destroy(zmw.zmw_table[1].i.gc[i]) ;
+ // for(i=0; i<ZMW_TABLE_SIZE(zmw_zmw_table_get()[1].i.gc); i++)
+ //   gdk_gc_destroy(zmw_zmw_table_get()[1].i.gc[i]) ;
 
 
   for(i=0; i<zmw.nb_windows; i++)
-    gdk_window_destroy(zmw.windows[i].window) ;
+    gdk_window_destroy(zmw.windows[i]) ;
   ZMW_FREE(zmw.windows) ;
 
 
   for(i=0; i<zmw.zmw_table_depth; i++)
-    if ( zmw.zmw_table[i].u.children )
-      ZMW_FREE(zmw.zmw_table[i].u.children) ;
+    if ( zmw_zmw_table_get()[i].u.children )
+      ZMW_FREE(zmw_zmw_table_get()[i].u.children) ;
 
-  free(zmw.zmw_table) ;
+  free(zmw_zmw_table_get()) ;
 
   zmw_text_exit() ;
   zmw_name_free() ;
-  zmw_cache_free() ;
+  zmw_child_cache_free() ;
   gdk_exit(r) ;
 }
 
@@ -889,28 +901,28 @@ void zmw_stack_dump()
 {
   int i, j ;
 
-  for(i=0; &zmw.zmw_table[i] <= zMw; i++)
+  for(i=0; &zmw_zmw_table_get()[i] <= zmw_state_get(); i++)
     {
       fprintf(stderr, "======================== STACK[%d]\n", i) ;
       fprintf(stderr, "NOT HERITABLE\n") ;
-      fprintf(stderr, "%s\n", zmw_size_string(&ZMW_SIZE)) ;
+      fprintf(stderr, "%s\n", zmw_child_string(zmw_size_get())) ;
       fprintf(stderr, "CallNum=%d NBC=%d NBMC=%d name_sep=%d\n"
-	      , zmw.zmw_table[i].u.call_number
-	      , zmw.zmw_table[i].u.nb_of_children
-	      , zmw.zmw_table[i].u.nb_of_children_max
-	      , zmw.zmw_table[i].u.name_separator
+	      , zmw_zmw_table_get()[i].u.call_number
+	      , zmw_zmw_table_get()[i].u.nb_of_children
+	      , zmw_zmw_table_get()[i].u.nb_of_children_max
+	      , zmw_zmw_table_get()[i].u.name_separator
 	      ) ;
-      fprintf(stderr, "End of the name = %s\n", zmw.zmw_table[i].u.name) ;
-      fprintf(stderr, "Name Suffix = %s\n", zmw.zmw_table[i].u.name_index) ;
-      fprintf(stderr, "Type = %s\n", zmw.zmw_table[i].u.type) ;
-      fprintf(stderr, ", subaction = %s", zmw_action_name_(zmw.zmw_table[i].u.subaction)) ;
-      fprintf(stderr, ", External = %d", zmw.zmw_table[i].u.external_state) ;
-      fprintf(stderr, "%s", zmw.zmw_table[i].u.do_not_execute_pop
+      fprintf(stderr, "End of the name = %s\n", zmw_zmw_table_get()[i].u.name) ;
+      fprintf(stderr, "Name Suffix = %s\n", zmw_zmw_table_get()[i].u.name_index) ;
+      fprintf(stderr, "Type = %s\n", zmw_zmw_table_get()[i].u.type) ;
+      fprintf(stderr, ", subaction = %s", zmw_action_name_(zmw_zmw_table_get()[i].u.subaction)) ;
+      fprintf(stderr, ", External = %d", zmw_zmw_table_get()[i].u.external_state) ;
+      fprintf(stderr, "%s", zmw_zmw_table_get()[i].u.do_not_execute_pop
 	      ? ", Do Not execute Pop" : "") ;
       fprintf(stderr, "\n") ;
-      for(j=0; j<zmw.zmw_table[i].u.nb_of_children; j++)
+      for(j=0; j<zmw_zmw_table_get()[i].u.nb_of_children; j++)
 	fprintf(stderr, "\t%s\n"
-		, zmw_size_string(&zmw.zmw_table[i].u.children[j])) ;
+		, zmw_child_string(&zmw_zmw_table_get()[i].u.children[j])) ;
       fprintf(stderr, "-------------------- HERITABLE\n") ;
     }
 }

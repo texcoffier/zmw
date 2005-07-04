@@ -26,6 +26,7 @@
  ****************************************************************************
  */
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" // The code must on not depends on this line
 
 #define ZMW_NOTEBOOK_BORDER 1
 
@@ -42,13 +43,13 @@ static Zmw_Rectangle zmw_notebook_compute_required_label_size(Zmw_Child *ws)
   int i ;
   Zmw_Rectangle save, res ;
 
-  for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
-    ZMW_CHILDREN[i] = ws[i*2] ;
+  for(i=0;i<zmw_nb_of_children_get(); i++)
+    zmw_child__size_set(i, &ws[i*2]) ;
 
-  save = ZMW_SIZE_MIN ;
+  save = *zmw_min_get() ;
   zmw_hbox_required_size(Zmw_False) ; // Padding taken into account
-  res = ZMW_SIZE_MIN ;
-  ZMW_SIZE_MIN = save ;
+  res = *zmw_min_get() ;
+  zmw_min_set(&save) ;
 
   return( res ) ;
 }
@@ -65,7 +66,7 @@ static void zmw_notebook_compute_required_size(Zmw_Child *ws)
    * Compute page size
    */
   r = ws[1].min ;
-  for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
+  for(i=0;i<zmw_nb_of_children_get(); i++)
     {
       d = ws[2*i+1].required ;
       zmw_padding_add(&d, ws[2*i+1].current_state.padding_width) ;
@@ -74,8 +75,8 @@ static void zmw_notebook_compute_required_size(Zmw_Child *ws)
   /*
    * compute total size
    */
-  ZMW_SIZE_MIN.width = ZMW_MAX(name.width, r.width) + 2*ZMW_NOTEBOOK_BORDER ;
-  ZMW_SIZE_MIN.height = name.height + r.height + 2*ZMW_NOTEBOOK_BORDER ;
+  zmw_min_width_set(ZMW_MAX(name.width, r.width) + 2*ZMW_NOTEBOOK_BORDER) ;
+  zmw_min_height_set(name.height + r.height + 2*ZMW_NOTEBOOK_BORDER) ;
 }
 
 static void zmw_notebook_children_allocated_size(Zmw_Child *ws)
@@ -85,22 +86,22 @@ static void zmw_notebook_children_allocated_size(Zmw_Child *ws)
 
   name = zmw_notebook_compute_required_label_size(ws) ;
 
-  r = ZMW_SIZE_ALLOCATED ;
-  ZMW_SIZE_ALLOCATED.height = name.height ;
-  if ( ZMW_SIZE_ALLOCATED.width > ZMW_SIZE_MIN.width )
-    ZMW_SIZE_ALLOCATED.width = ZMW_SIZE_MIN.width ;
+  r = *zmw_allocated_get() ;
+  zmw_allocated_height_set(name.height) ;
+  if ( zmw_allocated_width_get() > zmw_min_width_get() )
+    zmw_allocated_width_set(zmw_min_width_get()) ;
   zmw_hbox_children_allocated_size(Zmw_False) ;
-  ZMW_SIZE_ALLOCATED = r ;
-  for(i=0;i<ZMW_NB_OF_CHILDREN; i++)
-    ws[i*2] = ZMW_CHILDREN[i] ;
+  zmw_allocated_set(&r) ;
+  for(i=0;i<zmw_nb_of_children_get(); i++)
+    ws[i*2] = *zmw_child__size_get(i) ;
 
 
-  for(i=1;i<ZMW_NB_OF_CHILDREN*2; i += 2)
+  for(i=1;i<zmw_nb_of_children_get()*2; i += 2)
     {
-      ws[i].allocated.x = ZMW_SIZE_ALLOCATED.x + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
-      ws[i].allocated.y = ZMW_SIZE_ALLOCATED.y + name.height + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
-      ws[i].allocated.width = ZMW_SIZE_ALLOCATED.width - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
-      ws[i].allocated.height = ZMW_SIZE_ALLOCATED.height - name.height - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.x = zmw_allocated_x_get() + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.y = zmw_allocated_y_get() + name.height + ws[i].current_state.padding_width + ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.width = zmw_allocated_width_get() - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
+      ws[i].allocated.height = zmw_allocated_height_get() - name.height - 2*ws[i].current_state.padding_width - 2 * ZMW_NOTEBOOK_BORDER ;
       
     }
  
@@ -112,102 +113,130 @@ void zmw_notebook_draw(int *page)
   int label_height ;
 
   label_height = 0 ;
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i+=2)
+  for(i=0; i<zmw_nb_of_children_get(); i+=2)
     label_height = ZMW_MAX(label_height
-		       , ZMW_CHILDREN[i].allocated.height
-			 + ZMW_CHILDREN[i].current_state.padding_width
+			   , zmw_child__allocated_height_get(i)
+			   + zmw_child__padding_width_get(i)
 			   ) ;
 
   if ( *page )
     // Draw the labels background for the labels left to the current page
     zmw_draw_rectangle(Zmw_Color_Background_Pushed
 		       , Zmw_True
-		       , ZMW_SIZE_ALLOCATED.x
-		       , ZMW_SIZE_ALLOCATED.y
-		       , ZMW_CHILDREN[2**page].allocated.x
-		       - ZMW_CHILDREN[0].allocated.x
-		       , label_height + ZMW_CHILDREN[0].current_state.padding_width
+		       , zmw_allocated_x_get()
+		       , zmw_allocated_y_get()
+		       , zmw_child__allocated_x_get(2**page)
+		       - zmw_child__allocated_x_get(0)
+		       , label_height + zmw_child__padding_width_get(0)
 		       ) ;
-  if ( 2 * *page != ZMW_NB_OF_CHILDREN-2 )
+  if ( 2 * *page != zmw_nb_of_children_get()-2 )
     // Draw the labels background for the labels right to the current page
     zmw_draw_rectangle(Zmw_Color_Background_Pushed
 		       , Zmw_True
-		       , ZMW_CHILDREN[2 * *page+2].allocated.x - ZMW_CHILDREN[2 * *page+2].current_state.padding_width
-		       , ZMW_SIZE_ALLOCATED.y
-		       , ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x
-		       - ZMW_CHILDREN[2 * *page+2].allocated.x
-		       + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
-		       + 2*ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
-		       , label_height + ZMW_CHILDREN[0].current_state.padding_width
+		       , zmw_child__allocated_x_get(2 * *page+2)
+		       - zmw_child__padding_width_get(2 * *page+2)
+		       , zmw_allocated_y_get()
+		       , zmw_child__allocated_x_get(zmw_nb_of_children_get()-2)
+		       - zmw_child__allocated_x_get(2 * *page+2)
+		       + zmw_child__allocated_width_get(zmw_nb_of_children_get()-2)
+		       + 2*zmw_child__padding_width_get(zmw_nb_of_children_get()-2)
+		       , label_height + zmw_child__padding_width_get(0)
 		       ) ;
 
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i+=2)
+  for(i=0; i<zmw_nb_of_children_get(); i+=2)
     {
       if ( 2 * *page != i )
 	{
 	  /* Bottom label horizontal line */
 	  zmw_draw_line(Zmw_Color_Foreground
-			, ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
-			+ ZMW_CHILDREN[i].allocated.width
-			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
-			, ZMW_CHILDREN[i].allocated.x - ZMW_CHILDREN[i].current_state.padding_width
-			, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+			, zmw_child__allocated_x_get(i)
+			+ zmw_child__padding_width_get(i)
+			+ zmw_child__allocated_width_get(i)
+			, zmw_allocated_y_get()
+			+ label_height
+			+ zmw_child__padding_width_get(0)
+			, zmw_child__allocated_x_get(i)
+			- zmw_child__padding_width_get(i)
+			, zmw_allocated_y_get()
+			+ label_height
+			+ zmw_child__padding_width_get(0)
 			) ;
 	}
       /* label vertical line */
       zmw_draw_line(Zmw_Color_Foreground
-		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
-		    + ZMW_CHILDREN[i].allocated.width
-		    , ZMW_SIZE_ALLOCATED.y
-		    , ZMW_CHILDREN[i].allocated.x + ZMW_CHILDREN[i].current_state.padding_width
-		    + ZMW_CHILDREN[i].allocated.width
-		    , ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+		    , zmw_child__allocated_x_get(i)
+		    + zmw_child__padding_width_get(i)
+		    + zmw_child__allocated_width_get(i)
+		    , zmw_allocated_y_get()
+		    , zmw_child__allocated_x_get(i)
+		    + zmw_child__padding_width_get(i)
+		    + zmw_child__allocated_width_get(i)
+		    , zmw_allocated_y_get()
+		    + label_height
+		    + zmw_child__padding_width_get(0)
 		    ) ;
     }
 
   /* Top above label horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		, ZMW_SIZE_ALLOCATED.y
-		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
-		+ ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
-		, ZMW_SIZE_ALLOCATED.y
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		, zmw_allocated_y_get()
+		, zmw_child__allocated_x_get(zmw_nb_of_children_get()-2)
+		+ zmw_child__padding_width_get(zmw_nb_of_children_get()-2)
+		+ zmw_child__allocated_width_get(zmw_nb_of_children_get()-2)
+		, zmw_allocated_y_get()
 		) ;
   /* Left vertical line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		, ZMW_SIZE_ALLOCATED.y
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		, ZMW_SIZE_ALLOCATED.y
-		+ ZMW_SIZE_ALLOCATED.height - 1
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		, zmw_allocated_y_get()
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		, zmw_allocated_y_get()
+		+ zmw_allocated_height_get() - 1
 		) ;
   /* Bottom horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		, ZMW_SIZE_ALLOCATED.y
-		+ ZMW_SIZE_ALLOCATED.height - 1
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		+ ZMW_SIZE_ALLOCATED.width
-		, ZMW_SIZE_ALLOCATED.y + ZMW_SIZE_ALLOCATED.height - 1
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		, zmw_allocated_y_get()
+		+ zmw_allocated_height_get() - 1
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		+ zmw_allocated_width_get()
+		, zmw_allocated_y_get()
+		+ zmw_allocated_height_get() - 1
 		) ;
   /* Right vertical line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		+ ZMW_SIZE_ALLOCATED.width - 1
-		, ZMW_SIZE_ALLOCATED.y
-		+ ZMW_SIZE_ALLOCATED.height - 1
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width - 1
-		+ ZMW_SIZE_ALLOCATED.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		+ zmw_allocated_width_get() - 1
+		, zmw_allocated_y_get()
+		+ zmw_allocated_height_get() - 1
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0) - 1
+		+ zmw_allocated_width_get()
+		, zmw_allocated_y_get()
+		+ label_height
+		+ zmw_child__padding_width_get(0)
 		) ;
   /* Top right under label horizontal line */
   zmw_draw_line(Zmw_Color_Foreground
-		, ZMW_CHILDREN[0].allocated.x - ZMW_CHILDREN[0].current_state.padding_width
-		+ ZMW_SIZE_ALLOCATED.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
-		, ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.x + ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].current_state.padding_width
-		+ ZMW_CHILDREN[ZMW_NB_OF_CHILDREN-2].allocated.width
-		, ZMW_SIZE_ALLOCATED.y + label_height + ZMW_CHILDREN[0].current_state.padding_width
+		, zmw_child__allocated_x_get(0)
+		- zmw_child__padding_width_get(0)
+		+ zmw_allocated_width_get()
+		, zmw_allocated_y_get()
+		+ label_height
+		+ zmw_child__padding_width_get(0)
+		, zmw_child__allocated_x_get(zmw_nb_of_children_get()-2)
+		+ zmw_child__padding_width_get(zmw_nb_of_children_get()-2)
+		+ zmw_child__allocated_width_get(zmw_nb_of_children_get()-2)
+		, zmw_allocated_y_get()
+		+ label_height
+		+ zmw_child__padding_width_get(0)
 		) ;
 
 }
@@ -221,7 +250,7 @@ void zmw_notebook(int *page)
   Zmw_Subaction a ;
   int i ;
 
-  a = ZMW_SUBACTION ;
+  a = zmw_subaction_get() ;
 
   switch( a )
     {
@@ -230,18 +259,18 @@ void zmw_notebook(int *page)
        * Is this OK ?
        * What is an unsensible notebook ?
        */
-      ZMW_SIZE_SENSIBLE = 1 ;
+      zmw_sensitived_set(Zmw_True) ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
 
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
-	ZMW_CHILDREN[i].sensible = Zmw_True ;
+      for(i=0; i<zmw_nb_of_children_get(); i += 2)
+	zmw_child__sensitived_set(i, Zmw_True) ;
 
 
-      ZMW_REALLOC(ws, ZMW_NB_OF_CHILDREN) ;
-      memcpy(ws, ZMW_CHILDREN, sizeof(*ws)*ZMW_NB_OF_CHILDREN) ;
-      ZMW_NB_OF_CHILDREN /= 2 ;
+      ZMW_REALLOC(ws, zmw_nb_of_children_get()) ;
+      memcpy(ws, zmw_children_get(), sizeof(*ws)*zmw_nb_of_children_get()) ;
+      *zmw_nb_of_children_get_ptr() /= 2 ;
 
       switch(a)
 	{
@@ -256,8 +285,8 @@ void zmw_notebook(int *page)
 	  ZMW_ABORT ;
 	}
 
-      ZMW_NB_OF_CHILDREN *= 2 ;
-      memcpy(ZMW_CHILDREN, ws, sizeof(*ws)*ZMW_NB_OF_CHILDREN) ;
+      *zmw_nb_of_children_get_ptr() *= 2 ;
+      memcpy(zmw_children_get(), ws, sizeof(*ws)*zmw_nb_of_children_get()) ;
 
 
       if ( a == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing )
@@ -266,9 +295,9 @@ void zmw_notebook(int *page)
       break ;
     case Zmw_Input_Event:
 
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
+      for(i=0; i<zmw_nb_of_children_get(); i += 2)
 	{
-	  if ( ZMW_CHILDREN[i].activated )
+	  if ( zmw_child__activated_get(i) )
 	    *page = i/2 ;
 	}
       break ;
@@ -281,10 +310,10 @@ void zmw_notebook(int *page)
   /*
    * Invisibilise the children except one
    */
-  for(i=0; i<ZMW_NB_OF_CHILDREN; i += 2)
+  for(i=0; i<zmw_nb_of_children_get(); i += 2)
     {
       if ( 2 * *page != i)
-	ZMW_CHILDREN[i+1].invisible = 1 ;
+	zmw_child__invisible_set(i+1, Zmw_True) ;
     }
   
 }

@@ -5,6 +5,8 @@ include ../Makefile.config
 
 O=\
 	zmw_notebook.o \
+	zmw_hbox.o \
+	zmw_vbox.o \
 	zmw_box.o \
 	zmw_text.o \
 	zmw_button.o \
@@ -23,5 +25,9 @@ O=\
 	zmw_table.o
 
 lib:: $(O)
+
+zmw_vbox.c:zmw_hbox.c
+	../scripts/zmw-swap-coordinates.py <zmw_hbox.c >$@
+
 
 # DO NOT DELETE

@@ -15,7 +15,7 @@ void alignment(int *horizontal_alignment)
     {
       *horizontal_alignment = ((*horizontal_alignment + 3) % 3) - 1 ;
     }
-  ZMW_SIZE_HORIZONTAL_ALIGNMENT = *horizontal_alignment ;
+  zmw_horizontal_alignment_set(*horizontal_alignment) ;
   zmw_decorator(Zmw_Decorator_Border_Relief) ;
 }
 void resource2(void)

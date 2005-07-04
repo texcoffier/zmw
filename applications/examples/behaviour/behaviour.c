@@ -4,14 +4,17 @@
 
 void behaviour(void)
 {
-  static Zmw_Name focus[] =
-    { ZMW_NAME_UNREGISTERED("left"), ZMW_NAME_UNREGISTERED("right") } ;
+  static Zmw_Name *focus[] = {NULL, NULL} ;
   static int sensible = Zmw_True ;
   static char *text = NULL ;
   int i ;
 
   if ( text == NULL )
-    text = strdup("Edite me!") ;
+    {
+      text = strdup("Edite me!") ;
+      zmw_name_initialize(&focus[0] , "Left" ) ;
+      zmw_name_initialize(&focus[1] , "Right" ) ;
+    }
 
   ZMW(zmw_window("Behaviours"))
     {
@@ -20,11 +23,11 @@ void behaviour(void)
 	  for(i=0; i<2; i++)
 	    {
 	      if ( i == 1 )
-		zmw_sensible(sensible) ;
+		zmw_sensitive(sensible) ;
 
 	      ZMW(zmw_vbox())
 		{
-		  zmw_focus(&focus[i]) ;
+		  zmw_focus(focus[i]) ;
 
 		  zmw_button("Make right column unsensible") ;
 		  if ( zmw_activated() )

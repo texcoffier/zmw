@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 int zmw_check_button_bits(int value, int bits, int options)
 {
@@ -34,13 +35,13 @@ int zmw_check_button_bits(int value, int bits, int options)
       )
     {
     }
-  if ( !ZMW_SENSIBLE && zmw_drawing() )
+  if ( !zmw_sensitive_get() && zmw_drawing() )
     zmw_cross_draw() ;
   if ( zmw_activated() )
     {
       value ^= bits ;
       zmw_event_remove() ; // XXX
-      zmw.event_removed = Zmw_True ; // XXX
+      zmw_zmw_event_removed_set(Zmw_True) ; // XXX
     }
   return value ;
 }
@@ -92,7 +93,7 @@ int zmw_check_button_bits_with_label(int value, int bits, const char *label)
     }
   if ( a )
     {
-      ZMW_SIZE_ACTIVATED = Zmw_True ;
+      zmw_activated_set(Zmw_True) ;
       zmw_window_unpop_all() ;
     }
 

@@ -5,6 +5,7 @@
 <!ENTITY zmw "<emphasis>Zero Memory Widget</emphasis>">
 <!ENTITY ZMW "<acronym>ZMW</acronym>">
 <!ENTITY GDK "<acronym>GDK</acronym>">
+<!ENTITY API "<acronym>API</acronym>">
 <!ENTITY OpenGL "<acronym>OpenGL</acronym>">
 
 <!ENTITY examplequit SYSTEM "examples/quit/quit.sgml">
@@ -47,7 +48,7 @@
 
 <book>
   <bookinfo>
-    <title>Using the &zmw; library (&ZMW; 0.1.0)</title>
+    <title>Using the &zmw; library (&ZMW; 0.2.0)</title>
     <author>
       <firstname>Thierry</firstname>
       <surname>Excoffier</surname>
@@ -79,9 +80,10 @@
     <para>
       This library implementation is an usable prototype
       because the code is well tested. But,
-      future version of the library will not be compatible
+      future version of the library may not be compatible
       with the current one because some functions will
       be renamed.
+      The current &API; for 0.2.0 is nearly stable.
     </para>
     <para>
       All the examples in this document are real running examples,
@@ -90,6 +92,12 @@
       So you should obtain exactly the sames results,
       except if the fonts used here are unknown on your computer.
       </para>
+    <para>
+      The keyboard focus navigation does not use <keysym>Tab</keysym>
+      to change the focus but <keysym>Ctrl + Cursor keys</keysym>
+      or only the <keysym>Cursor keys</keysym> if it is not
+      used by the focused widget.
+    </para>
     <para>
       The idea of &ZMW; was born in 2001 because classic widget
       library took too much time to create/destroy widgets.
@@ -2933,10 +2941,19 @@ for example:
 	      The parameter allows to name the focus environment
 	      and to known the focused widget name.
 	       <parameter>focus</parameter> could be a pointer
-	      on a local static variable initialised to
-	      <command>ZMW_NAME_UNREGISTERED("a comment")</command>
+	      on a local static variable initialised to NULL
+              and named with the function call:
+              <command>zmw_name_initialize(&amp;focus, "a comment")</command>
 	      The focus change must be made before the first
 	      child of the container.
+              It is not recommended to have multiple focus box
+              because keyboard focus navigation will not allow
+              to go to another focus box, so focus navigation with
+              the keyboard is trapped inside the current focus box.
+              THis functionnality has been implemented to do the
+              same things than the other widget libraries but it is
+              a bad functionnality and it complexify &ZMW; code by
+              an order of magnitude.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3450,7 +3467,7 @@ for example:
 	    <para>  
 	      Return true if you can draw graphics with
 	      <acronym>GDK</acronym> on the window
-	      <varname>ZMW_WINDOW</varname>.
+	      <varname>zmw_window_id()</varname>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3566,21 +3583,21 @@ for example:
 	  <listitem>
 	    <para>
 	      <emphasis>Code computing the size needed to display the widget</emphasis>.
-	      This code set <varname>ZMW_SIZE_MIN.width</varname>
-	      and <varname>ZMW_SIZE_MIN.height</varname>.
+	      This code use <varname>zmw_min_width_set()</varname>
+	      and <varname>zmw_min_height_set()</varname>.
 	      It can use the size of its children defined in
-	      <varname>ZMW_NB_OF_CHILDREN</varname>,
-	      <varname>ZMW_CHILDREN[i].required.width</varname>,
-	      <varname>ZMW_CHILDREN[i].required.height</varname>,
-	      <varname>ZMW_CHILDREN[i].required.x</varname>,
-	      <varname>ZMW_CHILDREN[i].required.y</varname>.
+	      <varname>zmw_nb_of_children_get()</varname>,
+	      <varname>zmw_child__required_width_get(i)</varname>,
+	      <varname>zmw_child__required_height_get(i)</varname>,
+	      <varname>zmw_child__required_x_get(i)</varname>,
+	      <varname>zmw_child__required_y_get(i)</varname>.
 	      For most of the children the <varname>x</varname>
 	      and <varname>y</varname> value are equals
 	      to <constant>ZMW_VALUE_UNDEFINED</constant>
 	      because children let their parent place them.
 	      It is the container job to add the padding
 	      around the widgets
-	      <varname>ZMW_CHILDREN[i].padding_width</varname>
+	      <varname>zmw_child__padding_width_get(i)</varname>
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3591,17 +3608,20 @@ for example:
 	    <para>
 	      <emphasis>Code computing the children sizes</emphasis>.
 	      The widget use its allocated size defined
-	      in <varname>ZMW_SIZE_ALLOCATED.x</varname>,
-	      <varname>ZMW_SIZE_ALLOCATED.y</varname>,
-	      <varname>ZMW_SIZE_ALLOCATED.width</varname>,
-	      <varname>ZMW_SIZE_ALLOCATED.height</varname>,
-	      to allocate the space to its children in
-	      <varname>ZMW_CHILDREN[i].allocated</varname>.
+	      in <varname>zmw_allocated_x_get()</varname>,
+	      <varname>zmw_allocated_y_get()</varname>,
+	      <varname>zmw_allocated_width_get()</varname>,
+	      <varname>zmw_allocated_height_get()</varname>,
+	      to allocate the space to its children with
+	      <varname>zmw_child__allocated_x_set(i,)</varname>,
+	      <varname>zmw_child__allocated_y_set(i,)</varname>,
+	      <varname>zmw_child__allocated_width_set(i,)</varname>,
+	      <varname>zmw_child__allocated_height_set(i,)</varname>.
 	      The <varname>x</varname>
 	      and <varname>y</varname> values are all <emphasis>absolute</emphasis>
 	      and must be computed for the children.
 	      The widget has access to
-	      <varname>ZMW_CHILDREN[i].required</varname>
+	      <varname>zmw_child__required_get(i)</varname>
 	      in order to compute the allocated size from
 	      the required size.
 	      The required size is the minimal size modified
@@ -3767,12 +3787,15 @@ for example:
       <variablelist>
 
 	<varlistentry>
-	  <term>ZMW_NAME_UNREGISTERED("A comment")</term>
+	  <term>zmw_name_initialize(<type>Zmw_Name **</type><parameter>name</parameter>, "A comment")</term>
 	  <listitem>
 	    <para>  
 	    Any <type>Zmw_Name</type> variable must
-	    be initialised with this value.
+            is initialized to <constant>NULL</constant>
+	    and must be allocated by this call.
 	    The comment is used for debugging.
+            If the name is yet initialized, it will not be
+            initialized once more.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -3965,7 +3988,7 @@ for example:
 	  as windows or tips.
 	  To do so, it must discard children
 	  where
-	  <varname>ZMW_CHILDREN[i].used_to_compute_parent_size</varname>
+	  <function>zmw_child__used_by_its_parent_get()</function>
 	  is false.
 	</para>
       </sect2>
@@ -4133,6 +4156,18 @@ for example:
     <sect1>
       <title>Tips and tricks</title>
       <para>Some programming shortcuts.</para>
+
+      <sect2>
+	<title>Using less CPU time to speed up things</title>
+	<para>
+            By adding the private include file defining macros
+            in place of functions the program will be quicker.
+            The drawback is that if the library data structures
+            change the program must be recompiled.
+            <programlisting>#include "zmw.h"
+#include "zmw_private.h"</programlisting>
+	</para>
+      </sect2>
       
       <sect2>
 	<title>Less verbose code</title>
@@ -4287,7 +4322,7 @@ for example:
 	<title>Command line options</title>
 	<para>
 	  The command line option are retrieved from
-	  the argument list y <function>zmw_init</function>.
+	  the argument list by <function>zmw_init</function>.
 	</para>
 	<variablelist>
 

@@ -21,55 +21,56 @@
 
 #include <gdk/gdkkeysyms.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 
 static void zmw_anchor_vertical_()
 {
   zmw_focusable() ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = 2*ZMW_BORDER_WIDTH ;
-      ZMW_SIZE_MIN.height = 1 ;
-      ZMW_SIZE_SENSIBLE = 1 ;
+      zmw_min_width_set(2*zmw_border_width_get()) ;
+      zmw_min_height_set(1) ;
+      zmw_sensitived_set(1) ;
       zmw_vertical_expand(Zmw_True) ;
       break ;
 
     case Zmw_Post_Drawing:
       zmw_draw_rectangle(Zmw_Color_Border_Dark
 			 , Zmw_True
-			 , ZMW_SIZE_ALLOCATED.x
-			 , ZMW_SIZE_ALLOCATED.y
-			 , ZMW_BORDER_WIDTH
-			 , ZMW_SIZE_ALLOCATED.height
+			 , zmw_allocated_x_get()
+			 , zmw_allocated_y_get()
+			 , zmw_border_width_get()
+			 , zmw_allocated_height_get()
 			 ) ;
       zmw_draw_rectangle(Zmw_Color_Border_Light
 			 , Zmw_True
-			 , ZMW_SIZE_ALLOCATED.x + ZMW_BORDER_WIDTH
-			 , ZMW_SIZE_ALLOCATED.y
-			 , ZMW_BORDER_WIDTH
-			 , ZMW_SIZE_ALLOCATED.height
+			 , zmw_allocated_x_get() + zmw_border_width_get()
+			 , zmw_allocated_y_get()
+			 , zmw_border_width_get()
+			 , zmw_allocated_height_get()
 			 ) ;
       if ( zmw_focused() )
 	{
 	  zmw_draw_rectangle(Zmw_Color_Border_Dark
 			     , Zmw_True
-			     , ZMW_SIZE_ALLOCATED.x - (2*ZMW_BORDER_WIDTH)/2
-			     , ZMW_SIZE_ALLOCATED.y
-			     + ZMW_SIZE_ALLOCATED.height/2
-			     - (3*ZMW_BORDER_WIDTH)/2
-			     , 3*ZMW_BORDER_WIDTH
-			     , 3*ZMW_BORDER_WIDTH
+			     , zmw_allocated_x_get() - (2*zmw_border_width_get())/2
+			     , zmw_allocated_y_get()
+			     + zmw_allocated_height_get()/2
+			     - (3*zmw_border_width_get())/2
+			     , 3*zmw_border_width_get()
+			     , 3*zmw_border_width_get()
 			     ) ;
 	  zmw_draw_rectangle(Zmw_Color_Border_Light
 			     , Zmw_True
-			     , ZMW_SIZE_ALLOCATED.x - ZMW_BORDER_WIDTH/2
-			     , ZMW_SIZE_ALLOCATED.y
-			     + ZMW_SIZE_ALLOCATED.height/2
-			     - (2*ZMW_BORDER_WIDTH)/2
-			     , 2*ZMW_BORDER_WIDTH
-			     , 2*ZMW_BORDER_WIDTH
+			     , zmw_allocated_x_get() - zmw_border_width_get()/2
+			     , zmw_allocated_y_get()
+			     + zmw_allocated_height_get()/2
+			     - (2*zmw_border_width_get())/2
+			     , 2*zmw_border_width_get()
+			     , 2*zmw_border_width_get()
 			     ) ;
 	}
       break ;
@@ -87,26 +88,26 @@ void zmw_anchor_vertical(int *x)
 
   if ( zmw_key_pressed() )
     {
-      if ( zmw.event->key.keyval == GDK_Right )
+      if ( zmw_zmw_event_get()->key.keyval == GDK_Right )
 	{
 	  (*x)++ ;
-	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  zmw_activated_set(Zmw_True) ;
 	}
-      if ( zmw.event->key.keyval == GDK_Left )
+      if ( zmw_zmw_event_get()->key.keyval == GDK_Left )
 	{
 	  (*x)-- ;
-	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  zmw_activated_set(Zmw_True) ;
 	}
     }
 
-  if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_selected() && zmw_subaction_get() == Zmw_Input_Event )
     {
-      ZMW_SIZE_CHANGED = Zmw_True ;
-      *x = zmw.x - ZMW_PARENT_SIZE.allocated.x - 2*ZMW_SIZE_ALLOCATED.width ;
+      zmw_changed_set(Zmw_True) ;
+      *x = zmw_zmw_x_get() - zmw_parent__allocated_x_get() - 2*zmw_allocated_width_get() ;
     }
 
   // I do not know why it is necessary here, it bugs with cache
-  //  if ( ZMW_SIZE_ACTIVATED || zmw.changed )
+  //  if ( zmw_activated_get() || zmw.changed )
   //  zmw_event_remove() ;
 }
 
@@ -117,23 +118,23 @@ void zmw_anchor_vertical_float(float *x)
 
   if ( zmw_key_pressed() )
     {
-      if ( zmw.event->key.keyval == GDK_Right )
+      if ( zmw_zmw_event_get()->key.keyval == GDK_Right )
 	{
 	  *x += .01 ;
-	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  zmw_activated_set(Zmw_True) ;
 	}
-      if ( zmw.event->key.keyval == GDK_Left )
+      if ( zmw_zmw_event_get()->key.keyval == GDK_Left )
 	{
 	  *x -= .01 ;
-	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  zmw_activated_set(Zmw_True) ;
 	}
     }
 
-  if ( zmw_selected() && ZMW_SUBACTION == Zmw_Input_Event )
+  if ( zmw_selected() && zmw_subaction_get() == Zmw_Input_Event )
     {
-      ZMW_SIZE_ACTIVATED = Zmw_True ;
-      *x = (zmw.x - ZMW_PARENT_SIZE.allocated.x)
-	/ (float)ZMW_PARENT_SIZE.allocated.width ;
+      zmw_activated_set(Zmw_True) ;
+      *x = (zmw_zmw_x_get() - zmw_parent__allocated_x_get())
+	/ (float)zmw_parent__allocated_width_get() ;
     }
 }
 
@@ -144,13 +145,13 @@ void zmw_anchor_vertical_float(float *x)
 
 void zmw_coordinates(int corner, int *x, int *y)
 {
-  *x = ZMW_SIZE_ALLOCATED.x
-    + ZMW_BORDER_WIDTH
-    + ((corner%3)*(ZMW_SIZE_ALLOCATED.width-2*ZMW_BORDER_WIDTH))/2
+  *x = zmw_allocated_x_get()
+    + zmw_border_width_get()
+    + ((corner%3)*(zmw_allocated_width_get()-2*zmw_border_width_get()))/2
     ;
-  *y = ZMW_SIZE_ALLOCATED.y
-    + ZMW_BORDER_WIDTH
-    + ((corner/3)*(ZMW_SIZE_ALLOCATED.height-2*ZMW_BORDER_WIDTH))/2
+  *y = zmw_allocated_y_get()
+    + zmw_border_width_get()
+    + ((corner/3)*(zmw_allocated_height_get()-2*zmw_border_width_get()))/2
     ;
 }
 
@@ -162,26 +163,26 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 
   zmw_focusable() ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      ZMW_SIZE_MIN.width = *width ;
-      ZMW_SIZE_MIN.height = *height ;
-      ZMW_SIZE_MIN.x = *x ;
-      ZMW_SIZE_MIN.y = *y ;
-      ZMW_SIZE_SENSIBLE = 1 ;
+      zmw_min_width_set(*width) ;
+      zmw_min_height_set(*height) ;
+      zmw_min_x_set(*x) ;
+      zmw_min_y_set(*y) ;
+      zmw_sensitived_set(1) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
+      for(i=0; i<zmw_nb_of_children_get(); i++)
 	{
-	  if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
+	  if ( !zmw_child__used_by_parent_get(i) )
 	    continue ;
 
-	  ZMW_CHILDREN[i].allocated = ZMW_SIZE_ALLOCATED ;
-	  zmw_padding_remove(&ZMW_CHILDREN[i].allocated
-			     , ZMW_CHILDREN[i].current_state.padding_width ) ;
+	  zmw_child__allocated_set(i,zmw_allocated_get()) ;
+	  zmw_padding_remove(zmw_child__allocated_get(i)
+			     , zmw_child__padding_width_get(i) ) ;
 	}
       break ;
     case Zmw_Post_Drawing:
@@ -190,20 +191,20 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	{
 	  zmw_draw_rectangle(Zmw_Color_Border_Dark
 			     , Zmw_False
-			     , ZMW_SIZE_ALLOCATED.x
-			     , ZMW_SIZE_ALLOCATED.y
-			     , ZMW_SIZE_ALLOCATED.width
-			     , ZMW_SIZE_ALLOCATED.height
+			     , zmw_allocated_x_get()
+			     , zmw_allocated_y_get()
+			     , zmw_allocated_width_get()
+			     , zmw_allocated_height_get()
 			     ) ;
 	  for(i=0; i<9; i++)
 	    {
 	      zmw_coordinates(i, &xx, &yy) ;
 	      zmw_draw_rectangle(Zmw_Color_Border_Dark
 				 , Zmw_False
-				 , xx-ZMW_BORDER_WIDTH
-				 , yy-ZMW_BORDER_WIDTH
-				 , ZMW_BORDER_WIDTH*2
-				 , ZMW_BORDER_WIDTH*2
+				 , xx-zmw_border_width_get()
+				 , yy-zmw_border_width_get()
+				 , zmw_border_width_get()*2
+				 , zmw_border_width_get()*2
 				 ) ;
 	    }
 	}
@@ -221,7 +222,7 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
 	  for(i=0; i<9; i++)
 	    {
 	      zmw_coordinates(i, &xx, &yy) ;
-	      if ( (zmw.x-xx)*(zmw.x-xx) + (zmw.y-yy)*(zmw.y-yy) <= 72 )
+	      if ( (zmw_zmw_x_get()-xx)*(zmw_zmw_x_get()-xx) + (zmw_zmw_y_get()-yy)*(zmw_zmw_y_get()-yy) <= 72 )
 		{
 		  corner = i ;
 		  break ;
@@ -231,12 +232,12 @@ void zmw_anchor_box_(int *x, int *y, int *width, int *height
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused())
 	{
 	  corner = -1 ;
-	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  zmw_activated_set(Zmw_True) ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
-	  nx = zmw.x - ZMW_PARENT_SIZE.allocated.x ;
-	  ny = zmw.y - ZMW_PARENT_SIZE.allocated.y ;
+	  nx = zmw_zmw_x_get() - zmw_parent__allocated_x_get() ;
+	  ny = zmw_zmw_y_get() - zmw_parent__allocated_y_get() ;
 	  switch(corner)
 	    {
 	    case 0:
@@ -310,24 +311,24 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
   int i, xx, yy, nx, ny ;
   static int corner = -1 ;
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      if ( ZMW_NB_OF_CHILDREN )
-	ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
-      ZMW_SIZE_MIN.x = *x ;
-      ZMW_SIZE_MIN.y = *y ;
-      ZMW_SIZE_SENSIBLE = 1 ;
+      if ( zmw_nb_of_children_get() )
+	zmw_min_set(zmw_child__required_get(0)) ;
+      zmw_min_x_set(*x) ;
+      zmw_min_y_set(*y) ;
+      zmw_sensitived_set(1) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
-      for(i=0; i<ZMW_NB_OF_CHILDREN; i++)
+      for(i=0; i<zmw_nb_of_children_get(); i++)
 	{
-	  if ( !ZMW_CHILDREN[i].used_to_compute_parent_size )
+	  if ( !zmw_child__used_by_parent_get(i) )
 	    continue ;
 
-	  ZMW_CHILDREN[i].allocated = ZMW_SIZE_ALLOCATED ;
+	  zmw_child__allocated_set(i,zmw_allocated_get()) ;
 	}
       break ;
     case Zmw_Post_Drawing:
@@ -336,26 +337,26 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 	{
 	  zmw_draw_rectangle(Zmw_Color_Border_Dark
 			     , Zmw_False
-			     , ZMW_SIZE_ALLOCATED.x
-			     , ZMW_SIZE_ALLOCATED.y
-			     , ZMW_SIZE_ALLOCATED.width
-			     , ZMW_SIZE_ALLOCATED.height
+			     , zmw_allocated_x_get()
+			     , zmw_allocated_y_get()
+			     , zmw_allocated_width_get()
+			     , zmw_allocated_height_get()
 			     ) ;
 
 	  zmw_coordinates(4, &xx, &yy) ;
 	  zmw_draw_rectangle(Zmw_Color_Border_Dark
 			     , Zmw_False
-			     , xx-ZMW_BORDER_WIDTH
-			     , yy-ZMW_BORDER_WIDTH
-			     , ZMW_BORDER_WIDTH*2
-			     , ZMW_BORDER_WIDTH*2
+			     , xx-zmw_border_width_get()
+			     , yy-zmw_border_width_get()
+			     , zmw_border_width_get()*2
+			     , zmw_border_width_get()*2
 			     ) ;
 	  zmw_draw_rectangle(Zmw_Color_Border_Light
 			     , Zmw_False
-			     , xx-ZMW_BORDER_WIDTH+1
-			     , yy-ZMW_BORDER_WIDTH+1
-			     , ZMW_BORDER_WIDTH*2-2
-			     , ZMW_BORDER_WIDTH*2-2
+			     , xx-zmw_border_width_get()+1
+			     , yy-zmw_border_width_get()+1
+			     , zmw_border_width_get()*2-2
+			     , zmw_border_width_get()*2-2
 			     ) ;
 	}
       break ;
@@ -370,7 +371,7 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
 	  *ix = *x ;
 	  *iy = *y ;
 	  zmw_coordinates(4, &xx, &yy) ;
-	  if ( (zmw.x-xx)*(zmw.x-xx) + (zmw.y-yy)*(zmw.y-yy) <= 512 )
+	  if ( (zmw_zmw_x_get()-xx)*(zmw_zmw_x_get()-xx) + (zmw_zmw_y_get()-yy)*(zmw_zmw_y_get()-yy) <= 512 )
 	    {
 	      corner = 4 ;
 	    }
@@ -378,14 +379,14 @@ void zmw_anchor_move_(int *x, int *y, int *ix, int *iy, Zmw_Boolean movable)
       else if ( corner != -1 && zmw_button_released_anywhere() && zmw_focused() )
 	{
 	  	  corner = -1 ;
-	  	  ZMW_SIZE_ACTIVATED = Zmw_True ;
+	  	  zmw_activated_set(Zmw_True) ;
 	}
       else if ( zmw_focused() && corner >= 0 )
 	{
-	  nx = zmw.x - ZMW_PARENT_SIZE.allocated.x ;
-	  ny = zmw.y - ZMW_PARENT_SIZE.allocated.y ;
-	  *x = nx - ZMW_SIZE_ALLOCATED.width/2 ;
-	  *y = ny - ZMW_SIZE_ALLOCATED.height/2 ;
+	  nx = zmw_zmw_x_get() - zmw_parent__allocated_x_get() ;
+	  ny = zmw_zmw_y_get() - zmw_parent__allocated_y_get() ;
+	  *x = nx - zmw_allocated_width_get()/2 ;
+	  *y = ny - zmw_allocated_height_get()/2 ;
 	  zmw_event_remove() ;
 	}
       break ;

@@ -7,18 +7,16 @@ void text_selection(void)
   int i ;
   static char *text[3] = {NULL} ;
   static int cursors[3] ;
-  static Zmw_Name focus[3] =
-    {
-      ZMW_NAME_UNREGISTERED("var1"),
-      ZMW_NAME_UNREGISTERED("var2"),
-      ZMW_NAME_UNREGISTERED("var3"),
-    } ;
+  static Zmw_Name *focus[3] = { NULL, NULL, NULL } ;
 
   if ( text[0] == NULL )
     {
       text[0] = strdup("XXXXXXXXXXXXXXXX") ;
       text[1] = strdup("YYYYYYYYYYYYYYYY") ;
       text[2] = strdup("ZZZZZZZZZZZZZZZZ") ;
+      zmw_name_initialize(&focus[0], "var1") ;
+      zmw_name_initialize(&focus[1], "var2") ;
+      zmw_name_initialize(&focus[2], "var3") ;
     }
 
   ZMW(zmw_window("Text Selection"))
@@ -29,7 +27,7 @@ void text_selection(void)
 	    {
 	      ZMW(zmw_vbox())
 		{
-		  zmw_focus(&focus[i]) ;
+		  zmw_focus(focus[i]) ;
 		  zmw_entry(&text[i]) ;
 		  zmw_entry_with_cursor(&text[i], &cursors[i]) ;
 		}

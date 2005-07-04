@@ -1,6 +1,7 @@
 #!/bin/sh
 # -*- ksh -*-
 
+echo "Compare current tree to the last development release"
 
 START=`pwd`
 cd `dirname $0`/..

@@ -1,3 +1,7 @@
+2005-07-04 (0.2.0)
+	Complete rewrite of the kernel API, in order to have :
+	The library can now be updated without recompiling external code
+
 2005-05-19 (0.1.0)
 	BEWARE : notebook page label should now be ACTIVABLE widget
 	Some function renaming

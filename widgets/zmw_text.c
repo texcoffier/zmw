@@ -19,14 +19,9 @@
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 
-/*
-
-Beware : cursor move not yet UTF8 compatible
-
-*/
-
 #include <gdk/gdkkeysyms.h>
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 #include "zmw/selection.h"
 // #include <glib/gunicode.h>
 
@@ -87,11 +82,11 @@ void zmw_text_draw_selection(int start_pos, int cursor_pos)
 	  if ( y == last.y )
 	    x_end = last.x ;
 	  else
-	    x_end = ZMW_SIZE_ALLOCATED.width ;
+	    x_end = zmw_allocated_width_get() ;
 
 	  zmw_draw_rectangle(Zmw_Color_Background_Poped, Zmw_True
-			     , ZMW_SIZE_ALLOCATED.x + x_begin
-			     , ZMW_SIZE_ALLOCATED.y + y
+			     , zmw_allocated_x_get() + x_begin
+			     , zmw_allocated_y_get() + y
 			     , x_end - x_begin
 			     , first.height
 			     ) ;
@@ -104,16 +99,16 @@ void zmw_text_draw_text(Zmw_Boolean activable, Zmw_Boolean editable)
   /*
    * Draw text normal or gray if not sensitive
    */
-  if ( (ZMW_PARENT_SIZE.sensible && ZMW_SENSIBLE) ||
+  if ( (zmw_parent__sensitived_get() && zmw_sensitive_get()) ||
        (!activable && !editable) )
     zmw_text_render(Zmw_Color_Foreground
-		    , ZMW_SIZE_ALLOCATED.x, ZMW_SIZE_ALLOCATED.y) ;  
+		    , zmw_allocated_x_get(), zmw_allocated_y_get()) ;  
   else
     {
       zmw_text_render(Zmw_Color_Border_Light
-		    , ZMW_SIZE_ALLOCATED.x-1, ZMW_SIZE_ALLOCATED.y-1) ;  
+		    , zmw_allocated_x_get()-1, zmw_allocated_y_get()-1) ;  
       zmw_text_render(Zmw_Color_Border_Dark
-		    , ZMW_SIZE_ALLOCATED.x, ZMW_SIZE_ALLOCATED.y) ;
+		    , zmw_allocated_x_get(), zmw_allocated_y_get()) ;
     }
 }
 
@@ -123,8 +118,8 @@ void zmw_text_draw_cursor(int cursor_pos)
 
   zmw_text_cursor_position(cursor_pos, &r) ;
   zmw_draw_line(Zmw_Color_Border_Light
-		, ZMW_SIZE_ALLOCATED.x + r.x, ZMW_SIZE_ALLOCATED.y + r.y
-		, ZMW_SIZE_ALLOCATED.x + r.x, ZMW_SIZE_ALLOCATED.y + r.y + r.height
+		, zmw_allocated_x_get() + r.x, zmw_allocated_y_get() + r.y
+		, zmw_allocated_x_get() + r.x, zmw_allocated_y_get() + r.y + r.height
 		) ;
 }
 
@@ -145,7 +140,7 @@ void zmw_text_selection_take(const char *text, Zmw_Name *selectionning
       strncpy(t, &text[ZMW_MIN(*start_pos, *cursor_pos)], len);
       t[len] = '\0' ;
 
-      zmw_set_selection("PRIMARY", "UTF8_STRING", *ZMW_WINDOW, t) ;
+      zmw_set_selection("PRIMARY", "UTF8_STRING", *zmw_window_get(), t) ;
     }
   zmw_name_unregister(selectionning) ;
 }
@@ -155,8 +150,8 @@ void zmw_text_cursor_set(const char *text, int *cursor_pos
 {
   int i ;
 
-  i = zmw_text_xy_to_index(zmw.x - ZMW_SIZE_ALLOCATED.x
-			   , zmw.y - ZMW_SIZE_ALLOCATED.y
+  i = zmw_text_xy_to_index(zmw_zmw_x_get() - zmw_allocated_x_get()
+			   , zmw_zmw_y_get() - zmw_allocated_y_get()
 			   ) ;
   *cursor_pos = i ;
   if ( start_pos )
@@ -171,9 +166,11 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 		     , int *cursor_pos, int *start_pos)
 {
   int x ;
-  static Zmw_Name selectionning = ZMW_NAME_UNREGISTERED("Selectionning") ;
+  static Zmw_Name *selectionning = NULL ;
   int len = strlen(*text) ;
   char *sel ;
+
+  zmw_name_initialize(&selectionning, "Selectionning") ;
 
   ZMW_ASSERT( *text != NULL ) ;
 
@@ -182,8 +179,8 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       http_printf("(%s)<BR>\n", *text) ;
     }
 
-  if ( (   ZMW_SUBACTION == Zmw_Input_Event
-	|| ZMW_SUBACTION == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing
+  if ( (   zmw_subaction_get() == Zmw_Input_Event
+	|| zmw_subaction_get() == Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing
        ) && editable )
     {
       zmw_resource_int_get(&cursor_pos, "TextCursorPos", len) ;
@@ -193,17 +190,17 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
     }
 
 
-  switch( ZMW_SUBACTION )
+  switch( zmw_subaction_get() )
     {
     case Zmw_Compute_Required_Size:
-      zmw_text_set_text( *text, &ZMW_FONT ) ;
-      zmw_text_get_size(&ZMW_SIZE_MIN.width, &ZMW_SIZE_MIN.height) ;
+      zmw_text_set_text( *text, zmw_font_get() ) ;
+      zmw_text_get_size(zmw_min_width_get_ptr(), zmw_min_height_get_ptr()) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
 
-      zmw_text_set_text( *text, &ZMW_FONT ) ;
-      if ( start_pos && !zmw_selection_have() && !zmw_name_registered(&selectionning) )
+      zmw_text_set_text( *text, zmw_font_get() ) ;
+      if ( start_pos && !zmw_selection_have() && !zmw_name_registered(selectionning) )
       	{
 	  *start_pos = -1 ;
       	}
@@ -215,16 +212,16 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       break ;
     case Zmw_Input_Event:
 
-      zmw_text_set_text( *text, &ZMW_FONT) ;
+      zmw_text_set_text( *text, zmw_font_get()) ;
       if ( !editable )
 	break ;
-      // if ( editable && zmw.event->type == GDK_KEY_PRESS ) zmw_event_dump() ;
+      // if ( editable && zmw_zmw_event_get()->type == GDK_KEY_PRESS ) zmw_event_dump() ;
 
       /*
        * Set the selection on button 1 release
        */
-      if ( zmw_button_released_anywhere() && zmw_name_is(&selectionning) )
-	zmw_text_selection_take(*text, &selectionning
+      if ( zmw_button_released_anywhere() && zmw_name_is(selectionning) )
+	zmw_text_selection_take(*text, selectionning
 				, start_pos, cursor_pos) ;
       /*
        * Position the text cursor on button 1 click
@@ -232,19 +229,19 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
        */
       if ( zmw_button_pressed() && cursor_pos && *text )
       	{
-	  if ( zmw.event->button.button == 1 )
-	    zmw_text_cursor_set(*text,cursor_pos, start_pos,&selectionning);
-	  else if ( zmw.event->button.button == 2 )
+	  if ( zmw_zmw_event_get()->button.button == 1 )
+	    zmw_text_cursor_set(*text,cursor_pos, start_pos,selectionning);
+	  else if ( zmw_zmw_event_get()->button.button == 2 )
 	    {
-	      sel = zmw_get_selection("PRIMARY", "UTF8_STRING", *ZMW_WINDOW) ;
+	      sel = zmw_get_selection("PRIMARY", "UTF8_STRING", *zmw_window_get()) ;
 	      if ( sel[0] == '\0' )
-		sel = zmw_get_selection("PRIMARY", "STRING", *ZMW_WINDOW) ;
+		sel = zmw_get_selection("PRIMARY", "STRING", *zmw_window_get()) ;
 
 	      zmw_text_insert(text, cursor_pos, start_pos, sel) ;
 	      zmw_event_remove() ;
 	    }
 	  // zmw_event_remove() ;  decorator must take this event
-	  // zmw.event_removed = 1 ;
+	  // zmw_zmw_event_removed_set(1) ;
       	}
       /*
        * Insert some key
@@ -252,55 +249,55 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       if ( 0 )
 	zmw_printf("key pressed = %d removed=%d insode=%d sensible=%d\n"
 		   , zmw_key_pressed()
-		   , zmw.event_removed
-		   , zmw_name_is_inside(ZMW_FOCUS)
-		   , ZMW_SENSIBLE
+		   , zmw_zmw_event_removed_get()
+		   , zmw_name_is_inside(zmw_focus_get())
+		   , zmw_sensitive_get()
 		   ) ;
       if ( cursor_pos && zmw_key_pressed() )
 	{
-	  if ( zmw.event->key.string[0] == '\r' )
-	    zmw.event->key.string[0] = '\n' ;
+	  if ( zmw_zmw_event_get()->key.string[0] == '\r' )
+	    zmw_zmw_event_get()->key.string[0] = '\n' ;
 
 	  x = *cursor_pos ;
 
-	  if ( zmw.event->key.keyval == GDK_BackSpace )
+	  if ( zmw_zmw_event_get()->key.keyval == GDK_BackSpace )
 	    {
 	      zmw_text_backspace(text, cursor_pos, start_pos) ;
-	      ZMW_SIZE_CHANGED = Zmw_True ;
+	      zmw_changed_set(Zmw_True) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Left )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Left )
 	    {
 	      *cursor_pos = zmw_text_previous_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Right )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Right )
 	    {
 	      *cursor_pos = zmw_text_next_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Up )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Up )
 	    {
 	      *cursor_pos = zmw_text_up_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Down )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Down )
 	    {
 	      *cursor_pos = zmw_text_down_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Home )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Home )
 	    {
 	      *cursor_pos = zmw_text_home_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_End )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_End )
 	    {
 	      *cursor_pos = zmw_text_end_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.keyval == GDK_Delete )
+	  else if ( zmw_zmw_event_get()->key.keyval == GDK_Delete )
 	    {
 	      *cursor_pos = zmw_text_delete_char(*cursor_pos) ;
 	    }
-	  else if ( zmw.event->key.string[0] )
+	  else if ( zmw_zmw_event_get()->key.string[0] )
 	    {
 	      zmw_text_insert(text, cursor_pos, start_pos
-			      , zmw.event->key.string) ;
-	      ZMW_SIZE_CHANGED = Zmw_True ;
+			      , zmw_zmw_event_get()->key.string) ;
+	      zmw_changed_set(Zmw_True) ;
 	    }  
 	  if ( x != *cursor_pos )
 	    {
@@ -308,10 +305,10 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
 	    }
 	}
 
-      if ( zmw_name_is(&selectionning) )
+      if ( zmw_name_is(selectionning) )
       	{
-	  x = zmw_text_xy_to_index(zmw.x - ZMW_SIZE_ALLOCATED.x
-				   , zmw.y - ZMW_SIZE_ALLOCATED.y
+	  x = zmw_text_xy_to_index(zmw_zmw_x_get() - zmw_allocated_x_get()
+				   , zmw_zmw_y_get() - zmw_allocated_y_get()
 				   ) ;
 	  if ( x != *start_pos )
 	    {
@@ -323,7 +320,7 @@ void zmw_text_simple(char **text, Zmw_Boolean editable, Zmw_Boolean activable
       /* An editable text is not draggable because
        * the decorator does not receive the button press
        */
-      if ( zmw_name_registered(&selectionning) && zmw.event->type == GDK_MOTION_NOTIFY
+      if ( zmw_name_registered(selectionning) && zmw_zmw_event_get()->type == GDK_MOTION_NOTIFY
 	   && editable )
 	{
 	  /* If the event is not removed, we see selection move
@@ -364,10 +361,10 @@ void zmw_entry_with_cursor_and_start(char **text, int *cursor_pos
     {
     }
 
-  ZMW_SIZE_CHANGED = changed ;
-  if ( ZMW_SIZE_CHILD_ACTIVATED )
+  zmw_changed_set(changed) ;
+  if ( zmw_children_activated_get() )
     {
-      ZMW_SIZE_ACTIVATED = Zmw_True ;
+      zmw_activated_set(Zmw_True) ;
     }
 }
 

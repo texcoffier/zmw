@@ -5,8 +5,7 @@
 /* Complex focus test */
 void focus3(void)
 {
-  static Zmw_Name focus_out = ZMW_NAME_UNREGISTERED("out") ;
-  static Zmw_Name focus_in = ZMW_NAME_UNREGISTERED("in") ;
+  static Zmw_Name *focus_out = NULL, *focus_in = NULL ;
   static char *text[4] = { NULL } ;
   int i ;
 
@@ -14,16 +13,18 @@ void focus3(void)
     {
       for(i=0; i<4; i++)
 	text[i] = strdup("?") ;
+      zmw_name_initialize(&focus_out, "out") ;
+      zmw_name_initialize(&focus_in, "in") ;
     }
 
   ZMW(zmw_window("Focus3"))
     {
-      zmw_focus(&focus_out) ;
+      zmw_focus(focus_out) ;
       ZMW(zmw_vbox())
 	{
 	  ZMW(zmw_vbox())
 	    {
-	      zmw_focus(&focus_in) ;
+	      zmw_focus(focus_in) ;
 	      zmw_entry(&text[0]) ;
 	      zmw_entry(&text[1]) ;
 	    }

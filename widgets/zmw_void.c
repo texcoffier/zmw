@@ -20,6 +20,7 @@
 */
 
 #include "zmw/zmw.h"
+#include "zmw/zmw_private.h" /* This include is only here for speed up */
 
 /*
  * Used to change attributes for a widget without the attributes going
@@ -31,43 +32,42 @@ void zmw_void()
 {
   int i, nb ;
 
-  switch(ZMW_SUBACTION)
+  switch(zmw_subaction_get())
     {
     case Zmw_Compute_Required_Size:
-      if ( ZMW_NB_OF_CHILDREN == 0 )
+      if ( zmw_nb_of_children_get() == 0 )
 	ZMW_ABORT ;
-      for(i=0, nb=0; i<ZMW_NB_OF_CHILDREN; i++)
-	if ( ZMW_CHILDREN[i].used_to_compute_parent_size )
+      for(i=0, nb=0; i<zmw_nb_of_children_get(); i++)
+	if ( zmw_child__used_by_parent_get(i) )
 	  nb++ ;
       if ( nb > 1 )
 	ZMW_ABORT ;
 
       /* Retrieve size even if not used (to please cache check) */
-      if ( ZMW_CHILDREN[0].used_to_compute_parent_size )
+      if ( zmw_child__used_by_parent_get(0) )
 	{
-	  ZMW_SIZE_MIN = ZMW_CHILDREN[0].required ;
+	  zmw_min_set(zmw_child__required_get(0)) ;
 	}
       else
 	{
 	  /* To make cache checking happy */
-	  ZMW_SIZE_MIN.width = 0 ;
-	  ZMW_SIZE_MIN.height = 0 ;
+	  zmw_min_width_set(0) ;
+	  zmw_min_height_set(0) ;
 	}
 
-      ZMW_USED_TO_COMPUTE_PARENT_SIZE
-	= ZMW_CHILDREN[0].used_to_compute_parent_size ;
+      zmw_used_by_parent_set(zmw_child__used_by_parent_get(0)) ;
       break ;
 
     case Zmw_Compute_Children_Allocated_Size_And_Pre_Drawing:
     case Zmw_Compute_Children_Allocated_Size:
-      if ( ZMW_CHILDREN[0].used_to_compute_parent_size )
+      if ( zmw_child__used_by_parent_get(0) )
 	{
-	  ZMW_CHILDREN[0].allocated = ZMW_SIZE_ALLOCATED ;
+	  zmw_child__allocated_set(0,zmw_allocated_get()) ;
 	}
       else
 	{
 	  /* Make valgrind happy ? */
-	  ZMW_CHILDREN[0].allocated = ZMW_SIZE_ALLOCATED ;
+	  zmw_child__allocated_set(0,zmw_allocated_get()) ;
 	}
       break ;
 
@@ -84,13 +84,13 @@ void zmw_if_(Zmw_Boolean visible, Zmw_Boolean recurse_on_init)
 {
   if ( ! visible )
     {
-      if ( !recurse_on_init || ZMW_CALL_NUMBER > 0)	
-	ZMW_CALL_NUMBER = 100 ;
+      if ( !recurse_on_init || zmw_call_number_get() > 0)	
+	zmw_call_number_set(100) ;
 
-      ZMW_USED_TO_COMPUTE_PARENT_SIZE = Zmw_False ;
+      zmw_used_by_parent_set(Zmw_False) ;
       /* To make valgrind happy */
-      zmw_rectangle_void(&ZMW_SIZE_MIN) ;
-      zmw_rectangle_void(&ZMW_SIZE_ALLOCATED) ;
+      zmw_rectangle_void(zmw_min_get()) ;
+      zmw_rectangle_void(zmw_allocated_get()) ;
       return ;
     }
   zmw_void() ;

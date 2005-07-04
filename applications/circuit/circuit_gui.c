@@ -45,16 +45,16 @@ void gate_output(int *output, int gate)
 
 void gate_output_coordinates(const Gate *g, int *x, int *y)
 {
-  *x = g->x + g->w + ZMW_PARENT_SIZE.allocated.x ;
+  *x = g->x + g->w + zmw_parent__allocated_x_get() ;
   if ( number_of_inputs[g->type] )
     *x += gate_width ;
-  *y = g->y + g->h/2 + ZMW_PARENT_SIZE.allocated.y ;
+  *y = g->y + g->h/2 + zmw_parent__allocated_y_get() ;
 }
 
 void gate_input_coordinates(const Gate *g, int port, int *x, int *y)
 {
-  *x = g->x + ZMW_PARENT_SIZE.allocated.x ;
-  *y = g->y + ZMW_PARENT_SIZE.allocated.y ;
+  *x = g->x + zmw_parent__allocated_x_get() ;
+  *y = g->y + zmw_parent__allocated_y_get() ;
   if ( number_of_inputs[g->type] == 1 )
     *y += g->h/2 ;
   else
@@ -74,23 +74,23 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
   ZMW(zmw_fixed())
     {
       if ( number_of_inputs[c->gates[i].type] )
-	zmw_x(gate_width - ZMW_BORDER_WIDTH) ;
+	zmw_x(gate_width - zmw_border_width_get()) ;
       else
 	zmw_x(0) ;
       zmw_y(0) ;
       zmw_border_width(0) ;
       zmw_image_from_file_activable_with_pixbuf(icones[c->gates[i].type]
 	  					, &pb[c->gates[i].type]) ;
-      icone_w = ZMW_SIZE_MIN.width ;
-      icone_h = ZMW_SIZE_MIN.height ;
+      icone_w = zmw_min_width_get() ;
+      icone_h = zmw_min_height_get() ;
 
       if ( s == Change_Input && c->gates[i].type == Gate_Value
 	   && zmw_activated() )
 	circuit_gate_switch_state(c, i) ;
       if ( zmw_drawing() )
 	{
-	  c->gates[i].w = ZMW_SIZE_ALLOCATED.width ;
-	  c->gates[i].h = ZMW_SIZE_ALLOCATED.height ;
+	  c->gates[i].w = zmw_allocated_width_get() ;
+	  c->gates[i].h = zmw_allocated_height_get() ;
 	}
 
       zmw_border_width(2) ;
@@ -111,9 +111,9 @@ void gate_draw(Circuit *c, Type s, int i, int *input, int *output)
 	  break ;
 	}
       if ( number_of_inputs[c->gates[i].type] )
-	zmw_x(icone_w + gate_width - 2*ZMW_BORDER_WIDTH) ;
+	zmw_x(icone_w + gate_width - 2*zmw_border_width_get()) ;
       else
-	zmw_x(icone_w - 2*ZMW_BORDER_WIDTH) ;
+	zmw_x(icone_w - 2*zmw_border_width_get()) ;
       zmw_y((icone_h - gate_height)/2) ;
       gate_output(output, i) ;
 
@@ -184,7 +184,8 @@ void gate_draw_interactive_arc(Circuit *c, int *input, int *output)
 	    {
 	      gate_input_coordinates(&c->gates[*input/2], *input%2, &x1, &y1) ;
 		  
-	      zmw_draw_line(Zmw_Color_Foreground, x1, y1, zmw.x, zmw.y) ;
+	      zmw_draw_line(Zmw_Color_Foreground, x1, y1
+			    , zmw_zmw_x_get(), zmw_zmw_y_get()) ;
 	    }
 	}
     }
@@ -195,7 +196,7 @@ void gate_draw_interactive_arc(Circuit *c, int *input, int *output)
 	  {
 	    gate_output_coordinates(&c->gates[*output], &x1, &y1) ;
 		  
-	    zmw_draw_line(Zmw_Color_Foreground, x1, y1, zmw.x, zmw.y) ;
+	    zmw_draw_line(Zmw_Color_Foreground, x1, y1, zmw_zmw_x_get(), zmw_zmw_y_get()) ;
 	  }
       }
 }
@@ -251,8 +252,8 @@ void gate_area(Circuit *c, Type s)
     }
   if ( s < Change_Input && zmw_activated() )
     {	
-      circuit_gate_add(c, s, zmw.x - ZMW_SIZE_ALLOCATED.x
-		       , zmw.y - ZMW_SIZE_ALLOCATED.y) ;
+      circuit_gate_add(c, s, zmw_zmw_x_get() - zmw_allocated_x_get()
+		       , zmw_zmw_y_get() - zmw_allocated_y_get()) ;
       zmw_need_repaint() ;
     }
 }
