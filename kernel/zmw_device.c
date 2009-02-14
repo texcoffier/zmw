@@ -118,6 +118,7 @@ void zmw_draw_clip_set()
 #include <pango/pango.h>
 #include <pango/pangox.h>
 #include <gdk/gdkx.h>
+#include <gdk/gdkx.h>
 
 static PangoContext *zmw_g_context = NULL ;
 static PangoFontDescription *zmw_g_font_description ;
@@ -278,7 +279,8 @@ void zmw_text_init(int pango_cache)
 
   zmw_g_table_size = pango_cache ;
 
-  zmw_g_context = pango_x_get_context(GDK_DISPLAY());
+  // zmw_g_context = pango_x_get_context(GDK_DISPLAY());
+  zmw_g_context = gdk_pango_context_get() ;
 
   pango_context_set_language(zmw_g_context
 			     , pango_language_from_string("en_US")
@@ -329,13 +331,14 @@ void zmw_text_render(Zmw_Color c, Zmw_Position xx, Zmw_Position yy)
     {
       zmw_text_update_values() ;
       gdk_window_get_internal_paint_info(*zmw_window_get(), &d, &x, &y) ;
-      pango_x_render_layout(GDK_DISPLAY()
-			    , GDK_WINDOW_XWINDOW(d)
-			    , GDK_GC_XGC(zmw_gc_get())
-			    , zmw_g_layout
+
+      gdk_draw_layout(d
+      			, zmw_gc_get()
 			    , xx
 			    , yy
+			    , zmw_g_layout
 			    ) ;
+
     }
 }
 

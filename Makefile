@@ -162,4 +162,3 @@ cflow:
 	cflow $(ZMW_INCLUDES) $(ZMW_DEBUG) */*.c applications/*/*.c applications/examples/*/*.c | \
 	awk '/^[0-9]*\t[^\t]/ { H = /applications/ ; } H==0 { print $$0 ; }'
 
-# DO NOT DELETE

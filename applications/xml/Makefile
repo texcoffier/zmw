@@ -12,4 +12,3 @@ include ../../Makefile.config
 clean::
 	rm -f xmlgui 2>/dev/null
 
-# DO NOT DELETE

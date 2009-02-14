@@ -54,4 +54,3 @@ clean::
 	rm -f xvfb.pid */*.sgml */*.exe */*.eps */xxx* 2>/dev/null
 	if [ -f "Makefile" ] ; then $(ZMW_LOOP) $@ ; fi
 
-# DO NOT DELETE

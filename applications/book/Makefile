@@ -41,4 +41,3 @@ update-po-files:
 clean::
 	rm -f book locale/*/*/*~ locale/*/*/*.mo
 
-# DO NOT DELETE

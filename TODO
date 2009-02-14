@@ -1,11 +1,11 @@
 Many things are missing in the current library.
 The ones with a "*" are priorities.
 
-For version 0.2.1:
+For version 0.2.2:
 	* Remove zmw_private.h from zmw_notebook.c, zmw_table.c, zmw_window.c
 	* Split zmw_private.h ?
 	* Is it possible to NOT STORE not_used_by_parent widget
-          in the children table?
+          in the children table? YES : creates a table of pointers
 	  If it works many things will be simplified.
 
 For version 0.3.0:

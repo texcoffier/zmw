@@ -70,4 +70,3 @@ $(HOME)/public_html/ZMW/execution.png: execution.fig Makefile
 clean::
 	rm -f zmw.html zmw.ps 2>/dev/null
 
-# DO NOT DELETE

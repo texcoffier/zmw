@@ -116,5 +116,3 @@ update_www:
 
 include ../../Makefile.config
 
-
-# DO NOT DELETE

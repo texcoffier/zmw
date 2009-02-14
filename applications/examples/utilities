@@ -14,6 +14,8 @@ then
   SMALL2=200
 fi
 
+X=0
+Y=0
 
 zmw_small_scale() {
 SAVE_SMALL1=$SMALL1
@@ -44,6 +46,9 @@ export KEY_ESCAPE=49
 export KEY_TAB=50
 export KEY_DOWN=51
 export KEY_RIGHT=52
+export KEY_PLUS=53
+export KEY_F11=54
+export KEY_W=55
 
 
 start_xvfb() {
@@ -88,11 +93,13 @@ start_xvfb() {
   # Define the keyboard
   xmodmap -display $ZMW_XVFB -e "keycode $KEY_A = a" \
    -e "keycode $KEY_B = b" \
+   -e "keycode $KEY_W = w" \
    -e "keycode $KEY_SLASH = slash" \
    -e "keycode $KEY_LEFT = Left" \
    -e "keycode $KEY_BACKSPACE = BackSpace" \
    -e "keycode $KEY_CONTROL = Control_L" \
    -e "keycode $KEY_F1 = F1" \
+   -e "keycode $KEY_F11 = F11" \
    -e "keycode $KEY_PAGEUP = Prior" \
    -e "keycode $KEY_ALT = Alt_L" \
    -e "keycode $KEY_META = Meta_L" \
@@ -102,6 +109,7 @@ start_xvfb() {
    -e "keycode $KEY_TAB = Tab" \
    -e "keycode $KEY_DOWN = Down" \
    -e "keycode $KEY_RIGHT = Right" \
+   -e "keycode $KEY_PLUS = plus" \
    -e "clear Lock" \
    -e "clear Shift" \
    -e "clear Mod1" \
@@ -114,8 +122,21 @@ start_xvfb() {
    -e "add Mod1 = Alt_L" \
    -e "add Mod2 = Meta_L" \
    -e "add Control = Control_L"
-  fvwm2 -display $ZMW_XVFB -f `pwd`/.fvwm2rc &
+
+   cat >xxx.fvwm2rc <<%
+ColormapFocus FollowsMouse
+
+WindowFont              -misc-fixed-medium-r-normal-*-14-*-*-*-*-*-iso8859-1
+
+# Key Tab         A       N       CursorMove 50 50
+# Style "*"           BorderWidth 3, HandleWidth 5
+%
+
+  fvwm2 -display $ZMW_XVFB -f $(pwd)/xxx.fvwm2rc 2>&1 |
+                grep -v "<<WARNING>> Couldn't load image" &
   sleep 1
+  rm xxx.fvwm2rc
+  xnee_loop
 }
 
 stop_xvfb() {
@@ -126,12 +147,41 @@ stop_xvfb() {
     echo "Stopping X11 server: $ZMW_XVFB_PID"
     kill "$ZMW_XVFB_PID" >/dev/null 2>&1
   fi
+  touch xxx.xnee_stop
 }
 
+xnee_loop() {
+  rm xxx.xnee_stop xxx.xnee
+  while [ ! -f xxx.xnee_stop ]
+    do
+      if [ -f xxx.xnee ]
+      then
+	  cat xxx.xnee
+	  rm xxx.xnee
+      fi
+      sleep 0.1
+  done | 
+  (
+  if [ "" = "$(xnee --help | grep -e --no-resolution-adjustment)" ]
+    then
+      xnee --display $ZMW_XVFB --replay 2>&1
+      else
+      xnee --display $ZMW_XVFB --replay --no-resolution-adjustment 2>&1
+    fi
+  ) |
+  sed 's/.*/XNEE:&/' &
+}
+
+ZMW_COUNTER="1000"
 
 zmw_send() {
-    echo "$1,0,1001
-0,6,$X,$Y,0,0,0,1002" | xnee --replay  2>/dev/null >/dev/null
+  while [ -f "xxx.xnee" ]
+  do
+    sleep 0.01
+  done
+  echo "$1,0,$ZMW_COUNTER
+0,6,$X,$Y,0,0,0,$(expr $ZMW_COUNTER + 1)" > xxx.xnee
+  ZMW_COUNTER=$(expr $ZMW_COUNTER + 2)
 }
 
 zmw_move_cursor_to() {

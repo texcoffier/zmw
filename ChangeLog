@@ -1,3 +1,7 @@
+2009-02-14 (0.2.1)
+	Small update in order to have working 'texts' with newer GDK version
+	Regression tests are broken by the new texts. No time to fix them.
+	
 2005-07-04 (0.2.0)
 	Complete rewrite of the kernel API, in order to have :
 	The library can now be updated without recompiling external code

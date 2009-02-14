@@ -7,4 +7,3 @@ O=socket.o http.o selection.o
 
 lib:: $(O)
 
-# DO NOT DELETE

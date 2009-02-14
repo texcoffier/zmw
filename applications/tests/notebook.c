@@ -138,7 +138,7 @@ void window_page()
 
 void test_notebook(const char *title)
 {
-  static int p = 0 ;
+  static int p = 0 ; // Visible page
 
   zmw_horizontal_expand(0) ;
 

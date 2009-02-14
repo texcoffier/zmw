@@ -19,5 +19,3 @@ O=	zmw.o \
 
 lib:: $(O)
 
-
-# DO NOT DELETE

@@ -12,5 +12,3 @@ clean::
 	rm -f circuit 2>/dev/null
 	rm -rf PNG/.xvpics 2>/dev/null
 
-
-# DO NOT DELETE

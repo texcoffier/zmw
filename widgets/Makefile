@@ -29,5 +29,3 @@ lib:: $(O)
 zmw_vbox.c:zmw_hbox.c
 	../scripts/zmw-swap-coordinates.py <zmw_hbox.c >$@
 
-
-# DO NOT DELETE

@@ -16,5 +16,3 @@ include ../Makefile.config
 clean::
 	rm -f main main_sb main_trace 2>/dev/null
 
-
-# DO NOT DELETE
