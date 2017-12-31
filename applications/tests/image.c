@@ -88,7 +88,8 @@ void test_image(const char *title)
     while ( something_to_read(images) )
       {
 	ZMW_REALLOC(image_names, nb_images+1) ;
-	fgets(buf, sizeof(buf), images) ;
+	if ( fgets(buf, sizeof(buf), images) == NULL )
+	  abort() ;
 	buf[strlen(buf)-1] = '\0' ;
 	image_names[nb_images] = strdup(buf) ;
 	nb_images++ ;

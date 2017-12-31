@@ -82,7 +82,7 @@ void zmw_set_locale()
 char *zmw_get_selection(const char *source, const char *content
 			, GdkWindow *ww)
 {
-  static guchar *last ;
+  static gchar *last ;
   int format ;
   GdkAtom atom_returned, a_source, a_content  ;
 
@@ -102,7 +102,7 @@ char *zmw_get_selection(const char *source, const char *content
   if ( last )
     g_free(last) ;
 
-  gdk_selection_property_get(ww, &last, &atom_returned, &format) ;
+  gdk_selection_property_get(ww, (guchar**)&last, &atom_returned, &format) ;
   
 
   if ( format != 8 )
@@ -121,7 +121,7 @@ char *zmw_get_selection(const char *source, const char *content
   if ( strcmp(content, "STRING") == 0 )
     {
       char *out ;
-      int bytes_read, bytes_written ;
+      unsigned int bytes_read, bytes_written ;
       
       zmw_set_locale() ;
       
@@ -186,7 +186,7 @@ int zmw_handle_selection(GdkEvent *e)
 
        if ( s->target == GDK_TARGET_STRING )
 	 {
-	   int bytes_read, bytes_written ;
+	   unsigned int bytes_read, bytes_written ;
 
 	   zmw_set_locale() ;
 	   text_to_send = g_locale_from_utf8(global_text, -1, &bytes_read
@@ -214,7 +214,7 @@ int zmw_handle_selection(GdkEvent *e)
 		       gdk_x11_atom_to_xatom(s->target),
 		       8,
 		       PropModeReplace,
-		       text_to_send,
+		       (unsigned char*)text_to_send,
 		       strlen(text_to_send)
 		      ) ;
      }

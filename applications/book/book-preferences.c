@@ -85,13 +85,13 @@ static void color_load(float *c, xmlNodePtr n)
 {
   char *value ;
 
-  value = xmlGetProp(n, "r") ;
+  value = (char*)xmlGetProp(n, (xmlChar *)"r") ;
   if ( value )
     c[0] = atof(value) ;
-  value = xmlGetProp(n, "g") ;
+  value = (char*)xmlGetProp(n, (xmlChar *)"g") ;
   if ( value )
     c[1] = atof(value) ;
-  value = xmlGetProp(n, "b") ;
+  value = (char*)xmlGetProp(n, (xmlChar *)"b") ;
   if ( value )
     c[2] = atof(value) ;
 }
@@ -106,32 +106,33 @@ void prefs_load(Library_GUI *gui, const char *filename)
   doc = xmlParseFile(filename) ;
   for(n = xmlDocGetRootElement(doc)->xmlChildrenNode ; n; n = n->next)
     {
-      if ( strcmp("column", n->name) == 0 )
+      if ( strcmp("column", (char*)n->name) == 0 )
 	{
-	  i = column_name_to_index(gui->prefs.cols, xmlGetProp(n, "name")) ;
+	  i = column_name_to_index(gui->prefs.cols,
+	                          (char*)xmlGetProp(n, (xmlChar *)"name")) ;
 
-	  value = xmlGetProp(n, "width") ;
+	  value = (char*)xmlGetProp(n, (xmlChar *)"width") ;
 	  if ( value )
 	    gui->prefs.cols[i].width = atoi(value) ;
 
-	  value = xmlGetProp(n, "visible") ;
+	  value = (char*)xmlGetProp(n, (xmlChar *)"visible") ;
 	  if ( value )
 	    gui->prefs.cols[i].visible = atoi(value) ;
 
-	  value = xmlGetProp(n, "default") ;
+	  value = (char*)xmlGetProp(n, (xmlChar *)"default") ;
 	  if ( value )
 	    {
 	      free( gui->prefs.cols[i].default_value) ;
 	      gui->prefs.cols[i].default_value = strdup(value) ;
 	    }
 	}
-      else if ( strcmp("language", n->name) == 0 )
+      else if ( strcmp("language", (char*)n->name) == 0 )
 	{
-	  gui->prefs.language = strdup(xmlGetProp(n, "name")) ;
+	  gui->prefs.language = strdup((char*)xmlGetProp(n, (xmlChar *)"name")) ;
 	}
-      else if ( strcmp("color", n->name) == 0 )
+      else if ( strcmp("color", (char*)n->name) == 0 )
 	{
-	  name = xmlGetProp(n, "name") ;
+	  name = (char*)xmlGetProp(n, (xmlChar *)"name") ;
 
 	  if ( strcmp(name, "standard") == 0 )
 	    color_load(gui->prefs.standard_color, n) ;
@@ -144,21 +145,21 @@ void prefs_load(Library_GUI *gui, const char *filename)
 	  else if ( strcmp(name, "menu") == 0 )
 	    color_load(gui->prefs.menu_color, n) ;
 	}
-      else if ( strcmp("column-order", n->name) == 0 )
+      else if ( strcmp("column-order", (char*)n->name) == 0 )
 	{
 	  i = 0 ;
 	  for(nn = n->xmlChildrenNode ; nn; nn = nn->next)
 	    {
-	      if ( strcmp(nn->name, "column-name") == 0 )
+	      if ( strcmp((char*)nn->name, "column-name") == 0 )
 		{
 		  j = column_name_to_index(gui->prefs.cols
-					   ,xmlNodeGetContent(nn)) ;
+					   ,(char*)xmlNodeGetContent(nn)) ;
 		  gui->prefs.cols[i].order = j ;
 		  i++ ;
 		}
 	    }
 	}
-      else if ( strcmp("text", n->name) == 0 )
+      else if ( strcmp("text", (char*)n->name) == 0 )
 	{
 	}
       else

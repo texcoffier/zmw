@@ -23,7 +23,6 @@
 void many_widgets(const char *title)
 {
   int i, j, k ;
-  char c[2] ;
   char tmp[99], tmp2[99] ;
   static char *t[20][20][3] = {{{NULL}}} ;
 
@@ -44,8 +43,6 @@ void many_widgets(const char *title)
     {
       ZMW(zmw_vbox())
 	{
-
-	  c[1] = '\0' ;
 	  for(j=0; j<10; j++)
 	    {
 	      sprintf(tmp, "Line=%d", j) ;

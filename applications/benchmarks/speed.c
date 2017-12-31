@@ -198,7 +198,7 @@ void many()
 	return ;
       exiting = 1 ;
 
-      nb_text = rint(pow(global_children, global_depth)) ;
+      nb_text = pow(global_children, global_depth) + 0.5 ;
 
       printf("cache size=%d\n", zmw_child_cache_size()) ;
 
@@ -241,7 +241,6 @@ void many()
 
 int main(int argc, char *argv[])
 {
-  int n ;
   double depth, epsilon ;
 
   zmw_init(&argc, &argv) ;
@@ -274,9 +273,8 @@ int main(int argc, char *argv[])
   else
     global_text = NULL ;
 
-  n = 1 << global_depth ;
   depth = global_depth / ( log(global_children) / log(2) ) ;
-  epsilon = rint(depth) - depth ;
+  epsilon = (int)(depth + 0.5) - depth ;
   if ( epsilon < -0.0001 || epsilon > 0.0001 )
     {
       fprintf(stderr, "Epsilon = %g\n", epsilon) ; 
@@ -285,9 +283,7 @@ int main(int argc, char *argv[])
       return 0 ;
     }
 
-  global_depth = rint(depth) ;
-     
-
+  global_depth = (int)(depth + 0.5) ;
 
   zmw_main(many) ;
   return 0 ;

@@ -23,7 +23,6 @@
 void box_line(int action)
 {
   static int x=80, width=80 ;
-  int a ;
 
   ZMW(zmw_hbox())
     {
@@ -64,7 +63,6 @@ void box_line(int action)
 	  zmw_name("Dragger") ;
 	  if ( action == 0 )
 	    {
-	      a = zmw_allocated_x_get() ;
 	      zmw_x(x) ;
 	      zmw_anchor_vertical(&x) ;
 	      zmw_x(ZMW_VALUE_UNDEFINED) ;
@@ -74,7 +72,6 @@ void box_line(int action)
 	  if ( action == 1 )
 	    {
 	      zmw_anchor_vertical(&width) ;
-	      a = zmw_allocated_x_get() ;
 	    }
 
 	  zmw_name("Rightbox") ;

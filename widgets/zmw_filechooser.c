@@ -179,7 +179,8 @@ void zmw_file_selection(Zmw_Boolean *visible
        */
       if ( *filename == NULL )
 	{
-	  getcwd(buf, sizeof(buf)-2) ;
+	  if ( getcwd(buf, sizeof(buf)-2) == NULL )
+	    abort() ;
 	  strcat(buf, "/") ;
 	  *filename = strdup(buf) ;
 	}

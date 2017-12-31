@@ -3,6 +3,10 @@ xxx.changed
 book
 circuit
 xmlgui
+speed
+main
+main_sb
+main_trace
 TAGS
 *.o
 *.so

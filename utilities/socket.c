@@ -68,7 +68,7 @@ int socket_open(int port)
 int socket_accept(int fildes)
 {
   struct sockaddr s ;
-  int ui ;
+  unsigned int ui ;
 
   ui = sizeof(s) ;
   return( accept(fildes,&s,&ui) ) ;

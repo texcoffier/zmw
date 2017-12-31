@@ -153,19 +153,12 @@ void zmw_image_from_file_activable(const char *filename)
 void zmw_image_dynamic_from_file_with_pixbuf(const char *filename
 				, GdkPixbuf **pb, char **old_name)
 {
-   GdkPixbuf *pixbuf ;
-	
    if ( *old_name )
     {
       if ( strcmp(filename, *old_name) != 0 )
 	{
 	  free(*old_name) ;
 	  *old_name = strdup(filename) ;
-	  pixbuf = zmw_pixbuf_get(pb) ;
-#if GLIB_MAJOR_VERSION == 1
-	  gdk_pixbuf_finalize(pixbuf) ;
-#else
-#endif
 	  zmw_pixbuf_set(pb, NULL) ;
 	}
     }
