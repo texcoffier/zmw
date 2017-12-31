@@ -46,6 +46,7 @@ clean::
                -o -name ".#*" \
                -o -name "*.bak" \
                -o -name "*.old" \
+               -o -name "*.dep" \
                \) -exec rm {} \;
 	@rm -f TAGS zmw.so
 

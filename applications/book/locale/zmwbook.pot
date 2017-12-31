@@ -1,165 +1,175 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-11-27 12:33+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-12-07 13:52+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: book-menubar.c:53 book-menubar.c:56
+#: book-menubar.c:56 book-menubar.c:59
 msgid "File"
 msgstr ""
 
-#: book-menubar.c:58
+#: book-menubar.c:61
 msgid "Load"
 msgstr ""
 
-#: book-menubar.c:61
+#: book-menubar.c:64
 msgid "Save"
 msgstr ""
 
-#: book-menubar.c:66
+#: book-menubar.c:69
 msgid "Save As"
 msgstr ""
 
-#: book-menubar.c:70
+#: book-menubar.c:73
 msgid "Preference Save"
 msgstr ""
 
-#: book-menubar.c:74
+#: book-menubar.c:77
 msgid "Quit"
 msgstr ""
 
-#: book-menubar.c:87
+#: book-menubar.c:90
 msgid "Library Load"
 msgstr ""
 
-#: book-menubar.c:98
+#: book-menubar.c:101
 msgid "Library Save As"
 msgstr ""
 
-#: book-menubar.c:108
+#: book-menubar.c:111
 msgid "Quit confirmation"
 msgstr ""
 
-#: book-menubar.c:112
+#: book-menubar.c:115
 msgid "Quit without save"
 msgstr ""
 
-#: book-menubar.c:115
+#: book-menubar.c:118
 msgid "Save and Quit"
 msgstr ""
 
-#: book-menubar.c:121
+#: book-menubar.c:124
 msgid "Cancel"
 msgstr ""
 
-#: book-menubar.c:134 book-menubar.c:137
+#: book-menubar.c:137 book-menubar.c:140
 msgid "View"
 msgstr ""
 
-#: book-menubar.c:142 book.c:480
+#: book-menubar.c:145 book.c:508
 msgid "Debug window"
 msgstr ""
 
-#: book-menubar.c:165
+#: book-menubar.c:168
 msgid "Interface colors"
 msgstr ""
 
-#: book-menubar.c:168
+#: book-menubar.c:171
 msgid "Edit colors"
 msgstr ""
 
-#: book-menubar.c:172
+#: book-menubar.c:175
 msgid "Standard"
 msgstr ""
 
-#: book-menubar.c:173
+#: book-menubar.c:176
 msgid "Tip"
 msgstr ""
 
-#: book-menubar.c:174
+#: book-menubar.c:177
 msgid "Header"
 msgstr ""
 
-#: book-menubar.c:175
+#: book-menubar.c:178
 msgid "Borrowed"
 msgstr ""
 
-#: book-menubar.c:176
+#: book-menubar.c:179
 msgid "Menu"
 msgstr ""
 
-#: book-menubar.c:185 book-menubar.c:188
+#: book-menubar.c:188 book-menubar.c:191
 msgid "New book defaults"
 msgstr ""
 
-#: book-menubar.c:210 book-menubar.c:213
+#: book-menubar.c:216 book-menubar.c:219
 msgid "Language"
 msgstr ""
 
-#: book-menubar.c:227 book-menubar.c:230
+#: book-menubar.c:243 book-menubar.c:247
 msgid "Edit"
 msgstr ""
 
-#: book-menubar.c:232
+#: book-menubar.c:249
 msgid "Add a new book"
 msgstr ""
 
-#: book-menubar.c:256
+#: book-menubar.c:263
+msgid "Clone last book"
+msgstr ""
+
+#: book-menubar.c:284
+msgid "FRENCH Semantic Len"
+msgstr ""
+
+#: book-menubar.c:314
 msgid "THIS PROGRAM IS UNFINISHED: DO NOT USE ON YOUR LIBRARY"
 msgstr ""
 
-#: book-menubar.c:283
+#: book-menubar.c:343
 msgid "Set this as a new name"
 msgstr ""
 
-#: book-preferences.c:155
+#: book-preferences.c:165
 #, c-format
 msgid "XML TAG UNKNOWN: %s\n"
 msgstr ""
 
-#: book.c:49
+#: book.c:47
 msgid "Filter on all the columns :"
 msgstr ""
 
-#: book.c:54
+#: book.c:52
 msgid "Only books containing this filter are displayed"
 msgstr ""
 
-#: book.c:59
+#: book.c:57
 msgid "Display only borrowed books"
 msgstr ""
 
-#: book.c:60
+#: book.c:58
 msgid "Display book borrowed and not yet given back"
 msgstr ""
 
-#: book.c:63
+#: book.c:61
 msgid "Display only modified books"
 msgstr ""
 
-#: book.c:64
+#: book.c:62
 msgid "If true only modified books are displayed, it disables other filters"
 msgstr ""
 
-#: book.c:93
+#: book.c:91
 msgid "Book title"
 msgstr ""
 
-#: book.c:94
+#: book.c:92
 msgid "Sort by book title"
 msgstr ""
 
-#: book.c:100 book.c:544
+#: book.c:100 book.c:589
 msgid "Author"
 msgstr ""
 
@@ -179,7 +189,7 @@ msgstr ""
 msgid "Sort by author surname"
 msgstr ""
 
-#: book.c:112 book.c:545
+#: book.c:112 book.c:590
 msgid "Borrower"
 msgstr ""
 
@@ -191,7 +201,7 @@ msgstr ""
 msgid "Sort by borrower surname"
 msgstr ""
 
-#: book.c:124 book.c:546
+#: book.c:124 book.c:591
 msgid "Collection"
 msgstr ""
 
@@ -199,7 +209,7 @@ msgstr ""
 msgid "Sort by collection"
 msgstr ""
 
-#: book.c:131 book.c:547
+#: book.c:131 book.c:592
 msgid "Number"
 msgstr ""
 
@@ -207,7 +217,7 @@ msgstr ""
 msgid "Sort by book number in collection"
 msgstr ""
 
-#: book.c:138 book.c:548
+#: book.c:138 book.c:593
 msgid "Rate"
 msgstr ""
 
@@ -215,84 +225,84 @@ msgstr ""
 msgid "Sort by book rate"
 msgstr ""
 
-#: book.c:174
+#: book.c:179
 #, c-format
 msgid "Enter a filter for %s"
 msgstr ""
 
-#: book.c:207
-msgid "Change author name for all the books"
-msgstr ""
-
-#: book.c:213
+#: book.c:222
 msgid "Change book author"
 msgstr ""
 
-#: book.c:249
-msgid "Change borrower name for all books"
+#: book.c:233
+msgid "Change author name for all the books"
 msgstr ""
 
-#: book.c:258
+#: book.c:268
 msgid "Last borrower give back the book"
 msgstr ""
 
-#: book.c:266
+#: book.c:276
 msgid "This book is borrowed by..."
 msgstr ""
 
-#: book.c:314
-msgid "Change collection name for all books"
+#: book.c:288
+msgid "Change borrower name for all books"
 msgstr ""
 
-#: book.c:321
+#: book.c:337
 msgid "Change collection"
 msgstr ""
 
-#: book.c:486
+#: book.c:347
+msgid "Change collection name for all books"
+msgstr ""
+
+#: book.c:514
 msgid "Name"
 msgstr ""
 
-#: book.c:487
+#: book.c:515
 msgid "Visible"
 msgstr ""
 
-#: book.c:488
+#: book.c:516
 msgid "Width"
 msgstr ""
 
-#: book.c:489
+#: book.c:517
 msgid "Order"
 msgstr ""
 
-#: book.c:500
+#: book.c:528
 msgid "Start:"
 msgstr ""
 
-#: book.c:502
+#: book.c:530
 msgid "#Row:"
 msgstr ""
 
-#: book.c:504
+#: book.c:532
 msgid "#Book:"
 msgstr ""
 
-#: book.c:543
+#: book.c:588
 msgid "Title"
 msgstr ""
 
-#: book.c:595
+#: book.c:650
 #, c-format
 msgid "Library: %s%s"
 msgstr ""
 
-#: book.c:596
+#: book.c:651
 msgid " (Modified)"
 msgstr ""
 
-#: book.c:611
+#: book.c:662
 msgid "Error message for book"
 msgstr ""
 
-#: book.c:612
+#: book.c:663
 msgid "Close"
 msgstr ""

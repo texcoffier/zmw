@@ -1,0 +1,12 @@
+regteststatus
+xxx.changed
+book
+circuit
+xmlgui
+TAGS
+*.o
+*.so
+*.exe
+*.mo
+*.dep
+
