@@ -1,6 +1,6 @@
 
 run_main:main
-	main --cache-size=10000 --pango-cache=10000
+	./main --cache-size=10000 --pango-cache=10000
 
 exe::main main_sb main_trace
 

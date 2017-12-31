@@ -5,13 +5,13 @@ ZMW_XML_INCLUDE=`pkg-config --cflags libxml-2.0`
 ZMW_XML_LIB=`pkg-config --libs libxml-2.0`
 
 run:exe
-	book --cache-size=10000 --pango-cache=10000
+	./book --cache-size=10000 --pango-cache=10000
 
 prof:$(ZMW_BOOK_OBJS)
 	if [ "$(ZMW_GPROF_PROFILING)" == "" ] ; then echo "Needs ZMW_PROFILING to do profiling" >&2 ; exit 1 ; fi
 	$(CC) $(ZMW_GPROF_PROFILING) ../../*/*.o *.o $(ZMW_LIBS) $(ZMW_XML_LIB)
-	a.out --cache-size=10000 --pango-cache=1000 --debug=0
-	gprof a.out
+	./a.out --cache-size=10000 --pango-cache=1000 --debug=0
+	gprof ./a.out
 
 
 book: $(ZMW_BOOK_OBJS)
