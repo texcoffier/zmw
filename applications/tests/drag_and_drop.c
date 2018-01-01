@@ -87,7 +87,7 @@ void test_drag_and_drop(const char *title)
 			  drag_from_j = -1 ;
 			  drag_from_i = -1 ;
 			}
-		      ZMW( zmw_drag_from_running() )
+		      ZMW( zmw_if( zmw_drag_from_running() ) )
 			{
 			  sprintf(buf, "%d is %s", numbers[j][i]
 				  , zmw_drag_accept_get()

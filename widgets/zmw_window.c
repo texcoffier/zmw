@@ -100,6 +100,7 @@ void zmw_window_generic(GdkWindow **w, Zmw_Popup pop
       zmw_resource_pointer_get((void**)&gc, "WindowGC", 0) ;
       if ( *w == NULL )
 	{
+	  memset(&wa, 0, sizeof(wa)) ;
 	  wa.title = "toto" ;
 	  wa.width = 350 ;
 	  wa.height = 500 ;
