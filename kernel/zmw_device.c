@@ -129,17 +129,20 @@ static char *zmw_g_text_new = NULL ;
 static Zmw_Font_Description zmw_g_font_description_old = {family: 2005} ;
 static Zmw_Font_Description zmw_g_font_description_new ;
 
-static void zmw_text_family_list()
+char** zmw_text_family_list()
 {
   int i, nb ;
   PangoFontFamily **families ;
+  char **t ;
 
   pango_context_list_families(zmw_g_context, &families, &nb) ;
+  ZMW_MALLOC(t, nb+1) ;
 
   for(i=0; i<nb; i++)
-    printf("%s\n", pango_font_family_get_name(families[i])) ;
-
+    t[i] = strdup(pango_font_family_get_name(families[i])) ;
+  t[i] = NULL ;
   g_free(families) ;
+  return t ;
 }
 
 /* The text is not duplicated */
@@ -298,9 +301,6 @@ void zmw_text_init(int pango_cache)
 				     , zmw_g_font_description);
   */
   zmw_g_layout = pango_layout_new(zmw_g_context) ;
-
-  if ( 0 )
-    zmw_text_family_list() ;
 }
 
 

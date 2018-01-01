@@ -417,6 +417,7 @@ void zmw_padding_remove(Zmw_Rectangle *r, Zmw_Width padding) ;
 /*
  * zmw_device.c
  */
+char** zmw_text_family_list() ;
 int zmw_rgb_to_int(Zmw_Float_0_1 r, Zmw_Float_0_1 g, Zmw_Float_0_1 b) ;
 void zmw_int_to_rgb(int c,Zmw_Float_0_1 *r, Zmw_Float_0_1 *g, Zmw_Float_0_1*b);
 void zmw_draw_line(Zmw_Color c, Zmw_Position x1, Zmw_Position y1
