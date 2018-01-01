@@ -109,7 +109,7 @@ make_dumps() {
     echo "r $1 $ZMW_EXECUTION_ARGS" > "xxx.gdb"
     gdb <"$GDBTTY" >"$GDBTTY" 2>&1 --command="xxx.gdb" ./$NAME.exe &
   else
-    $VALGRIND ./$NAME.exe $1 $ZMW_EXECUTION_ARGS &
+    $VALGRIND ./$NAME.exe $1 --font-family='GFS Neohellenic' $ZMW_EXECUTION_ARGS &
   fi
   # Take the pid to kill it after
   ZMWPID=$!

@@ -750,7 +750,27 @@ static void zmw_take_int_param(gint *argc, gchar ***argv, char *name
     }
 }
 
+static void zmw_take_str_param(gint *argc, gchar ***argv, char *name
+			      , char **value)
+{
+  int i ;
+
+  for(i=0; i<*argc;)
+    {
+      if ( strncmp((*argv)[i], name, strlen(name)) == 0 )
+	{
+	  *value = strdup((*argv)[i] + strlen(name) ) ;
+	  memmove(&(*argv)[i], &(*argv)[i+1], (*argc - i)*sizeof((*argv)[i])) ;
+	  fprintf(stderr, "%s%s\n", name, *value) ;
+	  (*argc)-- ;
+	}
+      else
+	i++ ;
+    }
+}
+
 static int zmw_global_timeout = 100 ;
+static char *zmw_global_font_family = "Monospace" ;
 
 void zmw_init(gint *argc, gchar ***argv)
 {
@@ -772,6 +792,7 @@ void zmw_init(gint *argc, gchar ***argv)
   zmw_take_int_param(argc,argv,"--debug="      , &zmw.run->top_level_debug) ;
   zmw_take_int_param(argc,argv,"--mstimeout="  , &zmw_global_timeout) ;
   zmw_take_int_param(argc,argv,"--pango-cache=", &pango_cache) ;
+  zmw_take_str_param(argc,argv,"--font-family=", &zmw_global_font_family) ;
 
   zmw_text_init(pango_cache) ; // Pango init
 }
@@ -804,7 +825,7 @@ void zmw_main(void (*fct)())
   zmw_allocated_y_set(0) ;
   */
 
-  zmw_font_family("fixed") ;
+  zmw_font_family(zmw_global_font_family) ;
   zmw_font_size(8) ;
   zmw_font_weight(500) ;
   zmw_font_style(Zmw_Font_Style_Normal) ;
