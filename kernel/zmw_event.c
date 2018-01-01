@@ -649,7 +649,7 @@ static void zmw_interval_distance(int pos1, int length1, int pos2, int length2
     *right_distance  = pos2 - (pos1 + length1) + 1 ;
 }
 
-static void zmw_interval_distance_debug()
+void zmw_interval_distance_debug()
 {
   int i, pos1, length1, pos2, length2, left, right, distance ;
   char buf[50] ;
