@@ -21,12 +21,12 @@ ZMW_LOOP=zmw_make() { [ -f Makefile ] && for I in */. ; do ( I=`dirname $$I` ; i
 	../regression_test
 
 test::
-	. utilities ; \
+	. ./utilities ; \
 	start_xvfb ; \
 	$(MAKE) ask regtest
 
 testwithoutquestion:
-	. utilities ; \
+	. ./utilities ; \
 	start_xvfb ; \
 	$(MAKE) noforall regtest
 

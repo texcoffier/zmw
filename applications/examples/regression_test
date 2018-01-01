@@ -107,9 +107,9 @@ make_dumps() {
   if [ "$GDBTTY" != "" ]
   then
     echo "r $1 $ZMW_EXECUTION_ARGS" > "xxx.gdb"
-    gdb <"$GDBTTY" >"$GDBTTY" 2>&1 --command="xxx.gdb" $NAME.exe &
+    gdb <"$GDBTTY" >"$GDBTTY" 2>&1 --command="xxx.gdb" ./$NAME.exe &
   else
-    $VALGRIND $NAME.exe $1 $ZMW_EXECUTION_ARGS &
+    $VALGRIND ./$NAME.exe $1 $ZMW_EXECUTION_ARGS &
   fi
   # Take the pid to kill it after
   ZMWPID=$!
@@ -122,8 +122,8 @@ make_dumps() {
   )
 }
 
-convert_ppm_to_png() { pnmtopng -compression 9 <$1 >$2 ; }
-convert_png_to_ppm() { convert $1 ppm:$2 ; }
+convert_ppm_to_png() { convert -gamma 1.0 $1 $2 ; }
+convert_png_to_ppm() { convert -gamma 1.0 $1 ppm:$2 ; }
 convert_pnm_to_ppm() { convert $1 ppm:$2 ; }
 
 
@@ -209,8 +209,6 @@ compare_all_images() {
 }
 
 (
-
-
 echo -n "$NAME"
 
 RETRIES="1 2 3 4 5 6 7 8 9 10"

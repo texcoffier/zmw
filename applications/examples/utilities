@@ -1,6 +1,18 @@
 #!/bin/sh
 # -*- ksh -*-
 
+if [ '' = "$(which fvwm2)" ]
+then
+  echo "ERROR: 'fvwm2' window manager is needed to run the tests" >&2
+  exit 1
+fi
+if [ '' = "$(which cnee)" ]
+then
+  echo "ERROR: 'cnee' is needed to run the tests" >&2
+  exit 1
+fi
+
+
 # Small time to wait before sending events
 export SMALL1=0.1
 # Time to wait before making the dump
@@ -82,7 +94,7 @@ start_xvfb() {
     fi
   done
 
-  export ZMW_XVFB=`hostname`:$ZMW_XVFBN.0
+  export ZMW_XVFB=:$ZMW_XVFBN.0
   export ZMW_XVFB_PID=$!
   echo "Starting X11 server: $ZMW_XVFB_PID"
   trap stop_xvfb 0 1 2 3
@@ -133,7 +145,10 @@ WindowFont              -misc-fixed-medium-r-normal-*-14-*-*-*-*-*-iso8859-1
 %
 
   fvwm2 -display $ZMW_XVFB -f $(pwd)/xxx.fvwm2rc 2>&1 |
-                grep -v "<<WARNING>> Couldn't load image" &
+                grep -v -F -e "<<WARNING>> Couldn't load image" \
+                           -e "[fvwm][ParseBinding]: <<ERROR>>" \
+                           -e "[fvwm][FlocaleGetFontSet]" \
+                           &
   sleep 1
   rm xxx.fvwm2rc
   xnee_loop
@@ -151,7 +166,7 @@ stop_xvfb() {
 }
 
 xnee_loop() {
-  rm xxx.xnee_stop xxx.xnee
+  rm xxx.xnee_stop xxx.xnee 2>/dev/null
   while [ ! -f xxx.xnee_stop ]
     do
       if [ -f xxx.xnee ]
@@ -161,44 +176,43 @@ xnee_loop() {
       fi
       sleep 0.1
   done | 
-  (
-  if [ "" = "$(xnee --help | grep -e --no-resolution-adjustment)" ]
-    then
-      xnee --display $ZMW_XVFB --replay 2>&1
-      else
-      xnee --display $ZMW_XVFB --replay --no-resolution-adjustment 2>&1
-    fi
-  ) |
+  cnee --display $ZMW_XVFB --replay 2>&1 |
   sed 's/.*/XNEE:&/' &
 }
 
 ZMW_COUNTER="1000"
 
 zmw_send() {
+  (
+  if [ ! -f utilities ]
+  then
+    cd ..
+  fi
   while [ -f "xxx.xnee" ]
   do
     sleep 0.01
   done
-  echo "$1,0,$ZMW_COUNTER
-0,6,$X,$Y,0,0,0,$(expr $ZMW_COUNTER + 1)" > xxx.xnee
+  echo "$1
+0,6,$X,$Y,0,0,0,$(expr $ZMW_COUNTER + 1),0,'x'" > xxx.xnee
+  )
   ZMW_COUNTER=$(expr $ZMW_COUNTER + 2)
 }
 
 zmw_move_cursor_to() {
         X="$1"
         Y="$2"
-        zmw_send "0,6,$1,$2,0,0"
+        zmw_send "7,6,$1,$2,0,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 	zmw_sleep $SMALL1
-        zmw_send "0,6,`expr $1 + 1`,$2,0,0"
+        zmw_send "7,6,`expr $1 + 1`,$2,0,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 	zmw_sleep $SMALL1
 }
 
 zmw_button_press() {
-	zmw_send "0,4,0,0,1,0"
+	zmw_send "7,4,0,0,1,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button_release() {
-	zmw_send "0,5,0,0,1,0"
+	zmw_send "7,5,0,0,1,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button_click() {
@@ -207,11 +221,11 @@ zmw_button_click() {
 }
 
 zmw_button2_press() {
-	zmw_send "0,4,0,0,2,0"
+	zmw_send "7,4,0,0,2,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button2_release() {
-	zmw_send "0,5,0,0,2,0"
+	zmw_send "7,5,0,0,2,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button2_click() {
@@ -219,11 +233,11 @@ zmw_button2_click() {
 	zmw_button2_release
 }
 zmw_key_press() {
-	zmw_send "0,2,0,0,0,$1"
+        zmw_send "7,2,0,0,0,$1,0,$ZMW_COUNTER,7,'Xnest keyboard'"
 }
 
 zmw_key_release() {
-	zmw_send "0,3,0,0,0,$1"
+        zmw_send "7,3,0,0,0,$1,0,$ZMW_COUNTER,7,'Xnest keyboard'"
 }
 
 zmw_key() {
