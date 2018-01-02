@@ -134,7 +134,7 @@ void patchwork(void)
 		    {
 		      ZMW(zmw_vbox())
 			for(i=0; i<10; i++)
-			  zmw_label("A very very very long text to be scrolled") ;
+			  zmw_label("A VERY VERY VERY very very very long text to be scrolled") ;
 		    }
 		  if ( zmw_activated() )
 		    printf("x2=%g y2=%g\n", x2, y2) ;

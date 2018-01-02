@@ -109,7 +109,9 @@ make_dumps() {
     echo "r $1 $ZMW_EXECUTION_ARGS" > "xxx.gdb"
     gdb <"$GDBTTY" >"$GDBTTY" 2>&1 --command="xxx.gdb" ./$NAME.exe &
   else
-    $VALGRIND ./$NAME.exe $1 --font-family='GFS Neohellenic' $ZMW_EXECUTION_ARGS &
+    $VALGRIND ./$NAME.exe $1 \
+                          --font-family='GFS Neohellenic' \
+			  $ZMW_EXECUTION_ARGS &
   fi
   # Take the pid to kill it after
   ZMWPID=$!
@@ -211,9 +213,7 @@ compare_all_images() {
 (
 echo -n "$NAME"
 
-RETRIES="1 2 3 4 5 6 7 8 9 10"
-# RETRIES="1 2"
-
+RETRIES="1 2 3 4 5 6 7"
 
 for N in $RETRIES
 do

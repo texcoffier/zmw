@@ -52,6 +52,7 @@ zmw_button_press
 zmw_dump_screen 1
 
 zmw_move_cursor_to 20 34
+zmw_button_release
 zmw_dump_screen 2
 
 

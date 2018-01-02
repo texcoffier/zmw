@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 53 41          # end of text 1
+zmw_move_cursor_to 41 41          # end of text 1
 zmw_dump_screen 0
 
 zmw_button_press
@@ -41,7 +41,7 @@ zmw_dump_screen 1
 zmw_button_release
 zmw_dump_screen 2
 
-zmw_move_cursor_to 34 65          # in text2
+zmw_move_cursor_to 25 65          # in text2
 zmw_button2_click
 zmw_dump_screen 3
 

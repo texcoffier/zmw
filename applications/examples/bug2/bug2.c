@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 22 36 # The editable int
+zmw_move_cursor_to 26 36 # The editable int
 zmw_dump_screen 0
 
 zmw_button_click

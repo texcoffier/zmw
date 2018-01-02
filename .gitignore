@@ -1,5 +1,4 @@
 regteststatus
-xxx*
 book
 circuit
 xmlgui
@@ -7,7 +6,9 @@ speed
 main
 main_sb
 main_trace
+fonts
 TAGS
+xxx*
 *.o
 *.so
 *.exe

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 67 51 # Application (on the left)
+zmw_move_cursor_to 50 51 # Application (on the left)
 zmw_dump_screen 0
 
 zmw_button_click
@@ -52,7 +52,7 @@ zmw_dump_screen 1
 zmw_button_click
 zmw_dump_screen 2
 
-zmw_move_cursor_to 104 79 # Resource
+zmw_move_cursor_to 72 79 # Resource
 zmw_button_click
 zmw_dump_screen 3
 

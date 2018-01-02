@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
+zmw_small_scale 2
+
 zmw_move_cursor_to 77 41 # First boutton
 zmw_dump_screen 0
 
@@ -42,7 +44,7 @@ zmw_move_cursor_to 89 65 # Second boutton
 zmw_button_click
 zmw_dump_screen 2
 
-zmw_move_cursor_to 302 77 # OK Button
+zmw_move_cursor_to 225 77 # OK Button
 zmw_button_click
 zmw_dump_screen 3
 

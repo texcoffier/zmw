@@ -62,7 +62,7 @@ zmw_move_cursor_to 115 120
 zmw_button_release
 zmw_dump_screen 1
 
-zmw_move_cursor_to 115 40 # On anchor
+zmw_move_cursor_to 121 40 # On anchor
 zmw_button_press
 zmw_move_cursor_to 78 41
 zmw_button_release

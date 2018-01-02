@@ -616,7 +616,13 @@ void event_handler(GdkEvent *e, gpointer o)
 	  break ;
       
       if ( zmw.run->top_level_debug & Zmw_Debug_Event )
-	zmw_printf("**** EVENT **** KEY_PRESS\n") ;
+	zmw_printf("**** EVENT **** KEY_PRESS state=%x(%s%s%s%s) val=%d\n",
+	           zmw.event_key.key.state,
+		   (zmw.event_key.key.state & GDK_SHIFT_MASK ? "S" : ""),
+		   (zmw.event_key.key.state & GDK_CONTROL_MASK ? "C" : ""),
+		   (zmw.event_key.key.state & GDK_MOD1_MASK ? "A" : ""),
+		   (zmw.event_key.key.state & GDK_MOD2_MASK ? "M" : ""),
+		   zmw.event_key.key.keyval) ;
       {
 	gint x, y ;
 	e->any.window = gdk_window_at_pointer(&x, &y) ;

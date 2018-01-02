@@ -74,13 +74,13 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_move_cursor_to 195 49 # button 1
+zmw_move_cursor_to 140 49 # button 1
 zmw_dump_screen 0
 
 zmw_button_click
 zmw_dump_screen 1
 
-zmw_move_cursor_to 189 78 # button 2
+zmw_move_cursor_to 130 78 # button 2
 zmw_button_click
 zmw_dump_screen 2
 

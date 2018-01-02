@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
+zmw_small_scale 2
+
 # There is a bug in drag and drop.
 # A motion is required to update the receiver state
 zmw_move_cursor_to_() {
@@ -116,29 +118,33 @@ zmw_move_cursor_to `expr $1 + 1` `expr $2 + 1`
 zmw_move_cursor_to $1 $2
 }
 
-zmw_move_cursor_to 74 49  # box0[0] = 1
+A=32
+B=100
+C=160
+
+zmw_move_cursor_to $A 49  # box0[0] = 1
 zmw_dump_screen 0
 
 zmw_button_press          #
 zmw_dump_screen 1
 
-zmw_move_cursor_to_ 117 52 # box1[0] = 2 It is not accepted
+zmw_move_cursor_to_ $B 52 # box1[0] = 2 It is not accepted
 zmw_dump_screen 2
 
-zmw_move_cursor_to_ 205 49 # box2[0] = 3 It is not accepted
+zmw_move_cursor_to_ $C 49 # box2[0] = 3 It is not accepted
 zmw_dump_screen 3
 
 zmw_button_release        # DROP not accepted
 zmw_dump_screen 4
 
-zmw_move_cursor_to 37 71  # box1[1] = 6
+zmw_move_cursor_to $A 71  # box0[1] = 6
 zmw_button_press          #
 zmw_dump_screen 5
 
-zmw_move_cursor_to_ 117 52 # box1[0] = 2 It is accepted
+zmw_move_cursor_to_ $B 52 # box1[0] = 2 It is accepted
 zmw_dump_screen 6
 
-zmw_move_cursor_to_ 205 49 # box2[0] = 3 It is accepted
+zmw_move_cursor_to_ $C 49 # box2[0] = 3 It is accepted
 zmw_dump_screen 7
 
 zmw_move_cursor_to 400 100 # Outside the windows and it is not accepted
@@ -147,33 +153,33 @@ zmw_dump_screen 8
 zmw_button_release        # DROP not accepted
 zmw_dump_screen 9
 
-zmw_move_cursor_to 74 49  # box0[0] = 1
+zmw_move_cursor_to $A 49  # box0[0] = 1
 zmw_button_press
-zmw_move_cursor_to 60 50  # box0[0] = 1
+zmw_move_cursor_to $(expr $A - 5) 50  # box0[0] = 1
 zmw_button_release        # DRAG/DROP, this change item order
 zmw_dump_screen 10
 
-zmw_move_cursor_to 205 49 # box2[0] = 3
+zmw_move_cursor_to $C 49 # box2[0] = 3
 zmw_button_press           # START DRAG
-zmw_move_cursor_to_ 60 49  # box0[0] = 6
+zmw_move_cursor_to_ $A 49  # box0[0] = 6
 zmw_button_release
 zmw_dump_screen 11
 
-zmw_move_cursor_to 205 49 # box2[0] = 6
+zmw_move_cursor_to $C 49 # box2[0] = 6
 zmw_button_press          # START DRAG
-zmw_move_cursor_to_ 117 52 # box1[0] = 2 It is accepted
+zmw_move_cursor_to_ $B 52 # box1[0] = 2 It is accepted
 zmw_button_release
 zmw_dump_screen 12
 
-zmw_move_cursor_to 117 52 # box1[0] = 2
+zmw_move_cursor_to $B 52 # box1[0] = 2
 zmw_button_press          # START DRAG
-zmw_move_cursor_to_ 74 49  # box0[0] = 6 It is accepted
+zmw_move_cursor_to_ $A 49  # box0[0] = 6 It is accepted
 zmw_button_release
 zmw_dump_screen 13
 
-zmw_move_cursor_to 136 70 # box1[1] = 6
+zmw_move_cursor_to $B 70 # box1[1] = 6
 zmw_button_press          # START DRAG
-zmw_move_cursor_to_ 208 49 # box2[0] = 9 It is accepted
+zmw_move_cursor_to_ $C 49 # box2[0] = 9 It is accepted
 zmw_button_release
 zmw_dump_screen 14
 

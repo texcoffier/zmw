@@ -8,12 +8,8 @@ If all the images are equals, then the test passes.
 
 By default, the makefile run the tests.
 If you want to test only one example you can do :
-	. utilities
-	start_xvfb  # If it is not running
-	cd the_example
-	../regression_test
-	cd ..
-	stop_xvfb   # Most of the time you will no stop it
+	rm TestDir/regteststatus
+	make test
 
 Regressions tests run one without cache option and one with,
 in any cases the result must be the same.

@@ -109,13 +109,13 @@ start_xvfb() {
    -e "keycode $KEY_SLASH = slash" \
    -e "keycode $KEY_LEFT = Left" \
    -e "keycode $KEY_BACKSPACE = BackSpace" \
-   -e "keycode $KEY_CONTROL = Control_L" \
+   -e "keycode $KEY_CONTROL = Control_L Control_R" \
    -e "keycode $KEY_F1 = F1" \
    -e "keycode $KEY_F11 = F11" \
    -e "keycode $KEY_PAGEUP = Prior" \
-   -e "keycode $KEY_ALT = Alt_L" \
-   -e "keycode $KEY_META = Meta_L" \
-   -e "keycode $KEY_SHIFT = Shift_L" \
+   -e "keycode $KEY_ALT = Alt_L Alt_R" \
+   -e "keycode $KEY_META = Meta_L Meta_R" \
+   -e "keycode $KEY_SHIFT = Shift_L Shift_R" \
    -e "keycode $KEY_UP = Up" \
    -e "keycode $KEY_ESCAPE = Escape" \
    -e "keycode $KEY_TAB = Tab" \
@@ -130,10 +130,10 @@ start_xvfb() {
    -e "clear Mod4" \
    -e "clear Mod5" \
    -e "clear Control" \
-   -e "add Shift = Shift_L" \
-   -e "add Mod1 = Alt_L" \
-   -e "add Mod2 = Meta_L" \
-   -e "add Control = Control_L"
+   -e "add Shift = Shift_L Shift_R" \
+   -e "add Mod1 = Alt_L Alt_R" \
+   -e "add Mod2 = Meta_L Meta_R" \
+   -e "add Control = Control_L Control_R"
 
    cat >xxx.fvwm2rc <<%
 ColormapFocus FollowsMouse
@@ -166,7 +166,9 @@ stop_xvfb() {
 }
 
 xnee_loop() {
-  rm xxx.xnee_stop xxx.xnee 2>/dev/null
+  rm xxx.xnee_stop xxx.xnee.full 2>/dev/null
+  echo "resolution-adjustment  0" >xxx.xnee
+
   while [ ! -f xxx.xnee_stop ]
     do
       if [ -f xxx.xnee ]
@@ -183,64 +185,70 @@ xnee_loop() {
 ZMW_COUNTER="1000"
 
 zmw_send() {
-  (
-  if [ ! -f utilities ]
-  then
-    cd ..
-  fi
-  while [ -f "xxx.xnee" ]
+  while [ -f "../xxx.xnee" ]
   do
     sleep 0.01
   done
+  echo "$1 # X=$X Y=$Y" >>../xxx.xnee.full
   echo "$1
-0,6,$X,$Y,0,0,0,$(expr $ZMW_COUNTER + 1),0,'x'" > xxx.xnee
-  )
+7,6,$X,$Y,0,0,0,$(expr $ZMW_COUNTER + 1),6,'Xnest pointer'" >../xxx.xnee
+  X=$(expr '(' $X / 2 ')' '*' 2 + 1 - $X % 2)
   ZMW_COUNTER=$(expr $ZMW_COUNTER + 2)
 }
 
 zmw_move_cursor_to() {
+        echo "zmw_move_cursor_to $*" >>../xxx.xnee.full
         X="$1"
         Y="$2"
         zmw_send "7,6,$1,$2,0,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
-	zmw_sleep $SMALL1
+	zmw_sleep $SMALL1 
         zmw_send "7,6,`expr $1 + 1`,$2,0,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
-	zmw_sleep $SMALL1
+        zmw_sleep $SMALL1
 }
 
 zmw_button_press() {
+        echo "zmw_button_press $*" >>../xxx.xnee.full
 	zmw_send "7,4,0,0,1,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button_release() {
+        echo "zmw_button_release $*" >>../xxx.xnee.full
 	zmw_send "7,5,0,0,1,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button_click() {
+        echo "zmw_button_click $*" >>../xxx.xnee.full
 	zmw_button_press
 	zmw_button_release
 }
 
 zmw_button2_press() {
+        echo "zmw_button2_press $*" >>../xxx.xnee.full
 	zmw_send "7,4,0,0,2,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button2_release() {
+        echo "zmw_button2_release $*" >>../xxx.xnee.full
 	zmw_send "7,5,0,0,2,0,0,$ZMW_COUNTER,6,'Xnest pointer'"
 }
 
 zmw_button2_click() {
+        echo "zmw_button2_click $*" >>../xxx.xnee.full
 	zmw_button2_press
 	zmw_button2_release
 }
 zmw_key_press() {
+        echo "zmw_key_press $*" >>../xxx.xnee.full
         zmw_send "7,2,0,0,0,$1,0,$ZMW_COUNTER,7,'Xnest keyboard'"
 }
 
 zmw_key_release() {
+        echo "zmw_key_release $*" >>../xxx.xnee.full
         zmw_send "7,3,0,0,0,$1,0,$ZMW_COUNTER,7,'Xnest keyboard'"
 }
 
 zmw_key() {
+    echo "zmw_key $*" >>../xxx.xnee.full
     zmw_key_press "$1"
     zmw_key_release "$1"
 }
@@ -250,6 +258,7 @@ zmw_sleep() {
 }
 
 zmw_dump_screen() {
+        echo "zmw_dump_screen $*" >>../xxx.xnee.full
 	echo -n "$1"
 	zmw_sleep $SMALL2
 	xwd -root -screen |

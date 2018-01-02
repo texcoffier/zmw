@@ -56,7 +56,7 @@ zmw_move_cursor_to 69 37        # Menu
 zmw_dump_screen 0
 
 popupmenu
-zmw_move_cursor_to 123 63 # text
+zmw_move_cursor_to 83 63 # text
 zmw_button_click
 zmw_dump_screen 1
 

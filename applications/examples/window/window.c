@@ -60,6 +60,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
+zmw_small_scale 2
+
 zmw_move_cursor_to 26 36        # Menu
 zmw_dump_screen 0
 
@@ -107,7 +109,7 @@ zmw_dump_screen 8
 
 zmw_move_cursor_to 67 88 # Submenu
 zmw_button_click
-zmw_move_cursor_to 176 92 # Detach of submenu
+zmw_move_cursor_to 115 92 # Detach of submenu
 zmw_button_click
 zmw_dump_screen 9
 

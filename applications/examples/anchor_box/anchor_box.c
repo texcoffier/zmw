@@ -36,7 +36,7 @@ zmw_dump_screen 0
 zmw_button_click
 zmw_dump_screen 1
 
-zmw_move_cursor_to 134 144 # In the center anchor
+zmw_move_cursor_to 147 152 # In the center anchor
 zmw_button_press
 zmw_dump_screen 2
 
@@ -52,19 +52,19 @@ zmw_move_cursor_to 80 90
 zmw_button_release
 zmw_dump_screen 5
 
-zmw_move_cursor_to 134 96 # upper border
+zmw_move_cursor_to 127 96 # upper border
 zmw_button_press
 zmw_move_cursor_to 10  106
 zmw_button_release
-zmw_move_cursor_to 132 186 # lower border
+zmw_move_cursor_to 129 184 # lower border
 zmw_button_press
 zmw_move_cursor_to 400 176
 zmw_button_release
-zmw_move_cursor_to 88 145 # left border
+zmw_move_cursor_to 86 140 # left border
 zmw_button_press
 zmw_move_cursor_to 98 30
 zmw_button_release
-zmw_move_cursor_to 176 146 # right border
+zmw_move_cursor_to 170 140 # right border
 zmw_button_press
 zmw_move_cursor_to 150 100
 zmw_button_release

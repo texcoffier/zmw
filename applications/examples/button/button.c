@@ -54,7 +54,7 @@ zmw_dump_screen 1
 zmw_button_release
 zmw_dump_screen 2
 
-zmw_move_cursor_to 145 140         # Bottom right
+zmw_move_cursor_to 119 140         # Bottom right
 
 zmw_key_press $KEY_CONTROL
 zmw_key $KEY_A

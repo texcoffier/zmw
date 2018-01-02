@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
-zmw_small_scale 2
+zmw_small_scale 4
 
-zmw_move_cursor_to 232 222 # Right middle of the window
+zmw_move_cursor_to 180 222 # Right middle of the window
 zmw_dump_screen 0
 
 zmw_key $KEY_A

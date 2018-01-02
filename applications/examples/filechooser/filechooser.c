@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
+zmw_small_scale 2
+
 zmw_move_cursor_to 23 37 # cursor on Load file
 zmw_dump_screen 0
 
@@ -55,7 +57,7 @@ zmw_key $KEY_A
 zmw_dump_screen 3
 
 zmw_key $KEY_BACKSPACE
-zmw_move_cursor_to 181 92 # b file
+zmw_move_cursor_to 150 92 # b file
 zmw_button_click
 zmw_dump_screen 4
 
