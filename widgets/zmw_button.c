@@ -93,7 +93,7 @@ void zmw_button_general(const char *text
 			, Zmw_Boolean display
 			)
 {
-  char buf[strlen(text)+20] ;
+  char buf[strlen(text)+40] ;
 
   zmw_button_name(text, state, character, buf) ;
   if ( zmw_action_get() == zmw_action_dispatch_accelerator )

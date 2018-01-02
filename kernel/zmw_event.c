@@ -864,7 +864,9 @@ Zmw_Boolean zmw_accelerator(GdkModifierType state, int character)
       && !zmw_zmw_event_removed_get()
       && zmw_zmw_event_get()->type == GDK_KEY_PRESS
       && toupper(zmw_zmw_event_get()->key.keyval) == toupper(character)
-      && zmw_zmw_event_get()->key.state == state
+      && (zmw_zmw_event_get()->key.state &
+           (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_MOD2_MASK)
+	   ) == state
       )
     {
       zmw_need_repaint() ;
