@@ -79,6 +79,8 @@ int main(int argc, char *argv[])
 /* DO NOT DISPLAY */
 /* REGRESSION TEST
 
+zmw_small_scale 2
+
 zmw_move_cursor_to 70 16 # Window title
 zmw_dump_screen 0
 

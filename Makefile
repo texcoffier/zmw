@@ -59,17 +59,6 @@ clean::
 
 
 ##############################################################################
-# Remove all dependencies from Makefiles
-##############################################################################
-makefile_clean:
-	find . -name "Makefile" -print | \
-	while read M ; \
-		do \
-		awk <$$M 'P!=1 {print;} /^# DO NOT DELETE/ {P=1;}' >xxx ; \
-		mv xxx $$M ; \
-		done
-
-##############################################################################
 # This file contains "pass" if the test passed
 ##############################################################################
 regteststatus:zmw.so test
@@ -94,22 +83,6 @@ regteststatus:zmw.so test
 
 
 ##############################################################################
-# Create a nightly version if regtest passed
-##############################################################################
-
-nightly_release:regteststatus makefile_clean clean
-	if [ `cat regteststatus` = "pass" -a \
-	     "" != "`find . -name '*.[ch]' -mtime -1`" ] ; \
-	then \
-	echo "Create a nightly release" ; \
-	F=`date '+WIDGET-%Y-%m-%d'` ; \
-	scripts/zmw-tar $$F >../$$F.tar.gz ; \
-	rm -f /home/exco/public_html/ZMW/WIDGET*tar.gz ; \
-	cp ../$$F.tar.gz /home/exco/public_html/ZMW ; \
-	sed <nightbuild.html >/home/exco/public_html/ZMW/nightbuild.html "s/VERSION/$$F/g" ; \
-	fi
-
-##############################################################################
 # Run benchmark
 ##############################################################################
 benchmarks:
@@ -125,12 +98,21 @@ tar:makefile_clean clean
 	fi
 
 
-new_release:tar
-	[ -d "/home/exco/public_html/ZMW" ] && cp ChangeLog /home/exco/public_html/ZMW
-	if [ -d ~/public_html/ZMW/zmw-$(ZMW_VERSION) ] ; \
-	then rm -r ~/public_html/ZMW/zmw ; \
-	     mv ~/public_html/ZMW/zmw-$(ZMW_VERSION) ~/public_html/ZMW/zmw ; \
-        fi
+new_release: regteststatus
+	echo "Check if regression tests pass"
+	[ 'pass' = $$(cat regteststatus) ]
+	echo "Check if last changes are commited"
+	[ ''     = "$$(git diff)" ]
+	ln -s . zmw-$(ZMW_VERSION)
+	git tag $(ZMW_VERSION)
+	W=$$(pwd) ; \
+	cd /home/exco/public_html/ZMW ; \
+	git clone "$$W/zmw-$(ZMW_VERSION)" ; \
+	(cd zmw-$(ZMW_VERSION) ; git update-server-info) ; \
+	mv zmw zmw-old ; \
+	mv zmw-$(ZMW_VERSION) zmw ; \
+	rm -rf zmw-old
+	rm zmw-$(ZMW_VERSION)
 
 ##############################################################################
 # Goals to execute each night
