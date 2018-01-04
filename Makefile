@@ -47,7 +47,8 @@ clean::
                -o -name "*.bak" \
                -o -name "*.old" \
                -o -name "*.dep" \
-               \) -exec rm {} \;
+               -o -name "regteststatus" \
+               \) -exec rm {} +
 	@rm -f TAGS zmw.so
 
 

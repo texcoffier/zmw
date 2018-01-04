@@ -6,4 +6,7 @@ fonts: fonts.o
 
 exe:: fonts
 
+clean::
+	rm -f fonts 2>/dev/null
+
 include ../../Makefile.config
