@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -775,7 +775,7 @@ static void zmw_take_str_param(gint *argc, gchar ***argv, char *name
     }
 }
 
-static int zmw_global_timeout = 100 ;
+static int zmw_global_timeout = 40 ;
 static char *zmw_global_font_family = "Monospace" ;
 
 void zmw_init(gint *argc, gchar ***argv)
