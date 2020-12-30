@@ -15,9 +15,9 @@ void hexa(int i, int nb_digits)
 void appearance(void)
 {
   int i, r, g, b ;
-  static char *fonts[] = { "courier",
+  static char *fonts[] = { "courrier",
 			   "fixed", "lucida", "helvetica", "times",
-			   "new century schoolbook",  "monospace", "sans" } ;
+			   "newspaper",  "monospace", "sans" } ;
 
   zmw_vertical_expand(Zmw_False) ;
   ZMW(zmw_window("Boxes"))

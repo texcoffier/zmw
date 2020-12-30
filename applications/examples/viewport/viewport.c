@@ -29,9 +29,9 @@ void viewport(void)
 	    }
 	  zmw_height(ZMW_VALUE_UNDEFINED) ;
 	  zmw_width(ZMW_VALUE_UNDEFINED) ;
-	  sprintf(tmp, "x = %g", x) ;
+	  sprintf(tmp, "x = %.6f", x) ;
 	  zmw_label(tmp) ;
-	  sprintf(tmp, "y = %g", y) ;
+	  sprintf(tmp, "y = %.6f", y) ;
 	  zmw_label(tmp) ;	  
 	}
     }
