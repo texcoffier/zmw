@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ int zmw_event_in()
 void zmw_focus(Zmw_Name *focus)
 {
   zmw_focus_set(focus) ;
-  zmw_focus_value_set((void*) ( zmw_focus_get() == zmw_zmw_focus_with_cursor_get() ) ) ;
+  zmw_focus_value_set((void*)(long)( zmw_focus_get() == zmw_zmw_focus_with_cursor_get() ) ) ;
 }
 
 

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 void test_table(const char *title)
 {
   int i ;
-  char buf[99], tip[99] ;
+  char buf[99], tip[199] ;
 
   ZMW(zmw_window(title))
     {

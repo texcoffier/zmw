@@ -2,10 +2,10 @@
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
 
-void swappable_text(char **i, int **current)
+void swappable_text(char **i, char ***current)
 {
   zmw_label(*i) ;
-  zmw_drag_swap((int*)i, current) ;
+  zmw_drag_swap((int*)i, (int**)current) ;
   ZMW( zmw_if( zmw_drag_from_running() ) )
     {
       ZMW(zmw_window_drag() )
@@ -18,7 +18,8 @@ void dragswap(void)
 {
   static int table1[] = { 1, 2, 3, 4 } ;
   static char *table2[] = { "A","B","C","D","E","F","G","H" } ;
-  static int *current1 = NULL, *current2 = NULL ;
+  static int *current1 = NULL;
+  static char **current2 = NULL ;
   int i ;
 
   ZMW(zmw_window("DragSwap"))

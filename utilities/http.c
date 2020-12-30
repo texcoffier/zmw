@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2005 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@
 static FILE *global_http ;
 static char *global_url[100] ;
 static char *global_name = NULL ;
-static int global_x, global_y, global_window, global_event ;
+static int global_x, global_y ;
+static long global_window, global_event ;
 
 
 
@@ -198,7 +199,7 @@ static char *get_name(const Zmw_Name *n)
 {
   char tmp[999] ;
 
-  sprintf(tmp, "%s: %s(%d)", n->why, n->name, (int)n->value) ;
+  sprintf(tmp, "%s: %s(%ld)", n->why, n->name, (long)n->value) ;
   return strdup(tmp) ;
 }
 

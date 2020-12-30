@@ -1,6 +1,6 @@
 /*
   ZMW: A Zero Memory Widget Library
-  Copyright (C) 2002-2005 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+  Copyright (C) 2002-2005 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -363,7 +363,7 @@ void zmw_window_update_uppers(int action)
 	if ( *s->u.menu_state & Zmw_Menu_Is_Detached )
 	  break ;
 	
-	ZMW_PRINTF("Update %d\n", zmw_state_get() - s) ;
+	ZMW_PRINTF("Update %ld\n", zmw_state_get() - s) ;
       }
 }
 /*
@@ -583,7 +583,7 @@ static void zmw_update_distance(int direction, int distance
 {
   int x, y, in ;
 
-  if ( distance >= (int)zmw.near[direction].name.value )
+  if ( distance >= (long)zmw.near[direction].name.value )
     return ;
 
   if ( 0 )
@@ -606,14 +606,14 @@ static void zmw_update_distance(int direction, int distance
     }
   if ( zmw_debug_get() & Zmw_Debug_Navigation )
     {
-      zmw_printf("YES I am nearer on %c  %d ===> %d\n"
-		 , "LRUD"[direction], (int)zmw.near[direction].name.value
+      zmw_printf("YES I am nearer on %c  %ld ===> %d\n"
+		 , "LRUD"[direction], (long)zmw.near[direction].name.value
 		 , distance) ;
     }
 
   zmw_string_copy(&zmw.near[direction].name.name, zmw_name_full) ;
 
-  zmw.near[direction].name.value = (void*)distance ;	      
+  zmw.near[direction].name.value = (void*)(long)distance ;
   zmw.near[direction].name.hash = zmw_hash_key_get() ;
   zmw.near[direction].window = *zmw_window_get() ;
   zmw.near[direction].rectangle = *current ;
@@ -1022,10 +1022,10 @@ void zmw_event_debug_window()
 
 	  for(dir=0; dir<4; dir++)
 	    {
-	      sprintf(buf, "%c name=%s distance=%d window=%p"
+	      sprintf(buf, "%c name=%s distance=%ld window=%p"
 		      , "LRUD"[dir]
 		      , zmw.near[dir].name.name
-		      , (int)zmw.near[dir].name.value
+		      , (long)zmw.near[dir].name.value
 		      , zmw.near[dir].window
 		      ) ;
 	      zmw_label(buf) ;

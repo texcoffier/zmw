@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -163,7 +163,7 @@ void page_option(int *box, int *border_width, int *padding_width
 	  for(i=0; fonts[i]; i++)
 	    {
 	      zmw_font_family( fonts[i] ) ;
-	      zmw_radio_button_with_label((int*)font_name, (int)fonts[i], fonts[i]) ;
+	      zmw_radio_button_with_label((int*)font_name, (long)fonts[i], fonts[i]) ;
 	    }
 	}
       zmw_label("Font size") ;

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2003 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ char *zmw_get_selection(const char *source, const char *content
   if ( strcmp(content, "STRING") == 0 )
     {
       char *out ;
-      unsigned int bytes_read, bytes_written ;
+      unsigned long bytes_read, bytes_written ;
       
       zmw_set_locale() ;
       
@@ -186,7 +186,7 @@ int zmw_handle_selection(GdkEvent *e)
 
        if ( s->target == GDK_TARGET_STRING )
 	 {
-	   unsigned int bytes_read, bytes_written ;
+	   unsigned long bytes_read, bytes_written ;
 
 	   zmw_set_locale() ;
 	   text_to_send = g_locale_from_utf8(global_text, -1, &bytes_read

@@ -658,7 +658,7 @@ void library()
     debug_window(&gui) ;
 
 
-  ZMW(gui.error_message[0] = (char*)zmw_message((int)gui.error_message[0],
+  ZMW(gui.error_message[0] = (char*)(long)zmw_message((long)gui.error_message[0],
 					 _("Error message for book"),
 					 _("Close")) )
     {

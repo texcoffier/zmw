@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2004 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2004 Thierry EXCOFFIER, Universitï¿½ Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -247,7 +247,7 @@ const char* zmw_name_value(Zmw_Name *n)
       return( (char*)n->value ) ;
       break ;
     case Zmw_Is_A_Resource_Int:
-      sprintf(buf, "%d", (int)n->value) ;
+      sprintf(buf, "%ld", (long)n->value) ;
       break ;
     case Zmw_Is_A_Resource_Pointer:
       sprintf(buf, "%p", n->value) ;
@@ -453,7 +453,7 @@ void zmw_name_set_value_int(const char *why, int value)
 }  
 void zmw_name_set_value_int_with_name(const char *name, const char *why, int value)
 {
-  zmw_name_register_value(name, why, (void*)value,
+  zmw_name_register_value(name, why, (void*)(long)value,
 			  Zmw_Is_A_Resource_Int) ;
 }  
 
@@ -553,7 +553,7 @@ void zmw_resource_get(void **pointer_value, const char *resource
 void zmw_resource_int_get(int **pointer_value, const char *resource
 		      , int default_value)
 {
-  zmw_resource_get((void**)pointer_value, resource, (void*)default_value
+  zmw_resource_get((void**)pointer_value, resource, (void*)(long)default_value
 		   , Zmw_Is_A_Resource_Int) ;
 }
 

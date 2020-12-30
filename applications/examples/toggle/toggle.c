@@ -1,10 +1,13 @@
 /* DO NOT DISPLAY */
 #include "zmw/zmw.h"
 /* DO NOT DISPLAY */
+
+static char *choices[] = {"None", "Bonjour", "Au revoir", "Oui"} ;
+
 void toggle(void)
 {
   static int t1 = 0, t1_change = 0, bits = 56789932 ;
-  static int radio = (int)"None" ;
+  static int radio = 0 ;
   int i ;
 
   ZMW(zmw_window("Toggle"))
@@ -34,11 +37,11 @@ void toggle(void)
 	  zmw_int_editable(&bits) ;
 
 	  /* Radio button */
-	  zmw_radio_button_with_label(&radio, (int)"Bonjour", "Hello") ;
-	  zmw_radio_button_with_label(&radio, (int)"Au revoir", "Goodbye") ;
-	  zmw_radio_button_with_label(&radio, (int)"Oui", "Yes") ;
+	  zmw_radio_button_with_label(&radio, 1, "Hello") ;
+	  zmw_radio_button_with_label(&radio, 2, "Goodbye") ;
+	  zmw_radio_button_with_label(&radio, 3, "Yes") ;
 	  zmw_label("French Translation:") ;
-	  zmw_label((char*)radio) ;
+	  zmw_label(choices[radio]) ;
 	}
     }
 }
