@@ -19,7 +19,7 @@
   Contact: Thierry.EXCOFFIER@liris.univ-lyon1.fr
 */
 /*
- * Créé le Sun Oct 12 15:22:18 2003 par Thierry EXCOFFIER
+ * CrÃ©Ã© le Sun Oct 12 15:22:18 2003 par Thierry EXCOFFIER
  */
 
 #ifndef _HOME_EXCO_HOME_SRC_BIB2_APP_BIBLIO_H

@@ -1,6 +1,6 @@
 /*
     ZMW: A Zero Memory Widget Library
-    Copyright (C) 2002-2003 Thierry EXCOFFIER, Université Claude Bernard, LIRIS
+    Copyright (C) 2002-2003 Thierry EXCOFFIER, UniversitÃ© Claude Bernard, LIRIS
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 */
 
 /*
- * Créé le Wed Dec 19 21:44:36 2001 par Thierry EXCOFFIER
+ * CrÃ©Ã© le Wed Dec 19 21:44:36 2001 par Thierry EXCOFFIER
  */
 
 #ifndef _HOME_EXCO_HOME_ZMW_SOCKET_H

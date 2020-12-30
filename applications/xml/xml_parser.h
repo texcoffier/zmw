@@ -1,5 +1,5 @@
 /*
- * Créé le Sat Jul 31 21:52:56 2004 par Thierry EXCOFFIER
+ * CrÃ©Ã© le Sat Jul 31 21:52:56 2004 par Thierry EXCOFFIER
  */
 
 #ifndef _HOME_EXCO_HOME_WIDGET_APPLICATIONS_XML_XML_PARSER_H
